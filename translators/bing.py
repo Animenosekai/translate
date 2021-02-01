@@ -76,7 +76,12 @@ class BingTranslate():
                 source_language = self.language(text)
                 if source_language is None:
                     return None
-            request = post("https://www.bing.com/texamplev3", headers=HEADERS, params=PARAMS, data={'text': str(text), 'from': str(source_language), 'to': str(destination_language)})
+            translation = self.translate(text, destination_language, source_language)
+            if translation is None:
+                return None
+            request = post("https://www.bing.com/texamplev3", headers=HEADERS, params=PARAMS, data={'text': str(text).lower(), 'from': str(source_language), 'to': str(destination_language), 'translation': str(translation).lower()})
+            print(request.text)
+            print(request.status_code)
             if request.status_code < 400:
                 return [Example(example) for example in loads(request.text)[0]["examples"]]
             else:
@@ -96,7 +101,10 @@ class BingTranslate():
                     return None
             request = post("https://www.bing.com/tspellcheckv3", headers=HEADERS, params=PARAMS, data={'text': str(text), 'fromLang': str(source_language)})
             if request.status_code < 400:
-                return loads(request.text)["correctedText"]
+                result = loads(request.text)["correctedText"]
+                if result == "":
+                    return text
+                return result
             else:
                 return None
         except:

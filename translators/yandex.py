@@ -53,9 +53,7 @@ class YandexTranslate():
         
     def refreshSID(self):
         data = get("https://translate.yandex.com/", headers=self._headers).text
-        print(data)
         sid_position = data.find("Ya.reqid = '")
-        print(sid_position)
         if sid_position == -1:
             return
         data = data[sid_position + 12:]
