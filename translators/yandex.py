@@ -1,5 +1,7 @@
 from json import loads
-from requests import get
+from requests import get, post
+from models.userAgents import USER_AGENTS
+from random import randint
 
 
 HEADERS = {
@@ -9,9 +11,8 @@ HEADERS = {
     "Cache-Control": "no-cache",
     "Connection": "keep-alive",
     "Content-Type": "application/x-www-form-urlencoded",
-    "Host": "translate.yandex.com",
     "Referer": "https://translate.yandex.com/",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36"
+    "User-Agent": "Mozilla: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.3 Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/43.4"
 }
 
 TRANSLIT_LANGS = [
@@ -46,12 +47,28 @@ class YandexTranslate():
     def __init__(self) -> None:
         self._base_url = "https://translate.yandex.net/api/v1/tr.json/"
         self._id = "1308a84a.6016deed.0c4881a2.74722d74657874-3-0"
-        data = get("https://translate.yandex.com/", headers=HEADERS).text
+        self._sid = ""
+        self._headers = self._header()
+        self.refreshSID()
+        
+    def refreshSID(self):
+        data = get("https://translate.yandex.com/", headers=self._headers).text
         print(data)
-        print(data.find("SID:"))
-        data = data[data.find("SID: '"):]
-        self._sid = data[:data.find("',")]
+        sid_position = data.find("Ya.reqid = '")
+        print(sid_position)
+        if sid_position == -1:
+            return
+        data = data[sid_position + 12:]
+        self._sid = data[:data.find("';")]
 
+    def _header(self):
+        """
+        Creates a new header
+        """
+        _dict = HEADERS
+        randomChoice = randint(0, 7499)
+        _dict.update({"User-Agent": USER_AGENTS[randomChoice]})
+        return _dict
 
     def translate(self, text, destination_language, source_language="auto"):
         """
@@ -61,7 +78,7 @@ class YandexTranslate():
             if source_language is None:
                 source_language = "auto"
             url = self._base_url + "translate?id=" + self._id + "&srv=tr-text&lang=" + str(destination_language) +"&reason=" + str(source_language) + "&format=text"
-            request = get(url, headers=HEADERS, data={'text': str(text), 'options': '4'})
+            request = get(url, headers=self._headers, data={'text': str(text), 'options': '4'})
             if request.status_code < 400 and request.json()["code"] == 200:
                 return loads(request.text)["text"][0]
             else:
@@ -78,9 +95,9 @@ class YandexTranslate():
                 source_language = self.language(text)
                 if source_language is None or source_language not in TRANSLIT_LANGS:
                     return None
-            request = get("https://translate.yandex.net/translit/translit?sid=" + self._sid + "&srv=tr-text", headers=HEADERS, data={'text': str(text), 'lang': source_language})
+            request = post("https://translate.yandex.net/translit/translit?sid=" + self._sid + "&srv=tr-text", headers=self._headers, data={'text': str(text), 'lang': source_language})
             if request.status_code < 400:
-                return request.text
+                return request.text[1:-1]
             else:
                 return None
         except:
@@ -95,7 +112,7 @@ class YandexTranslate():
                 source_language = self.language(text)
                 if source_language is None:
                     return None
-            request = get("https://speller.yandex.net/services/spellservice.json/checkText?sid=" + self._sid + "&srv=tr-text", headers=HEADERS, data={'text': str(text), 'lang': source_language, 'options': 516})
+            request = post("https://speller.yandex.net/services/spellservice.json/checkText?sid=" + self._sid + "&srv=tr-text", headers=self._headers, data={'text': str(text), 'lang': source_language, 'options': 516})
             if request.status_code < 400:
                 data = loads(request.text)
                 for correction in data:
@@ -114,13 +131,10 @@ class YandexTranslate():
             if hint is None:
                 hint = "en,ja"
             url = self._base_url + "detect?sid=" + self._sid + "&srv=tr-text&text=" + str(text) + "&options=1&hint=" + str(hint)
-            request = get(url, headers=HEADERS)
+            request = get(url, headers=self._headers)
             if request.status_code < 400 and request.json()["code"] == 200:
                 return loads(request.text)["lang"]
             else:
-                print(request.status_code)
-                print(request.json())
-                print(self._sid)
                 return None
         except:
             return None
