@@ -1,2 +1,2 @@
 # translate
- A aggregation of multiple translation APIs
+ An aggregation of multiple translation APIs
