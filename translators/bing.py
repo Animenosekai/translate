@@ -13,6 +13,37 @@ HEADERS = {
 }
 PARAMS = {'IG' : '839D27F8277F4AA3B0EDB83C255D0D70', 'IID' : 'translator.5033.3'}
 
+class Example():
+    class SourceExample():
+        def __init__(self, data) -> None:
+            self._data = data
+            self.prefix = self._data.get("sourcePrefix", "")
+            self.term = self._data.get("sourceTerm", "")
+            self.suffix = self._data.get("sourceSuffix", "")
+            self.example = self.prefix + self.term + self.suffix
+        
+        def __repr__(self) -> str:
+            return str(self.example)
+    class DestinationExample():
+        def __init__(self, data) -> None:
+            self._data = data
+            self.prefix = self._data.get("targetPrefix", "")
+            self.term = self._data.get("targetTerm", "")
+            self.suffix = self._data.get("targetSuffix", "")
+            self.example = self.prefix + self.term + self.suffix
+        
+        def __repr__(self) -> str:
+            return str(self.example)
+
+    def __init__(self, data) -> None:
+        self._data = data
+        self.source = self.SourceExample(self._data)
+        self.destination = self.DestinationExample(self._data)
+
+    def __repr__(self) -> str:
+        return str(self.source)
+        
+
 class BingTranslate():
     """
     A Python implementation of Microsoft Bing Translation's APIs
@@ -35,20 +66,51 @@ class BingTranslate():
         except:
             return None
 
-    def transliterate():
-        """
-        Transliterates the given text
-        """
-        pass
 
-    def define():
+    def example(self, text, destination_language, source_language="auto-detect"):
         """
-        Returns the definition of the given word
+        Return examples for the given text
         """
-        pass
+        try:
+            if source_language is None:
+                source_language = self.language(text)
+                if source_language is None:
+                    return None
+            request = post("https://www.bing.com/texamplev3", headers=HEADERS, params=PARAMS, data={'text': str(text), 'from': str(source_language), 'to': str(destination_language)})
+            if request.status_code < 400:
+                return [Example(example) for example in loads(request.text)[0]["examples"]]
+            else:
+                return None
+        except:
+            return None
 
-    def language():
+
+    def spellcheck(self, text, source_language=None):
+        """
+        Checks the spelling of the given text
+        """
+        try:
+            if source_language is None:
+                source_language = self.language(text)
+                if source_language is None:
+                    return None
+            request = post("https://www.bing.com/tspellcheckv3", headers=HEADERS, params=PARAMS, data={'text': str(text), 'fromLang': str(source_language)})
+            if request.status_code < 400:
+                return loads(request.text)["correctedText"]
+            else:
+                return None
+        except:
+            return None
+
+    def language(self, text):
         """
         Gives back the language of the given text
         """
-        pass
+        try:
+            request = post("https://www.bing.com/ttranslatev3", headers=HEADERS, params=PARAMS, data={'text': str(text), 'fromLang': "auto-detect", 'to': "en"})
+            if request.status_code < 400:
+                return loads(request.text)[0]["detectedLanguage"]["language"]
+            else:
+                return None
+        except:
+            return None
