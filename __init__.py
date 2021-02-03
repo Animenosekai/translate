@@ -33,4 +33,16 @@ class Translator():
         else:
             return response
 
+    def transliterate(self, text, source_language):
+        pass
+
+    def spellcheck(self, text, source_language):
+        pass
+
+    def language(self, text, source_language):
+        pass
+
+    def example(self, text, source_language):
+        pass
+
 translator = Translator()
