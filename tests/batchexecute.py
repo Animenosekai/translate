@@ -1,5 +1,7 @@
 """
 Trying to read values from Google's batchexecute
+
+https://kovatch.medium.com/deciphering-google-batchexecute-74991e4e446c
 """
 from requests import get, post
 from bs4 import BeautifulSoup

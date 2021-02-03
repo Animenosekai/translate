@@ -22,10 +22,7 @@ class Translator():
                 response = self.reverso_translate(text, destination_language, source_language)
                 if response is None:
                     response = self.yandex_translate.translate(text, destination_language, source_language)
-                    if response is None:
-                        raise TranslationError("An error occured while translating your text")
-                    else:
-                        return response
+                    return response
                 else:
                     return response
             else:
@@ -34,15 +31,35 @@ class Translator():
             return response
 
     def transliterate(self, text, source_language):
-        pass
+        return self.yandex_translate.transliterate(text, source_language)
 
     def spellcheck(self, text, source_language):
-        pass
+        response = self.bing_translate.spellcheck(text, source_language)
+        if response is None:
+            response = self.reverso_translate.spellcheck(text, source_language)
+            if response is None:
+                return self.yandex_translate.spellcheck(text, source_language)
+            else:
+                return response
+        else:
+            return response
 
-    def language(self, text, source_language):
-        pass
+    def language(self, text):
+        response = self.google_translate.language(text)
+        if response is None:
+            response = self.bing_translate.language(text)
+            if response is None:
+                response = self.reverso_translate.language(text)
+                if response is None:
+                    return self.yandex_translate.language(text)
+                else:
+                    return response
+            else:
+                return response
+        else:
+            return response
 
-    def example(self, text, source_language):
-        pass
+    def example(self, text, destination_language, source_language=None):
+        return self.bing_translate.example(text, destination_language, source_language)
 
 translator = Translator()

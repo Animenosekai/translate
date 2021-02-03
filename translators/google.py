@@ -43,8 +43,19 @@ class GoogleTranslate():
         """
         pass
 
-    def language():
+    def language(self, text):
         """
         Gives back the language of the given text
         """
-        pass
+        try:
+            request = get("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=auto&tl=ja&q=" + str(text))
+            if request.status_code < 400:
+                return loads(request.text)[2]
+            else:
+                request = get("https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=auto&tl=ja&q=" + str(text), headers=HEADERS)
+                if request.status_code < 400:
+                    return loads(request.text)['ld_result']["srclangs"][0]
+                else:
+                    return None
+        except:
+            return None
