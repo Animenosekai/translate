@@ -99,8 +99,6 @@ class ReversoTranslate():
             if request.status_code < 400:
                 return loads(request.text)["languageDetection"]["detectedLanguage"]
             else:
-                print(request.status_code)
-                print(request.text)
                 return None
         except:
             return None

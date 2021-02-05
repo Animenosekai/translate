@@ -35,13 +35,13 @@ class GoogleTranslate():
         """
         Transliterates the given text
         """
-        pass
+        raise NotImplementedError
 
     def define():
         """
         Returns the definition of the given word
         """
-        pass
+        raise NotImplementedError
 
     def language(self, text):
         """

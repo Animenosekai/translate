@@ -3,7 +3,6 @@ from requests import get, post
 from models.userAgents import USER_AGENTS
 from random import randint
 
-
 HEADERS = {
     "Accept": "*/*",
     "Accept-Encoding": "gzip, deflate",
@@ -15,30 +14,7 @@ HEADERS = {
     "User-Agent": "Mozilla: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.3 Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/43.4"
 }
 
-TRANSLIT_LANGS = [
-    "am",
-    "bn",
-    "el",
-    "gu",
-    "he",
-    "hi",
-    "hy",
-    "ja",
-    "ka",
-    "kn",
-    "ko",
-    "ml",
-    "mr",
-    "ne",
-    "pa",
-    "si",
-    "ta",
-    "te",
-    "th",
-    "yi",
-    "zh"
-]
-
+TRANSLIT_LANGS = ['am', 'bn', 'el', 'gu', 'he', 'hi', 'hy', 'ja', 'ka', 'kn', 'ko', 'ml', 'mr', 'ne', 'pa', 'si', 'ta', 'te', 'th', 'yi', 'zh']
 
 class YandexTranslate():
     """
