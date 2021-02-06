@@ -21,15 +21,17 @@ class GoogleTranslate():
                 source_language = "auto"
             request = get("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=" + str(source_language) + "&tl=" + str(destination_language) + "&q=" + str(text))
             if request.status_code < 400:
-                return loads(request.text)[0][0][0]
+                data = loads(request.text)
+                return data[2], data[0][0][0]
             else:
                 request = get("https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=" + str(source_language) + "&tl=" + str(destination_language) + "&q=" + str(text), headers=HEADERS)
                 if request.status_code < 400:
-                    return loads(request.text)['alternative_translations'][0]['alternative'][0]['word_postproc']
+                    data = loads(request.text)
+                    return data['ld_result']["srclangs"][0], data['alternative_translations'][0]['alternative'][0]['word_postproc']
                 else:
-                    return None
+                    return None, None
         except:
-            return None
+            return None, None
 
     def transliterate():
         """

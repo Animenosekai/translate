@@ -1,4 +1,5 @@
 from json import loads
+from models.languages import Language
 from requests import post
 
 HEADERS = {
@@ -24,10 +25,12 @@ class ReversoTranslate():
         Translates the given text to the given language
         """
         try:
-            if source_language is None:
+            if source_language is None or str(source_language) == "auto":
                 source_language = self.language(text)
                 if source_language is None:
                     return None
+            if isinstance(source_language, Language):
+                source_language = source_language.reverso_translate
             request = post("https://api.reverso.net/translate/v1/translation", headers=HEADERS, json={
                 "input": str(text),
                 "from": str(source_language),
@@ -37,15 +40,16 @@ class ReversoTranslate():
                     "origin": "reversodesktop",
                     "sentenceSplitter": False,
                     "contextResults": False,
-                    "languageDetection": False
+                    "languageDetection": True
                 }
             })
             if request.status_code < 400:
-                return loads(request.text)["translation"][0]
+                data = loads(request.text)
+                return data["languageDetection"]["detectedLanguage"], data["translation"][0]
             else:
-                return None
+                return None, None
         except:
-            return None
+            return None, None
 
 
     def spellcheck(self, text, source_language=None):

@@ -1,4 +1,5 @@
 from json import loads
+from models.languages import Language
 from requests import post
 
 HEADERS = {
@@ -58,13 +59,16 @@ class BingTranslate():
         try:
             if source_language is None:
                 source_language = "auto-detect"
+            if isinstance(source_language, Language):
+                source_language = source_language.bing_translate
             request = post("https://www.bing.com/ttranslatev3", headers=HEADERS, params=PARAMS, data={'text': str(text), 'fromLang': str(source_language), 'to': str(destination_language)})
             if request.status_code < 400:
-                return loads(request.text)[0]["translations"][0]["text"]
+                data = loads(request.text)
+                return data[0]["detectedLanguage"]["language"], data[0]["translations"][0]["text"]
             else:
-                return None
+                return None, None
         except:
-            return None
+            return None, None
 
 
     def example(self, text, destination_language, source_language="auto-detect"):

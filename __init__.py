@@ -15,7 +15,7 @@ class TranslationResult():
         self.destination_language = destination_language
 
     def __repr__(self) -> str:
-        return "Source (" + self.source_language.name + "): " + self.source + "\nResult (" + self.destination_language.name + "): " + self.result
+        return "Source (" + (self.source_language.name if isinstance(self.source_language, Language) else str(self.source_language)) + "): " + self.source + "\nResult (" + (self.destination_language.name if isinstance(self.destination_language, Language) else str(self.destination_language)) + "): " + self.result
 
     def __str__(self) -> str:
         return self.result
@@ -42,32 +42,47 @@ class Translator():
 
     def translate(self, text, destination_language, source_language=None):
         global CACHES
-        destination_language = Language(destination_language)
-        if source_language is not None:
+        if not isinstance(destination_language, Language):
+            destination_language = Language(destination_language)
+        if source_language is not None and not isinstance(source_language, Language):
             source_language = Language(source_language)
         
-        response = self.google_translate.translate(text, destination_language, source_language)
+        lang, response = self.google_translate.translate(text, destination_language, source_language)
         if response is None:
-            response = self.bing_translate.translate(text, destination_language, source_language)
+            lang, response = self.bing_translate.translate(text, destination_language, source_language)
             if response is None:
-                response = self.reverso_translate(text, destination_language, source_language)
+                lang, response = self.reverso_translate(text, destination_language, source_language)
                 if response is None:
-                    response = self.yandex_translate.translate(text, destination_language, source_language)
-                    return response
+                    lang, response = self.yandex_translate.translate(text, destination_language, source_language)
+                    if response is None:
+                        return None
+                    try:
+                        lang = Language(lang)
+                    except: pass
+                    return TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language)
                 else:
-                    return response
+                    try:
+                        lang = Language(lang)
+                    except: pass
+                    return TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language)
             else:
-                return response
+                try:
+                    lang = Language(lang)
+                except: pass
+                return TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language)
         else:
-            return response
+            try:
+                lang = Language(lang)
+            except: pass
+            return TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language)
 
     def transliterate(self, text, source_language=None):
-        if source_language is not None:
+        if source_language is not None and not isinstance(source_language, Language):
             source_language = Language(source_language)
         return self.yandex_translate.transliterate(text, source_language)
 
     def spellcheck(self, text, source_language=None):
-        if source_language is not None:
+        if source_language is not None and not isinstance(source_language, Language):
             source_language = Language(source_language)
         response = self.bing_translate.spellcheck(text, source_language)
         if response is None:
@@ -86,17 +101,34 @@ class Translator():
             if response is None:
                 response = self.reverso_translate.language(text)
                 if response is None:
-                    return self.yandex_translate.language(text)
+                    response = self.yandex_translate.language(text)
+                    if response is None:
+                        return response
+                    else:
+                        try:
+                            return Language(response)
+                        except:
+                            return response
                 else:
-                    return response
+                    try:
+                        return Language(response)
+                    except:
+                        return response
             else:
-                return response
+                try:
+                    return Language(response)
+                except:
+                    return response
         else:
-            return response
+            try:
+                return Language(response)
+            except:
+                return response
 
     def example(self, text, destination_language, source_language=None):
-        destination_language = Language(destination_language)
-        if source_language is not None:
+        if not isinstance(destination_language, Language):
+            destination_language = Language(destination_language)
+        if source_language is not None and not isinstance(source_language, Language):
             source_language = Language(source_language)
         return self.bing_translate.example(text, destination_language, source_language)
 

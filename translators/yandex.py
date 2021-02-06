@@ -1,4 +1,5 @@
 from json import loads
+from models.languages import Language
 from requests import get, post
 from models.userAgents import USER_AGENTS
 from random import randint
@@ -51,14 +52,17 @@ class YandexTranslate():
         try:
             if source_language is None:
                 source_language = "auto"
+            if isinstance(source_language, Language):
+                source_language = source_language.yandex_translate
             url = self._base_url + "translate?id=" + self._id + "&srv=tr-text&lang=" + str(destination_language) +"&reason=" + str(source_language) + "&format=text"
             request = get(url, headers=self._headers, data={'text': str(text), 'options': '4'})
             if request.status_code < 400 and request.json()["code"] == 200:
-                return loads(request.text)["text"][0]
+                data = loads(request.text)
+                return str(data["lang"]).split("-")[0], data["text"][0]
             else:
-                return None
+                return None, None
         except:
-            return None
+            return None, None
 
     def transliterate(self, text, source_language=None):
         """
