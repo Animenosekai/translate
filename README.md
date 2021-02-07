@@ -1,6 +1,7 @@
-# Project Title
+# `translatepy` (originally: translate)
 
-An aggregation of multiple translation API
+### An aggregation of multiple translation API.  
+***Translate, transliterate, get the language of texts in no time with the help of multiple APIs!***
 
 ## Getting Started
 
