@@ -5,7 +5,7 @@ Evaluating strings similarity
 from math import sqrt
 from collections import Counter
 from operator import itemgetter
-from data.data import LANGUAGES_NAME_TO_CODE_INTERNATIONAL
+from translatepy.data.data import LANGUAGES_NAME_TO_CODE_INTERNATIONAL
 
 class StringVector():
     def __init__(self, string) -> None:

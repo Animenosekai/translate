@@ -1,7 +1,7 @@
 from json import loads
-from models.languages import Language
+from translatepy.models.languages import Language
 from requests import get, post
-from models.userAgents import USER_AGENTS
+from translatepy.models.userAgents import USER_AGENTS
 from random import randint
 
 HEADERS = {

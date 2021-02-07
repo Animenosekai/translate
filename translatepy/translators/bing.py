@@ -1,5 +1,5 @@
 from json import loads
-from models.languages import Language
+from translatepy.models.languages import Language
 from requests import post
 
 HEADERS = {

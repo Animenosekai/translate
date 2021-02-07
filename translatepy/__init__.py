@@ -1,4 +1,4 @@
-from translate import *
+from translatepy.translate import *
 
 __author__      = 'Anime no Sekai'
 __copyright__   = 'Copyright 2021, translate'

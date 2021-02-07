@@ -1,8 +1,9 @@
-from models.languages import Language
-from translators.google import GoogleTranslate
-from translators.bing import BingTranslate
-from translators.yandex import YandexTranslate
-from translators.reverso import ReversoTranslate
+from translatepy.models.languages import Language
+from translatepy.translators.google import GoogleTranslate
+from translatepy.translators.bing import BingTranslate
+from translatepy.translators.yandex import YandexTranslate
+from translatepy.translators.reverso import ReversoTranslate
+
 
 TRANSLATION_CACHES = {}
 TRANSLITERATION_CACHES = {}

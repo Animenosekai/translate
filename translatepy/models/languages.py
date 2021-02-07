@@ -1,11 +1,12 @@
-from data.data import ALPHA3_TO_ALPHA2, LANGUAGES_CODE
-from data.data import LANGUAGES_NAME_TO_CODE_EN
-from data.data import LANGUAGES_NAME_TO_CODE_INTERNATIONAL
-from data.data import LANGUAGES_CODE_TO_NAME_EN
-from data.data import LANGUAGES_TO_INTERNATIONAL
-from data.data import ALPHA2_TO_ALPHA3
-from utils.similarity import language_search
-from models.exceptions import UnknownLanguage
+from translatepy.data.data import ALPHA3_TO_ALPHA2, LANGUAGES_CODE
+from translatepy.data.data import LANGUAGES_NAME_TO_CODE_EN
+from translatepy.data.data import LANGUAGES_NAME_TO_CODE_INTERNATIONAL
+from translatepy.data.data import LANGUAGES_CODE_TO_NAME_EN
+from translatepy.data.data import LANGUAGES_TO_INTERNATIONAL
+from translatepy.data.data import ALPHA2_TO_ALPHA3
+from translatepy.utils.similarity import language_search
+from translatepy.models.exceptions import UnknownLanguage
+import translatepy
 
 LANGUAGES_CACHES = {}
 
