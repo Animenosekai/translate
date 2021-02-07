@@ -3,6 +3,19 @@
 ### An aggregation of multiple translation API.  
 ***Translate, transliterate, get the language of texts in no time with the help of multiple APIs!***
 
+[![PyPI version](https://badge.fury.io/py/translatepy.svg)](https://pypi.org/project/translatepy/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/translatepy)](https://pypistats.org/packages/translatepy)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/translatepy)](https://pypi.org/project/translatepy/)
+[![PyPI - Status](https://img.shields.io/pypi/status/translatepy)](https://pypi.org/project/translatepy/)
+[![GitHub - License](https://img.shields.io/github/license/Animenosekai/translate)](https://github.com/Animenosekai/translate/blob/master/LICENSE)
+[![GitHub top language](https://img.shields.io/github/languages/top/Animenosekai/translate)](https://github.com/Animenosekai/translate)
+[![CodeQL Checks Badge](https://img.shields.io/github/workflow/status/Animenosekai/translate/CodeQL%20Python%20Analysis?label=CodeQL%20Checks)](https://github.com/Animenosekai/translate/actions?query=workflow%3ACodeQL)
+[![Commits Number](https://img.shields.io/github/commits-since/Animenosekai/Project_Erina/v1.1?label=Commits%20since%20v1.1)](https://github.com/Animenosekai/translate/compare/v1.1...master)
+![Code Size](https://img.shields.io/github/languages/code-size/Animenosekai/translate)
+![Repo Size](https://img.shields.io/github/repo-size/Animenosekai/translate)
+![Issues](https://img.shields.io/github/issues/Animenosekai/translate)
+
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
