@@ -138,6 +138,13 @@ Feel free to use it in production if you feel like it is suitable for your produ
 
 This project is licensed under the GNU Affero General Public License v3.0 License - see the [LICENSE](LICENSE) file for details
 
+### Dataset
+All of the datasets are the result of my searches, computation and sometimes translation.
+
+Please ask me if you want to use them in another project.
+
+(`_languages_name_to_code_international.json` comes from Google Translate translations (fixed by me sometimes) which took about 8 to 10 hours of work to get it done)
+
 ## Acknowledgments
 
 * Thanks to @NawtJ0sh for giving me the way to add Microsoft Bing Translate
