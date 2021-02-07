@@ -143,7 +143,7 @@ All of the datasets are the result of my searches, computation and sometimes tra
 
 Please ask me if you want to use them in another project.
 
-(`_languages_name_to_code_international.json` comes from Google Translate translations (fixed by me sometimes) which took about 8 to 10 hours of work to get it done)
+(`_languages_name_to_code_international.json` comes from Google Translate translations (fixed by me sometimes) and other sourcecs and took me about 8 to 10 hours of work to get it done)
 
 ## Acknowledgments
 
