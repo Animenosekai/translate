@@ -22,12 +22,12 @@ class GoogleTranslate():
             request = get("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=" + str(source_language) + "&tl=" + str(destination_language) + "&q=" + str(text))
             if request.status_code < 400:
                 data = loads(request.text)
-                return data[2], " ".join([sentence[0] for sentence in data[0]])
+                return data[2], "".join([sentence[0] for sentence in data[0]])
             else:
                 request = get("https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=" + str(source_language) + "&tl=" + str(destination_language) + "&q=" + str(text), headers=HEADERS)
                 if request.status_code < 400:
                     data = loads(request.text)
-                    return data['ld_result']["srclangs"][0], " ".join(sentence["trans"] for sentence in data["sentences"])
+                    return data['ld_result']["srclangs"][0], "".join(sentence["trans"] for sentence in data["sentences"])
                 else:
                     return None, None
         except:
