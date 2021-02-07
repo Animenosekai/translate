@@ -1,2 +1,144 @@
-# translate
- An aggregation of multiple translation APIs
+# Project Title
+
+An aggregation of multiple translation API
+
+## Getting Started
+
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+
+### Prerequisites
+
+You will need Python 3 to use this module
+
+```bash
+# vermin output
+Minimum required versions: 3.0
+Incompatible versions:     2
+```
+
+### Installing
+
+You can install it from PyPI with:
+
+```bash
+pip install translatepy
+```
+
+You can check if you successfully installed it by printing out its version:
+
+```bash
+python -c "import translatepy; print(translatepy.__version__)"
+# output:
+translatepy v1.0
+```
+
+## List of Services
+
+- [Microsoft Bing Translator](https://www.bing.com/translator)
+- [Google Translate](https://translate.google.com)
+- [Yandex Translate](https://translate.yandex.com)
+- [Reverso](https://www.reverso.net/text_translation.aspx)
+
+All of the names belong to their respective rightholders.
+
+
+## Usage
+```python
+>>> import translatepy
+>>> translator = translatepy.Translator()
+>>> translator.translate("Hello", "French")
+'Bonjour' (type: TranslationResult)
+>>> translator.language("こんにちは")
+'Japanese' (type: Language)
+```
+
+### The Language Class
+The language class contains lots of information about a language.
+
+You need to pass the language name or code to the class initialization:
+```python
+translatepy.Language("French")
+# Returns a Language class with the "fr" language
+translatepy.Language("en")
+# Returns a Language class with the "en" language
+translatepy.Language("eng")
+# Returns a Language class with the "en" language
+translatepy.Language("日本語")
+# Returns a Language class with the "ja" language
+```
+
+The Language Class contains both the ISO 639-1 Alpha-2 language code and the ISO 639-2 Alpha-3 language code (the latter is nullable)
+
+It also contains the language name for all of the languages available. (nullable)
+
+Example:
+```python
+>>> translatepy.Language("日本語").french
+'Japonais'
+```
+
+It contains the correct language code for each translation service
+
+It also contains the "similarity" attribute which gives back a number between 0 and 1 and which shows the similarity of the input language with what it found in the language code database.
+
+A `translatepy.models.exceptions.UnknownLanguage` exception is raised if the given language is unknown.
+
+——> A language with low chance of being the one you've chosen is displayed along with its similarity
+
+### The TranslationResult Class
+This class contains all of the information needed to get the result of a translation:
+
+- source: The input text
+- result: The translation result
+- source_language: The input language
+- destination_language: The result language
+
+### Caching
+All of the operations are cached to provide the best performances
+
+You can empty the cache by giving the default value to the variables holding the caches:
+
+```python
+translatepy.TRANSLATION_CACHES = {}
+translatepy.TRANSLITERATION_CACHES = {}
+translatepy.SPELLCHECK_CACHES = {}
+translatepy.LANGUAGE_CACHES = {}
+translatepy.EXAMPLE_CACHES = {}
+```
+
+### The Translator Class
+It is the High API providing all of the methods and optimizations for `translatepy`
+- translate: To translate things
+- transliterate: To transliterate things
+- spellcheck: To check the spelling of a text
+- language: To get the language of a text
+- example: To get examples of a word
+
+When something goes wrong or nothing got found, `None` is returned.
+
+The source language while being most of the time an instance of the Language class can sometimes be a string if the conversion to the Language class failed.
+
+
+## Deployment
+
+This module is currently in development and might contain bugs.
+
+Feel free to use it in production if you feel like it is suitable for your production even if you may encounter issues.
+
+## Built With
+
+* [safeIO](https://github.com/Animenosekai/safeIO) - To read files
+* [requests](https://github.com/psf/requests) - To make HTTP requests
+
+## Authors
+
+* **Anime no Sekai** - *Initial work* - [Animenosekai](https://github.com/Animenosekai)
+
+## License
+
+This project is licensed under the GNU Affero General Public License v3.0 License - see the [LICENSE](LICENSE) file for details
+
+## Acknowledgments
+
+* Thanks to @NawtJ0sh for giving me the way to add Microsoft Bing Translate
+* Inspired by py-googletrans (by @ssut) (especially the thread: [Issue #268](https://github.com/ssut/py-googletrans/issues/268))
