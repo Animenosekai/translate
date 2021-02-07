@@ -7,24 +7,36 @@ from data.data import ALPHA2_TO_ALPHA3
 from utils.similarity import language_search
 from models.exceptions import UnknownLanguage
 
+LANGUAGES_CACHES = {}
+
 
 class Language():
     def __init__(self, language) -> None:
+        global LANGUAGES_CACHES
+
         self.language = str(language).lower()
-        if self.language not in LANGUAGES_CODE:
-            result = ALPHA3_TO_ALPHA2.get(self.language, None)
-            if result is None:
-                result = LANGUAGES_NAME_TO_CODE_EN.get(self.language, None)
+        self._language = self.language
+        if self._language in LANGUAGES_CACHES:
+            self.language = LANGUAGES_CACHES[self._language]["l"]
+            self.similarity = LANGUAGES_CACHES[self._language]["s"]
+        else:
+            if self.language not in LANGUAGES_CODE:
+                result = ALPHA3_TO_ALPHA2.get(self.language, None)
                 if result is None:
-                    result = LANGUAGES_NAME_TO_CODE_INTERNATIONAL.get(self.language, None)
+                    result = LANGUAGES_NAME_TO_CODE_EN.get(self.language, None)
                     if result is None:
-                        name, lang, similarity = language_search(self.language)
-                        if similarity > 0.95:
-                            self.language = lang
-                            self.similarity = similarity
+                        result = LANGUAGES_NAME_TO_CODE_INTERNATIONAL.get(self.language, None)
+                        if result is None:
+                            name, lang, similarity = language_search(self.language)
+                            if similarity > 0.95:
+                                self.language = lang
+                                self.similarity = similarity
+                            else:
+                                exception_message = "Couldn't recognize the given language (" + str(language) + ")\nDid you mean '" + name + "' (Similarity: " + str(round(similarity*100, 2)) + "%)?"
+                                raise UnknownLanguage(exception_message)
                         else:
-                            exception_message = "Couldn't recognize the given language (" + str(language) + ")\nDid you mean '" + name + "' (Similarity: " + str(round(similarity*100, 2)) + "%)?"
-                            raise UnknownLanguage(exception_message)
+                            self.language = result
+                            self.similarity = 1
                     else:
                         self.language = result
                         self.similarity = 1
@@ -32,10 +44,12 @@ class Language():
                     self.language = result
                     self.similarity = 1
             else:
-                self.language = result
                 self.similarity = 1
-        else:
-            self.similarity = 1
+
+            LANGUAGES_CACHES[self._language] = {
+                "l": self.language,
+                "s": self.similarity
+            }
 
     
         self.name = LANGUAGES_CODE_TO_NAME_EN.get(self.language, "Unknown").title()

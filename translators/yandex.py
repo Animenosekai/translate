@@ -72,14 +72,14 @@ class YandexTranslate():
             if source_language is None:
                 source_language = self.language(text)
                 if source_language is None or source_language not in TRANSLIT_LANGS:
-                    return None
+                    return None, None
             request = post("https://translate.yandex.net/translit/translit?sid=" + self._sid + "&srv=tr-text", headers=self._headers, data={'text': str(text), 'lang': source_language})
             if request.status_code < 400:
-                return request.text[1:-1]
+                return source_language, request.text[1:-1]
             else:
-                return None
+                return None, None
         except:
-            return None
+            return None, None
 
     def spellcheck(self, text, source_language=None):
         """
@@ -95,11 +95,11 @@ class YandexTranslate():
                 data = loads(request.text)
                 for correction in data:
                     text = text[:correction.get("pos", 0)] + correction.get("s", [""])[0] + text[correction.get("pos", 0) + correction.get("len", 0):]
-                return text
+                return source_language, text
             else:
-                return None
+                return None, None
         except:
-            return None
+            return None, None
 
     def language(self, text, hint=None):
         """

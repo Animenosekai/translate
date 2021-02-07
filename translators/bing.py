@@ -76,22 +76,16 @@ class BingTranslate():
         Return examples for the given text
         """
         try:
-            if source_language is None:
-                source_language = self.language(text)
-                if source_language is None:
-                    return None
-            translation = self.translate(text, destination_language, source_language)
+            source_language, translation = self.translate(text, destination_language, source_language)
             if translation is None:
-                return None
+                return None, None
             request = post("https://www.bing.com/texamplev3", headers=HEADERS, params=PARAMS, data={'text': str(text).lower(), 'from': str(source_language), 'to': str(destination_language), 'translation': str(translation).lower()})
-            print(request.text)
-            print(request.status_code)
             if request.status_code < 400:
-                return [Example(example) for example in loads(request.text)[0]["examples"]]
+                return source_language, [Example(example) for example in loads(request.text)[0]["examples"]]
             else:
-                return None
+                return None, None
         except:
-            return None
+            return None, None
 
 
     def spellcheck(self, text, source_language=None):
@@ -102,17 +96,17 @@ class BingTranslate():
             if source_language is None:
                 source_language = self.language(text)
                 if source_language is None:
-                    return None
+                    return None, None
             request = post("https://www.bing.com/tspellcheckv3", headers=HEADERS, params=PARAMS, data={'text': str(text), 'fromLang': str(source_language)})
             if request.status_code < 400:
                 result = loads(request.text)["correctedText"]
                 if result == "":
-                    return text
-                return result
+                    return source_language, text
+                return source_language, result
             else:
-                return None
+                return None, None
         except:
-            return None
+            return None, None
 
     def language(self, text):
         """
