@@ -1,9 +1,17 @@
+#"""PRODUCTION
 from translatepy.models.languages import Language
 from translatepy.translators.google import GoogleTranslate
 from translatepy.translators.bing import BingTranslate
 from translatepy.translators.yandex import YandexTranslate
 from translatepy.translators.reverso import ReversoTranslate
-
+#"""
+"""DEBUG
+from models.languages import Language
+from translators.google import GoogleTranslate
+from translators.bing import BingTranslate
+from translators.yandex import YandexTranslate
+from translators.reverso import ReversoTranslate
+"""
 
 TRANSLATION_CACHES = {}
 TRANSLITERATION_CACHES = {}
@@ -13,11 +21,12 @@ EXAMPLE_CACHES = {}
 AUTOMATIC = Language("auto")
 
 class TranslationResult():
-    def __init__(self, source, result, source_language, destination_language) -> None:
+    def __init__(self, source, result, source_language, destination_language, service) -> None:
         self.source = str(source)
         self.result = str(result)
         self.source_language = source_language
         self.destination_language = destination_language
+        self.service = service
 
     def __repr__(self) -> str:
         return "Source (" + (self.source_language.name if isinstance(self.source_language, Language) else str(self.source_language)) + "): " + self.source + "\nResult (" + (self.destination_language.name if isinstance(self.destination_language, Language) else str(self.destination_language)) + "): " + self.result
@@ -71,7 +80,7 @@ class Translator():
                     try:
                         lang = Language(lang)
                     except: pass
-                    result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language)
+                    result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=self.yandex_translate)
                     TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = result
                     TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = result
                     return result
@@ -79,7 +88,7 @@ class Translator():
                     try:
                         lang = Language(lang)
                     except: pass
-                    result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language)
+                    result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=self.reverso_translate)
                     TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = result
                     TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = result
                     return result
@@ -87,7 +96,7 @@ class Translator():
                 try:
                     lang = Language(lang)
                 except: pass
-                result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language)
+                result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=self.bing_translate)
                 TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = result
                 TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = result
                 return result
@@ -95,7 +104,7 @@ class Translator():
             try:
                 lang = Language(lang)
             except: pass
-            result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language)
+            result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=self.google_translate)
             TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = result
             TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = result
             return result

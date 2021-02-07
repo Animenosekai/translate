@@ -120,3 +120,6 @@ class BingTranslate():
                 return None
         except:
             return None
+
+    def __repr__(self) -> str:
+        return "Microsoft Bing Translator"

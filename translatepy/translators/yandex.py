@@ -116,3 +116,6 @@ class YandexTranslate():
                 return None
         except:
             return None
+
+    def __repr__(self) -> str:
+        return "Yandex Translate"

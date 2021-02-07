@@ -31,6 +31,8 @@ class ReversoTranslate():
                     return None
             if isinstance(source_language, Language):
                 source_language = source_language.reverso_translate
+            if isinstance(destination_language, Language):
+                destination_language = destination_language.reverso_translate
             request = post("https://api.reverso.net/translate/v1/translation", headers=HEADERS, json={
                 "input": str(text),
                 "from": str(source_language),
@@ -106,3 +108,6 @@ class ReversoTranslate():
                 return None
         except:
             return None
+
+    def __repr__(self) -> str:
+        return "Reverso"
