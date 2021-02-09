@@ -43,7 +43,7 @@ You can check if you successfully installed it by printing out its version:
 ```bash
 python -c "import translatepy; print(translatepy.__version__)"
 # output:
-translatepy v1.0
+translatepy v1.1.3
 ```
 
 ## List of Services

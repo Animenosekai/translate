@@ -57,6 +57,9 @@ class Translator():
     def translate(self, text, destination_language, source_language=None):
         global TRANSLATION_CACHES
 
+        if str(text).replace(" ", "").replace("\n", "") == "":
+            return None
+
         ## language handling
         if not isinstance(destination_language, Language):
             destination_language = Language(destination_language)
@@ -72,7 +75,7 @@ class Translator():
         if response is None:
             lang, response = self.bing_translate.translate(text, destination_language, source_language)
             if response is None:
-                lang, response = self.reverso_translate(text, destination_language, source_language)
+                lang, response = self.reverso_translate.translate(text, destination_language, source_language)
                 if response is None:
                     lang, response = self.yandex_translate.translate(text, destination_language, source_language)
                     if response is None:

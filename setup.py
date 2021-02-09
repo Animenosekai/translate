@@ -5,7 +5,7 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding
 setup(
 name = "translatepy",
 packages = ["translatepy"],
-version = "1.1.2",
+version = "1.1.3",
 license = "GNU General Public License v3 (GPLv3)",
 description = "Translate, transliterate, get the language of texts in no time with the help of multiple APIs!",
 author = "Anime no Sekai",
