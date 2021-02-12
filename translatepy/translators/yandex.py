@@ -23,7 +23,6 @@ class YandexTranslate():
     """
     def __init__(self) -> None:
         self._base_url = "https://translate.yandex.net/api/v1/tr.json/"
-        self._id = "1308a84a.6016deed.0c4881a2.74722d74657874-3-0"
         self._sid = ""
         self._headers = self._header()
         self.refreshSID()
@@ -50,13 +49,16 @@ class YandexTranslate():
         Translates the given text to the given language
         """
         try:
-            if source_language is None:
-                source_language = "auto"
+            if source_language is None or str(source_language) == "auto":
+                source_language = self.language(text)
+                if source_language is None:
+                    return None, None
             if isinstance(source_language, Language):
                 source_language = source_language.yandex_translate
-            url = self._base_url + "translate?id=" + self._id + "&srv=tr-text&lang=" + str(destination_language) +"&reason=" + str(source_language) + "&format=text"
+            url = self._base_url + "translate?id=" + self._sid + "-0-0&srv=tr-text&lang=" + str(source_language) +"-" + str(destination_language)  + "&reason=auto&format=text"
             request = get(url, headers=self._headers, data={'text': str(text), 'options': '4'})
-            if request.status_code < 400 and request.json()["code"] == 200:
+            data = loads(request.text)
+            if request.status_code < 400 and data["code"] == 200:
                 data = loads(request.text)
                 return str(data["lang"]).split("-")[0], data["text"][0]
             else:

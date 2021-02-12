@@ -28,15 +28,17 @@ class ReversoTranslate():
             if source_language is None or str(source_language) == "auto":
                 source_language = self.language(text)
                 if source_language is None:
-                    return None
+                    return None, None
             if isinstance(source_language, Language):
                 source_language = source_language.reverso_translate
             if isinstance(destination_language, Language):
                 destination_language = destination_language.reverso_translate
+            source_language = str(source_language)
+            destination_language = str(destination_language)
             request = post("https://api.reverso.net/translate/v1/translation", headers=HEADERS, json={
                 "input": str(text),
-                "from": str(source_language),
-                "to": str(destination_language),
+                "from": source_language,
+                "to": destination_language,
                 "format": "text",
                 "options": {
                     "origin": "reversodesktop",
