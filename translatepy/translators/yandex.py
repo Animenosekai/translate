@@ -29,7 +29,7 @@ class YandexTranslate():
     """
     def __init__(self) -> None:
         self._base_url = "https://translate.yandex.net/api/v1/tr.json/"
-        self._sid_cache = TextFile(FILE_LOCATION + "/_yandex_sid.translate")
+        self._sid_cache = TextFile(FILE_LOCATION + "/_yandex_sid.translatepy")
         self._sid = self._sid_cache.read()
         self._headers = self._header()
         #self.refreshSID()
@@ -72,7 +72,16 @@ class YandexTranslate():
                 data = loads(request.text)
                 return str(data["lang"]).split("-")[0], data["text"][0]
             else:
-                return None, None
+                self.refreshSID()
+                # redo everything with the new sid
+                url = self._base_url + "translate?id=" + self._sid + "-0-0&srv=tr-text&lang=" + str(source_language) +"-" + str(destination_language)  + "&reason=auto&format=text"
+                request = get(url, headers=self._headers, data={'text': str(text), 'options': '4'})
+                data = loads(request.text)
+                if request.status_code < 400 and data["code"] == 200:
+                    data = loads(request.text)
+                    return str(data["lang"]).split("-")[0], data["text"][0]
+                else:
+                    return None, None
         except:
             return None, None
 
@@ -91,7 +100,12 @@ class YandexTranslate():
             if request.status_code < 400:
                 return source_language, request.text[1:-1]
             else:
-                return None, None
+                self.refreshSID()
+                request = post("https://translate.yandex.net/translit/translit?sid=" + self._sid + "&srv=tr-text", headers=self._headers, data={'text': str(text), 'lang': source_language})
+                if request.status_code < 400:
+                    return source_language, request.text[1:-1]
+                else:
+                    return None, None
         except:
             return None, None
 
@@ -113,7 +127,15 @@ class YandexTranslate():
                     text = text[:correction.get("pos", 0)] + correction.get("s", [""])[0] + text[correction.get("pos", 0) + correction.get("len", 0):]
                 return source_language, text
             else:
-                return None, None
+                self.refreshSID()
+                request = post("https://speller.yandex.net/services/spellservice.json/checkText?sid=" + self._sid + "&srv=tr-text", headers=self._headers, data={'text': str(text), 'lang': source_language, 'options': 516})
+                if request.status_code < 400:
+                    data = loads(request.text)
+                    for correction in data:
+                        text = text[:correction.get("pos", 0)] + correction.get("s", [""])[0] + text[correction.get("pos", 0) + correction.get("len", 0):]
+                    return source_language, text
+                else:
+                    return None, None
         except:
             return None, None
 
@@ -131,7 +153,13 @@ class YandexTranslate():
             if request.status_code < 400 and request.json()["code"] == 200:
                 return loads(request.text)["lang"]
             else:
-                return None
+                self.refreshSID()
+                url = self._base_url + "detect?sid=" + self._sid + "&srv=tr-text&text=" + str(text) + "&options=1&hint=" + str(hint)
+                request = get(url, headers=self._headers)
+                if request.status_code < 400 and request.json()["code"] == 200:
+                    return loads(request.text)["lang"]
+                else:
+                    return None
         except:
             return None
 
