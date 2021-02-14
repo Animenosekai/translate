@@ -4,6 +4,7 @@ from translatepy.translators.google import GoogleTranslate
 from translatepy.translators.bing import BingTranslate
 from translatepy.translators.yandex import YandexTranslate
 from translatepy.translators.reverso import ReversoTranslate
+from translatepy.translators.unselected import Unselected
 #"""
 """DEBUG
 from models.languages import Language
@@ -48,11 +49,11 @@ class Translator():
     """
     A class which groups all of the APIs
     """
-    def __init__(self, yandex_sid_refresh=False) -> None:
-        self.google_translate = GoogleTranslate()
-        self.yandex_translate = YandexTranslate(sid_refresh=yandex_sid_refresh)
-        self.bing_translate = BingTranslate()
-        self.reverso_translate = ReversoTranslate()
+    def __init__(self, use_google=True, use_yandex=True, use_bing=True, use_reverso=True, yandex_sid_refresh=False) -> None:
+        self.google_translate = (GoogleTranslate() if use_google else Unselected())
+        self.yandex_translate = (YandexTranslate(sid_refresh=yandex_sid_refresh) if use_yandex else Unselected())
+        self.bing_translate = (BingTranslate() if use_bing else Unselected())
+        self.reverso_translate = (ReversoTranslate() if use_reverso else Unselected())
 
     def translate(self, text, destination_language, source_language=None):
         global TRANSLATION_CACHES
@@ -78,7 +79,7 @@ class Translator():
                 lang, response = self.reverso_translate.translate(text, destination_language, source_language)
                 if response is None:
                     lang, response = self.yandex_translate.translate(text, destination_language, source_language)
-                    if response is None:
+                    if response is None and isinstance(self.yandex_translate, Unselected):
                         return None
                     try:
                         lang = Language(lang)
@@ -122,7 +123,8 @@ class Translator():
             return TRANSLITERATION_CACHES[_cache_key]
 
         lang, response = self.yandex_translate.transliterate(text, source_language)
-        if response is None:
+        
+        if response is None and isinstance(self.yandex_translate, Unselected):
             return None
 
         try:
@@ -152,6 +154,8 @@ class Translator():
                 try:
                     lang = Language(lang)
                 except: pass
+                if response is None and isinstance(self.yandex_translate, Unselected):
+                    return None
 
                 SPELLCHECK_CACHES[str({"t": str(text), "s": str(source_language)})] = response
                 SPELLCHECK_CACHES[str({"t": str(text), "s": str(lang)})] = response
@@ -187,8 +191,8 @@ class Translator():
                 response = self.reverso_translate.language(text)
                 if response is None:
                     response = self.yandex_translate.language(text)
-                    if response is None:
-                        return response
+                    if response is None and isinstance(self.yandex_translate, Unselected):
+                        return None
                     else:
                         try:
                             response = Language(response)
@@ -232,6 +236,9 @@ class Translator():
             return EXAMPLE_CACHES[_cache_key]
 
         lang, response = self.bing_translate.example(text, destination_language, source_language)
+        if response is None and isinstance(self.bing_translate, Unselected):
+            return None
+
         try:
             lang = Language(lang)
         except: pass
