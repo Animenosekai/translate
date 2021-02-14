@@ -27,12 +27,13 @@ class YandexTranslate():
     """
     A Python implementation of Yandex Translation's APIs
     """
-    def __init__(self) -> None:
+    def __init__(self, sid_refresh=False) -> None:
         self._base_url = "https://translate.yandex.net/api/v1/tr.json/"
         self._sid_cache = TextFile(FILE_LOCATION + "/_yandex_sid.translatepy")
         self._sid = self._sid_cache.read()
         self._headers = self._header()
-        #self.refreshSID()
+        if sid_refresh:
+            self.refreshSID()
         
     def refreshSID(self):
         data = get("https://translate.yandex.com/", headers=self._headers).text

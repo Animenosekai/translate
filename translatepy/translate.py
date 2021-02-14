@@ -48,9 +48,9 @@ class Translator():
     """
     A class which groups all of the APIs
     """
-    def __init__(self) -> None:
+    def __init__(self, yandex_sid_refresh=False) -> None:
         self.google_translate = GoogleTranslate()
-        self.yandex_translate = YandexTranslate()
+        self.yandex_translate = YandexTranslate(sid_refresh=yandex_sid_refresh)
         self.bing_translate = BingTranslate()
         self.reverso_translate = ReversoTranslate()
 
