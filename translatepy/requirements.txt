@@ -1,2 +1,2 @@
 requests
-safeIO
+safeIO>=1.2

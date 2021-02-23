@@ -6,7 +6,6 @@ from translatepy.data.data import LANGUAGES_TO_INTERNATIONAL
 from translatepy.data.data import ALPHA2_TO_ALPHA3
 from translatepy.utils.similarity import language_search
 from translatepy.models.exceptions import UnknownLanguage
-import translatepy
 
 LANGUAGES_CACHES = {}
 
