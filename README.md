@@ -42,7 +42,7 @@ You can check if you successfully installed it by printing out its version:
 ```bash
 python -c "import translatepy; print(translatepy.__version__)"
 # output:
-translatepy v1.1.3
+translatepy v1.4 (Beta)
 ```
 
 ## List of Services
@@ -51,6 +51,7 @@ translatepy v1.1.3
 - [Google Translate](https://translate.google.com)
 - [Yandex Translate](https://translate.yandex.com)
 - [Reverso](https://www.reverso.net/text_translation.aspx)
+- [DeepL](https://www.deepl.com/translator)
 
 All of the names belong to their respective rightholders.
 
@@ -105,6 +106,7 @@ This class contains all of the information needed to get the result of a transla
 - result: The translation result
 - source_language: The input language
 - destination_language: The result language
+- service: The source (service used)
 
 ### Caching
 All of the operations are cached to provide the best performances
@@ -117,6 +119,7 @@ translatepy.TRANSLITERATION_CACHES = {}
 translatepy.SPELLCHECK_CACHES = {}
 translatepy.LANGUAGE_CACHES = {}
 translatepy.EXAMPLE_CACHES = {}
+translatepy.DICTIONNARY_CACHES = {}
 ```
 
 ### The Translator Class
@@ -126,6 +129,7 @@ It is the High API providing all of the methods and optimizations for `translate
 - spellcheck: To check the spelling of a text
 - language: To get the language of a text
 - example: To get examples of a word
+- dictionnary: To get a list of translations categorized into "featured" and "less common" by DeepL and Linguee
 
 When something goes wrong or nothing got found, `None` is returned.
 
@@ -142,6 +146,7 @@ Feel free to use it in production if you feel like it is suitable for your produ
 
 * [safeIO](https://github.com/Animenosekai/safeIO) - To read files
 * [requests](https://github.com/psf/requests) - To make HTTP requests
+* [beautifulsoup4](https://pypi.org/project/beautifulsoup4/) - To parse HTML
 
 ## Authors
 

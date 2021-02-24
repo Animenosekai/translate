@@ -4,6 +4,7 @@ from translatepy.translators.google import GoogleTranslate
 from translatepy.translators.bing import BingTranslate
 from translatepy.translators.yandex import YandexTranslate
 from translatepy.translators.reverso import ReversoTranslate
+from translatepy.translators.deepl import DeepL
 from translatepy.translators.unselected import Unselected
 #"""
 """DEBUG
@@ -12,6 +13,8 @@ from translators.google import GoogleTranslate
 from translators.bing import BingTranslate
 from translators.yandex import YandexTranslate
 from translators.reverso import ReversoTranslate
+from translators.deepl import DeepL
+from translators.unselected import Unselected
 """
 
 TRANSLATION_CACHES = {}
@@ -19,6 +22,7 @@ TRANSLITERATION_CACHES = {}
 SPELLCHECK_CACHES = {}
 LANGUAGE_CACHES = {}
 EXAMPLE_CACHES = {}
+DICTIONNARY_CACHES = {}
 AUTOMATIC = Language("auto")
 
 class TranslationResult():
@@ -49,13 +53,19 @@ class Translator():
     """
     A class which groups all of the APIs
     """
-    def __init__(self, use_google=True, use_yandex=True, use_bing=True, use_reverso=True, yandex_sid_refresh=False) -> None:
+    def __init__(self, use_google=True, use_yandex=True, use_bing=True, use_reverso=True, use_deepl=True, yandex_sid_refresh=False) -> None:
         self.google_translate = (GoogleTranslate() if use_google else Unselected())
         self.yandex_translate = (YandexTranslate(sid_refresh=yandex_sid_refresh) if use_yandex else Unselected())
         self.bing_translate = (BingTranslate() if use_bing else Unselected())
         self.reverso_translate = (ReversoTranslate() if use_reverso else Unselected())
+        self.deepl_translate = (DeepL() if use_deepl else Unselected())
 
     def translate(self, text, destination_language, source_language=None):
+        """
+        Translates the given text to the given language
+
+        i.e Good morning (en) --> おはようございます (ja)
+        """
         global TRANSLATION_CACHES
 
         if str(text).replace(" ", "").replace("\n", "") == "":
@@ -76,23 +86,33 @@ class Translator():
         if response is None:
             lang, response = self.bing_translate.translate(text, destination_language, source_language)
             if response is None:
-                lang, response = self.reverso_translate.translate(text, destination_language, source_language)
+                lang, response = self.deepl_translate.translate(text, destination_language, source_language)
                 if response is None:
-                    lang, response = self.yandex_translate.translate(text, destination_language, source_language)
-                    if response is None and isinstance(self.yandex_translate, Unselected):
-                        return None
-                    try:
-                        lang = Language(lang)
-                    except: pass
-                    result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=self.yandex_translate)
-                    TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = result
-                    TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = result
-                    return result
+                    lang, response = self.reverso_translate.translate(text, destination_language, source_language)
+                    if response is None:
+                        lang, response = self.yandex_translate.translate(text, destination_language, source_language)
+                        if response is None and isinstance(self.yandex_translate, Unselected):
+                            return None
+                        try:
+                            lang = Language(lang)
+                        except: pass
+                        result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=self.yandex_translate)
+                        TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = result
+                        TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = result
+                        return result
+                    else:
+                        try:
+                            lang = Language(lang)
+                        except: pass
+                        result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=self.reverso_translate)
+                        TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = result
+                        TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = result
+                        return result
                 else:
                     try:
                         lang = Language(lang)
                     except: pass
-                    result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=self.reverso_translate)
+                    result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=self.deepl_translate)
                     TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = result
                     TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = result
                     return result
@@ -114,6 +134,11 @@ class Translator():
             return result
 
     def transliterate(self, text, source_language=None):
+        """
+        Transliterates the given text
+
+        i.e おはよう --> Ohayou
+        """
         global TRANSLITERATION_CACHES
         if source_language is not None and not isinstance(source_language, Language):
             source_language = Language(source_language)
@@ -136,6 +161,11 @@ class Translator():
         return response
 
     def spellcheck(self, text, source_language=None):
+        """
+        Checks the spelling of a given text
+
+        i.e God morning --> Good morning
+        """
         global SPELLCHECK_CACHES
 
         _cache_key = str({"t": str(text), "s": str(source_language)})
@@ -178,6 +208,11 @@ class Translator():
             return response
 
     def language(self, text):
+        """
+        Returns the language of the given text
+
+        i.e 皆さんおはようございます！ --> Japanese
+        """
         global LANGUAGE_CACHES
         text = str(text)
         
@@ -188,11 +223,20 @@ class Translator():
         if response is None:
             response = self.bing_translate.language(text)
             if response is None:
-                response = self.reverso_translate.language(text)
+                response = self.deepl_translate.language(text)
                 if response is None:
-                    response = self.yandex_translate.language(text)
-                    if response is None and isinstance(self.yandex_translate, Unselected):
-                        return None
+                    response = self.reverso_translate.language(text)
+                    if response is None:
+                        response = self.yandex_translate.language(text)
+                        if response is None and isinstance(self.yandex_translate, Unselected):
+                            return None
+                        else:
+                            try:
+                                response = Language(response)
+                            except: pass
+
+                            LANGUAGE_CACHES[text] = response
+                            return response
                     else:
                         try:
                             response = Language(response)
@@ -223,6 +267,11 @@ class Translator():
             return response
 
     def example(self, text, destination_language, source_language=None):
+        """
+        Returns a set of examples / use cases for the given word
+
+        i.e Hello --> ['Hello friends how are you?', 'Hello im back again.']
+        """
         global EXAMPLE_CACHES
         
         if not isinstance(destination_language, Language):
@@ -245,6 +294,38 @@ class Translator():
         
         EXAMPLE_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = response
         EXAMPLE_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = response
+        return response
+
+    def dictionnary(self, text, destination_language, source_language=None):
+        """
+        Returns a list of translations that are classified between two categories: featured and less common
+
+        i.e Hello --> {'featured': ['ハロー', 'こんにちは'], 'less_common': ['hello', '今日は', 'どうも', 'こんにちわ', 'こにちは', 'ほいほい', 'おーい', 'アンニョンハセヨ', 'アニョハセヨ'}
+
+        _html and _response are also provided if you want to parse the HTML response (by DeepL/Linguee) by yourself
+        """
+        global DICTIONNARY_CACHES
+        
+        if not isinstance(destination_language, Language):
+            destination_language = Language(destination_language)
+        if source_language is not None and not isinstance(source_language, Language):
+            source_language = Language(source_language)
+
+        ## caches handling
+        _cache_key = str({"t": str(text), "d": str(destination_language), "s": str(source_language)})
+        if _cache_key in DICTIONNARY_CACHES:
+            return DICTIONNARY_CACHES[_cache_key]
+
+        lang, response = self.deepl_translate.dictionnary(text, destination_language, source_language)
+        if response is None and isinstance(self.deepl_translate, Unselected):
+            return None
+
+        try:
+            lang = Language(lang)
+        except: pass
+        
+        DICTIONNARY_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = response
+        DICTIONNARY_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = response
         return response
 
 #translator = Translator()

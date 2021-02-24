@@ -62,6 +62,7 @@ class Language():
         self.google_translate = self.language
         self.yandex_translate = self.language
         self.reverso_translate = self.alpha3
+        self.deepl = self.language.upper()
         
         if self.language == "auto":
             self.bing_translate = "auto-detect"
