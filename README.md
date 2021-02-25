@@ -25,9 +25,13 @@ You will need Python 3 to use this module
 
 ```bash
 # vermin output
-Minimum required versions: 3.0
+Minimum required versions: 3.2
 Incompatible versions:     2
 ```
+
+According to Vermin, Python 3.2 is needed for the backport of typing but some may say that it is available for python versions higher than 3.0
+
+Always check if your Python version works with `translatepy` before using it in production
 
 ### Installing
 
