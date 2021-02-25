@@ -10,6 +10,7 @@
 [![GitHub - License](https://img.shields.io/github/license/Animenosekai/translate)](https://github.com/Animenosekai/translate/blob/master/LICENSE)
 [![GitHub top language](https://img.shields.io/github/languages/top/Animenosekai/translate)](https://github.com/Animenosekai/translate)
 [![CodeQL Checks Badge](https://github.com/Animenosekai/translate/workflows/CodeQL%20Python%20Analysis/badge.svg)](https://github.com/Animenosekai/translate/actions?query=workflow%3ACodeQL)
+[![Pytest](https://github.com/Animenosekai/translate/actions/workflows/pytest.yml/badge.svg)](https://github.com/Animenosekai/translate/actions/workflows/pytest.yml)
 ![Code Size](https://img.shields.io/github/languages/code-size/Animenosekai/translate)
 ![Repo Size](https://img.shields.io/github/repo-size/Animenosekai/translate)
 ![Issues](https://img.shields.io/github/issues/Animenosekai/translate)
