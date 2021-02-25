@@ -20,7 +20,7 @@ TRANSLITERATION_CACHES = {}
 SPELLCHECK_CACHES = {}
 LANGUAGE_CACHES = {}
 EXAMPLE_CACHES = {}
-DICTIONNARY_CACHES = {}
+DICTIONARY_CACHES = {}
 AUTOMATIC = Language("auto")
 
 class TranslationResult():
@@ -280,7 +280,7 @@ class Translator():
         EXAMPLE_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = response
         return response
 
-    def dictionnary(self, text, destination_language, source_language=None) -> Union[Dict[str, Union[str, List[str]]], None]:
+    def dictionary(self, text, destination_language, source_language=None) -> Union[Dict[str, Union[str, List[str]]], None]:
         """
         Returns a list of translations that are classified between two categories: featured and less common
 
@@ -288,7 +288,7 @@ class Translator():
 
         _html and _response are also provided if you want to parse the HTML response (by DeepL/Linguee) by yourself
         """
-        global DICTIONNARY_CACHES
+        global DICTIONARY_CACHES
         if not isinstance(destination_language, Language):
             destination_language = Language(destination_language)
         if source_language is not None and not isinstance(source_language, Language):
@@ -296,8 +296,8 @@ class Translator():
 
         ## caches handling
         _cache_key = str({"t": str(text), "d": str(destination_language), "s": str(source_language)})
-        if _cache_key in DICTIONNARY_CACHES:
-            return DICTIONNARY_CACHES[_cache_key]
+        if _cache_key in DICTIONARY_CACHES:
+            return DICTIONARY_CACHES[_cache_key]
 
         lang, response = self.deepl_translate.dictionary(text, destination_language, source_language)
         if response is None and isinstance(self.deepl_translate, Unselected):
@@ -305,8 +305,8 @@ class Translator():
         try:
             lang = Language(lang)
         except: pass
-        DICTIONNARY_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = response
-        DICTIONNARY_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = response
+        DICTIONARY_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = response
+        DICTIONARY_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = response
         return response
 
 #translator = Translator()
