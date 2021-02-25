@@ -19,7 +19,7 @@ class StringVector():
 
 INTERNATIONAL_VECTORS = {StringVector(language):LANGUAGES_NAME_TO_CODE_INTERNATIONAL[language] for language in LANGUAGES_NAME_TO_CODE_INTERNATIONAL}
 
-def language_search(query):
+def language_search(query) -> tuple[str, str, float]:
     """
     Finds the most similar language
     """

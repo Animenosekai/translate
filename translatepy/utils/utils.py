@@ -2,7 +2,7 @@ from re import compile
 
 POSITIVE_FLOAT_REGEX = compile("[^0-9.]")
 
-def convert_to_float(element):
+def convert_to_float(element) -> float:
     """
     Safely converts anything to a positive float
     """
@@ -10,4 +10,4 @@ def convert_to_float(element):
     if element != '':
         return float(element)
     else:
-        return 0
+        return float(0)

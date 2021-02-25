@@ -1,4 +1,5 @@
 from json import loads
+from typing import Union
 from translatepy.models.languages import Language
 from requests import post
 
@@ -14,15 +15,23 @@ HEADERS = {
 }
 
 class ReversoTranslate():
-    """
-    A Python implementation of Reverso's API
-    """
+    """A Python implementation of Reverso's API"""
     def __init__(self) -> None:
         pass
 
-    def translate(self, text, destination_language, source_language=None):
+    def translate(self, text, destination_language, source_language=None) -> Union[tuple[str, str], tuple[None, None]]:
         """
         Translates the given text to the given language
+
+        Args:
+          text: param destination_language:
+          source_language: Default value = None)
+          destination_language: 
+
+        Returns:
+            Tuple(str, str) --> tuple with source_lang, translation
+            None, None --> when an error occurs
+
         """
         try:
             if source_language is None or str(source_language) == "auto":
@@ -56,15 +65,24 @@ class ReversoTranslate():
             return None, None
 
 
-    def spellcheck(self, text, source_language=None):
+    def spellcheck(self, text, source_language=None) -> Union[tuple[str, str], tuple[None, None]]:
         """
         Checks the spelling of the given text
+
+        Args:
+          text: param source_language:  (Default value = None)
+          source_language: (Default value = None)
+
+        Returns:
+            Tuple(str, str) --> tuple with source_lang, spellchecked_text
+            None, None --> when an error occurs
+
         """
         try:
             if source_language is None:
                 source_language = self.language(text)
                 if source_language is None:
-                    return None
+                    return None, None
             request = post("https://api.reverso.net/translate/v1/translation", headers=HEADERS, json={
                 "input": str(text),
                 "from": str(source_language),
@@ -80,16 +98,24 @@ class ReversoTranslate():
             if request.status_code < 400:
                 result = loads(request.text)["correctedText"]
                 if result is None:
-                    return text
-                return result
+                    return source_language, text
+                return source_language, result
             else:
-                return None
+                return None, None
         except:
-            return None
+            return None, None
 
-    def language(self, text):
+    def language(self, text) -> Union[str, None]:
         """
         Gives back the language of the given text
+
+        Args:
+          text: 
+
+        Returns:
+            str --> the language code
+            None --> when an error occurs
+
         """
         try:
             request = post("https://api.reverso.net/translate/v1/translation", headers=HEADERS, json={

@@ -1,9 +1,16 @@
+from typing import Union
 from translatepy.models.languages import Language
 from requests import post
 from json import loads
 from time import time
 from traceback import print_exc
 from bs4 import BeautifulSoup
+from warnings import warn
+
+class NotImplementYet(Warning):
+    """ """
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
 
 # not in use for now
@@ -17,15 +24,24 @@ FORMALITY = [
 ]
 
 class DeepL():
-    """
-    A Python implementation of DeepL APIs
-    """
+    """A Python implementation of DeepL APIs"""
     def __init__(self) -> None:
         pass
 
-    def translate(self, text, destination_language, source_language="auto", formality=None):
+    def translate(self, text, destination_language, source_language="auto", formality=None) -> Union[tuple[str, str], tuple[None, None]]:
         """
         Translates the given text to the given language
+
+        Args:
+          text: param destination_language:
+          source_language: Default value = "auto")
+          formality: Default value = None)
+          destination_language: 
+
+        Returns:
+            Tuple(str, str) --> tuple with source_lang, translation
+            None, None --> when an error occurs
+
         """
         try:
             if isinstance(destination_language, Language):
@@ -34,7 +50,8 @@ class DeepL():
                 source_language = source_language.deepl
             
             if formality is not None:
-                print("[translatepy] Warning: formality has not been implemented yet and won't have any effect to the translation")
+                warning_message = "[translatepy] Warning: formality has not been implemented yet and won't have any effect to the translation"
+                warn(NotImplementYet(warning_message))
             if source_language is None:
                 source_language = "auto"
             payload = {"jsonrpc":"2.0","method": "LMT_handle_jobs","params":{"jobs":[{"kind":"default","raw_en_sentence":str(text),"raw_en_context_before":[],"raw_en_context_after":[],"preferred_num_beams":4,"quality":"fast"}],"lang":{"user_preferred_langs":["JA","FR","EN"],"source_lang_user_selected":str(source_language),"target_lang":str(destination_language)},"priority":-1,"commonJobParams":{},"timestamp":int(time())},"id":63710028}
@@ -49,11 +66,26 @@ class DeepL():
             print_exc()
             return None, None
 
-    def dictionnary(self, text, destination_language, source_language=None):
+    def dictionary(self, text, destination_language, source_language=None) -> Union[tuple[str, dict], tuple[None, None]]:
         """
         Gives out a list of translations
-
+        
         > destination_language and source_language both need to be the full english name
+
+        Args:
+          text: param destination_language:
+          source_language: Default value = None)
+          destination_language: 
+
+        Returns:
+            Tuple(str, Dict({
+                featured: featured translations,
+                less_common: less common translations,
+                _html: the raw HTML response,
+                _response: the BeautifulSoup object for the given HTML
+            })) --> tuple with source_lang, results
+            None, None --> when an error occurs
+
         """
         try:
             if isinstance(destination_language, Language):
@@ -99,9 +131,17 @@ class DeepL():
             print_exc()
             return None, None
 
-    def language(self, text):
+    def language(self, text) -> Union[str, None]:
         """
         Gives out the language of the given text
+
+        Args:
+          text: 
+
+        Returns:
+            str --> the language code
+            None --> when an error occurs
+
         """
         try:
             payload = {"jsonrpc":"2.0","method": "LMT_handle_jobs","params":{"jobs":[{"kind":"default","raw_en_sentence":str(text),"raw_en_context_before":[],"raw_en_context_after":[],"preferred_num_beams":4,"quality":"fast"}],"lang":{"user_preferred_langs":["JA","FR","EN"],"source_lang_user_selected":"auto","target_lang":"JA","priority":-1,"commonJobParams":{},"timestamp":int(time())},"id":63710028}}

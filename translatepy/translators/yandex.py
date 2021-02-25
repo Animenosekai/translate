@@ -2,6 +2,7 @@ from time import time
 from json import loads
 from random import randint
 from os.path import dirname, abspath
+from typing import Union
 
 from safeIO import TextFile
 from requests import get, post
@@ -26,9 +27,7 @@ HEADERS = {
 TRANSLIT_LANGS = ['am', 'bn', 'el', 'gu', 'he', 'hi', 'hy', 'ja', 'ka', 'kn', 'ko', 'ml', 'mr', 'ne', 'pa', 'si', 'ta', 'te', 'th', 'yi', 'zh']
 
 class YandexTranslate():
-    """
-    A Python implementation of Yandex Translation's APIs
-    """
+    """A Python implementation of Yandex Translation's APIs"""
     def __init__(self, sid_refresh=False) -> None:
         self._base_url = "https://translate.yandex.net/api/v1/tr.json/"
         self._sid_cache = TextFile(FILE_LOCATION + "/_yandex_sid.translatepy", blocking=False)
@@ -42,12 +41,18 @@ class YandexTranslate():
         if sid_refresh:
             self.refreshSID()
         
-    def refreshSID(self):
+    def refreshSID(self) -> bool:
         """
         Refreshes the SID used for requests to Yandex Translation API
-
+        
         See issue #4 for more information
         Randomness is used to prevent bot detection
+
+        Args:
+
+        Returns:
+            Bool --> wether it succeded or not
+
         """
         try:
             if time() - self._last_tried > self._check_increment: # if the duration between the last time we tried to get the SID and now is greater than 10 minutes for the first pass
@@ -72,20 +77,36 @@ class YandexTranslate():
         except:
             return False
 
-    def _header(self):
+    def _header(self) -> dict:
         """
         Creates a new header
-
+        
         _header might not be appropriate if the _sid is linked to the User-Agent header
+
+        Args:
+
+        Returns:
+            Dict --> the new headers
+
         """
         _dict = HEADERS.copy()
         randomChoice = randint(0, 7499)
         _dict.update({"User-Agent": USER_AGENTS[randomChoice]})
         return _dict
 
-    def translate(self, text, destination_language, source_language="auto"):
+    def translate(self, text, destination_language, source_language="auto") -> Union[tuple[str, str], tuple[None, None]]:
         """
         Translates the given text to the given language
+
+        Args:
+          text: param destination_language:
+          source_language: Default value = "auto")
+          destination_language: 
+
+        Returns:
+            Tuple(str, str) --> tuple with source_lang, translation
+            None, None --> when an error occurs
+
         """
         try:
             # preparing the request
@@ -100,6 +121,7 @@ class YandexTranslate():
                 return None, None
 
             def _request():
+                """ """
                 url = self._base_url + "translate?id=" + self._sid + "-0-0&srv=tr-text&lang=" + str(source_language) +"-" + str(destination_language)  + "&reason=auto&format=text"
                 request = get(url, headers=self._headers, data={'text': str(text), 'options': '4'})
                 data = loads(request.text)
@@ -116,9 +138,18 @@ class YandexTranslate():
         except:
             return None, None
 
-    def transliterate(self, text, source_language=None):
+    def transliterate(self, text, source_language=None) -> Union[tuple[str, str], tuple[None, None]]:
         """
         Transliterates the given text
+
+        Args:
+          text: param source_language:  (Default value = None)
+          source_language: (Default value = None)
+
+        Returns:
+            Tuple(str, str) --> tuple with source_lang, transliteration
+            None, None --> when an error occurs
+
         """
         try:
             if source_language is None:
@@ -130,6 +161,7 @@ class YandexTranslate():
                 return None, None
 
             def _request():
+                """ """
                 request = post("https://translate.yandex.net/translit/translit?sid=" + self._sid + "&srv=tr-text", headers=self._headers, data={'text': str(text), 'lang': source_language})
                 if request.status_code < 400:
                     return source_language, request.text[1:-1]
@@ -144,9 +176,18 @@ class YandexTranslate():
         except:
             return None, None
 
-    def spellcheck(self, text, source_language=None):
+    def spellcheck(self, text, source_language=None) -> Union[tuple[str, str], tuple[None, None]]:
         """
         Spell checks the given text
+
+        Args:
+          text: param source_language:  (Default value = None)
+          source_language: (Default value = None)
+
+        Returns:
+            Tuple(str, str) --> tuple with source_lang, spellchecked_text
+            None, None --> when an error occurs
+
         """
         try:
             if source_language is None:
@@ -158,6 +199,7 @@ class YandexTranslate():
                 return None, None
 
             def _request():
+                """ """
                 request = post("https://speller.yandex.net/services/spellservice.json/checkText?sid=" + self._sid + "&srv=tr-text", headers=self._headers, data={'text': str(text), 'lang': source_language, 'options': 516})
                 if request.status_code < 400:
                     data = loads(request.text)
@@ -175,9 +217,18 @@ class YandexTranslate():
         except:
             return None, None
 
-    def language(self, text, hint=None):
+    def language(self, text, hint=None) -> Union[str, None]:
         """
         Gives back the language of the given text
+
+        Args:
+          text: param hint:  (Default value = None)
+          hint: (Default value = None)
+
+        Returns:
+            str --> the language code
+            None --> when an error occurs
+
         """
         try:
             if hint is None:
@@ -189,6 +240,7 @@ class YandexTranslate():
             url = self._base_url + "detect?sid=" + self._sid + "&srv=tr-text&text=" + str(text) + "&options=1&hint=" + str(hint)
 
             def _request():
+                """ """
                 request = get(url, headers=self._headers)
                 if request.status_code < 400 and request.json()["code"] == 200:
                     return loads(request.text)["lang"]

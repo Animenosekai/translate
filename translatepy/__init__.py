@@ -5,13 +5,7 @@ Translate, transliterate, get the language of texts in no time with the help of 
 © Anime no Sekai — 2021
 """
 
-
-#"""PRODUCTION
 from translatepy.translate import *
-#"""
-"""DEBUG
-from translate import *
-"""
 
 __author__      = 'Anime no Sekai'
 __copyright__   = 'Copyright 2021, translate'

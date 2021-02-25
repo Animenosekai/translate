@@ -129,7 +129,7 @@ It is the High API providing all of the methods and optimizations for `translate
 - spellcheck: To check the spelling of a text
 - language: To get the language of a text
 - example: To get examples of a word
-- dictionnary: To get a list of translations categorized into "featured" and "less common" by DeepL and Linguee
+- dictionary: To get a list of translations categorized into "featured" and "less common" by DeepL and Linguee
 
 When something goes wrong or nothing got found, `None` is returned.
 

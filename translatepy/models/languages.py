@@ -11,6 +11,9 @@ LANGUAGES_CACHES = {}
 
 
 class Language():
+    """
+    A language object containing all of the data for a language (all of its translations, codes, service specific code, etc.)
+    """
     def __init__(self, language) -> None:
         global LANGUAGES_CACHES
 

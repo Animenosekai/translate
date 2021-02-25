@@ -1,4 +1,5 @@
 from json import loads
+from typing import Union
 from translatepy.models.languages import Language
 from requests import post
 
@@ -15,7 +16,9 @@ HEADERS = {
 PARAMS = {'IG' : '839D27F8277F4AA3B0EDB83C255D0D70', 'IID' : 'translator.5033.3'}
 
 class Example():
+    """An Example"""
     class SourceExample():
+        """The source for an example"""
         def __init__(self, data) -> None:
             self._data = data
             self.prefix = self._data.get("sourcePrefix", "")
@@ -26,6 +29,7 @@ class Example():
         def __repr__(self) -> str:
             return str(self.example)
     class DestinationExample():
+        """The target language example"""
         def __init__(self, data) -> None:
             self._data = data
             self.prefix = self._data.get("targetPrefix", "")
@@ -46,15 +50,23 @@ class Example():
         
 
 class BingTranslate():
-    """
-    A Python implementation of Microsoft Bing Translation's APIs
-    """
+    """A Python implementation of Microsoft Bing Translation's APIs"""
     def __init__(self) -> None:
         pass
 
-    def translate(self, text, destination_language, source_language="auto-detect"):
+    def translate(self, text, destination_language, source_language="auto-detect") -> Union[tuple[str, str], tuple[None, None]]:
         """
         Translates the given text to the given language
+
+        Args:
+          text: param destination_language:
+          source_language: Default value = "auto-detect")
+          destination_language: 
+
+        Returns:
+            Tuple(str, str) --> tuple with source_lang, translation
+            None, None --> when an error occurs
+
         """
         try:
             if source_language is None:
@@ -71,9 +83,19 @@ class BingTranslate():
             return None, None
 
 
-    def example(self, text, destination_language, source_language="auto-detect"):
+    def example(self, text, destination_language, source_language="auto-detect") -> Union[tuple[str, list[Example]], tuple[None, None]]:
         """
-        Return examples for the given text
+        Gives examples for the given text
+
+        Args:
+          text: param destination_language:
+          source_language: Default value = "auto-detect")
+          destination_language: 
+
+        Returns:
+            Tuple(str, list[str]) --> tuple with source_lang, [examples]
+            None, None --> when an error occurs
+
         """
         try:
             source_language, translation = self.translate(text, destination_language, source_language)
@@ -88,9 +110,17 @@ class BingTranslate():
             return None, None
 
 
-    def spellcheck(self, text, source_language=None):
+    def spellcheck(self, text, source_language=None) -> Union[tuple[str, str], tuple[None, None]]:
         """
         Checks the spelling of the given text
+
+        Args:
+          text: param source_language:  (Default value = None)
+          source_language: (Default value = None)
+
+        Returns:
+            Tuple(str, str) --> tuple with source_lang, spellchecked_text
+            None, None --> when an error occurs
         """
         try:
             if source_language is None:
@@ -108,9 +138,17 @@ class BingTranslate():
         except:
             return None, None
 
-    def language(self, text):
+    def language(self, text) -> Union[str, None]:
         """
         Gives back the language of the given text
+
+        Args:
+          text: 
+
+        Returns:
+            str --> the language code
+            None --> when an error occurs
+
         """
         try:
             request = post("https://www.bing.com/ttranslatev3", headers=HEADERS, params=PARAMS, data={'text': str(text), 'fromLang': "auto-detect", 'to': "en"})

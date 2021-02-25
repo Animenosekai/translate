@@ -1,3 +1,4 @@
+from typing import Union
 from requests import get
 from json import loads
 
@@ -6,15 +7,23 @@ HEADERS = {
 }
 
 class GoogleTranslate():
-    """
-    A Python implementation of Google Translate's APIs
-    """
+    """A Python implementation of Google Translate's APIs"""
     def __init__(self) -> None:
         pass
 
-    def translate(self, text, destination_language, source_language="auto"):
+    def translate(self, text, destination_language, source_language="auto") -> Union[tuple[str, str], tuple[None, None]]:
         """
         Translates the given text to the given language
+
+        Args:
+          text: param destination_language:
+          source_language: Default value = "auto")
+          destination_language: 
+
+        Returns:
+            Tuple(str, str) --> tuple with source_lang, translation
+            None, None --> when an error occurs
+
         """
         try:
             if source_language is None:
@@ -34,20 +43,24 @@ class GoogleTranslate():
             return None, None
 
     def transliterate():
-        """
-        Transliterates the given text
-        """
+        """Transliterates the given text"""
         raise NotImplementedError
 
     def define():
-        """
-        Returns the definition of the given word
-        """
+        """Returns the definition of the given word"""
         raise NotImplementedError
 
-    def language(self, text):
+    def language(self, text) -> Union[str, None]:
         """
         Gives back the language of the given text
+
+        Args:
+          text: 
+
+        Returns:
+            str --> the language code
+            None --> when an error occurs
+
         """
         try:
             request = get("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=auto&tl=ja&q=" + str(text))
