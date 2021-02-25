@@ -6,6 +6,7 @@ from time import time
 from traceback import print_exc
 from bs4 import BeautifulSoup
 from warnings import warn
+from translatepy.utils.annotations import Tuple, List, Dict
 
 class NotImplementYet(Warning):
     """ """
@@ -28,7 +29,7 @@ class DeepL():
     def __init__(self) -> None:
         pass
 
-    def translate(self, text, destination_language, source_language="auto", formality=None) -> Union[tuple[str, str], tuple[None, None]]:
+    def translate(self, text, destination_language, source_language="auto", formality=None) -> Union[Tuple[str, str], Tuple[None, None]]:
         """
         Translates the given text to the given language
 
@@ -66,7 +67,7 @@ class DeepL():
             print_exc()
             return None, None
 
-    def dictionary(self, text, destination_language, source_language=None) -> Union[tuple[str, dict], tuple[None, None]]:
+    def dictionary(self, text, destination_language, source_language=None) -> Union[Tuple[str, Dict], Tuple[None, None]]:
         """
         Gives out a list of translations
         

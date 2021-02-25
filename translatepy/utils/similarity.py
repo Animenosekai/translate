@@ -6,6 +6,7 @@ from math import sqrt
 from collections import Counter
 from operator import itemgetter
 from translatepy.data.data import LANGUAGES_NAME_TO_CODE_INTERNATIONAL
+from translatepy.utils.annotations import Tuple
 
 class StringVector():
     def __init__(self, string) -> None:
@@ -19,7 +20,7 @@ class StringVector():
 
 INTERNATIONAL_VECTORS = {StringVector(language):LANGUAGES_NAME_TO_CODE_INTERNATIONAL[language] for language in LANGUAGES_NAME_TO_CODE_INTERNATIONAL}
 
-def language_search(query) -> tuple[str, str, float]:
+def language_search(query) -> Tuple[str, str, float]:
     """
     Finds the most similar language
     """

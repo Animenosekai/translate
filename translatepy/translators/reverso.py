@@ -3,6 +3,8 @@ from typing import Union
 from translatepy.models.languages import Language
 from requests import post
 
+from translatepy.utils.annotations import List, Tuple
+
 HEADERS = {
     "Host": "api.reverso.net",
     "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0",
@@ -19,7 +21,7 @@ class ReversoTranslate():
     def __init__(self) -> None:
         pass
 
-    def translate(self, text, destination_language, source_language=None) -> Union[tuple[str, str], tuple[None, None]]:
+    def translate(self, text, destination_language, source_language=None) -> Union[Tuple[str, str], Tuple[None, None]]:
         """
         Translates the given text to the given language
 
@@ -65,7 +67,7 @@ class ReversoTranslate():
             return None, None
 
 
-    def spellcheck(self, text, source_language=None) -> Union[tuple[str, str], tuple[None, None]]:
+    def spellcheck(self, text, source_language=None) -> Union[Tuple[str, str], Tuple[None, None]]:
         """
         Checks the spelling of the given text
 

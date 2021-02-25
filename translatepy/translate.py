@@ -13,6 +13,8 @@ from translatepy.translators.reverso import ReversoTranslate
 from translatepy.translators.deepl import DeepL
 from translatepy.translators.unselected import Unselected
 
+from translatepy.utils.annotations import List, Dict
+
 TRANSLATION_CACHES = {}
 TRANSLITERATION_CACHES = {}
 SPELLCHECK_CACHES = {}
@@ -250,7 +252,7 @@ class Translator():
         LANGUAGE_CACHES[text] = response
         return response
 
-    def example(self, text, destination_language, source_language=None) -> Union[list, None]:
+    def example(self, text, destination_language, source_language=None) -> Union[List, None]:
         """
         Returns a set of examples / use cases for the given word
 
@@ -278,7 +280,7 @@ class Translator():
         EXAMPLE_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = response
         return response
 
-    def dictionnary(self, text, destination_language, source_language=None) -> Union[dict[str, Union[str, list[str]]], None]:
+    def dictionnary(self, text, destination_language, source_language=None) -> Union[Dict[str, Union[str, List[str]]], None]:
         """
         Returns a list of translations that are classified between two categories: featured and less common
 

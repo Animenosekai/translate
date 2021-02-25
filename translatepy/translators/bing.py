@@ -1,7 +1,10 @@
 from json import loads
 from typing import Union
-from translatepy.models.languages import Language
+
 from requests import post
+
+from translatepy.models.languages import Language
+from translatepy.utils.annotations import Tuple, List
 
 HEADERS = {
     "Host": "www.bing.com",
@@ -54,7 +57,7 @@ class BingTranslate():
     def __init__(self) -> None:
         pass
 
-    def translate(self, text, destination_language, source_language="auto-detect") -> Union[tuple[str, str], tuple[None, None]]:
+    def translate(self, text, destination_language, source_language="auto-detect") -> Union[Tuple[str, str], Tuple[None, None]]:
         """
         Translates the given text to the given language
 
@@ -83,7 +86,7 @@ class BingTranslate():
             return None, None
 
 
-    def example(self, text, destination_language, source_language="auto-detect") -> Union[tuple[str, list[Example]], tuple[None, None]]:
+    def example(self, text, destination_language, source_language="auto-detect") -> Union[Tuple[str, List[Example]], Tuple[None, None]]:
         """
         Gives examples for the given text
 
@@ -110,7 +113,7 @@ class BingTranslate():
             return None, None
 
 
-    def spellcheck(self, text, source_language=None) -> Union[tuple[str, str], tuple[None, None]]:
+    def spellcheck(self, text, source_language=None) -> Union[Tuple[str, str], Tuple[None, None]]:
         """
         Checks the spelling of the given text
 

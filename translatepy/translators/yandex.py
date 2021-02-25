@@ -10,6 +10,7 @@ from requests import get, post
 from translatepy.models.languages import Language
 from translatepy.models.userAgents import USER_AGENTS
 from translatepy.utils.utils import convert_to_float
+from translatepy.utils.annotations import List, Tuple, Dict
 
 FILE_LOCATION = dirname(abspath(__file__))
 
@@ -77,7 +78,7 @@ class YandexTranslate():
         except:
             return False
 
-    def _header(self) -> dict:
+    def _header(self) -> Dict:
         """
         Creates a new header
         
@@ -94,7 +95,7 @@ class YandexTranslate():
         _dict.update({"User-Agent": USER_AGENTS[randomChoice]})
         return _dict
 
-    def translate(self, text, destination_language, source_language="auto") -> Union[tuple[str, str], tuple[None, None]]:
+    def translate(self, text, destination_language, source_language="auto") -> Union[Tuple[str, str], Tuple[None, None]]:
         """
         Translates the given text to the given language
 
@@ -138,7 +139,7 @@ class YandexTranslate():
         except:
             return None, None
 
-    def transliterate(self, text, source_language=None) -> Union[tuple[str, str], tuple[None, None]]:
+    def transliterate(self, text, source_language=None) -> Union[Tuple[str, str], Tuple[None, None]]:
         """
         Transliterates the given text
 
@@ -176,7 +177,7 @@ class YandexTranslate():
         except:
             return None, None
 
-    def spellcheck(self, text, source_language=None) -> Union[tuple[str, str], tuple[None, None]]:
+    def spellcheck(self, text, source_language=None) -> Union[Tuple[str, str], Tuple[None, None]]:
         """
         Spell checks the given text
 

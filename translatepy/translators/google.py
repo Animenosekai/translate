@@ -2,6 +2,8 @@ from typing import Union
 from requests import get
 from json import loads
 
+from translatepy.utils.annotations import Tuple
+
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36'
 }
@@ -11,7 +13,7 @@ class GoogleTranslate():
     def __init__(self) -> None:
         pass
 
-    def translate(self, text, destination_language, source_language="auto") -> Union[tuple[str, str], tuple[None, None]]:
+    def translate(self, text, destination_language, source_language="auto") -> Union[Tuple[str, str], Tuple[None, None]]:
         """
         Translates the given text to the given language
 
