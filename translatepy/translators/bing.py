@@ -86,7 +86,7 @@ class BingTranslate():
             return None, None
 
 
-    def example(self, text, destination_language, source_language="auto-detect") -> Union[Tuple[str, List[Example]], Tuple[None, None]]:
+    def example(self, text, destination_language, source_language=None, translation=None) -> Union[Tuple[str, List[Example]], Tuple[None, None]]:
         """
         Gives examples for the given text
 
@@ -101,9 +101,15 @@ class BingTranslate():
 
         """
         try:
-            source_language, translation = self.translate(text, destination_language, source_language)
             if translation is None:
-                return None, None
+                source_language, translation = self.translate(text, destination_language, source_language)
+                if translation is None or source_language is None:
+                    return None, None
+            else:
+                if source_language is None:
+                    source_language = self.language(text)
+                    if source_language is None:
+                        return None, None
             request = post("https://www.bing.com/texamplev3", headers=HEADERS, params=PARAMS, data={'text': str(text).lower(), 'from': str(source_language), 'to': str(destination_language), 'translation': str(translation).lower()})
             if request.status_code < 400:
                 return source_language, [Example(example) for example in loads(request.text)[0]["examples"]]

@@ -30,7 +30,7 @@ Minimum required versions: 3.2
 Incompatible versions:     2
 ```
 
-According to Vermin, Python 3.2 is needed for the backport of typing but some may say that it is available for python versions higher than 3.0
+According to Vermin (`--backport typing`), Python 3.2 is needed for the backport of typing but some may say that it is available for python versions higher than 3.0
 
 Always check if your Python version works with `translatepy` before using it in production
 
@@ -47,7 +47,7 @@ You can check if you successfully installed it by printing out its version:
 ```bash
 python -c "import translatepy; print(translatepy.__version__)"
 # output:
-translatepy v1.4
+translatepy v1.5
 ```
 
 ## List of Services
@@ -127,6 +127,10 @@ translatepy.EXAMPLE_CACHES = {}
 translatepy.DICTIONNARY_CACHES = {}
 ```
 
+Or by calling the `Translator()` method "`clean_cache`"
+
+***Warning: `translatepy`'s caches are global: they are used through all instances of `Translator()`***
+
 ### The Translator Class
 It is the High API providing all of the methods and optimizations for `translatepy`
 - translate: To translate things
@@ -139,6 +143,10 @@ It is the High API providing all of the methods and optimizations for `translate
 When something goes wrong or nothing got found, `None` is returned.
 
 The source language while being most of the time an instance of the Language class can sometimes be a string if the conversion to the Language class failed.
+
+
+An additional `"text_to_speech"` function can be found in the GoogleTranslate class (accessible with the `Translator()` class at `Translator().google_translate`).  
+***It is not officialy supported and is not very stable.***
 
 
 ## Deployment

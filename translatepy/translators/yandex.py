@@ -3,6 +3,7 @@ from json import loads
 from random import randint
 from os.path import dirname, abspath
 from typing import Union
+from urllib.parse import quote
 
 from safeIO import TextFile
 from requests import get, post
@@ -73,7 +74,7 @@ class YandexTranslate():
                     self._last_tried = time() # maybe keep that in a file
                     self._last_tried_cache.write(self._last_tried)
             # else
-            # do nothing as we know that yandex will rate-limit us if we ping too much their website
+            # do nothing as we know that yandex will rate-limit us if we ping them too much
             return False
         except:
             return False
@@ -238,7 +239,9 @@ class YandexTranslate():
             if self._sid.replace(" ", "") == "" and not self.refreshSID():
                 return None
 
-            url = self._base_url + "detect?sid=" + self._sid + "&srv=tr-text&text=" + str(text) + "&options=1&hint=" + str(hint)
+            text = quote(str(text), safe='')
+
+            url = self._base_url + "detect?sid=" + self._sid + "&srv=tr-text&text=" + text + "&options=1&hint=" + str(hint)
 
             def _request():
                 """ """

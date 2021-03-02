@@ -309,4 +309,25 @@ class Translator():
         DICTIONARY_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = response
         return response
 
+    def clean_cache(self) -> None:
+        """
+        Cleans translatepy's global caches
+
+        Returns:
+            None
+        """
+        global TRANSLATION_CACHES
+        global TRANSLITERATION_CACHES
+        global SPELLCHECK_CACHES
+        global LANGUAGE_CACHES
+        global EXAMPLE_CACHES
+        global DICTIONARY_CACHES
+
+        TRANSLATION_CACHES = {}
+        TRANSLITERATION_CACHES = {}
+        SPELLCHECK_CACHES = {}
+        LANGUAGE_CACHES = {}
+        EXAMPLE_CACHES = {}
+        DICTIONARY_CACHES = {}
+
 #translator = Translator()
