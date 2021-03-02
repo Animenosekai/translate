@@ -11,7 +11,7 @@ setup(
     author = "Anime no Sekai",
     author_email = "niichannomail@gmail.com",
     url = "https://github.com/Animenosekai/translate",
-    download_url = "https://github.com/Animenosekai/translate/archive/v1.4.tar.gz",
+    download_url = "https://github.com/Animenosekai/translate/archive/v1.5.tar.gz",
     keywords = ['python', 'translate', 'translation', 'google-translate', 'yandex-translate', 'bing-translate', 'reverso', 'transliteration', 'detect-language'],
     install_requires = ['safeIO>=1.2', 'requests', 'beautifulsoup4', 'typing; python_version<"3.5"'],
     classifiers = ['Development Status :: 5 - Production/Stable', 'License :: OSI Approved :: GNU General Public License v3 (GPLv3)', 'Programming Language :: Python :: 3', 'Programming Language :: Python :: 3.2', 'Programming Language :: Python :: 3.3', 'Programming Language :: Python :: 3.4', 'Programming Language :: Python :: 3.5', 'Programming Language :: Python :: 3.6', 'Programming Language :: Python :: 3.7', 'Programming Language :: Python :: 3.8', 'Programming Language :: Python :: 3.9'],
