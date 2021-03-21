@@ -46,7 +46,7 @@ class GoogleTranslate():
                 request = get("https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=" + str(source_language) + "&tl=" + str(destination_language) + "&q=" + text, headers=HEADERS)
                 if request.status_code < 400:
                     data = loads(request.text)
-                    return data['ld_result']["srclangs"][0], "".join(sentence["trans"] for sentence in data["sentences"])
+                    return data[0][0][2], "".join(sentence for sentence in data[0][0][0][0])
                 else:
                     return None, None
         except:
