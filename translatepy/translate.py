@@ -1,5 +1,5 @@
 """
-translatepy v1.5.1 (Stable)
+translatepy v1.5.2 (Stable)
 
 © Anime no Sekai — 2021
 """
