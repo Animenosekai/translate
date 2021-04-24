@@ -145,9 +145,18 @@ class Translator():
         if _cache_key in TRANSLITERATION_CACHES:
             return TRANSLITERATION_CACHES[_cache_key]
 
-        lang, response = self.yandex_translate.transliterate(text, source_language)
-        if response is None and isinstance(self.yandex_translate, Unselected):
-            return None
+        lang, response = self.google_translate.transliterate(text, source_language)
+        if response is None:
+            lang, response = self.yandex_translate.transliterate(text, source_language)
+            if response is None and isinstance(self.yandex_translate, Unselected):
+                return None
+            try:
+                lang = Language(lang)
+            except Exception: pass
+
+            TRANSLITERATION_CACHES[str({"t": str(text), "s": str(source_language)})] = response
+            TRANSLITERATION_CACHES[str({"t": str(text), "s": str(lang)})] = response
+            return response
         try:
             lang = Language(lang)
         except Exception: pass
