@@ -20,7 +20,7 @@ import pyuseragents
 from bs4 import BeautifulSoup
 
 from translatepy.models.languages import Language
-from translatepy.utils.annotations import Tuple, Dict
+from translatepy.utils.annotations import Tuple, Dict, List
 
 SENTENCES_SPLITTING_REGEX = compile('(?<=[.!:?]) +')
 
@@ -117,7 +117,7 @@ class DeepL():
         self.jsonrpc = JSONRPCRequest()
         self.user_preferred_langs = ([] if preferred_langs is None else preferred_langs)
 
-    def split_into_sentences(self, text, destination_language, source_language) -> Union[Tuple[list[str], str], Tuple[list[str], None]]:
+    def split_into_sentences(self, text, destination_language, source_language) -> Union[Tuple[List[str], str], Tuple[List[str], None]]:
         """
         Split a string into sentences using the DeepL API.\n
         Fallbacks to a simple Regex splitting if an error occurs or no result is found
