@@ -69,7 +69,7 @@ class getClientState():
         resp = loads(requests.post("https://www.deepl.com/PHP/backend/clientState.php?request_type=jsonrpc&il=EN", data=self.dump(), headers=self.headers, proxies=_proxies).content)
         """
 
-        resp = loads(requests.post("https://www.deepl.com/PHP/backend/clientState.php?request_type=jsonrpc&il=EN", data=dumps(self.dump()).encode("utf-8"), headers=self.headers).content)
+        resp = loads(requests.post("https://www.deepl.com/PHP/backend/clientState.php?request_type=jsonrpc&il=EN", data=dumps(self.dump()).encode("utf-8"), headers=self.headers).text)
         return resp.get("id", None)
 
 
@@ -106,7 +106,7 @@ class JSONRPCRequest():
 
     def send_jsonrpc(self, method, params):
         try:
-            resp = loads(requests.post("https://www2.deepl.com/jsonrpc", data=dumps(self.dump(method, params)).encode("utf-8"), headers=self.headers).content)
+            resp = loads(requests.post("https://www2.deepl.com/jsonrpc", data=dumps(self.dump(method, params)).encode("utf-8"), headers=self.headers).text)
             return resp.get("result", None)
         except Exception:
             return None
