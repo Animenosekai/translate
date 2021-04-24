@@ -82,7 +82,7 @@ class BingTranslate():
                 return data[0]["detectedLanguage"]["language"], data[0]["translations"][0]["text"]
             else:
                 return None, None
-        except:
+        except Exception:
             return None, None
 
 
@@ -115,7 +115,7 @@ class BingTranslate():
                 return source_language, [Example(example) for example in loads(request.text)[0]["examples"]]
             else:
                 return None, None
-        except:
+        except Exception:
             return None, None
 
 
@@ -144,7 +144,7 @@ class BingTranslate():
                 return source_language, result
             else:
                 return None, None
-        except:
+        except Exception:
             return None, None
 
     def language(self, text) -> Union[str, None]:
@@ -165,7 +165,7 @@ class BingTranslate():
                 return loads(request.text)[0]["detectedLanguage"]["language"]
             else:
                 return None
-        except:
+        except Exception:
             return None
 
     def __repr__(self) -> str:

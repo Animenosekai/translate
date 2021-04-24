@@ -76,7 +76,7 @@ class YandexTranslate():
             # else
             # do nothing as we know that yandex will rate-limit us if we ping them too much
             return False
-        except:
+        except Exception:
             return False
 
     def _header(self) -> Dict:
@@ -137,7 +137,7 @@ class YandexTranslate():
                 if self.refreshSID():
                     _lang, _text = _request()
             return _lang, _text
-        except:
+        except Exception:
             return None, None
 
     def transliterate(self, text, source_language=None) -> Union[Tuple[str, str], Tuple[None, None]]:
@@ -175,7 +175,7 @@ class YandexTranslate():
                 if self.refreshSID():
                     _lang, _text = _request()
             return _lang, _text
-        except:
+        except Exception:
             return None, None
 
     def spellcheck(self, text, source_language=None) -> Union[Tuple[str, str], Tuple[None, None]]:
@@ -216,7 +216,7 @@ class YandexTranslate():
                 if self.refreshSID():
                     _lang, _text = _request()
             return _lang, _text
-        except:
+        except Exception:
             return None, None
 
     def language(self, text, hint=None) -> Union[str, None]:
@@ -256,7 +256,7 @@ class YandexTranslate():
                 if self.refreshSID():
                     _lang = _request()
             return _lang
-        except:
+        except Exception:
             return None
 
     def __repr__(self) -> str:

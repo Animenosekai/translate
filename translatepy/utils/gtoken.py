@@ -108,7 +108,7 @@ class TokenAcquirer:
             code = code.encode().decode('unicode-escape')
         except AttributeError:
             raise Exception('Could not find TKK token for this request.\nSee https://github.com/ssut/py-googletrans/issues/234 for more details.')
-        except:
+        except Exception:
             raise
 
         if code:

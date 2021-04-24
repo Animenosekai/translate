@@ -17,7 +17,7 @@ class GoogleTranslate():
     def __init__(self) -> None:
         try:
             self.token_acquirer = TokenAcquirer()
-        except:
+        except Exception:
             self.token_acquirer = None
 
     def translate(self, text, destination_language, source_language="auto") -> Union[Tuple[str, str], Tuple[None, None]]:
@@ -48,11 +48,11 @@ class GoogleTranslate():
                     data = loads(request.text)
                     try:
                         return data['ld_result']["srclangs"][0], "".join((sentence["trans"] if "trans" in sentence else "") for sentence in data["sentences"])
-                    except:
+                    except Exception:
                         return data[0][0][2], "".join(sentence for sentence in data[0][0][0][0])
                 else:
                     return None, None
-        except:
+        except Exception:
             return None, None
 
     def transliterate(self):
@@ -95,7 +95,7 @@ class GoogleTranslate():
                 return request.content
             else:
                 return None
-        except:
+        except Exception:
             print_exc()
             return None
 
@@ -122,7 +122,7 @@ class GoogleTranslate():
                     return loads(request.text)['ld_result']["srclangs"][0]
                 else:
                     return None
-        except:
+        except Exception:
             return None
 
     def __repr__(self) -> str:

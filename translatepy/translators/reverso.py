@@ -63,7 +63,7 @@ class ReversoTranslate():
                 return data["languageDetection"]["detectedLanguage"], data["translation"][0]
             else:
                 return None, None
-        except:
+        except Exception:
             return None, None
 
 
@@ -104,7 +104,7 @@ class ReversoTranslate():
                 return source_language, result
             else:
                 return None, None
-        except:
+        except Exception:
             return None, None
 
     def language(self, text) -> Union[str, None]:
@@ -136,7 +136,7 @@ class ReversoTranslate():
                 return loads(request.text)["languageDetection"]["detectedLanguage"]
             else:
                 return None
-        except:
+        except Exception:
             return None
 
     def __repr__(self) -> str:

@@ -95,35 +95,37 @@ class Translator():
                             return None
                         try:
                             lang = Language(lang)
-                        except: pass
+                        except Exception: pass
                         result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=self.yandex_translate)
                         TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = result
                         TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = result
+                        if response is None:
+                            return None
                         return result
                     try:
                         lang = Language(lang)
-                    except: pass
+                    except Exception: pass
                     result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=self.reverso_translate)
                     TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = result
                     TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = result
                     return result
                 try:
                     lang = Language(lang)
-                except: pass
+                except Exception: pass
                 result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=self.deepl_translate)
                 TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = result
                 TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = result
                 return result
             try:
                 lang = Language(lang)
-            except: pass
+            except Exception: pass
             result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=self.bing_translate)
             TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = result
             TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = result
             return result
         try:
             lang = Language(lang)
-        except: pass
+        except Exception: pass
         result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=self.google_translate)
         TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = result
         TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = result
@@ -148,7 +150,7 @@ class Translator():
             return None
         try:
             lang = Language(lang)
-        except: pass
+        except Exception: pass
 
         TRANSLITERATION_CACHES[str({"t": str(text), "s": str(source_language)})] = response
         TRANSLITERATION_CACHES[str({"t": str(text), "s": str(lang)})] = response
@@ -177,7 +179,7 @@ class Translator():
                 lang, response = self.yandex_translate.spellcheck(text, source_language)
                 try:
                     lang = Language(lang)
-                except: pass
+                except Exception: pass
                 if response is None and isinstance(self.yandex_translate, Unselected):
                     return None
 
@@ -186,14 +188,14 @@ class Translator():
                 return response
             try:
                 lang = Language(lang)
-            except: pass
+            except Exception: pass
 
             SPELLCHECK_CACHES[str({"t": str(text), "s": str(source_language)})] = response
             SPELLCHECK_CACHES[str({"t": str(text), "s": str(lang)})] = response
             return response
         try:
             lang = Language(lang)
-        except: pass
+        except Exception: pass
 
         SPELLCHECK_CACHES[str({"t": str(text), "s": str(source_language)})] = response
         SPELLCHECK_CACHES[str({"t": str(text), "s": str(lang)})] = response
@@ -223,31 +225,31 @@ class Translator():
                             return None
                         try:
                             response = Language(response)
-                        except: pass
+                        except Exception: pass
 
                         LANGUAGE_CACHES[text] = response
                         return response
                     try:
                         response = Language(response)
-                    except: pass
+                    except Exception: pass
 
                     LANGUAGE_CACHES[text] = response
                     return response
                 try:
                     response = Language(response)
-                except: pass
+                except Exception: pass
 
                 LANGUAGE_CACHES[text] = response
                 return response
             try:
                 response = Language(response)
-            except: pass
+            except Exception: pass
 
             LANGUAGE_CACHES[text] = response
             return response
         try:
             response = Language(response)
-        except: pass
+        except Exception: pass
 
         LANGUAGE_CACHES[text] = response
         return response
@@ -275,7 +277,7 @@ class Translator():
 
         try:
             lang = Language(lang)
-        except: pass
+        except Exception: pass
         EXAMPLE_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = response
         EXAMPLE_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = response
         return response
@@ -304,7 +306,7 @@ class Translator():
             return None
         try:
             lang = Language(lang)
-        except: pass
+        except Exception: pass
         DICTIONARY_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = response
         DICTIONARY_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = response
         return response
