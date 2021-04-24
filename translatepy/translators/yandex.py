@@ -5,13 +5,13 @@ from os.path import dirname, abspath
 from typing import Union
 from urllib.parse import quote
 
+import pyuseragents
 from safeIO import TextFile
 from requests import get, post
 
 from translatepy.models.languages import Language
-from translatepy.models.userAgents import USER_AGENTS
 from translatepy.utils.utils import convert_to_float
-from translatepy.utils.annotations import List, Tuple, Dict
+from translatepy.utils.annotations import Tuple, Dict
 
 FILE_LOCATION = dirname(abspath(__file__))
 
@@ -93,7 +93,7 @@ class YandexTranslate():
         """
         _dict = HEADERS.copy()
         randomChoice = randint(0, 7499)
-        _dict.update({"User-Agent": USER_AGENTS[randomChoice]})
+        _dict.update({"User-Agent": pyuseragents.random()})
         return _dict
 
     def translate(self, text, destination_language, source_language="auto") -> Union[Tuple[str, str], Tuple[None, None]]:

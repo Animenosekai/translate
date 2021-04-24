@@ -76,6 +76,11 @@ def translate(text, destination_language, source_language):
             source_language = parsed[0][2]
         except Exception: pass
 
+    if source_language == 'auto' or source_language is None:
+        try:
+            source_language = parsed[0][1][1][0]
+        except Exception: pass
+
     return source_language, translated
 
 def transliterate(text, source_language):
@@ -90,6 +95,11 @@ def transliterate(text, source_language):
     if source_language.lower() == 'auto':
         try:
             source_language = parsed[0][2]
+        except Exception: pass
+
+    if source_language == 'auto' or source_language is None:
+        try:
+            source_language = parsed[0][1][1][0]
         except Exception: pass
 
     origin_pronunciation = None

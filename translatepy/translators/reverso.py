@@ -3,11 +3,12 @@ from typing import Union
 from translatepy.models.languages import Language
 from requests import post
 
+import pyuseragents
 from translatepy.utils.annotations import List, Tuple
 
 HEADERS = {
     "Host": "api.reverso.net",
-    "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0",
+    "User-Agent": pyuseragents.random(),
     "Accept": "*/*",
     "Accept-Language": "en-US,en;q=0.5",
     "Accept-Encoding": "gzip, deflate",

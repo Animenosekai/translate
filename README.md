@@ -158,6 +158,7 @@ Feel free to use it in production if you feel like it is suitable for your produ
 ## Built With
 
 * [safeIO](https://github.com/Animenosekai/safeIO) - To read files
+* [pyuseragents](https://github.com/Animenosekai/pyuseragents) - To generate the "User-Agent" HTTP header
 * [requests](https://github.com/psf/requests) - To make HTTP requests
 * [beautifulsoup4](https://pypi.org/project/beautifulsoup4/) - To parse HTML
 

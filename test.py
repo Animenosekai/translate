@@ -42,7 +42,6 @@ def test_imports():
     from translatepy.data import data
     from translatepy.models import exceptions
     from translatepy.models import languages
-    from translatepy.models import userAgents
     from translatepy.translators import bing
     from translatepy.translators import deepl
     from translatepy.translators import google

@@ -3,7 +3,7 @@ DeepL
 
 About the translation and the language endpoints:
     This implementation of DeepL follows Marocco2's implementation of DeepL's JSONRPC API\n
-    Arragements and optimizations have been made\n
+    Arrangements and optimizations have been made\n
     Refer to Issue Animenosekai/translate#7 on GitHub for further details
 
 © Anime no Sekai — 2021

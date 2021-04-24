@@ -27,7 +27,6 @@ setup(
             'data/_languages_name_to_code_en.json',
             'data/_languages_name_to_code_international.json',
             'data/_languages_to_international.json',
-        ],
-        'models': ['models/userAgents.json'],
+        ]
     },
 )

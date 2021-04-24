@@ -1,16 +1,150 @@
+"""
+Google Translate
+
+About _new_translate and _new_language:
+    Both function are using Google's new batchexecute (JSONRPC) API.
+    The code for the functions used (_request and _parse_response) come from https://github.com/ssut/py-googletrans/pull/255 with few adjustments
+    Heavily inspired by ssut/googletrans and https://kovatch.medium.com/deciphering-google-batchexecute-74991e4e446c
+"""
+
 from typing import Union
-from requests import get
-from json import loads
+from requests import get, post
+from json import loads, dumps
 from urllib.parse import quote
 from traceback import print_exc
 
+import pyuseragents
 from translatepy.utils.gtoken import TokenAcquirer
 from translatepy.utils.annotations import Tuple
 from translatepy.utils.utils import convert_to_float
 
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36'
+    'User-Agent': pyuseragents.random()
 }
+
+
+def _request(text, destination, source):
+    """
+    Makes a translation request to Google Translate RPC API
+
+    Most of the code comes from https://github.com/ssut/py-googletrans/pull/255
+    """
+    rpc_request = dumps([[
+        [
+            'MkEWBc',
+            dumps([[str(text), str(source), str(destination), True],[None]], separators=(',', ':')),
+            None,
+            'generic',
+        ],
+    ]], separators=(',', ':'))
+    data = {
+        "f.req": rpc_request
+    }
+    params = {
+        'rpcids': "MkEWBc",
+        'bl': 'boq_translate-webserver_20201207.13_p0',
+        'soc-app': 1,
+        'soc-platform': 1,
+        'soc-device': 1,
+        'rt': 'c',
+    }
+    request = post('https://translate.google.com/_/TranslateWebserverUi/data/batchexecute', params=params, data=data)
+    if request.status_code < 400:
+        return request.text
+    return None
+
+def _parse_response(data):
+    """
+    Parses the broken JSON response given by the new RPC API endpoint (batchexecute)
+
+    Most of the code comes from https://github.com/ssut/py-googletrans/pull/255
+    """
+    token_found = False
+    resp = ""
+    opening_bracket = 0
+    closing_bracket = 0
+    # broken json parsing
+    for line in data.split('\n'):
+        token_found = token_found or '"MkEWBc"' in line[:30]
+        if not token_found:
+            continue
+
+        is_in_string = False
+        for index, char in enumerate(line):
+            if char == '\"' and line[max(0, index - 1)] != '\\':
+                is_in_string = not is_in_string
+            if not is_in_string:
+                if char == '[':
+                    opening_bracket += 1
+                elif char == ']':
+                    closing_bracket += 1
+
+        resp += line
+        if opening_bracket == closing_bracket:
+            break
+
+    return loads(loads(resp)[0][2])
+
+
+def _new_translate(text, destination_language, source_language):
+    """
+    Translates the given text to the destination language with the new batchexecute API
+
+    Heavily inspired by ssut/googletrans and https://kovatch.medium.com/deciphering-google-batchexecute-74991e4e446c
+    """
+    try:
+        request = _request(text, destination_language, source_language)    
+        parsed = _parse_response(request)
+        translated = (' ' if parsed[1][0][0][3] else '').join([part[0] for part in parsed[1][0][0][5]])
+
+        source_language = str(source_language)
+        try:
+            source_language = parsed[2]
+        except Exception: pass
+
+        if source_language.lower() == 'auto':
+            try:
+                source_language = parsed[0][2]
+            except Exception: pass
+
+        if source_language == 'auto' or source_language is None:
+            try:
+                source_language = parsed[0][1][1][0]
+            except Exception: pass
+
+        return source_language, translated
+    except Exception:
+        return None, None
+
+
+def _new_language(text):
+    """
+    Returns the language of the given text with the new batchexecute API
+
+    Heavily inspired by ssut/googletrans and https://kovatch.medium.com/deciphering-google-batchexecute-74991e4e446c
+    """
+    try:
+        request = _request(text, "en", "auto")    
+        parsed = _parse_response(request)
+
+        source_language = None
+        try:
+            source_language = parsed[2]
+        except Exception: pass
+
+        if source_language == 'auto' or source_language is None:
+            try:
+                source_language = parsed[0][2]
+            except Exception: pass
+
+        if source_language == 'auto' or source_language is None:
+            try:
+                source_language = parsed[0][1][1][0]
+            except Exception: pass
+
+        return source_language
+    except Exception:
+        return None
 
 class GoogleTranslate():
     """A Python implementation of Google Translate's APIs"""
@@ -35,9 +169,12 @@ class GoogleTranslate():
 
         """
         try:
-            text = quote(str(text), safe='')
             if source_language is None:
                 source_language = "auto"
+            src, result = _new_translate(text, destination_language, source_language)
+            if src is not None and result is not None:
+                return src, result
+            text = quote(str(text), safe='')
             request = get("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=" + str(source_language) + "&tl=" + str(destination_language) + "&q=" + text)
             if request.status_code < 400:
                 data = loads(request.text)
@@ -55,9 +192,48 @@ class GoogleTranslate():
         except Exception:
             return None, None
 
-    def transliterate(self):
-        """Transliterates the given text"""
-        raise NotImplementedError
+    def transliterate(self, text, source_language=None) -> Union[Tuple[str, str], Tuple[None, None]]:
+        """
+        Transliterate the given text
+
+        Args:
+          text: param destination_language:
+          source_language: Default value = "auto")
+
+        Returns:
+            Tuple(str, str) --> tuple with source_lang, translation
+            None, None --> when an error occurs
+
+        """
+        try:
+            if source_language is None:
+                source_language = "auto"
+            request = _request(text, "en", source_language)
+            parsed = _parse_response(request)
+
+            source_language = str(source_language)
+            try:
+                source_language = parsed[2]
+            except Exception: pass
+
+            if source_language.lower() == 'auto':
+                try:
+                    source_language = parsed[0][2]
+                except Exception: pass
+
+            if source_language == 'auto' or source_language is None:
+                try:
+                    source_language = parsed[0][1][1][0]
+                except Exception: pass
+
+            origin_pronunciation = None
+            try:
+                origin_pronunciation = parsed[0][0]
+            except Exception: pass
+
+            return source_language, origin_pronunciation
+        except Exception:
+            return None, None
 
     def define(self):
         """Returns the definition of the given word"""
@@ -112,6 +288,9 @@ class GoogleTranslate():
 
         """
         try:
+            lang = _new_language(text)
+            if lang is not None:
+                return lang
             text = quote(str(text), safe='')
             request = get("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=auto&tl=ja&q=" + text)
             if request.status_code < 400:
