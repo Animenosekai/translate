@@ -32,10 +32,15 @@ def test_example():
     print("[test] --> Testing Translator.example")
     assert t.example("Hello", "japanese") is not None
 
+
 def test_dictionary():
     print("[test] --> Testing Translator.dictionary")
     #assert t.dictionary("Hello", "Japanese") is not None
     # I can't test dictionary as DeepL is very strict on their rate-limit
+
+def test_text_to_speech():
+    print("[test] --> Testing Translator.text_to_speech")
+    assert t.text_to_speech("Hello, how are you?", "English") is not None
 
 def test_imports():
     print("[test] --> Testing imports")
