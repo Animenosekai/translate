@@ -1,4 +1,3 @@
-https://translate.googleapis.com/translate_tts?client=gtx&ie=UTF-8&tl=<language>&q=<text>
 return "https://www.bing.com/tspeak?&format=audio%2Fmp3&language={{lang}}&IG=D5DFBE5EEA97455182D4DEA272551DCD&IID=translator.5036.43&text={{text}}"
                 .replace('{{text}}', encodeURIComponent(text))
                 .replace('{{lang}}', lang);
@@ -7,5 +6,8 @@ Mate Translate
 chrome-extension://jifpbeccnghkjeaalbbjmodiffmgedin/crxviewer.html?crx=https%3A%2F%2Fclients2.google.com%2Fservice%2Fupdate2%2Fcrx%3Fresponse%3Dredirect%26os%3Dmac%26arch%3Darm64%26os_arch%3Darm64%26nacl_arch%3Darm%26prod%3Dchromecrx%26prodchannel%3Dunknown%26prodversion%3D91.0.4464.5%26acceptformat%3Dcrx2%2Ccrx3%26x%3Did%253Dihmgiclibbndffejedjimfjmfoabpcke%2526uc&zipname=ihmgiclibbndffejedjimfjmfoabpcke.zip
 
 
+https://translate.googleapis.com/translate_tts?client=gtx&ie=UTF-8&tl=<language>&q=<text>
 https://translate.google.com/translate_tts?client=tw-ob&q=${encodeURIComponent(e)}&tl=${t}`
+
+
 https://translate.google.com/translate_tts?ie=UTF-8&q=[SPEAK_TEXT]&tl=[SRC_LANG]&total=[TOTAL]&idx=[INDEX]&textlen=[TEXT_LENGTH]&client=t&prev=input"

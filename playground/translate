@@ -5,6 +5,8 @@ data: {
     sl: sl,
     tl: tl
 },
+
+
 https://api.cognitive.microsofttranslator.com/translate?api-version=3.0
 $.ajax({
     url: BING_TRANSLATION_URL + '&to=' + to + bing_from,

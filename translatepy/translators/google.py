@@ -186,9 +186,25 @@ class GoogleTranslate():
                     try:
                         return data['ld_result']["srclangs"][0], "".join((sentence["trans"] if "trans" in sentence else "") for sentence in data["sentences"])
                     except Exception:
-                        return data[0][0][2], "".join(sentence for sentence in data[0][0][0][0])
-                else:
-                    return None, None
+                        try:
+                            return data[0][0][2], "".join(sentence for sentence in data[0][0][0][0])
+                        except Exception:
+                            pass
+                
+                request = get("https://translate.googleapis.com/translate_a/single?dt=t&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&client=gtx&q=" + text + "&hl=" + str(destination_language) + "&sl=" + str(source_language) + "&tl=" + str(destination_language) + "&dj=1&source=bubble")
+                if request.status_code < 400:
+                    data = loads(request.text)
+                    src = data.get("src", None)
+                    if src is None:
+                        src = data.get("ld_result", {}).get("srclangs", [None])[0]
+                        if src is None:
+                            src = data.get("ld_result", {}).get("extended_srclangs", [None])[0]
+                    return src, " ".join([sentence["trans"] for sentence in data["sentences"] if "trans" in sentence])
+                request = get("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&dt=bd&dj=1&source=input&q=" + text + "&sl=" + str(source_language) + "&tl=" + str(destination_language))
+                if request.status_code < 400:
+                    data = loads(request.text)
+                    return data["src"], " ".join([sentence["trans"] for sentence in data["sentences"] if "trans" in sentence])
+                return None, None
         except Exception:
             return None, None
 
@@ -231,7 +247,18 @@ class GoogleTranslate():
                 origin_pronunciation = parsed[0][0]
             except Exception: pass
 
-            return source_language, origin_pronunciation
+            if origin_pronunciation is not None:
+                return source_language, origin_pronunciation
+            request = get("https://translate.googleapis.com/translate_a/single?dt=t&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&client=gtx&q=" + text + "&hl=" + str(destination_language) + "&sl=" + str(source_language) + "&tl=" + str(destination_language) + "&dj=1&source=bubble")
+            if request.status_code < 400:
+                data = loads(request.text)
+                src = data.get("src", None)
+                if src is None:
+                    src = data.get("ld_result", {}).get("srclangs", [None])[0]
+                    if src is None:
+                        src = data.get("ld_result", {}).get("extended_srclangs", [None])[0]
+                return src, " ".join([sentence["src_translit"] for sentence in data["sentences"] if "src_translit" in sentence])
+            return None, None
         except Exception:
             return None, None
 
@@ -239,7 +266,7 @@ class GoogleTranslate():
         """Returns the definition of the given word"""
         raise NotImplementedError
 
-    def text_to_speech(self, text, source_language=None, speed=1):
+    def text_to_speech(self, text, source_language=None):
         """
         Gives back the text to speech result for the given text
 
@@ -249,23 +276,25 @@ class GoogleTranslate():
         Returns:
             bytes --> the mp3 file as bytes
             None --> when an error occurs
-
-        !! Currently doesn't seem to work well because of the Token Generation methods.
-            > Please refer to #234@ssut/py-googletrans if you have any problem
         """
         try:
-            if self.token_acquirer is None:
-                return None
-            text = str(text)
-            textlen = len(text)
-            token = self.token_acquirer.do(text)
-            if token is None:
-                return None
+            text = quote(str(text), safe='')
             if source_language is None:
                 source_language = self.language(text)
                 if source_language is None:
                     return None
-            text = quote(str(text), safe='')
+            request = get("https://translate.googleapis.com/translate_tts?client=gtx&ie=UTF-8&tl=" + str(source_language) + "&q=" + text)
+            if request.status_code == 200:
+                return request.content
+            request = get("https://translate.google.com/translate_tts?client=tw-ob&q=" + text + "&tl=" + str(source_language))
+            if request.status_code == 200:
+                return request.content
+            if self.token_acquirer is None:
+                return None
+            textlen = len(text)
+            token = self.token_acquirer.do(text)
+            if token is None:
+                return None
             request = get("https://translate.google.com/translate_tts?ie=UTF-8&q=" + text + "&tl=" + source_language + "&total=1&idx=0&textlen=" + textlen + "&tk=" + str(token) + "&client=webapp&prev=input&ttsspeed=" + str(convert_to_float(speed)))
             if request.status_code < 400:
                 return request.content
