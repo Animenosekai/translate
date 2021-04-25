@@ -47,7 +47,7 @@ You can check if you successfully installed it by printing out its version:
 ```bash
 python -c "import translatepy; print(translatepy.__version__)"
 # output:
-translatepy v1.5.2
+translatepy v1.6
 ```
 
 ## List of Services
@@ -139,15 +139,11 @@ It is the High API providing all of the methods and optimizations for `translate
 - language: To get the language of a text
 - example: To get examples of a word
 - dictionary: To get a list of translations categorized into "featured" and "less common" by DeepL and Linguee
+- text_to_speech: To get an MP3 file containing the speech version of the given text
 
 When something goes wrong or nothing got found, `None` is returned.
 
 The source language while being most of the time an instance of the Language class can sometimes be a string if the conversion to the Language class failed.
-
-
-An additional `"text_to_speech"` function can be found in the GoogleTranslate class (accessible with the `Translator()` class at `Translator().google_translate`).  
-***It is not officialy supported and is not very stable.***
-
 
 ## Deployment
 
