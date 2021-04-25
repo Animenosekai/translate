@@ -266,7 +266,7 @@ class GoogleTranslate():
         """Returns the definition of the given word"""
         raise NotImplementedError
 
-    def text_to_speech(self, text, source_language=None):
+    def text_to_speech(self, text, source_language=None) -> Union[bytes, None]:
         """
         Gives back the text to speech result for the given text
 

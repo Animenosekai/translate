@@ -260,7 +260,7 @@ class Translator():
         DICTIONARY_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = response
         return response
 
-    def text_to_speech(self, text, source_language=None):
+    def text_to_speech(self, text, source_language=None) -> Union[bytes, None]:
         """
         Gives back the text to speech result for the given text
 
