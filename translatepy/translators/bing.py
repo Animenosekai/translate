@@ -17,7 +17,8 @@ HEADERS = {
     "Content-Type": "application/x-www-form-urlencoded",
     "Connection": "keep-alive"
 }
-PARAMS = {'IG' : '839D27F8277F4AA3B0EDB83C255D0D70', 'IID' : 'translator.5033.3'}
+
+PARAMS = {'IG': '839D27F8277F4AA3B0EDB83C255D0D70', 'IID': 'translator.5033.3'}
 
 class Example():
     """An Example"""
@@ -65,7 +66,7 @@ class BingTranslate():
         Args:
           text: param destination_language:
           source_language: Default value = "auto-detect")
-          destination_language: 
+          destination_language:
 
         Returns:
             Tuple(str, str) --> tuple with source_lang, translation
@@ -94,7 +95,7 @@ class BingTranslate():
         Args:
           text: param destination_language:
           source_language: Default value = "auto-detect")
-          destination_language: 
+          destination_language:
 
         Returns:
             Tuple(str, list[str]) --> tuple with source_lang, [examples]
