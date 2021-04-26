@@ -1,5 +1,5 @@
 """
-translatepy v1.6 (Stable)
+translatepy v1.6.1 (Stable)
 
 © Anime no Sekai — 2021
 """
@@ -203,6 +203,9 @@ class Translator():
 
         if str(text).replace(" ", "").replace("\n", "") == "":
             return None
+
+        if destination_language is None:
+            destination_language = "Japanese" # could be anything
 
         ## language handling
         if not isinstance(destination_language, Language):
