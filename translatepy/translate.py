@@ -117,7 +117,7 @@ class Translator():
         if _cache_key in TRANSLITERATION_CACHES:
             return TRANSLITERATION_CACHES[_cache_key]
 
-        services = [self.google_translate]
+        services = [self.google_translate, self.yandex_translate]
         for service in services:
             if not isinstance(service, Unselected):
                 lang, response = service.transliterate(text, source_language)
@@ -193,7 +193,7 @@ class Translator():
                     return response
         return None
 
-    def example(self, text, destination_language, source_language=None) -> Union[List, None]:
+    def example(self, text, destination_language=None, source_language=None) -> Union[List, None]:
         """
         Returns a set of examples / use cases for the given word
 
@@ -205,7 +205,7 @@ class Translator():
             return None
 
         if destination_language is None:
-            destination_language = "Japanese" # could be anything
+            destination_language = "Japanese"  # could be anything
 
         ## language handling
         if not isinstance(destination_language, Language):

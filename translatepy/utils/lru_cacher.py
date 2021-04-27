@@ -16,10 +16,10 @@ def timed_lru_cache(seconds: int, maxsize: int = 128):
 
         @wraps(func)
         def wrapped_func(self, *args, **kwargs):
-            logger.debug(f"Time now: {datetime.utcnow()}")
-            logger.debug(f"Cached value's expiration time: {func.expiration}")
+            logger.debug("Time now: " + str(datetime.utcnow()))
+            logger.debug("Cached value's expiration time: " + str(func.expiration))
 
-            self._cached_functions_list = func
+            # self._cached_functions_list = func
 
             if datetime.utcnow() >= func.expiration:
                 logger.debug("The data in the cache is out of date, clearing the cache...")

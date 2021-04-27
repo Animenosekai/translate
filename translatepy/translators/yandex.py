@@ -1,7 +1,7 @@
 """
 Yandex Translate
 
-This implementation was made specifically for translatepy from 'Zhymabek Roman', based on 'Anime no Seka' version.
+This implementation was made specifically for translatepy from 'Zhymabek Roman', based on 'Anime no Sekai' version.
 
 """
 
@@ -36,7 +36,6 @@ class YandexTranslate():
     def __init__(self) -> None:
         self._base_url = "https://translate.yandex.net/api/v1/tr.json/"
 
-    # TODO: Make @property
     @timed_lru_cache(60)  # Store UUID value within 60 seconds
     def _ucid(self) -> str:
         """
@@ -71,7 +70,6 @@ class YandexTranslate():
             if source_language is None or str(source_language) == "auto":
                 source_language = self.language(text)
                 if source_language is None:
-                    # TODO: Raise exception
                     return None, None
             if isinstance(source_language, Language):
                 source_language = source_language.yandex_translate
@@ -83,6 +81,38 @@ class YandexTranslate():
                 if request.status_code < 400 and data["code"] == 200:
                     return str(data["lang"]).split("-")[0], data["text"][0]
                 return None, None  # TODO: Raise exception by YT returned status code
+
+            _lang, _text = _request()
+
+            return _lang, _text
+        except Exception:
+            return None, None
+
+    def transliterate(self, text, destination_language, source_language="auto") -> Union[Tuple[str, str], Tuple[None, None]]:
+        """
+        Transliterates the given text
+
+        Args:
+          text: param source_language:  (Default value = None)
+          source_language: (Default value = "auto")
+
+        Returns:
+            Tuple(str, str) --> tuple with source_lang, transliteration
+            None, None --> when an error occurs
+
+        """
+        try:
+            if source_language is None or str(source_language) == "auto":
+                source_language = self.language(text)
+                if source_language is None:
+                    return None, None
+
+            def _request():
+                request = post("https://translate.yandex.net/translit/translit?text=" + str(text) + "&lang=" + str(source_language) + "-" + str(destination_language), headers=HEADERS)
+                if request.status_code < 400:
+                    return source_language, request.text[1:-1]
+                else:
+                    return None, None
 
             _lang, _text = _request()
 
