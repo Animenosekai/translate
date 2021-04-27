@@ -49,13 +49,14 @@ class TranslationResult():
     def __ne__(self, o: object) -> bool:
         return str(o) != self.result
 
+
 class Translator():
     """
     A class which groups all of the APIs
     """
-    def __init__(self, use_google=True, use_yandex=True, use_bing=True, use_reverso=True, use_deepl=True, yandex_sid_refresh=False) -> None:
+    def __init__(self, use_google=True, use_yandex=True, use_bing=True, use_reverso=True, use_deepl=True) -> None:
         self.google_translate = (GoogleTranslate() if use_google else Unselected())
-        self.yandex_translate = (YandexTranslate(sid_refresh=yandex_sid_refresh) if use_yandex else Unselected())
+        self.yandex_translate = (YandexTranslate() if use_yandex else Unselected())
         self.bing_translate = (BingTranslate() if use_bing else Unselected())
         self.reverso_translate = (ReversoTranslate() if use_reverso else Unselected())
         self.deepl_translate = (DeepL() if use_deepl else Unselected())
@@ -115,7 +116,7 @@ class Translator():
         _cache_key = str({"t": str(text), "s": str(source_language)})
         if _cache_key in TRANSLITERATION_CACHES:
             return TRANSLITERATION_CACHES[_cache_key]
-        
+
         services = [self.google_translate, self.yandex_translate]
         for service in services:
             if not isinstance(service, Unselected):
@@ -152,7 +153,7 @@ class Translator():
         services = [self.bing_translate, self.reverso_translate, self.yandex_translate]
         for service in services:
             if not isinstance(service, Unselected):
-                lang, response = self.bing_translate.spellcheck(text, source_language)
+                lang, response = service.spellcheck(text, source_language)
                 if response is not None:
                     try:
                         lang = Language(lang)
@@ -162,7 +163,7 @@ class Translator():
                     SPELLCHECK_CACHES[str({"t": str(text), "s": str(lang)})] = response
                     return response
         return None
-        
+
     def language(self, text) -> Union[Language, str, None]:
         """
         Returns the language of the given text
@@ -192,7 +193,6 @@ class Translator():
                     return response
         return None
 
-
     def example(self, text, destination_language=None, source_language=None) -> Union[List, None]:
         """
         Returns a set of examples / use cases for the given word
@@ -205,7 +205,7 @@ class Translator():
             return None
 
         if destination_language is None:
-            destination_language = "Japanese" # could be anything
+            destination_language = "Japanese"  # could be anything
 
         ## language handling
         if not isinstance(destination_language, Language):

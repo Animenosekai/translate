@@ -58,7 +58,7 @@ def test_imports():
     from translatepy import translate
     import translatepy
 
-def test_yandex_sid():
+def test_yandex_ucid():
     print("[test] --> Testing Translator.yandex_translate._sid")
     t = translatepy.Translator()
-    assert t.yandex_translate._sid == translatepy.Translator().yandex_translate._sid
+    assert t.yandex_translate._ucid() is not None
