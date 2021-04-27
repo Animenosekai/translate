@@ -5,17 +5,14 @@ This implementation was made specifically for translatepy from 'Zhymabek Roman',
 
 """
 
-from typing import Union
-from urllib.parse import quote
 import uuid
+from typing import Union
 
 from requests import get, post
 
 from translatepy.models.languages import Language
 from translatepy.utils.annotations import Tuple
 from translatepy.utils.lru_cacher import timed_lru_cache
-
-# TODO: Implement getting a list of supported languages by querying Yandex Translate API request
 
 HEADERS = {
     "Accept": "*/*",
@@ -27,8 +24,6 @@ HEADERS = {
     "Referer": "https://translate.yandex.com/",
     "User-Agent": "ru.yandex.translate/3.20.2024"
 }
-
-TRANSLIT_LANGS = ['am', 'bn', 'el', 'gu', 'he', 'hi', 'hy', 'ja', 'ka', 'kn', 'ko', 'ml', 'mr', 'ne', 'pa', 'si', 'ta', 'te', 'th', 'yi', 'zh']
 
 
 class YandexTranslate():
@@ -88,7 +83,7 @@ class YandexTranslate():
         except Exception:
             return None, None
 
-    def transliterate(self, text, destination_language, source_language="auto") -> Union[Tuple[str, str], Tuple[None, None]]:
+    def transliterate(self, text, destination_language="en", source_language="auto") -> Union[Tuple[str, str], Tuple[None, None]]:
         """
         Transliterates the given text
 
@@ -108,7 +103,7 @@ class YandexTranslate():
                     return None, None
 
             def _request():
-                request = post("https://translate.yandex.net/translit/translit?text=" + str(text) + "&lang=" + str(source_language) + "-" + str(destination_language), headers=HEADERS)
+                request = post("https://translate.yandex.net/translit/translit", data={'text': str(text), 'lang': str(source_language) + "-" + str(destination_language)}, headers=HEADERS)
                 if request.status_code < 400:
                     return source_language, request.text[1:-1]
                 else:
@@ -172,12 +167,9 @@ class YandexTranslate():
             if hint is None:
                 hint = "en,ja"
 
-            text = quote(str(text), safe='')
-
-            url = self._base_url + "detect?ucid=" + self._ucid() + "&srv=android&text=" + text + "&hint=" + str(hint)
-
             def _request():
-                request = get(url, headers=HEADERS)
+                url = self._base_url + "detect?ucid=" + self._ucid() + "&srv=android"
+                request = get(url, data={'text': str(text), 'hint': str(hint)}, headers=HEADERS)
                 data = request.json()
                 if request.status_code < 400 and data["code"] == 200:
                     return data["lang"]
@@ -187,6 +179,28 @@ class YandexTranslate():
             _lang = _request()
 
             return _lang
+        except Exception:
+            return None
+
+    def supported_languages(self):
+        """
+        Returns all supported languages of Yandex Translator
+
+        Args:
+
+        Returns:
+            dict --> supported languages list with languages code and name
+        """
+        try:
+            url = self._base_url + "getLangs?ucid=" + self._ucid() + "&srv=android" + "&ui=en"
+            request = get(url, headers=HEADERS)
+            data = request.json()
+
+            if request.status_code < 400:
+                return data["langs"]
+            else:
+                return None
+
         except Exception:
             return None
 
