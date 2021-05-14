@@ -1,5 +1,5 @@
 """
-translatepy v1.6.1 (Stable)
+translatepy v1.7 (Stable)
 
 © Anime no Sekai — 2021
 """
@@ -91,7 +91,7 @@ class Translator():
                     try:
                         lang = Language(lang)
                     except Exception: pass
-                    result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=self.reverso_translate)
+                    result = TranslationResult(source=text, result=response, source_language=lang, destination_language=destination_language, service=service)
                     TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(source_language)})] = result
                     TRANSLATION_CACHES[str({"t": str(text), "d": str(destination_language), "s": str(lang)})] = result
                     return result

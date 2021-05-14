@@ -47,7 +47,7 @@ You can check if you successfully installed it by printing out its version:
 ```bash
 python -c "import translatepy; print(translatepy.__version__)"
 # output:
-translatepy v1.6
+translatepy v1.7
 ```
 
 ## List of Services
@@ -161,6 +161,7 @@ Feel free to use it in production if you feel like it is suitable for your produ
 ## Authors
 
 * **Anime no Sekai** - *Initial work* - [Animenosekai](https://github.com/Animenosekai)
+* **Zhymabek Roman** - *First Contributor (PR #10)* - [ZhymabekRoman](https://github.com/ZhymabekRoman)
 
 ## License
 
@@ -175,5 +176,6 @@ Please ask me if you want to use them in another project.
 
 ## Acknowledgments
 
+* Thanks to @ZhymabekRoman (Zhymabek Roman) for working on #10 and making Yandex more stable!
 * Thanks to @NawtJ0sh for giving me the way to add Microsoft Bing Translate
 * Inspired by py-googletrans (by @ssut) (especially the thread: [Issue #268](https://github.com/ssut/py-googletrans/issues/268))

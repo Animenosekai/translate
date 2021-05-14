@@ -1,0 +1,1 @@
+https://mymemory.translated.net/doc/spec.php

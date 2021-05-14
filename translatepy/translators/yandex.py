@@ -2,7 +2,6 @@
 Yandex Translate
 
 This implementation was made specifically for translatepy from 'Zhymabek Roman', based on 'Anime no Sekai' version.
-
 """
 
 import uuid
