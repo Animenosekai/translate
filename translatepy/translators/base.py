@@ -303,8 +303,8 @@ class BaseTranslator(ABC):
             # Taking the values from the cache
             example = self._examples_cache[_cache_key]
         else:
-            # Call the private concrete implementation of the Translator to get the translation
-            example = self._translate(text, dest_code, source_code)
+            # Call the private concrete implementation of the Translator to get the examples
+            example = self._example(text, dest_code, source_code)
 
             # Сache the translation values to speed up the translation process in the future
             self._examples_cache[_cache_key] = example
@@ -369,8 +369,8 @@ class BaseTranslator(ABC):
             # Taking the values from the cache
             dictionary = self._dictionaries_cache[_cache_key]
         else:
-            # Call the private concrete implementation of the Translator to get the translation
-            dictionary = self._translate(text, dest_code, source_code)
+            # Call the private concrete implementation of the Translator to get the dictionary result
+            dictionary = self._dictionary(text, dest_code, source_code)
 
             # Сache the translation values to speed up the translation process in the future
             self._dictionaries_cache[_cache_key] = dictionary
