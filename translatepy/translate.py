@@ -1,5 +1,5 @@
 """
-translatepy v2.0.0 (Alpha)
+translatepy v2.0.0-1 (Alpha)
 
 © Anime no Sekai — 2021
 """
@@ -55,12 +55,14 @@ class Translate():
             try:
                 result = service.translate(
                     text, destination_language, source_language)
+                if result is None:
+                    raise ValueError("Service Returned None")
             except Exception:
                 continue
             else:
                 return result
         else:
-            raise ValueError("No service has returned the correct result")
+            raise ValueError("No service has returned a valid result")
 
     def transliterate(self, text: str, destination_language: str = "en", source_language: str = "auto") -> TransliterationResult:
         """
@@ -76,7 +78,7 @@ class Translate():
             else:
                 return result
         else:
-            raise ValueError("No service has returned the correct result")
+            raise ValueError("No service has returned a valid result")
 
     def spellcheck(self, text: str, source_language: str = "auto") -> SpellcheckResult:
         """
@@ -93,7 +95,7 @@ class Translate():
             else:
                 return result
         else:
-            raise ValueError("No service has returned the correct result")
+            raise ValueError("No service has returned a valid result")
 
     def language(self, text: str) -> LanguageResult:
         """
@@ -110,7 +112,7 @@ class Translate():
             else:
                 return response
         else:
-            raise ValueError("No service has returned the correct result")
+            raise ValueError("No service has returned a valid result")
 
     def example(self, text: str, destination_language: str, source_language: str = "auto") -> str:
         """
@@ -127,7 +129,7 @@ class Translate():
             else:
                 return response
         else:
-            raise ValueError("No service has returned the correct result")
+            raise ValueError("No service has returned a valid result")
 
     def dictionary(self, text: str, destination_language: str, source_language="auto") -> str:
         """
@@ -144,7 +146,7 @@ class Translate():
             else:
                 return response
         else:
-            raise ValueError("No service has returned the correct result")
+            raise ValueError("No service has returned a valid result")
 
     def text_to_speech(self, text: str, source_language: str = "auto") -> bytes:
         """

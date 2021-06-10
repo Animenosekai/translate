@@ -1,6 +1,7 @@
 # `translatepy` (originally: translate)
 
-### An aggregation of multiple translation API.
+### An aggregation of multiple translation API
+
 ***Translate, transliterate, get the language of texts in no time with the help of multiple APIs!***
 
 [![PyPI version](https://badge.fury.io/py/translatepy.svg)](https://pypi.org/project/translatepy/)
@@ -14,7 +15,6 @@
 ![Code Size](https://img.shields.io/github/languages/code-size/Animenosekai/translate)
 ![Repo Size](https://img.shields.io/github/repo-size/Animenosekai/translate)
 ![Issues](https://img.shields.io/github/issues/Animenosekai/translate)
-
 
 ## Getting Started
 
@@ -48,7 +48,6 @@ pip install translatepy
 pip install https://github.com/Animenosekai/translate
 ```
 
-
 You can check if you successfully installed it by printing out its version:
 
 ```bash
@@ -60,7 +59,7 @@ translatepy v2.0
 or just:
 
 ```bash
-$ translatepy-cli --version
+$ translatepy --version
 # output:
 translatepy v2.0
 ```
@@ -75,18 +74,20 @@ translatepy v2.0
 
 All of the names belong to their respective rightholders.
 
-
 ## Usage
+
 ### Command line interface mode
+
 #### Interactive Shell (REPL)
 
 ```bash
-$ translatepy-cli shell --dest-lang Russian
+$ translatepy shell --dest-lang Russian
 >>> Hello
 Привет
 ```
 
 ### In Python script
+
 #### The Translator Class
 
 ```python
@@ -103,6 +104,7 @@ $ translatepy-cli shell --dest-lang Russian
 The language class contains lots of information about a language.
 
 You need to pass the language name or code to the class initialization:
+
 ```python
 >>> from translatepy import Language
 >>> Language("French")
@@ -120,6 +122,7 @@ The Language Class contains both the ISO 639-1 Alpha-2 language code and the ISO
 It also contains the language name for all of the languages available. (nullable)
 
 Example:
+
 ```python
 >>> Language("日本語").french
 'Japonais'
@@ -159,6 +162,7 @@ You can empty the cache by calling the method "`clean_cache`"
 ## The Translator Class
 
 It is the High API providing all of the methods and optimizations for `translatepy`
+
 - translate: To translate things
 - transliterate: To transliterate things
 - spellcheck: To check the spelling of a text
@@ -179,20 +183,21 @@ Feel free to use it in production if you feel like it is suitable for your produ
 
 ## Built With
 
-* [pyuseragents](https://github.com/Animenosekai/useragents) - To generate the "User-Agent" HTTP header
-* [requests](https://github.com/psf/requests) - To make HTTP requests
-* [beautifulsoup4](https://pypi.org/project/beautifulsoup4/) - To parse HTML
+- [pyuseragents](https://github.com/Animenosekai/useragents) - To generate the "User-Agent" HTTP header
+- [requests](https://github.com/psf/requests) - To make HTTP requests
+- [beautifulsoup4](https://pypi.org/project/beautifulsoup4/) - To parse HTML
 
 ## Authors
 
-* **Anime no Sekai** - *Initial work* - [Animenosekai](https://github.com/Animenosekai)
-* **Zhymabek Roman** - *First Contributor (PR #10)* - [ZhymabekRoman](https://github.com/ZhymabekRoman)
+- **Anime no Sekai** - *Initial work* - [Animenosekai](https://github.com/Animenosekai)
+- **Zhymabek Roman** - *Major Contributor (PR #10, PR #15)* - [ZhymabekRoman](https://github.com/ZhymabekRoman)
 
 ## License
 
 This project is licensed under the GNU Affero General Public License v3.0 License - see the [LICENSE](LICENSE) file for details
 
 ### Dataset
+
 All of the datasets are the result of my searches, computation and sometimes translation.
 
 Please ask me if you want to use them in another project.
@@ -201,6 +206,6 @@ Please ask me if you want to use them in another project.
 
 ## Acknowledgments
 
-* Thanks to @ZhymabekRoman (Zhymabek Roman) for working on #10 and making Yandex more stable!
-* Thanks to @NawtJ0sh for giving me the way to add Microsoft Bing Translate
-* Inspired by py-googletrans (by @ssut) (especially the thread: [Issue #268](https://github.com/ssut/py-googletrans/issues/268))
+- Thanks to @ZhymabekRoman (Zhymabek Roman) for working on making Yandex more stable and on the v2!
+- Thanks to @NawtJ0sh for giving me the way to add Microsoft Bing Translate
+- Inspired by py-googletrans (by @ssut) (especially the thread: [Issue #268](https://github.com/ssut/py-googletrans/issues/268))

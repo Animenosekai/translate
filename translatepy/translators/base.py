@@ -80,13 +80,13 @@ class BaseTranslator(ABC):
 
         if _cache_key in self._translations_cache:
             # Taking the values from the cache
-            translation = self._translations_cache[_cache_key]
+            source_language, translation = self._translations_cache[_cache_key]
         else:
             # Call the private concrete implementation of the Translator to get the translation
-            translation = self._translate(text, dest_code, source_code)
+            source_language, translation = self._translate(text, dest_code, source_code)
 
             # Сache the translation values to speed up the translation process in the future
-            self._translations_cache[_cache_key] = translation
+            self._translations_cache[_cache_key] = (source_language, translation)
 
         # Return a `TranslationResult` object
         return TranslationResult(
@@ -139,13 +139,13 @@ class BaseTranslator(ABC):
 
         if _cache_key in self._transliterations_cache:
             # Taking the values from the cache
-            transliteration = self._transliterations_cache[_cache_key]
+            source_language, transliteration = self._transliterations_cache[_cache_key]
         else:
             # Call the private concrete implementation of the Translator to get the transliteration
-            transliteration = self._transliterate(text, dest_code, source_code)
+            source_language, transliteration = self._transliterate(text, dest_code, source_code)
 
             # Сache the transliteration values to speed up the translation process in the future
-            self._transliterations_cache[_cache_key] = transliteration
+            self._transliterations_cache[_cache_key] = (source_language, transliteration)
 
         # Return a `TransliterationResult` object
         return TransliterationResult(
@@ -193,13 +193,13 @@ class BaseTranslator(ABC):
 
         if _cache_key in self._spellchecks_cache:
             # Taking the values from the cache
-            spellcheck = self._spellchecks_cache[_cache_key]
+            source_language, spellcheck = self._spellchecks_cache[_cache_key]
         else:
             # Call the private concrete implementation of the Translator to get the spellchecked text
-            spellcheck = self._spellcheck(text, source_code)
+            source_language, spellcheck = self._spellcheck(text, source_code)
 
             # Сache the spellcheck values to speed up the translation process in the future
-            self._spellchecks_cache[_cache_key] = spellcheck
+            self._spellchecks_cache[_cache_key] = (source_language, spellcheck)
 
         # Return a `SpellcheckResult` object
         return SpellcheckResult(
@@ -301,13 +301,13 @@ class BaseTranslator(ABC):
 
         if _cache_key in self._examples_cache:
             # Taking the values from the cache
-            example = self._examples_cache[_cache_key]
+            source_language, example = self._examples_cache[_cache_key]
         else:
             # Call the private concrete implementation of the Translator to get the examples
-            example = self._example(text, dest_code, source_code)
+            source_language, example = self._example(text, dest_code, source_code)
 
             # Сache the translation values to speed up the translation process in the future
-            self._examples_cache[_cache_key] = example
+            self._examples_cache[_cache_key] = (source_language, example)
 
         # Return a `ExampleResult` object
         return ExampleResult(
@@ -367,13 +367,13 @@ class BaseTranslator(ABC):
 
         if _cache_key in self._dictionaries_cache:
             # Taking the values from the cache
-            dictionary = self._dictionaries_cache[_cache_key]
+            source_language, dictionary = self._dictionaries_cache[_cache_key]
         else:
             # Call the private concrete implementation of the Translator to get the dictionary result
-            dictionary = self._dictionary(text, dest_code, source_code)
+            source_language, dictionary = self._dictionary(text, dest_code, source_code)
 
             # Сache the translation values to speed up the translation process in the future
-            self._dictionaries_cache[_cache_key] = dictionary
+            self._dictionaries_cache[_cache_key] = (source_language, dictionary)
 
         # Return a `DictionaryResult` object
         return DictionaryResult(

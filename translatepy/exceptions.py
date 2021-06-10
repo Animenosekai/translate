@@ -1,10 +1,14 @@
 class TranslationError(Exception):
-    pass
-
-
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 class UnknownLanguage(Exception):
-    pass
-
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
 class UnsupportedMethod(Exception):
-    pass
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+class RequestStatusError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)

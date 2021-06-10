@@ -23,7 +23,7 @@ setup(
     python_requires='>=3.2, <4',
     entry_points={
           'console_scripts': [
-              'translatepy-cli = translatepy.__main__:main'
+              'translatepy = translatepy.__main__:main'
           ]
     },
     package_data={

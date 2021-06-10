@@ -29,7 +29,11 @@ class ReversoTranslate(BaseTranslator):
         })
         response = request.json()
         if request.status_code < 400:
-            return response["translation"][0]
+            try:
+                _detected_language = response["languageDetection"]["detectedLanguage"]
+            except Exception:
+                _detected_language = source_language
+            return _detected_language, response["translation"][0]
 
     def _transliterate(self, text: str, destination_language: str, source_language: str) -> str:
         raise UnsupportedMethod("Reverso Translate doesn't support this method")
@@ -51,7 +55,7 @@ class ReversoTranslate(BaseTranslator):
         })
         response = request.json()
         if request.status_code < 400:
-            return response.get("text", text)
+            return source_language, response.get("text", text)
 
     def _language(self, text: str) -> str:
         request = self.session.post("https://api.reverso.net/translate/v1/translation", json={
@@ -85,7 +89,7 @@ class ReversoTranslate(BaseTranslator):
         response = request.json()
 
         if request.status_code < 400:
-            return response["list"]
+            return source_language, response["list"]
 
     def _dictionary(self, text: str, destination_language: str, source_language: str):
         destination_language = Language(destination_language).alpha2
@@ -103,11 +107,10 @@ class ReversoTranslate(BaseTranslator):
             _result = []
             for _dictionary in response["dictionary_entry_list"]:
                 _result.append(_dictionary["term"])
-            return _result
+            return source_language, _result
 
     def _text_to_speech(self, text: str, source_language: str):
         # TODO: Implement
-
         raise UnsupportedMethod("Reverso Translate doesn't support this method")
 
     def _language_normalize(self, language) -> str:

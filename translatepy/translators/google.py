@@ -28,21 +28,21 @@ class GoogleTranslate(BaseTranslator):
     def _translate(self, text, destination_language, source_language):
         for service in self.services:
             try:
-                service._translate(text, destination_language, source_language)
+                return service._translate(text, destination_language, source_language)
             except Exception:
                 continue
 
     def _transliterate(self, text, destination_language, source_language):
         for service in self.services:
             try:
-                service._transliterate(text, destination_language, source_language)
+                return service._transliterate(text, destination_language, source_language)
             except Exception:
                 continue
 
     def _language(self, text):
         for service in self.services:
             try:
-                service._language(text)
+                return service._language(text)
             except Exception:
                 continue
 
@@ -144,7 +144,27 @@ class GoogleTranslateV1(BaseTranslator):
         parsed = self._parse_response(request)
         translated = (' ' if parsed[1][0][0][3] else '').join([part[0] for part in parsed[1][0][0][5]])
 
-        return translated
+
+        _temp_source_lang = str(source_language)
+        source_language = _temp_source_lang
+        try:
+            source_language = parsed[2]
+        except Exception: pass
+
+        if source_language.lower() == 'auto':
+            try:
+                source_language = parsed[0][2]
+            except Exception: pass
+
+        if source_language == 'auto' or source_language is None:
+            try:
+                source_language = parsed[0][1][1][0]
+            except Exception: pass
+
+        if source_language == 'auto' or source_language is None:
+            source_language = _temp_source_lang
+
+        return source_language, translated
 
     def _transliterate(self, text: str, destination_language: str, source_language: str) -> str:
         request = self._request(text, destination_language, source_language)
@@ -153,9 +173,29 @@ class GoogleTranslateV1(BaseTranslator):
         try:
             origin_pronunciation = parsed[0][0]
         except Exception:
-            origin_pronunciation = None
+            origin_pronunciation = text
 
-        return origin_pronunciation
+
+        _temp_source_lang = str(source_language)
+        source_language = _temp_source_lang
+        try:
+            source_language = parsed[2]
+        except Exception: pass
+
+        if source_language.lower() == 'auto':
+            try:
+                source_language = parsed[0][2]
+            except Exception: pass
+
+        if source_language == 'auto' or source_language is None:
+            try:
+                source_language = parsed[0][1][1][0]
+            except Exception: pass
+
+        if source_language == 'auto' or source_language is None:
+            source_language = _temp_source_lang
+
+        return source_language, origin_pronunciation
 
     def _language(self, text):
         """
@@ -218,37 +258,72 @@ class GoogleTranslateV2(BaseTranslator):
         request = self.session.get("https://translate.googleapis.com/translate_a/single", params=params)
         response = request.json()
         if request.status_code < 400:
-            return "".join([sentence[0] for sentence in response[0]])
+            try:
+                _detected_language = response[2]
+            except Exception:
+                _detected_language = source_language
+            return _detected_language, "".join([sentence[0] for sentence in response[0]])
 
         params = {"client": "dict-chrome-ex", "sl": source_language, "tl": destination_language, "q": text}
         request = self.session.get("https://clients5.google.com/translate_a/t", params=params)
         response = request.json()
         if request.status_code < 400:
             try:
+                try:
+                    _detected_language = response['ld_result']["srclangs"][0]
+                except Exception:
+                    _detected_language = source_language
                 return "".join((sentence["trans"] if "trans" in sentence else "") for sentence in response["sentences"])
             except Exception:
-                return "".join(sentence for sentence in response[0][0][0][0])
+                try:
+                    try:
+                        _detected_language = response[0][0][2]
+                    except Exception:
+                        _detected_language = source_language
+                    return "".join(sentence for sentence in response[0][0][0][0])
+                except Exception: # if it fails, continue with the other endpoints
+                    pass
 
         params = {"dt": ["t", "bd", "ex", "ld", "md", "qca", "rw", "rm", "ss", "t", "at"], "client": "gtx", "q": text, "hl": destination_language, "sl": source_language, "tl": destination_language, "dj": "1", "source": "bubble"}
         request = self.session.get("https://translate.googleapis.com/translate_a/single", params=params)
         response = request.json()
         if request.status_code < 400:
-            return " ".join([sentence["trans"] for sentence in response["sentences"] if "trans" in sentence])
+            try:
+                _detected_language = response.get("src", None)
+                if _detected_language is None:
+                    _detected_language = response.get("ld_result", {}).get("srclangs", [None])[0]
+                    if _detected_language is None:
+                        _detected_language = response.get("ld_result", {}).get("extended_srclangs", [None])[0]
+            except Exception:
+                _detected_language = source_language
+            return _detected_language, " ".join([sentence["trans"] for sentence in response["sentences"] if "trans" in sentence])
 
         params = {"client": "gtx", "dt": ["t", "bd"], "dj": "1", "source": "input", "q": text, "sl": source_language, "tl": destination_language}
         request = self.session.get("https://translate.googleapis.com/translate_a/single", params=params)
         response = request.json()
         if request.status_code < 400:
-            return "".join([sentence["trans"] for sentence in response["sentences"] if "trans" in sentence])
+            try:
+                _detected_language = response["src"]
+            except Exception:
+                _detected_language = source_language
+            return _detected_language, "".join([sentence["trans"] for sentence in response["sentences"] if "trans" in sentence])
 
     def _transliterate(self, text: str, destination_language: str, source_language: str) -> str:
         params = {"dt": ["t", "bd", "ex", "ld", "md", "qca", "rw", "rm", "ss", "t", "at"], "client": "gtx", "q": text, "hl": destination_language, "sl": source_language, "tl": destination_language, "dj": "1", "source": "bubble"}
         request = self.session.get("https://translate.googleapis.com/translate_a/single", params=params)
         response = request.json()
         if request.status_code < 400:
-            return " ".join([sentence["src_translit"] for sentence in response["sentences"] if "src_translit" in sentence])
+            try:
+                _detected_language = response.get("src", None)
+                if _detected_language is None:
+                    _detected_language = response.get("ld_result", {}).get("srclangs", [None])[0]
+                    if _detected_language is None:
+                        _detected_language = response.get("ld_result", {}).get("extended_srclangs", [None])[0]
+            except Exception:
+                _detected_language = source_language    
+            return _detected_language, " ".join([sentence["src_translit"] for sentence in response["sentences"] if "src_translit" in sentence])
 
-    # def define(self):  # XXX: What for need this?
+    # def define(self):  # XXX: What for need this? --> because I saw on Google Translate that there is a definition feature
     #     """Returns the definition of the given word"""
     #     raise NotImplementedError
 

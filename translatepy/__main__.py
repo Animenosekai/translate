@@ -6,7 +6,7 @@ def main():
     dl = translatepy.Translator()
 
     # Create the parser
-    parser = argparse.ArgumentParser(prog='translatepy-cli', description='Translate, transliterate, get the language of texts in no time with the help of multiple APIs!')
+    parser = argparse.ArgumentParser(prog='translatepy', description='Translate, transliterate, get the language of texts in no time with the help of multiple APIs!')
 
     parser.add_argument('--version', action='version', version=translatepy.__version__)
 

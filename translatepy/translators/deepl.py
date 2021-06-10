@@ -59,7 +59,6 @@ class GetClientState():
         """
         Returns a new Client State ID
         """
-
         request = self.session.post("https://www.deepl.com/PHP/backend/clientState.php", params={"request_type": "jsonrpc", "il": "EN", "method": "getClientState"}, json=self.dump())
         response = request.json()
         return response["id"]
@@ -71,7 +70,10 @@ class JSONRPCRequest():
     """
     def __init__(self, request: Request) -> None:
         self.client_state = GetClientState(request)
-        self.id_number = self.client_state.get()
+        try:
+            self.id_number = self.client_state.get()
+        except Exception:
+            self.id_number = randint(2000000, 3000000) # ? I didn't verify the range, but it's better having only DeepL not working than having Translator() crash for only one service
         self.session = request
         self.last_access = time() + 3
 
@@ -163,9 +165,14 @@ class DeeplTranslate(BaseTranslator):
 
         results = self.jsonrpc.send_jsonrpc("LMT_handle_jobs", params)
 
+        try:
+            _detected_language = results["source_lang"]
+        except:
+            _detected_language = source_language
+
         if results is not None:
             translations = results["translations"]
-            return " ".join(obj["beams"][0]["postprocessed_sentence"] for obj in translations if obj["beams"])
+            return _detected_language, " ".join(obj["beams"][0]["postprocessed_sentence"] for obj in translations if obj["beams"])
 
     def _language(self, text: str) -> str:
         priority = 1
@@ -224,7 +231,7 @@ class DeeplTranslate(BaseTranslator):
                         #     results["featured"].append(element.text.replace("\n", ""))
                         # else:
                         #     results["less_common"].append(element.text.replace("\n", ""))
-            return _result
+            return source_language, _result
 
     def _build_jobs(self, sentences, quality=""):
         """

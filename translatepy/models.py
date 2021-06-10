@@ -19,7 +19,13 @@ class TranslationResult:
         return self.result
 
     def __repr__(self) -> str:
-        return str(self.__dict__)
+        return "TranslationResult(service={service}, source={source}, source_language={source_language}, destination_language={destination_language}, result={result})".format(
+            service=self.service,
+            source=self.source,
+            source_language=self.source_language,
+            destination_language=self.destination_language,
+            result=self.result
+        )
 
 
 class TransliterationResult:
@@ -38,14 +44,19 @@ class TransliterationResult:
         return self.result
 
     def __repr__(self) -> str:
-        return str(self.__dict__)
+        return "TransliterationResult(service={service}, source={source}, source_language={source_language}, destination_language={destination_language}, result={result})".format(
+            service=self.service,
+            source=self.source,
+            source_language=self.source_language,
+            destination_language=self.destination_language,
+            result=self.result
+        )
 
 
 class SpellcheckResult:
     """
     Class that holds the result of a Spellchecking.
     """
-
     def __init__(self, service, source, source_language, result):
         self.service = service
         self.source = source
@@ -56,14 +67,18 @@ class SpellcheckResult:
         return self.result
 
     def __repr__(self) -> str:
-        return str(self.__dict__)
+        return "SpellcheckResult(service={service}, source={source}, source_language={source_language}, destination_language={destination_language}, result={result})".format(
+            service=self.service,
+            source=self.source,
+            source_language=self.source_language,
+            result=self.result
+        )
 
 
 class LanguageResult:
     """
     Class that holds the result of a Language.
     """
-
     def __init__(self, service, source, result):
         self.service = service
         self.source = source
@@ -73,7 +88,11 @@ class LanguageResult:
         return self.result
 
     def __repr__(self) -> str:
-        return str(self.__dict__)
+        return "LanguageResult(service={service}, source={source}, source_language={source_language}, destination_language={destination_language}, result={result})".format(
+            service=self.service,
+            source=self.source,
+            result=self.result
+        )
 
 
 class ExampleResult:
@@ -95,7 +114,13 @@ class ExampleResult:
         return self.result
 
     def __repr__(self) -> str:
-        return str(self.__dict__)
+        return "ExampleResult(service={service}, source={source}, source_language={source_language}, destination_language={destination_language}, result={result})".format(
+            service=self.service,
+            source=self.source,
+            source_language=self.source_language,
+            destination_language=self.destination_language,
+            result=self.result
+        )
 
 
 class DictionaryResult:
