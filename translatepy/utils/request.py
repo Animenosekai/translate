@@ -3,6 +3,7 @@ import pyuseragents
 from translatepy.exceptions import RequestStatusError
 from json import loads
 
+
 class Response():
     def __init__(self, request_obj) -> None:
         #: Integer Code of responded HTTP Status, e.g. 404 or 200.
@@ -67,12 +68,13 @@ class Response():
     def json(self, **kwargs):
         return loads(self.content, **kwargs)
 
+
 class Request():
     def __init__(self, proxy_urls=None):
         HEADERS = {
             "User-Agent": pyuseragents.random(),
             "Accept": "*/*",
-            "Accept-Language": "en-US,en; q=0.5",
+            "Accept-Language": "en-US,en-GB; q=0.5",
             "Accept-Encoding": "gzip, deflate, br",
             "Content-Type": "application/x-www-form-urlencoded; application/json; charset=UTF-8",
             "Connection": "keep-alive"
@@ -96,7 +98,7 @@ class Request():
         request = self.session.post(url, **kwargs)
         result = Response(request)
         request.close()
-        if self._proxies_index != len(self.proxies):
+        if self._proxies_index != len(self.proxies) - 1:
             self._proxies_index += 1
         else:
             self._proxies_index = 0
@@ -107,18 +109,18 @@ class Request():
         request = self.session.get(url, **kwargs)
         result = Response(request)
         request.close()
-        if self._proxies_index != len(self.proxies):
+        if self._proxies_index != len(self.proxies) - 1:
             self._proxies_index += 1
         else:
             self._proxies_index = 0
         return result
 
     @property
-    def header(self):
+    def headers(self):
         return self.session.headers
 
-    @header.setter
-    def header(self, header_key_value):
+    @headers.setter
+    def headers(self, header_key_value):
         for key, value in header_key_value.items():
             if value is None:
                 self.session.headers.pop(key)

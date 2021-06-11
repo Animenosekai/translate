@@ -182,3 +182,13 @@ class Translate():
                 return response
         else:
             raise ValueError("No service has returned the correct result")
+
+    def clean_cache(self) -> None:
+        """
+        Cleans caches
+
+        Returns:
+            None
+        """
+        for service in self.services:
+            service.clean_cache()

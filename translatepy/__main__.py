@@ -67,7 +67,7 @@ def main():
     # INTERACTIVE VERSION
     if args.action == 'shell':
         destination_language = args.dest_lang
-        #source_language = args.source_lang
+        # source_language = args.source_lang
         try:
             destination_language = translatepy.Language(destination_language)
         except Exception:
@@ -92,7 +92,7 @@ def main():
                     except Exception:
                         print("\033[93mThe given input doesn't seem to be a valid language\033[0m")
                         return _prompt_for_destination_language()
-                
+
                 if destination_language is None:
                     if action == "Translate":
                         print("In what language do you want to translate in?")
@@ -111,7 +111,7 @@ def main():
                         break
                     result = dl.translate(input_text, destination_language, args.source_lang)
                     print("Result \033[90m({source} → {dest})\033[0m: {result}".format(source=result.source_language, dest=result.destination_language, result=result.result))
-            
+
             elif action == "Transliterate":
                 print("\033[96mEnter '.quit' to stop transliterating\033[0m")
                 while True:
@@ -135,7 +135,7 @@ def main():
                         print("Result ({lang}): {result}".format(lang=result.source_language, result=result.result))
                     except Exception:
                         print("We are sorry but an error occured or no result got returned...")
-            
+
             elif action == "Language":
                 print("\033[96mEnter '.quit' to stop checking for the language\033[0m")
                 while True:
@@ -148,10 +148,10 @@ def main():
                             result = translatepy.Language(result.result).english
                         except Exception:
                             result = result.result
-                        print("The given text is in {lang}".format(result=result))
+                        print("The given text is in {lang}".format(lang=result))
                     except Exception:
                         print("We are sorry but an error occured or no result got returned...")
-            
+
             elif action == "Example":
                 print("\033[96mEnter '.quit' to stop checking for examples\033[0m")
                 while True:
@@ -175,6 +175,7 @@ def main():
                         print("We are sorry but an error occured or no result got returned...")
 
         print("Thank you for using \033[96mtranslatepy\033[0m!")
+
 
 if __name__ == "__main__":
     main()

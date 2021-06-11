@@ -15,18 +15,22 @@ class ReversoTranslate(BaseTranslator):
         if source_language == "auto":
             source_language = self._language(text)
 
-        request = self.session.post("https://api.reverso.net/translate/v1/translation", json={
-            "input": text,
-            "from": source_language,
-            "to": destination_language,
-            "format": "text",
-            "options": {
-                "origin": "reversodesktop",
-                "sentenceSplitter": False,
-                "contextResults": False,
-                "languageDetection": True
-            }
-        })
+        request = self.session.post(
+            "https://api.reverso.net/translate/v1/translation",
+            json={
+                "input": text,
+                "from": source_language,
+                "to": destination_language,
+                "format": "text",
+                "options": {
+                    "origin": "reversodesktop",
+                    "sentenceSplitter": False,
+                    "contextResults": False,
+                    "languageDetection": True
+                }
+            },
+            headers={"Content-Type": "application/json; charset=UTF-8"}
+        )
         response = request.json()
         if request.status_code < 400:
             try:
@@ -42,34 +46,42 @@ class ReversoTranslate(BaseTranslator):
         if source_language == "auto":
             source_language = self._language(text)
 
-        request = self.session.post("https://orthographe.reverso.net/api/v1/Spelling", json={
-            "text": text,
-            "language": source_language,
-            "autoReplace": True,
-            "interfaceLanguage": "en",
-            "locale": "Indifferent",
-            "origin": "interactive",
-            "generateSynonyms": False,
-            "generateRecommendations": False,
-            "getCorrectionDetails": False
-        })
+        request = self.session.post(
+            "https://orthographe.reverso.net/api/v1/Spelling",
+            json={
+                "text": text,
+                "language": source_language,
+                "autoReplace": True,
+                "interfaceLanguage": "en",
+                "locale": "Indifferent",
+                "origin": "interactive",
+                "generateSynonyms": False,
+                "generateRecommendations": False,
+                "getCorrectionDetails": False
+            },
+            headers={"Content-Type": "application/json; charset=UTF-8"}
+        )
         response = request.json()
         if request.status_code < 400:
             return source_language, response.get("text", text)
 
     def _language(self, text: str) -> str:
-        request = self.session.post("https://api.reverso.net/translate/v1/translation", json={
-            "input": text,
-            "from": "eng",
-            "to": "fra",
-            "format": "text",
-            "options": {
-                "origin": "reversodesktop",
-                "sentenceSplitter": False,
-                "contextResults": False,
-                "languageDetection": True
-            }
-        })
+        request = self.session.post(
+            "https://api.reverso.net/translate/v1/translation",
+            json={
+                "input": text,
+                "from": "eng",
+                "to": "fra",
+                "format": "text",
+                "options": {
+                    "origin": "reversodesktop",
+                    "sentenceSplitter": False,
+                    "contextResults": False,
+                    "languageDetection": True
+                }
+            },
+            headers={"Content-Type": "application/json; charset=UTF-8"}
+        )
         response = request.json()
         if request.status_code < 400:
             return response["languageDetection"]["detectedLanguage"]
@@ -77,30 +89,30 @@ class ReversoTranslate(BaseTranslator):
     def _example(self, text: str, destination_language: str, source_language: str):
         # TODO: nrows value
 
-        destination_language = Language(destination_language).alpha2
-        source_language = Language(source_language).alpha2
-
         if source_language == "auto":
             source_language = self._language(text)
 
+        destination_language = Language(destination_language).alpha2
+        source_language = Language(source_language).alpha2
+
         url = "https://context.reverso.net/bst-query-service"
         params = {"source_text": text, "source_lang": source_language, "target_lang": destination_language, "npage": 1, "nrows": 20, "expr_sug": 0, "json": 1, "dym_apply": True, "pos_reorder": 5}
-        request = self.session.get(url, params=params)
+        request = self.session.post(url, params=params, headers={"Content-Type": "application/x-www-form-urlencoded"})
         response = request.json()
 
         if request.status_code < 400:
             return source_language, response["list"]
 
     def _dictionary(self, text: str, destination_language: str, source_language: str):
-        destination_language = Language(destination_language).alpha2
-        source_language = Language(source_language).alpha2
-
         if source_language == "auto":
             source_language = self._language(text)
 
+        destination_language = Language(destination_language).alpha2
+        source_language = Language(source_language).alpha2
+
         url = "https://context.reverso.net/bst-query-service"
         params = {"source_text": text, "source_lang": source_language, "target_lang": destination_language, "npage": 1, "nrows": 20, "expr_sug": 0, "json": 1, "dym_apply": True, "pos_reorder": 5}
-        request = self.session.get(url, params=params)
+        request = self.session.post(url, params=params, headers={"Content-Type": "application/x-www-form-urlencoded"})
         response = request.json()
 
         if request.status_code < 400:

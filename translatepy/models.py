@@ -67,7 +67,7 @@ class SpellcheckResult:
         return self.result
 
     def __repr__(self) -> str:
-        return "SpellcheckResult(service={service}, source={source}, source_language={source_language}, destination_language={destination_language}, result={result})".format(
+        return "SpellcheckResult(service={service}, source={source}, source_language={source_language}, result={result})".format(
             service=self.service,
             source=self.source,
             source_language=self.source_language,
@@ -88,7 +88,7 @@ class LanguageResult:
         return self.result
 
     def __repr__(self) -> str:
-        return "LanguageResult(service={service}, source={source}, source_language={source_language}, destination_language={destination_language}, result={result})".format(
+        return "LanguageResult(service={service}, source={source}, result={result})".format(
             service=self.service,
             source=self.source,
             result=self.result

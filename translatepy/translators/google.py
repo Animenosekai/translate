@@ -144,14 +144,12 @@ class GoogleTranslateV1(BaseTranslator):
         parsed = self._parse_response(request)
         translated = (' ' if parsed[1][0][0][3] else '').join([part[0] for part in parsed[1][0][0][5]])
 
+        if source_language == 'auto' or source_language is None:
+            try:
+                source_language = parsed[2]
+            except Exception: pass
 
-        _temp_source_lang = str(source_language)
-        source_language = _temp_source_lang
-        try:
-            source_language = parsed[2]
-        except Exception: pass
-
-        if source_language.lower() == 'auto':
+        if source_language == 'auto':
             try:
                 source_language = parsed[0][2]
             except Exception: pass
@@ -160,9 +158,6 @@ class GoogleTranslateV1(BaseTranslator):
             try:
                 source_language = parsed[0][1][1][0]
             except Exception: pass
-
-        if source_language == 'auto' or source_language is None:
-            source_language = _temp_source_lang
 
         return source_language, translated
 
@@ -175,14 +170,12 @@ class GoogleTranslateV1(BaseTranslator):
         except Exception:
             origin_pronunciation = text
 
+        if source_language == 'auto' or source_language is None:
+            try:
+                source_language = parsed[2]
+            except Exception: pass
 
-        _temp_source_lang = str(source_language)
-        source_language = _temp_source_lang
-        try:
-            source_language = parsed[2]
-        except Exception: pass
-
-        if source_language.lower() == 'auto':
+        if source_language == 'auto':
             try:
                 source_language = parsed[0][2]
             except Exception: pass
@@ -191,9 +184,6 @@ class GoogleTranslateV1(BaseTranslator):
             try:
                 source_language = parsed[0][1][1][0]
             except Exception: pass
-
-        if source_language == 'auto' or source_language is None:
-            source_language = _temp_source_lang
 
         return source_language, origin_pronunciation
 
@@ -228,7 +218,7 @@ class GoogleTranslateV1(BaseTranslator):
     def _supported_languages(self):
         raise UnsupportedMethod()
 
-    def _example(self, text):
+    def _example(self, text, destination_language, source_language):
         raise UnsupportedMethod()
 
     def _dictionary(self, text, destination_language, source_language):
@@ -281,7 +271,7 @@ class GoogleTranslateV2(BaseTranslator):
                     except Exception:
                         _detected_language = source_language
                     return "".join(sentence for sentence in response[0][0][0][0])
-                except Exception: # if it fails, continue with the other endpoints
+                except Exception:  # if it fails, continue with the other endpoints
                     pass
 
         params = {"dt": ["t", "bd", "ex", "ld", "md", "qca", "rw", "rm", "ss", "t", "at"], "client": "gtx", "q": text, "hl": destination_language, "sl": source_language, "tl": destination_language, "dj": "1", "source": "bubble"}
@@ -320,7 +310,7 @@ class GoogleTranslateV2(BaseTranslator):
                     if _detected_language is None:
                         _detected_language = response.get("ld_result", {}).get("extended_srclangs", [None])[0]
             except Exception:
-                _detected_language = source_language    
+                _detected_language = source_language
             return _detected_language, " ".join([sentence["src_translit"] for sentence in response["sentences"] if "src_translit" in sentence])
 
     # def define(self):  # XXX: What for need this? --> because I saw on Google Translate that there is a definition feature
@@ -364,7 +354,7 @@ class GoogleTranslateV2(BaseTranslator):
     def _supported_languages(self):
         raise UnsupportedMethod()
 
-    def _example(self, text):
+    def _example(self, text, destination_language, source_language):
         raise UnsupportedMethod()
 
     def _dictionary(self, text, destination_language, source_language):

@@ -22,8 +22,6 @@ HEADERS = {
     "Connection": "keep-alive"
 }
 
-# TODO: read documentation: https://docs.microsoft.com/ru-ru/azure/cognitive-services/translator/language-support
-
 
 class BingTranslateException(BaseTranslateException):
     error_codes = {
@@ -148,8 +146,10 @@ class BingTranslate(BaseTranslator):
         return response[0]["detectedLanguage"]["language"]
 
     def _transliterate(self, text: str, destination_language: str, source_language: str):
-        # TODO: alternative api endpoint won't work
-        # response = self.session_manager.send("https://www.bing.com/ttransliteratev3", data={'text': text, 'language': source_language, 'toScript': destination_language})
+        # NOTE: Alternative Transliteration Implementation. Documentation: https://github.com/MicrosoftDocs/azure-docs/blob/master/articles/cognitive-services/Translator/language-support.md
+        # response = self.session_manager.send("https://www.bing.com/ttransliteratev3", data={'text': text, 'language': source_language, 'fromScript': 'Cyrl', 'toScript': 'Latn'})
+        # return response
+
         response = self.session_manager.send("https://www.bing.com/ttranslatev3", data={'text': text, 'fromLang': source_language, 'to': destination_language})
         # XXX: Not a predictable response from Bing Translate
         try:
