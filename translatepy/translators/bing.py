@@ -10,6 +10,8 @@ import pyuseragents
 from translatepy.translators.base import BaseTranslator, BaseTranslateException
 from translatepy.exceptions import UnsupportedMethod
 from translatepy.utils.request import Request
+from translatepy.language import Language
+
 
 HEADERS = {
     # "Host": "www.bing.com",
@@ -70,6 +72,7 @@ class BingSessionManager():
         self._parse_authorization_data()
 
     def _parse_authorization_data(self):
+        # TODO: Bing Translate won't works via Request session implementation
         _page = requests.get("https://www.bing.com/translator").text
         _parsed_IG = re.findall('IG:"(.*?)"', _page)
         _parsed_IID = re.findall('data-iid="(.*?)"', _page)
@@ -176,22 +179,10 @@ class BingTranslate(BaseTranslator):
         raise UnsupportedMethod("Bing Translate doesn't support this method")
 
     def _language_normalize(self, language):
-        # TODO
+        return language.bing
 
-        _normalized_language_code = language.alpha2
-
-        if _normalized_language_code == "auto":
-            return "auto-detect"
-        elif _normalized_language_code == "no":
-            return "nb"
-        elif _normalized_language_code == "pt":
-            return "pt-pt"
-        elif _normalized_language_code == "zh-cn":
-            return "zh-Hans"
-        elif _normalized_language_code == "zh-tw":
-            return "zh-Hant"
-        else:
-            return _normalized_language_code
+    def _language_denormalize(self, language_code):
+        return Language.by_bing(language_code)
 
     def __repr__(self) -> str:
         return "Microsoft Bing Translator"

@@ -10,6 +10,7 @@ from translatepy.translators.base import BaseTranslator, BaseTranslateException
 from translatepy.exceptions import UnsupportedMethod
 from translatepy.utils.lru_cacher import timed_lru_cache
 from translatepy.utils.request import Request
+from translatepy.language import Language
 
 
 class YandexTranslateException(BaseTranslateException):
@@ -165,7 +166,10 @@ class YandexTranslate(BaseTranslator):
         raise UnsupportedMethod("Yandex Translate doesn't support this method")
 
     def _language_normalize(self, language):
-        return language.alpha2
+        return language.yandex
+
+    def _language_denormalize(self, language_code):
+        return Language.by_yandex(language_code)
 
     def __repr__(self) -> str:
         return "Yandex Translate"

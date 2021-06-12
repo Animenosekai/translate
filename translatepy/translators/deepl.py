@@ -277,7 +277,10 @@ class DeeplTranslate(BaseTranslator):
         raise UnsupportedMethod("")
 
     def _language_normalize(self, language):
-        return language.alpha2.upper()
+        return language.deepl
+
+    def _language_denormalize(self, language_code):
+        return Language.by_deepl(language_code)
 
     def __repr__(self):
         return "DeepL Tranlsate"

@@ -22,7 +22,6 @@ class BaseTranslateException(Exception):
 # TODO: Feat: Implement supported_languages method
 # TODO: Feat: Implement text_to_spech method
 # TODO: Fix Dictionaries and Examples results. See models file
-# TODO: Reimplement _language_normalize (see utils/iso639.py file's TODO mark)
 # TODO: Feat: support translating > 5000 characters (or just excpetion raising)
 # TODO: Feat: Some translation services give out a lot of useful information that can come in handy for programmers. We need to implement for example kwargs in the model.py file
 
@@ -245,11 +244,13 @@ class BaseTranslator(ABC):
             # Сache the languages values to speed up the translation process in the future
             self._languages_cache[_cache_key] = language
 
+        denormalized_lang = self._language_denormalize(language)
+
         # Return a `LanguageResult` object
         return LanguageResult(
             service=str(self),
             source=text,
-            result=language,
+            result=denormalized_lang,
         )
 
     @abstractmethod
@@ -398,6 +399,14 @@ class BaseTranslator(ABC):
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations. Receives the Language instance and must
         return a normalized code language specific of translator (str).
+        """
+
+    @abstractmethod
+    def _language_denormalize(self, language_code) -> str:
+        """
+        Private method that concrete Translators must implement to hold the concrete
+        logic for the translations. Receives the language code specific of translator and must
+        return a Language instance.
         """
 
     def _detect_and_validate_lang(self, language: str) -> str:

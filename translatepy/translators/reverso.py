@@ -126,12 +126,10 @@ class ReversoTranslate(BaseTranslator):
         raise UnsupportedMethod("Reverso Translate doesn't support this method")
 
     def _language_normalize(self, language) -> str:
-        _normalized_language_code = language.alpha3
+        return language.reverso
 
-        if _normalized_language_code == "fre":
-            return "fra"
-        else:
-            return _normalized_language_code
+    def _language_denormalize(self, language_code):
+        return Language.by_reverso(language_code)
 
     def __repr__(self) -> str:
         return "Reverso Translate"

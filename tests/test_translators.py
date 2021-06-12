@@ -80,3 +80,15 @@ class TestAllTranslators:
                     assert result
                 except (UnsupportedMethod, DeeplTranslateException):
                     continue
+
+    def test_service_language(self):
+        language_args_list = [["What cool weater todaiy"], ["Привет"],
+                              ["自动"]]
+
+        for service in self.services_list:
+            for args in language_args_list:
+                try:
+                    result = service.language(*args)
+                    assert result
+                except (UnsupportedMethod, DeeplTranslateException):
+                    continue

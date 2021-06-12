@@ -66,7 +66,7 @@ class Response():
             raise RequestStatusError("Request Status Code: {code}".format(code=str(self.status_code)))
 
     def json(self, **kwargs):
-        return loads(self.content, **kwargs)
+        return loads(self.text, **kwargs)
 
 
 class Request():

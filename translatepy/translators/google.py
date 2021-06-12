@@ -15,6 +15,7 @@ from translatepy.exceptions import UnsupportedMethod
 from translatepy.utils.gtoken import TokenAcquirer
 from translatepy.utils.utils import convert_to_float
 from translatepy.utils.request import Request
+from translatepy.language import Language
 
 
 # For backward compatibility
@@ -56,7 +57,10 @@ class GoogleTranslate(BaseTranslator):
         raise UnsupportedMethod()
 
     def _language_normalize(self, language):
-        return language.alpha2
+        return language.google
+
+    def _language_denormalize(self, language_code):
+        return Language.by_google(language_code)
 
     def _spellcheck(self, text, source_language):
         raise UnsupportedMethod()
@@ -225,7 +229,10 @@ class GoogleTranslateV1(BaseTranslator):
         raise UnsupportedMethod()
 
     def _language_normalize(self, language):
-        return language.alpha2
+        return language.google
+
+    def _language_denormalize(self, language_code):
+        return Language.by_google(language_code)
 
     def _spellcheck(self, text, source_language):
         raise UnsupportedMethod()
@@ -361,7 +368,10 @@ class GoogleTranslateV2(BaseTranslator):
         raise UnsupportedMethod()
 
     def _language_normalize(self, language):
-        return language.alpha2
+        return language.google
+
+    def _language_denormalize(self, language_code):
+        return Language.by_google(language_code)
 
     def _spellcheck(self, text, source_language):
         raise UnsupportedMethod()
