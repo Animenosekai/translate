@@ -89,10 +89,10 @@ class BaseTranslator(ABC):
 
         # Return a `TranslationResult` object
         return TranslationResult(
-            service=str(self),
+            service=self,
             source=text,
-            source_language=source_language,
-            destination_language=destination_language,
+            source_language=self._language_denormalize(source_language),
+            destination_language=self._language_denormalize(destination_language),
             result=translation,
         )
 
@@ -148,10 +148,10 @@ class BaseTranslator(ABC):
 
         # Return a `TransliterationResult` object
         return TransliterationResult(
-            service=str(self),
+            service=self,
             source=text,
-            source_language=source_language,
-            destination_language=destination_language,
+            source_language=self._language_denormalize(source_language),
+            destination_language=self._language_denormalize(destination_language),
             result=transliteration,
         )
 
@@ -202,9 +202,9 @@ class BaseTranslator(ABC):
 
         # Return a `SpellcheckResult` object
         return SpellcheckResult(
-            service=str(self),
+            service=self,
             source=text,
-            source_language=source_language,
+            source_language=self._language_denormalize(source_language),
             result=spellcheck,
         )
 
@@ -248,7 +248,7 @@ class BaseTranslator(ABC):
 
         # Return a `LanguageResult` object
         return LanguageResult(
-            service=str(self),
+            service=self,
             source=text,
             result=denormalized_lang,
         )
@@ -312,10 +312,10 @@ class BaseTranslator(ABC):
 
         # Return a `ExampleResult` object
         return ExampleResult(
-            service=str(self),
+            service=self,
             source=text,
-            source_language=source_language,
-            destination_language=destination_language,
+            source_language=self._language_denormalize(source_language),
+            destination_language=self._language_denormalize(destination_language),
             result=example,
         )
 
@@ -378,10 +378,10 @@ class BaseTranslator(ABC):
 
         # Return a `DictionaryResult` object
         return DictionaryResult(
-            service=str(self),
+            service=self,
             source=text,
-            source_language=source_language,
-            destination_language=destination_language,
+            source_language=self._language_denormalize(source_language),
+            destination_language=self._language_denormalize(destination_language),
             result=dictionary,
         )
 
@@ -456,5 +456,6 @@ class BaseTranslator(ABC):
         """
         String representation of a translator.
         """
-        class_name = self.__class__.__name__.split("Translate")[0]
+        class_name = self.__class__.__name__
+        class_name = class_name[:class_name.rfind("Translate")]
         return "Unknown" if class_name == "" else class_name

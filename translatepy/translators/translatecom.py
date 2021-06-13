@@ -3,14 +3,15 @@ from translatepy.language import Language
 from translatepy.utils.request import Request
 from translatepy.translators.base import BaseTranslator
 
-class MyMemoryTranslate(BaseTranslator):
+class TranslateComTranslate(BaseTranslator):
     """
-    translatepy's implementation of MyMemory
+    translatepy's implementation of translate.com
     """
 
     def __init__(self, request: Request):
         self.session = request
-        self.base_url = "https://api.mymemory.translated.net/get"
+        self.translate_url = "https://www.translate.com/translator/ajax_translate"
+        self.langdetect_url = "https://www.translate.com/translator/ajax_lang_auto_detect"
 
     def _translate(self, text: str, destination_language: str, source_language: str) -> str:
         """
@@ -18,14 +19,12 @@ class MyMemoryTranslate(BaseTranslator):
 
         Must return a tuple with (detected_language, result)
         """
-        request = self.session.get(self.base_url, params={"q": text, "langpair": source_language + "|" + destination_language})
+        if source_language == "auto":
+            source_language = self._language(text)
+        request = self.session.post(self.translate_url, data={"text_to_translate": text, "source_lang": source_language, "translated_lang": destination_language, "use_cache_only": "false"})
         if request.status_code < 400:
-            result = request.json()["matches"][0]
-            try:
-                _detected_language = result["source"].split("-")[0]
-            except Exception:
-                _detected_language = source_language
-            return _detected_language, result["translation"]
+            result = request.json()["translated_text"]
+            return source_language, result
 
     def _transliterate(self, text, destination_language, source_language):
         raise UnsupportedMethod()
@@ -37,11 +36,9 @@ class MyMemoryTranslate(BaseTranslator):
         Must return a string with the language code
         """
         # You could use `self.session` to make a request to the endpoint, with all of the parameters
-        request = self.session.get(self.base_url, params={"q": text, "langpair": "autodetect|en"})
+        request = self.session.post(self.langdetect_url, data={"text_to_translate": text})
         request.raise_for_status()
-        result = request.json()["matches"][0]
-        return result["source"]
-
+        return request.json()["language"]
 
     def _supported_languages(self):
         raise UnsupportedMethod()
@@ -63,8 +60,6 @@ class MyMemoryTranslate(BaseTranslator):
 
         Must return a string with the correct language code
         """
-        if language.language.alpha2 == "auto":
-            return "autodetect"
         return language.language.alpha2
 
     def _language_denormalize(self, language_code) -> str:
@@ -74,7 +69,4 @@ class MyMemoryTranslate(BaseTranslator):
 
         Must return a string with the correct language code
         """
-        language_code = str(language_code).split("-")[0]
-        if language_code == "autodetect":
-            return Language("Automatic")
         return Language(language_code)
