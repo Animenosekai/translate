@@ -31,8 +31,8 @@ class ReversoTranslate(BaseTranslator):
             },
             headers={"Content-Type": "application/json; charset=UTF-8"}
         )
-        response = request.json()
         if request.status_code < 400:
+            response = request.json()
             try:
                 _detected_language = response["languageDetection"]["detectedLanguage"]
             except Exception:

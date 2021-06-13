@@ -91,8 +91,8 @@ class BaseTranslator(ABC):
         return TranslationResult(
             service=str(self),
             source=text,
-            source_language=str(source_language),
-            destination_language=str(destination_language),
+            source_language=source_language,
+            destination_language=destination_language,
             result=translation,
         )
 
@@ -150,8 +150,8 @@ class BaseTranslator(ABC):
         return TransliterationResult(
             service=str(self),
             source=text,
-            source_language=str(source_language),
-            destination_language=str(destination_language),
+            source_language=source_language,
+            destination_language=destination_language,
             result=transliteration,
         )
 
@@ -204,7 +204,7 @@ class BaseTranslator(ABC):
         return SpellcheckResult(
             service=str(self),
             source=text,
-            source_language=str(source_language),
+            source_language=source_language,
             result=spellcheck,
         )
 
@@ -314,8 +314,8 @@ class BaseTranslator(ABC):
         return ExampleResult(
             service=str(self),
             source=text,
-            source_language=str(source_language),
-            destination_language=str(destination_language),
+            source_language=source_language,
+            destination_language=destination_language,
             result=example,
         )
 
@@ -380,8 +380,8 @@ class BaseTranslator(ABC):
         return DictionaryResult(
             service=str(self),
             source=text,
-            source_language=str(source_language),
-            destination_language=str(destination_language),
+            source_language=source_language,
+            destination_language=destination_language,
             result=dictionary,
         )
 

@@ -2,6 +2,7 @@ import argparse
 import translatepy
 import inquirer
 from json import dumps
+from traceback import print_exc
 
 INPUT_PREFIX = "(\033[90mtranslatepy ~ \033[0m{action}) > "
 
@@ -41,7 +42,7 @@ def main():
     parser_language = subparser.add_parser('language', help='Checks the language of the given text')
     parser_language.add_argument('--text', '-t', action='store', type=str, required=True, help='text to check the language')
 
-    parser_shell = subparser.add_parser('shell', help='Translates the given text in interactive shell mode')
+    parser_shell = subparser.add_parser('shell', help="Opens translatepy's interactive mode")
     parser_shell.add_argument('--dest-lang', '-d', action='store', default=None, type=str, help='destination language')
     parser_shell.add_argument('--source-lang', '-s', action='store', default='auto', type=str, help='source language')
 
@@ -109,8 +110,12 @@ def main():
                     input_text = input(INPUT_PREFIX.format(action="Translate"))
                     if input_text == ".quit":
                         break
-                    result = dl.translate(input_text, destination_language, args.source_lang)
-                    print("Result \033[90m({source} → {dest})\033[0m: {result}".format(source=result.source_language, dest=result.destination_language, result=result.result))
+                    try:
+                        result = dl.translate(input_text, destination_language, args.source_lang)
+                        print("Result \033[90m({source} → {dest})\033[0m: {result}".format(source=result.source_language, dest=result.destination_language, result=result.result))
+                    except Exception:
+                        print_exc()
+                        print("We are sorry but an error occured or no result got returned...")
 
             elif action == "Transliterate":
                 print("\033[96mEnter '.quit' to stop transliterating\033[0m")
@@ -122,6 +127,7 @@ def main():
                         result = dl.transliterate(text=input_text, destination_language=destination_language, source_language=args.source_lang)
                         print("Result ({lang}): {result}".format(lang=result.source_language, result=result.result))
                     except Exception:
+                        print_exc()
                         print("We are sorry but an error occured or no result got returned...")
 
             elif action == "Spellcheck":
@@ -134,6 +140,7 @@ def main():
                         result = dl.spellcheck(input_text, args.source_lang)
                         print("Result ({lang}): {result}".format(lang=result.source_language, result=result.result))
                     except Exception:
+                        print_exc()
                         print("We are sorry but an error occured or no result got returned...")
 
             elif action == "Language":
@@ -150,6 +157,7 @@ def main():
                             result = result.result
                         print("The given text is in {lang}".format(lang=result))
                     except Exception:
+                        print_exc()
                         print("We are sorry but an error occured or no result got returned...")
 
             elif action == "Example":
@@ -168,9 +176,12 @@ def main():
                                 results = results
                         else:
                             results = [str(result.result)]
-                        print("Here is a list of examples:")
-                        for example in results:
-                            print("    - " + str(example))
+                        if len(results) > 0:
+                            print("Here is a list of examples:")
+                            for example in results:
+                                print("    - " + str(example))
+                        else:
+                            print("No example found for {input_text}".format(input_text=input_text))
                     except Exception:
                         print("We are sorry but an error occured or no result got returned...")
 
