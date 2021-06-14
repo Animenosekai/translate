@@ -3,6 +3,9 @@ from translatepy.translators.bing import BingTranslate
 from translatepy.translators.yandex import YandexTranslate
 from translatepy.translators.reverso import ReversoTranslate
 from translatepy.translators.deepl import DeeplTranslate, DeeplTranslateException
+from translatepy.translators.mymemory import MyMemoryTranslate
+from translatepy.translators.translatecom import TranslateComTranslate
+from translatepy.utils.request import Request
 from translatepy.exceptions import UnsupportedMethod
 from translatepy import Translator
 
@@ -10,12 +13,14 @@ from translatepy import Translator
 class TestAllTranslators:
     def setup(self):
         self.services_list = [
-            GoogleTranslateV1(),
-            GoogleTranslateV2(),
-            BingTranslate(),
-            ReversoTranslate(),
-            YandexTranslate(),
-            DeeplTranslate(),
+            GoogleTranslateV1(Request()),
+            GoogleTranslateV2(Request()),
+            BingTranslate(Request()),
+            ReversoTranslate(Request()),
+            YandexTranslate(Request()),
+            DeeplTranslate(Request()),
+            TranslateComTranslate(Request()),
+            MyMemoryTranslate(Request()),
             Translator(),
         ]
 

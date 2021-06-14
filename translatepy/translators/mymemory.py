@@ -55,6 +55,9 @@ class MyMemoryTranslate(BaseTranslator):
     def _dictionary(self, text, destination_language, source_language):
         raise UnsupportedMethod()
 
+    def _text_to_speech(self, text, speed, gender, source_language):
+        raise UnsupportedMethod()
+
 
     def _language_normalize(self, language: Language) -> str:
         """
