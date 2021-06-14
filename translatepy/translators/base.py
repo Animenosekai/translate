@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from translatepy.language import Language
+from translatepy.exceptions import UnsupportedMethod
 from translatepy.models import TranslationResult, TransliterationResult, SpellcheckResult, LanguageResult, ExampleResult, DictionaryResult, TextToSpechResult
 from translatepy.utils.lru_cacher import LRUDictCache
 from translatepy.utils.annotations import List
@@ -19,9 +20,10 @@ class BaseTranslateException(Exception):
         return "{} | {}".format(self.status_code, self.message)
 
 
-# TODO: Feat: support translating > 5000 characters (or just excpetion raising)
+# TODO: Feat: support translating > 5000 characters (or just exception raising)
 # TODO: Feat: Some translation services give out a lot of useful information that can come in handy for programmers. I think we need implement separate models class for each Translator service
-
+# --> If these informations come from already using endpoints like the translation or transliteration endpoint we could make an "extra data" field with those informations
+# --> but if it is completely different endpoints, we could just add them to the Translator class or as an extra function in the classes which the user would be able to use by initiating their own translator.
 
 class BaseTranslator(ABC):
     """
@@ -94,13 +96,13 @@ class BaseTranslator(ABC):
             result=translation,
         )
 
-    @abstractmethod
     def _translate(self, text: str, destination_language: str, source_language: str) -> str:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations. Receives the validated and normalized parameters and must
         return a translation (str).
         """
+        raise UnsupportedMethod()
 
     def transliterate(self, text: str, destination_language: str, source_language: str = "auto") -> TransliterationResult:
         """
@@ -153,13 +155,13 @@ class BaseTranslator(ABC):
             result=transliteration,
         )
 
-    @abstractmethod
     def _transliterate(self, text: str, destination_language, source_language: str) -> str:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the transliteration. Receives the validated and normalized parameters and must
         return a transliteration (str).
         """
+        raise UnsupportedMethod()
 
     def spellcheck(self, text: str, source_language: str = "auto") -> SpellcheckResult:
         """
@@ -206,13 +208,13 @@ class BaseTranslator(ABC):
             result=spellcheck,
         )
 
-    @abstractmethod
     def _spellcheck(self, text: str, source_language: str) -> str:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the spellcheck. Receives the validated and normalized parameters and must
         return a spellchecked text (str).
         """
+        raise UnsupportedMethod()
 
     def language(self, text: str) -> LanguageResult:
         """
@@ -251,13 +253,13 @@ class BaseTranslator(ABC):
             result=denormalized_lang,
         )
 
-    @abstractmethod
     def _language(self, text: str) -> str:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the language. Receives the validated and normalized parameters and must
         return a language code (str).
         """
+        raise UnsupportedMethod()
 
     def example(self, text: str, destination_language: str, source_language: str = "auto") -> ExampleResult:
         """
@@ -317,13 +319,13 @@ class BaseTranslator(ABC):
             result=example,
         )
 
-    @abstractmethod
     def _example(self, text: str, destination_language: str, source_language: str) -> List:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations. Receives the validated and normalized parameters and must
         return a examples list (List).
         """
+        raise UnsupportedMethod()
 
     def dictionary(self, text: str, destination_language: str, source_language: str = "auto") -> DictionaryResult:
         """
@@ -383,13 +385,13 @@ class BaseTranslator(ABC):
             result=dictionary,
         )
 
-    @abstractmethod
     def _dictionary(self, text: str, destination_language: str, source_language: str) -> List:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations. Receives the validated and normalized parameters and must
         return a dictionary result list (List).
         """
+        raise UnsupportedMethod()
 
     def text_to_speech(self, text: str, speed: int = 100, gender: str = "female", source_language: str = "auto") -> TextToSpechResult:
         """
@@ -443,12 +445,12 @@ class BaseTranslator(ABC):
             result=text_to_speech,
         )
 
-    @abstractmethod
     def _text_to_speech(self, text: str, speed: int, gender: str, source_language: str) -> bytes:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations.
         """
+        raise UnsupportedMethod()
 
     @abstractmethod
     def _language_normalize(self, language) -> str:
