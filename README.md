@@ -1,6 +1,7 @@
 # `translatepy` (originally: translate)
 
-### An aggregation of multiple translation API.  
+### An aggregation of multiple translation API
+
 ***Translate, transliterate, get the language of texts in no time with the help of multiple APIs!***
 
 [![PyPI version](https://badge.fury.io/py/translatepy.svg)](https://pypi.org/project/translatepy/)
@@ -14,7 +15,6 @@
 ![Code Size](https://img.shields.io/github/languages/code-size/Animenosekai/translate)
 ![Repo Size](https://img.shields.io/github/repo-size/Animenosekai/translate)
 ![Issues](https://img.shields.io/github/issues/Animenosekai/translate)
-
 
 ## Getting Started
 
@@ -34,20 +34,34 @@ According to Vermin (`--backport typing`), Python 3.2 is needed for the backport
 
 Always check if your Python version works with `translatepy` before using it in production
 
-### Installing
+## Installing
 
-You can install it from PyPI with:
+### Option #1. From PyPI
 
 ```bash
 pip install translatepy
 ```
 
+### Option #2. From Git
+
+```bash
+pip install https://github.com/Animenosekai/translate
+```
+
 You can check if you successfully installed it by printing out its version:
 
 ```bash
-python -c "import translatepy; print(translatepy.__version__)"
+$ python -c "import translatepy; print(translatepy.__version__)"
 # output:
-translatepy v1.7
+translatepy v2.0
+```
+
+or just:
+
+```bash
+$ translatepy --version
+# output:
+translatepy v2.0
 ```
 
 ## List of Services
@@ -60,29 +74,46 @@ translatepy v1.7
 
 All of the names belong to their respective rightholders.
 
-
 ## Usage
-```python
->>> import translatepy
->>> translator = translatepy.Translator()
->>> translator.translate("Hello", "French")
-'Bonjour' (type: TranslationResult)
->>> translator.language("こんにちは")
-'Japanese' (type: Language)
+
+### Command line interface mode
+
+#### Interactive Shell (REPL)
+
+```bash
+$ translatepy shell --dest-lang Russian
+>>> Hello
+Привет
 ```
 
-### The Language Class
+### In Python script
+
+#### The Translator Class
+
+```python
+>>> from translatepy import Translator
+>>> translator = Translator()
+>>> translator.translate("Hello", "French")
+{'service': 'Yandex', 'source': 'Hello', 'source_language': 'auto', 'destination_language': 'French', 'result': 'Bonjour'}
+>>> translator.language("こんにちは")
+{'service': 'Yandex', 'source': 'こんにちは', 'result': 'ja'}
+```
+
+#### The Language Class
+
 The language class contains lots of information about a language.
 
 You need to pass the language name or code to the class initialization:
+
 ```python
-translatepy.Language("French")
+>>> from translatepy import Language
+>>> Language("French")
 # Returns a Language class with the "fr" language
-translatepy.Language("en")
+>>> Language("en")
 # Returns a Language class with the "en" language
-translatepy.Language("eng")
+>>> Language("eng")
 # Returns a Language class with the "en" language
-translatepy.Language("日本語")
+>>> Language("日本語")
 # Returns a Language class with the "ja" language
 ```
 
@@ -91,20 +122,29 @@ The Language Class contains both the ISO 639-1 Alpha-2 language code and the ISO
 It also contains the language name for all of the languages available. (nullable)
 
 Example:
+
 ```python
->>> translatepy.Language("日本語").french
+>>> Language("日本語").french
 'Japonais'
+>>> >>> Language("ru").russian
+'Русский' # Russian
 ```
 
 It contains the correct language code for each translation service
 
-It also contains the "similarity" attribute which gives back a number between 0 and 1 and which shows the similarity of the input language with what it found in the language code database.
+It also contains the "similarity" attribute which gives back a number between 0 and 1 and which shows the similarity of the input language with what it found in the language code database:
 
-A `translatepy.models.exceptions.UnknownLanguage` exception is raised if the given language is unknown.
+```python
+>>> Language("English").similarity
+100
+>>> Language("Englesh").similarity
+95
+```
 
-——> A language with low chance of being the one you've chosen is displayed along with its similarity
+A `translatepy.exceptions.UnknownLanguage` exception is raised if the given language is unknown.
 
 ### The TranslationResult Class
+
 This class contains all of the information needed to get the result of a translation:
 
 - source: The input text
@@ -113,35 +153,25 @@ This class contains all of the information needed to get the result of a transla
 - destination_language: The result language
 - service: The source (service used)
 
-### Caching
+## Caching
+
 All of the operations are cached to provide the best performances
 
-You can empty the cache by giving the default value to the variables holding the caches:
+You can empty the cache by calling the method "`clean_cache`"
 
-```python
-translatepy.TRANSLATION_CACHES = {}
-translatepy.TRANSLITERATION_CACHES = {}
-translatepy.SPELLCHECK_CACHES = {}
-translatepy.LANGUAGE_CACHES = {}
-translatepy.EXAMPLE_CACHES = {}
-translatepy.DICTIONNARY_CACHES = {}
-```
+## The Translator Class
 
-Or by calling the `Translator()` method "`clean_cache`"
-
-***Warning: `translatepy`'s caches are global: they are used through all instances of `Translator()`***
-
-### The Translator Class
 It is the High API providing all of the methods and optimizations for `translatepy`
+
 - translate: To translate things
 - transliterate: To transliterate things
 - spellcheck: To check the spelling of a text
 - language: To get the language of a text
-- example: To get examples of a word
+- example: To get a list of examples of a word
 - dictionary: To get a list of translations categorized into "featured" and "less common" by DeepL and Linguee
 - text_to_speech: To get an MP3 file containing the speech version of the given text
 
-When something goes wrong or nothing got found, `None` is returned.
+When something goes wrong or nothing got found, an exception will be raised.
 
 The source language while being most of the time an instance of the Language class can sometimes be a string if the conversion to the Language class failed.
 
@@ -153,21 +183,21 @@ Feel free to use it in production if you feel like it is suitable for your produ
 
 ## Built With
 
-* [safeIO](https://github.com/Animenosekai/safeIO) - To read files
-* [pyuseragents](https://github.com/Animenosekai/useragents) - To generate the "User-Agent" HTTP header
-* [requests](https://github.com/psf/requests) - To make HTTP requests
-* [beautifulsoup4](https://pypi.org/project/beautifulsoup4/) - To parse HTML
+- [pyuseragents](https://github.com/Animenosekai/useragents) - To generate the "User-Agent" HTTP header
+- [requests](https://github.com/psf/requests) - To make HTTP requests
+- [beautifulsoup4](https://pypi.org/project/beautifulsoup4/) - To parse HTML
 
 ## Authors
 
-* **Anime no Sekai** - *Initial work* - [Animenosekai](https://github.com/Animenosekai)
-* **Zhymabek Roman** - *First Contributor (PR #10)* - [ZhymabekRoman](https://github.com/ZhymabekRoman)
+- **Anime no Sekai** - *Initial work* - [Animenosekai](https://github.com/Animenosekai)
+- **Zhymabek Roman** - *Major Contributor (PR #10, PR #15)* - [ZhymabekRoman](https://github.com/ZhymabekRoman)
 
 ## License
 
 This project is licensed under the GNU Affero General Public License v3.0 License - see the [LICENSE](LICENSE) file for details
 
 ### Dataset
+
 All of the datasets are the result of my searches, computation and sometimes translation.
 
 Please ask me if you want to use them in another project.
@@ -176,6 +206,6 @@ Please ask me if you want to use them in another project.
 
 ## Acknowledgments
 
-* Thanks to @ZhymabekRoman (Zhymabek Roman) for working on #10 and making Yandex more stable!
-* Thanks to @NawtJ0sh for giving me the way to add Microsoft Bing Translate
-* Inspired by py-googletrans (by @ssut) (especially the thread: [Issue #268](https://github.com/ssut/py-googletrans/issues/268))
+- Thanks to @ZhymabekRoman (Zhymabek Roman) for working on making Yandex more stable and on the v2!
+- Thanks to @NawtJ0sh for giving me the way to add Microsoft Bing Translate
+- Inspired by py-googletrans (by @ssut) (especially the thread: [Issue #268](https://github.com/ssut/py-googletrans/issues/268))

@@ -1,4 +1,3 @@
-recursive-include translatepy/data/ *
 recursive-include translatepy/models/ *
 recursive-include translatepy/translators/ *
 recursive-include translatepy/utils/ *
