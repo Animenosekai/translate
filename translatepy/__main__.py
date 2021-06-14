@@ -1,7 +1,6 @@
 import argparse
 import translatepy
 import inquirer
-from json import dumps
 from traceback import print_exc
 
 INPUT_PREFIX = "(\033[90mtranslatepy ~ \033[0m{action}) > "
@@ -50,19 +49,19 @@ def main():
 
     if args.action == 'translate':
         result = dl.translate(args.text, args.dest_lang, args.source_lang)
-        print(dumps(result.__dict__, indent=4, ensure_ascii=False))
+        print(result.as_json(indent=4, ensure_ascii=False))
 
     elif args.action == 'transliterate':
         result = dl.transliterate(args.text, args.dest_lang, args.source_lang)
-        print(dumps(result.__dict__, indent=4, ensure_ascii=False))
+        print(result.as_json(indent=4, ensure_ascii=False))
 
     elif args.action == 'spellcheck':
         result = dl.spellcheck(args.text, args.source_lang)
-        print(dumps(result.__dict__, indent=4, ensure_ascii=False))
+        print(result.as_json(indent=4, ensure_ascii=False))
 
     elif args.action == 'language':
         result = dl.language(args.text)
-        print(dumps(result.__dict__, indent=4, ensure_ascii=False))
+        print(result.as_json(indent=4, ensure_ascii=False))
 
 
     # INTERACTIVE VERSION

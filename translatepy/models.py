@@ -1,7 +1,8 @@
 """
 Module containing various models for holding informations.
 """
-
+from json import dumps
+from translatepy.language import Language
 
 class TranslationResult:
     """
@@ -26,6 +27,15 @@ class TranslationResult:
             destination_language=self.destination_language,
             result=self.result
         )
+
+    def as_json(self, **kwargs) -> str:
+        return dumps({
+            "service": str(self.service),
+            "source": str(self.source),
+            "source_language": str((self.source_language.alpha2) if isinstance(self.source_language, Language) else self.source_language),
+            "destination_language": str((self.destination_language.alpha2) if isinstance(self.destination_language, Language) else self.destination_language),
+            "result": str(self.result),
+        }, **kwargs)
 
 
 class TransliterationResult:
@@ -52,6 +62,16 @@ class TransliterationResult:
             result=self.result
         )
 
+    
+    def as_json(self, **kwargs) -> str:
+        return dumps({
+            "service": str(self.service),
+            "source": str(self.source),
+            "source_language": str((self.source_language.alpha2) if isinstance(self.source_language, Language) else self.source_language),
+            "destination_language": str((self.destination_language.alpha2) if isinstance(self.destination_language, Language) else self.destination_language),
+            "result": str(self.result),
+        }, **kwargs)
+
 
 class SpellcheckResult:
     """
@@ -74,6 +94,15 @@ class SpellcheckResult:
             result=self.result
         )
 
+    
+    def as_json(self, **kwargs) -> str:
+        return dumps({
+            "service": str(self.service),
+            "source": str(self.source),
+            "source_language": str((self.source_language.alpha2) if isinstance(self.source_language, Language) else self.source_language),
+            "result": str(self.result),
+        }, **kwargs)
+
 
 class LanguageResult:
     """
@@ -94,6 +123,12 @@ class LanguageResult:
             result=self.result
         )
 
+    def as_json(self, **kwargs) -> str:
+        return dumps({
+            "service": str(self.service),
+            "source": str(self.source),
+            "result": str(self.result),
+        }, **kwargs)
 
 class ExampleResult:
     """
@@ -122,6 +157,15 @@ class ExampleResult:
             result=self.result
         )
 
+    def as_json(self, **kwargs) -> str:
+        return dumps({
+            "service": str(self.service),
+            "source": str(self.source),
+            "source_language": str((self.source_language.alpha2) if isinstance(self.source_language, Language) else self.source_language),
+            "destination_language": str((self.destination_language.alpha2) if isinstance(self.destination_language, Language) else self.destination_language),
+            "result": str(self.result),
+        }, **kwargs)
+
 
 class DictionaryResult:
     """
@@ -140,3 +184,13 @@ class DictionaryResult:
 
     def __repr__(self) -> str:
         return str(self.__dict__)
+
+
+    def as_json(self, **kwargs) -> str:
+        return dumps({
+            "service": str(self.service),
+            "source": str(self.source),
+            "source_language": str((self.source_language.alpha2) if isinstance(self.source_language, Language) else self.source_language),
+            "destination_language": str((self.destination_language.alpha2) if isinstance(self.destination_language, Language) else self.destination_language),
+            "result": str(self.result),
+        }, **kwargs)
