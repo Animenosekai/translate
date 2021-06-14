@@ -50,12 +50,6 @@ class GoogleTranslate(BaseTranslator):
     def _supported_languages(self):
         raise UnsupportedMethod()
 
-    def _example(self, text, destination_language, source_language):
-        raise UnsupportedMethod()
-
-    def _dictionary(self, text, destination_language, source_language):
-        raise UnsupportedMethod()
-
     def _language_normalize(self, language):
         return language.google
 
@@ -227,26 +221,11 @@ class GoogleTranslateV1(BaseTranslator):
 
         return source_language
 
-    def _supported_languages(self):
-        raise UnsupportedMethod()
-
-    def _example(self, text, destination_language, source_language):
-        raise UnsupportedMethod()
-
-    def _dictionary(self, text, destination_language, source_language):
-        raise UnsupportedMethod()
-
     def _language_normalize(self, language):
         return language.google
 
     def _language_denormalize(self, language_code):
         return Language.by_google(language_code)
-
-    def _text_to_speech(self, text, speed, gender, source_language):
-        raise UnsupportedMethod()
-
-    def _spellcheck(self, text, source_language):
-        raise UnsupportedMethod()
 
     def __repr__(self):
         return "Google Translate"
@@ -369,23 +348,12 @@ class GoogleTranslateV2(BaseTranslator):
         if request.status_code < 400:
             return response['ld_result']["srclangs"][0]
 
-    def _supported_languages(self):
-        raise UnsupportedMethod()
-
-    def _example(self, text, destination_language, source_language):
-        raise UnsupportedMethod()
-
-    def _dictionary(self, text, destination_language, source_language):
-        raise UnsupportedMethod()
 
     def _language_normalize(self, language):
         return language.google
 
     def _language_denormalize(self, language_code):
         return Language.by_google(language_code)
-
-    def _spellcheck(self, text, source_language):
-        raise UnsupportedMethod()
 
     def __repr__(self):
         return "Google Translate"

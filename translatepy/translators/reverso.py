@@ -41,9 +41,6 @@ class ReversoTranslate(BaseTranslator):
                 _detected_language = source_language
             return _detected_language, response["translation"][0]
 
-    def _transliterate(self, text: str, destination_language: str, source_language: str) -> str:
-        raise UnsupportedMethod("Reverso Translate doesn't support this method")
-
     def _spellcheck(self, text: str, source_language: str) -> str:
         if source_language == "auto":
             source_language = self._language(text)
@@ -140,7 +137,7 @@ class ReversoTranslate(BaseTranslator):
                 voice = _supported_lang["Name"]
                 break
         else:
-            raise UnsupportedMethod("{source_lang} language doesn't supported by Reverso".format(source_lang=source_language))
+            raise UnsupportedMethod("{source_lang} language not supported by Reverso".format(source_lang=source_language))
 
         url = "https://voice.reverso.net/RestPronunciation.svc/v1/output=json/GetVoiceStream/voiceName={}?voiceSpeed={}&inputText={}".format(voice, speed, _text)
         response = self.session.get(url)

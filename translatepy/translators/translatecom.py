@@ -26,9 +26,6 @@ class TranslateComTranslate(BaseTranslator):
             result = request.json()["translated_text"]
             return source_language, result
 
-    def _transliterate(self, text, destination_language, source_language):
-        raise UnsupportedMethod()
-
     def _language(self, text: str) -> str:
         """
         This is the language detection endpoint
@@ -42,19 +39,7 @@ class TranslateComTranslate(BaseTranslator):
 
     def _supported_languages(self):
         raise UnsupportedMethod()
-
-    def _spellcheck(self, text, source_language):
-        raise UnsupportedMethod()
-
-    def _example(self, text, destination_language, source_language):
-        raise UnsupportedMethod()
-
-    def _dictionary(self, text, destination_language, source_language):
-        raise UnsupportedMethod()
-
-    def _text_to_speech(self, text, speed, gender, source_language):
-        raise UnsupportedMethod()
-
+        
     def _language_normalize(self, language: Language) -> str:
         """
         This is the language validation function

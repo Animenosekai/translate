@@ -27,9 +27,6 @@ class MyMemoryTranslate(BaseTranslator):
                 _detected_language = source_language
             return _detected_language, result["translation"]
 
-    def _transliterate(self, text, destination_language, source_language):
-        raise UnsupportedMethod()
-
     def _language(self, text: str) -> str:
         """
         This is the language detection endpoint
@@ -44,18 +41,6 @@ class MyMemoryTranslate(BaseTranslator):
 
 
     def _supported_languages(self):
-        raise UnsupportedMethod()
-
-    def _spellcheck(self, text, source_language):
-        raise UnsupportedMethod()
-
-    def _example(self, text, destination_language, source_language):
-        raise UnsupportedMethod()
-
-    def _dictionary(self, text, destination_language, source_language):
-        raise UnsupportedMethod()
-
-    def _text_to_speech(self, text, speed, gender, source_language):
         raise UnsupportedMethod()
 
 

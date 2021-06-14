@@ -437,9 +437,9 @@ class BaseTranslator(ABC):
 
         # Return a `TextToSpechResult` object
         return TextToSpechResult(
-            service=str(self),
+            service=self,
             source=text,
-            source_language=source_language,
+            source_language=self._language_denormalize(source_language),
             speed=speed,
             gender=gender,
             result=text_to_speech,

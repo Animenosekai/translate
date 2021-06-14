@@ -12,12 +12,10 @@ About the translation and the language endpoints:
 from time import time, sleep
 from re import compile
 from random import randint
-import json
 import requests
 from bs4 import BeautifulSoup
 
 from translatepy.language import Language
-from translatepy.exceptions import UnsupportedMethod
 from translatepy.translators.base import BaseTranslator, BaseTranslateException
 from translatepy.utils.annotations import Tuple, List
 from translatepy.utils.request import Request
@@ -267,18 +265,6 @@ class DeeplTranslate(BaseTranslator):
             jobs.append(job)
 
         return jobs
-
-    def _transliterate(self, text, destination_language, source_language):
-        raise UnsupportedMethod("")
-
-    def _example(self, text, destination_language, source_language):
-        raise UnsupportedMethod("")
-
-    def _spellcheck(self, text, source_language):
-        raise UnsupportedMethod("")
-
-    def _text_to_speech(self, text, speed, gender, source_language):
-        raise UnsupportedMethod("")
 
     def _language_normalize(self, language):
         return language.deepl
