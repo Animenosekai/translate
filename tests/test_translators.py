@@ -58,7 +58,7 @@ class TestAllTranslators:
                     continue
 
     def test_service_example(self):
-        example_args_list = [["What cool weater todai!", "Japanese"], ["Helo", "French"],
+        example_args_list = [["What cool weater todai!", "fr"], ["Helo", "French"],
                              ["Helo, how are tou?", "ru"]]
 
         for service in self.services_list:
@@ -70,7 +70,7 @@ class TestAllTranslators:
                     continue
 
     def test_service_dictionary(self):
-        dictionary_args_list = [["What cool weater todai!", "Japanese"], ["Helo", "French"],
+        dictionary_args_list = [["What cool weater todai!", "fr"], ["Helo", "French"],
                                 ["Helo, how are tou?", "ru"]]
 
         for service in self.services_list:
@@ -89,6 +89,18 @@ class TestAllTranslators:
             for args in language_args_list:
                 try:
                     result = service.language(*args)
+                    assert result
+                except (UnsupportedMethod, DeeplTranslateException):
+                    continue
+
+    def test_service_text_to_speech(self):
+        texts_args_list = [["What cool weater todaiy"], ["Привет"],
+                           ["自动"]]
+
+        for service in self.services_list:
+            for args in texts_args_list:
+                try:
+                    result = service.text_to_speech(*args)
                     assert result
                 except (UnsupportedMethod, DeeplTranslateException):
                     continue

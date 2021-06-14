@@ -3,6 +3,8 @@ from translatepy.translators.base import BaseTranslator
 from translatepy.exceptions import UnsupportedMethod
 from translatepy.utils.request import Request
 
+import base64
+
 
 class ReversoTranslate(BaseTranslator):
     """
@@ -121,9 +123,29 @@ class ReversoTranslate(BaseTranslator):
                 _result.append(_dictionary["term"])
             return source_language, _result
 
-    def _text_to_speech(self, text: str, source_language: str):
-        # TODO: Implement
-        raise UnsupportedMethod("Reverso Translate doesn't support this method")
+    def _text_to_speech(self, text, speed, gender, source_language):
+        if source_language == "auto":
+            source_language = self._language(text)
+
+        _supported_langs_url = "https://voice.reverso.net/RestPronunciation.svc/v1/output=json/GetAvailableVoices"
+        _supported_langs_result = self.session.get(_supported_langs_url)
+        _supported_langs_list = _supported_langs_result.json()["Voices"]
+
+        _gender = "M" if gender == "male" else "F"
+        _text = base64.b64encode(text.encode()).decode()
+        _source_language = "US English".lower() if source_language == "eng" else Language.by_reverso(source_language).name.lower()
+
+        for _supported_lang in _supported_langs_list:
+            if _supported_lang["Language"].lower() == _source_language and _supported_lang["Gender"] == _gender:
+                voice = _supported_lang["Name"]
+                break
+        else:
+            raise UnsupportedMethod("{source_lang} language doesn't supported by Reverso".format(source_lang=source_language))
+
+        url = "https://voice.reverso.net/RestPronunciation.svc/v1/output=json/GetVoiceStream/voiceName={}?voiceSpeed={}&inputText={}".format(voice, speed, _text)
+        response = self.session.get(url)
+        if response.status_code < 400:
+            return source_language, response.content
 
     def _language_normalize(self, language) -> str:
         return language.reverso

@@ -63,7 +63,15 @@ class GoogleTranslate(BaseTranslator):
         return Language.by_google(language_code)
 
     def _spellcheck(self, text, source_language):
+        # TODO: Implement
         raise UnsupportedMethod()
+
+    def _text_to_speech(self, text, speed, gender, source_language):
+        for service in self.services:
+            try:
+                return service._text_to_speech(text, speed, gender, source_language)
+            except Exception:
+                continue
 
     def __repr__(self):
         return "Google Translate"
@@ -234,6 +242,9 @@ class GoogleTranslateV1(BaseTranslator):
     def _language_denormalize(self, language_code):
         return Language.by_google(language_code)
 
+    def _text_to_speech(self, text, speed, gender, source_language):
+        raise UnsupportedMethod()
+
     def _spellcheck(self, text, source_language):
         raise UnsupportedMethod()
 
@@ -324,26 +335,26 @@ class GoogleTranslateV2(BaseTranslator):
     #     """Returns the definition of the given word"""
     #     raise NotImplementedError
 
-    def _text_to_speech(self, text: str, speed: int, source_language="auto") -> bytes:
+    def _text_to_speech(self, text: str, speed: int, gender: str, source_language: str) -> bytes:
         if source_language == "auto":
             source_language = self._language(text)
 
         params = {"client": "gtx", "ie": "UTF-8", "tl": source_language, "q": text}
         request = self.session.get("https://translate.googleapis.com/translate_tts", params=params)
         if request.status_code == 200:
-            return request.content
+            return source_language, request.content
 
         params = {"client": "tw-ob", "q": text, "tl": source_language}
         request = self.session.get("https://translate.google.com/translate_tts", params=params)
         if request.status_code == 200:
-            return request.content
+            return source_language, request.content
 
         textlen = len(text)
         token = self.token_acquirer.do(text)
         params = {"ie": "UTF-8", "q": text, "tl": source_language, "total": "1", "idx": "0", "textlen": textlen, "tk": token, "client": "webapp", "prev": "input", "ttsspeed": convert_to_float(speed)}
         request = self.session.get("https://translate.google.com/translate_tts", params=params)
         if request.status_code < 400:
-            return request.content
+            return source_language, request.content
 
     def _language(self, text: str) -> str:
         params = {"client": "gtx", "dt": "t", "sl": "auto", "tl": "ja", "q": text}

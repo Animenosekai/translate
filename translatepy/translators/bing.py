@@ -4,13 +4,14 @@ This implementation was made specifically for translatepy from 'Zhymabek Roman',
 
 import re
 import json
+import time
 import requests
 import pyuseragents
 
 from translatepy.translators.base import BaseTranslator, BaseTranslateException
-from translatepy.exceptions import UnsupportedMethod
 from translatepy.utils.request import Request
 from translatepy.language import Language
+from translatepy.exceptions import UnsupportedMethod
 
 
 HEADERS = {
@@ -116,6 +117,7 @@ class BingTranslate(BaseTranslator):
 
     def __init__(self, request: Request = Request()):
         self.session_manager = BingSessionManager(request)
+        self.session = request
 
     def _translate(self, text: str, destination_language: str, source_language: str) -> str:
         response = self.session_manager.send("https://www.bing.com/ttranslatev3", data={'text': text, 'fromLang': source_language, 'to': destination_language})
@@ -174,9 +176,44 @@ class BingTranslate(BaseTranslator):
             _result.append(_dictionary_result)
         return source_language, _result
 
-    def _text_to_speech(self, text: str, source_language: str):
-        # TODO: Implement
-        raise UnsupportedMethod("Bing Translate doesn't support this method")
+    def _text_to_speech(self, text: str, speed: int, gender: str, source_language: str):
+        if source_language == "auto-detect":
+            source_language = self._language(text)
+
+        timestamp_now = time.time()
+
+        if not self.__dict__.get("_speech_token") or timestamp_now > float(self._speech_token_expiry):
+            token_response = self.session_manager.send("https://www.bing.com/tfetspktok", data={})
+            token_status = token_response.get("statusCode")
+
+            if token_status != 200:
+                raise BingTranslateException(token_status, "Error during token request from the server")
+
+            self._speech_token, self._speech_token_expiry, self._speech_region = token_response.get("token"), token_response.get("expiry"), token_response.get("region")
+
+        gender = gender.capitalize()
+
+        _supported_langs_url = "https://{region}.tts.speech.microsoft.com/cognitiveservices/voices/list".format(region=self._speech_region)
+        _supported_langs_header = {"authorization": "Bearer {token}".format(token=self._speech_token)}
+        _supported_langs_result = self.session.get(_supported_langs_url, headers=_supported_langs_header)
+        _supported_langs_list = _supported_langs_result.json()
+
+        # all locals list: {('zh-HK', 'zh-HK'), ('de', 'de-DE'), ('da', 'da-DK'), ('id', 'id-ID'), ('ko', 'ko-KR'), ('en', 'en-NZ'), ('el', 'el-GR'), ('ms', 'ms-MY'), ('es', 'es-AR'), ('ro', 'ro-RO'), ('pl', 'pl-PL'), ('it', 'it-IT'), ('hr', 'hr-HR'), ('pt', 'pt-PT'), ('hu', 'hu-HU'), ('sw', 'sw-KE'), ('en', 'en-GB'), ('mt', 'mt-MT'), ('tr', 'tr-TR'), ('ar', 'ar-EG'), ('fr', 'fr-CA'), ('te', 'te-IN'), ('fr', 'fr-BE'), ('en', 'en-SG'), ('zh-CN', 'zh-CN'), ('fr', 'fr-FR'), ('en', 'en-PH'), ('cs', 'cs-CZ'), ('fi', 'fi-FI'), ('zh-TW', 'zh-TW'), ('de', 'de-CH'), ('nb', 'nb-NO'), ('bg', 'bg-BG'), ('he', 'he-IL'), ('en', 'en-CA'), ('en', 'en-HK'), ('es', 'es-MX'), ('en', 'en-AU'), ('th', 'th-TH'), ('pt', 'pt-BR'), ('mr', 'mr-IN'), ('sk', 'sk-SK'), ('ru', 'ru-RU'), ('nl', 'nl-NL'), ('en', 'en-US'), ('ta', 'ta-IN'), ('hi', 'hi-IN'), ('cy', 'cy-GB'), ('ar', 'ar-SA'), ('ga', 'ga-IE'), ('nl', 'nl-BE'), ('de', 'de-AT'), ('ca', 'ca-ES'), ('uk', 'uk-UA'), ('es', 'es-CO'), ('es', 'es-ES'), ('es', 'es-US'), ('en', 'en-ZA'), ('ur', 'ur-PK'), ('sv', 'sv-SE'), ('lv', 'lv-LV'), ('lt', 'lt-LT'), ('vi', 'vi-VN'), ('et', 'et-EE'), ('en', 'en-IN'), ('en', 'en-IE'), ('ja', 'ja-JP'), ('fr', 'fr-CH'), ('gu', 'gu-IN'), ('sl', 'sl-SI')}
+        _locals = {'zh-CN': 'zh-CN', 'mr': 'mr-IN', 'en': 'en-US', 'ru': 'ru-RU', 'el': 'el-GR', 'es': 'es-CO', 'id': 'id-ID', 'pt': 'pt-PT', 'ko': 'ko-KR', 'ta': 'ta-IN', 'te': 'te-IN', 'et': 'et-EE', 'pl': 'pl-PL', 'it': 'it-IT', 'ms': 'ms-MY', 'mt': 'mt-MT', 'ro': 'ro-RO', 'vi': 'vi-VN', 'bg': 'bg-BG', 'zh-TW': 'zh-TW', 'tr': 'tr-TR', 'de': 'de-CH', 'fr': 'fr-CH', 'nb': 'nb-NO', 'nl': 'nl-BE', 'uk': 'uk-UA', 'he': 'he-IL', 'ur': 'ur-PK', 'hi': 'hi-IN', 'ja': 'ja-JP', 'hr': 'hr-HR', 'sv': 'sv-SE', 'hu': 'hu-HU', 'sw': 'sw-KE', 'lt': 'lt-LT', 'sl': 'sl-SI', 'fi': 'fi-FI', 'lv': 'lv-LV', 'sk': 'sk-SK', 'da': 'da-DK', 'cy': 'cy-GB', 'gu': 'gu-IN', 'ga': 'ga-IE', 'th': 'th-TH', 'ar': 'ar-EG', 'ca': 'ca-ES', 'zh-HK': 'zh-HK', 'cs': 'cs-CZ'}
+        _source_local = _locals.get(source_language)
+
+        for _supported_lang in _supported_langs_list:
+            if _supported_lang["Locale"] == _source_local and _supported_lang["Gender"] == gender:
+                voice = _supported_lang["ShortName"]
+                break
+        else:
+            raise UnsupportedMethod("Bing Translate doesn't support {source_lang} language".format(source_lang=source_language))
+
+        speech_url = "https://{region}.tts.speech.microsoft.com/cognitiveservices/v1".format(region=self._speech_region)
+        headers = {"authorization": "Bearer {token}".format(token=self._speech_token), "content-type": "application/ssml+xml", "x-microsoft-outputformat": "audio-48khz-192kbitrate-mono-mp3"}
+        data = "<speak version='1.0' xml:lang='{local}'><voice xml:lang='{local}' xml:gender='{gender}' name='{voice}'><prosody rate='{speed}%'>{text}</prosody></voice></speak>".format(text=text, gender=gender, speed=float(speed - 100), local=_source_local, voice=voice)
+        spech_result = self.session.post(speech_url, data=data.encode('utf-8'), headers=headers)
+        return source_language, spech_result.content
 
     def _language_normalize(self, language):
         return language.bing

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from translatepy.language import Language
-from translatepy.models import TranslationResult, TransliterationResult, SpellcheckResult, LanguageResult, ExampleResult, DictionaryResult
+from translatepy.models import TranslationResult, TransliterationResult, SpellcheckResult, LanguageResult, ExampleResult, DictionaryResult, TextToSpechResult
 from translatepy.utils.lru_cacher import LRUDictCache
 from translatepy.utils.annotations import List
 
@@ -19,11 +19,8 @@ class BaseTranslateException(Exception):
         return "{} | {}".format(self.status_code, self.message)
 
 
-# TODO: Feat: Implement supported_languages method
-# TODO: Feat: Implement text_to_spech method
-# TODO: Fix Dictionaries and Examples results. See models file
 # TODO: Feat: support translating > 5000 characters (or just excpetion raising)
-# TODO: Feat: Some translation services give out a lot of useful information that can come in handy for programmers. We need to implement for example kwargs in the model.py file
+# TODO: Feat: Some translation services give out a lot of useful information that can come in handy for programmers. I think we need implement separate models class for each Translator service
 
 
 class BaseTranslator(ABC):
@@ -37,6 +34,7 @@ class BaseTranslator(ABC):
     _spellchecks_cache = LRUDictCache()
     _examples_cache = LRUDictCache()
     _dictionaries_cache = LRUDictCache()
+    _text_to_speeches_cache = LRUDictCache(8)
 
     def translate(self, text: str, destination_language: str, source_language: str = "auto") -> TranslationResult:
         """
@@ -391,6 +389,65 @@ class BaseTranslator(ABC):
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations. Receives the validated and normalized parameters and must
         return a dictionary result list (List).
+        """
+
+    def text_to_speech(self, text: str, speed: int = 100, gender: str = "female", source_language: str = "auto") -> TextToSpechResult:
+        """
+        Gives back the text to speech result for the given text
+
+        Args:
+            text: text for voice-over
+            speed: text speed
+
+        Returns:
+            A `TextToSpechResult` object
+
+        """
+
+        # Validate the text
+        self._validate_text(text)
+
+        # Validate the languages
+        # We save the values in new variables, so at the end
+        # of this method, we still have acess to the original codes.
+        # With this we can use the original codes to build the response,
+        # this makes the code transformation transparent to the user.
+        source_code = self._detect_and_validate_lang(source_language)
+
+        gender = gender.lower()
+
+        genders_list = ["male", "female"]
+        if gender not in genders_list:
+            raise ValueError("Gender {gender} not supported. Supported genders: {genders_list}".format(gender=gender, genders_list=genders_list))
+
+        # Build cache key
+        _cache_key = str({"t": text, "sp": speed, "s": source_code, "g": gender})
+
+        if _cache_key in self._text_to_speeches_cache:
+            # Taking the values from the cache
+            source_language, text_to_speech = self._text_to_speeches_cache[_cache_key]
+        else:
+            # Call the private concrete implementation of the Translator to get text to spech result
+            source_language, text_to_speech = self._text_to_speech(text, speed, gender, source_code)
+
+            # Сache the text to spech result to speed up the translation process in the future
+            self._text_to_speeches_cache[_cache_key] = (source_language, text_to_speech)
+
+        # Return a `TextToSpechResult` object
+        return TextToSpechResult(
+            service=str(self),
+            source=text,
+            source_language=source_language,
+            speed=speed,
+            gender=gender,
+            result=text_to_speech,
+        )
+
+    @abstractmethod
+    def _text_to_speech(self, text: str, speed: int, gender: str, source_language: str) -> bytes:
+        """
+        Private method that concrete Translators must implement to hold the concrete
+        logic for the translations.
         """
 
     @abstractmethod

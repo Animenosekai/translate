@@ -277,6 +277,9 @@ class DeeplTranslate(BaseTranslator):
     def _spellcheck(self, text, source_language):
         raise UnsupportedMethod("")
 
+    def _text_to_speech(self, text, speed, gender, source_language):
+        raise UnsupportedMethod("")
+
     def _language_normalize(self, language):
         return language.deepl
 

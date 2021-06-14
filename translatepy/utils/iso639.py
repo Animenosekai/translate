@@ -1,5 +1,4 @@
 from translatepy.utils import iso639_table
-from icecream import ic
 
 
 def _build_index(idx):

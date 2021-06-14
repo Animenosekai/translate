@@ -4,6 +4,7 @@ Module containing various models for holding informations.
 from json import dumps
 from translatepy.language import Language
 
+
 class TranslationResult:
     """
     Class that holds the result of a Translation.
@@ -62,7 +63,6 @@ class TransliterationResult:
             result=self.result
         )
 
-    
     def as_json(self, **kwargs) -> str:
         return dumps({
             "service": str(self.service),
@@ -94,7 +94,6 @@ class SpellcheckResult:
             result=self.result
         )
 
-    
     def as_json(self, **kwargs) -> str:
         return dumps({
             "service": str(self.service),
@@ -185,7 +184,6 @@ class DictionaryResult:
     def __repr__(self) -> str:
         return str(self.__dict__)
 
-
     def as_json(self, **kwargs) -> str:
         return dumps({
             "service": str(self.service),
@@ -194,3 +192,40 @@ class DictionaryResult:
             "destination_language": str((self.destination_language.alpha2) if isinstance(self.destination_language, Language) else self.destination_language),
             "result": str(self.result),
         }, **kwargs)
+
+
+class TextToSpechResult:
+    """
+    Class that holds the result of a text to spech.
+    """
+
+    def __init__(self, service, source, source_language, speed, gender, result):
+        self.service = service
+        self.source = source
+        self.source_language = source_language
+        self.speed = speed,
+        self.gender = gender
+        self.result = result
+
+    def write_to_file(self, file):
+        """
+        Writes the spoken text to an MP3 file.
+
+        Args:
+            file: The output file
+        """
+
+        if isinstance(file, str):
+            with open(file, "wb") as fp:
+                fp.write(self.result)
+            return
+
+        if hasattr(file, "write"):
+            file.write(self.result)
+            return
+
+    def __str__(self) -> str:
+        return self.result
+
+    def __repr__(self) -> str:
+        return str(self.__dict__)

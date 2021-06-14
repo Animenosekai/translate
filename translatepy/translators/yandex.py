@@ -128,9 +128,10 @@ class YandexTranslate(BaseTranslator):
         url = "https://dictionary.yandex.net/dicservice.json/queryCorpus"
         params = {"ucid": self._ucid(), "srv": "android", "src": text, "ui": "en", "lang": source_language + "-" + destination_language, "flags": 7}
         request = self.session.get(url, params=params)
-        response = request.json()
 
         if request.status_code < 400:
+            response = request.json()
+
             _result = []
             for examples_group in response["result"]:
                 for sentense in examples_group["examples"]:
@@ -139,7 +140,7 @@ class YandexTranslate(BaseTranslator):
                     _result.append(_sentense_result)
             return source_language, _result
         else:
-            raise YandexTranslateException(request.status_code)
+            raise YandexTranslateException(request.status_code, request.text)
 
     def _dictionary(self, text: str, destination_language: str, source_language: str):
         if source_language == "auto":
@@ -148,9 +149,10 @@ class YandexTranslate(BaseTranslator):
         url = "https://dictionary.yandex.net/dicservice.json/lookupMultiple"
         params = {"ucid": self._ucid(), "srv": "android", "text": text, "ui": "en", "dict": source_language + "-" + destination_language, "flags": 7, "dict_type": "regular"}
         request = self.session.get(url, params=params)
-        response = request.json()
 
         if request.status_code < 400:
+            response = request.json()
+
             _result = []
 
             for word in response["{}-{}".format(source_language, destination_language)]["regular"]:
@@ -159,11 +161,32 @@ class YandexTranslate(BaseTranslator):
 
             return source_language, _result
         else:
-            raise YandexTranslateException(request.status_code)
+            raise YandexTranslateException(request.status_code, request.text)
 
-    def _text_to_speech(self, text: str, source_language: str):
-        # TODO: Implement (Yandex Alice)
-        raise UnsupportedMethod("Yandex Translate doesn't support this method")
+    def _text_to_speech(self, text: str, speed: int, gender: str, source_language: str):
+        # TODO: Use Yandex Alice text to speech (Premium voices)
+
+        if source_language == "auto":
+            source_language = self._language(text)
+
+        speech_lang_voices = {
+            "male": {"ru": ["ru_RU", "filipp"], "tr": ["tr_TR", "erkanyavas"], "en": ["en_US", "nick"]},
+            "female": {"ru": ["ru_RU", "alena"], "tr": ["tr_TR", "silaerkan"], "en": ["en_US", "alyss"]}
+        }
+
+        lang = speech_lang_voices[gender].get(source_language)
+
+        if lang is None:
+            raise UnsupportedMethod("Yandex SpeechKit doesn't support {source_lang} language".format(source_lang=source_language))
+
+        url = "https://tts.voicetech.yandex.net/tts"
+        params = {"format": "mp3", "quality": "hi", "chunked": 0, "platform": "web", "mock-ranges": 1, "application": "translate", "lang": lang[0], "text": text, "voice": lang[1], "speed": speed / 100}
+        response = self.session.get(url, params=params, headers={"Content-Type": None})
+
+        if response.status_code < 400:
+            return source_language, response.content
+        else:
+            raise YandexTranslateException(response.status_code, response.text)
 
     def _language_normalize(self, language):
         return language.yandex

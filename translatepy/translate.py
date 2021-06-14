@@ -8,7 +8,6 @@ from translatepy.translators import BaseTranslator, GoogleTranslate, BingTransla
 from translatepy.models import TranslationResult, TransliterationResult, SpellcheckResult, LanguageResult
 from translatepy.utils.annotations import List
 from translatepy.utils.request import Request
-from translatepy.exceptions import UnsupportedMethod
 
 
 class Translate():
@@ -150,13 +149,13 @@ class Translate():
         else:
             raise ValueError("No service has returned a valid result")
 
-    def text_to_speech(self, text: str, source_language: str = "auto") -> bytes:
+    def text_to_speech(self, text: str, speed: int = 100, gender: str = "female", source_language: str = "auto") -> bytes:
         """
         Gives back the text to speech result for the given text
 
         Args:
           text: the given text
-          source_language: the source language (Defaut value = None)
+          source_language: the source language
 
         Returns:
             the mp3 file as bytes
@@ -164,26 +163,27 @@ class Translate():
         Example:
             >>> from translatepy import Translator
             >>> t = Translator()
-            >>> result = t.text_to_speech("Hello, how are you?", "English")
+            >>> result = t.text_to_speech("Hello, how are you?")
             >>> with open("output.mp3", "wb") as output: # open a binary (b) file to write (w)
-            ...     output.write(result)
+            ...     output.write(result.result)
+                    # or:
+                    result.write_to_file(output)
+            # Or you can just use write_to_file method:
+            >>> result.write_to_file("output.mp3")
             ... print("Output of Text to Speech is available in output.mp3!")
 
             # the result is an MP3 file with the text to speech output
         """
 
-        # TODO: Implement
-        raise UnsupportedMethod("")
-
         for service in self.services:
             try:
-                response = service.text_to_speech(text, source_language)
+                response = service.text_to_speech(text, speed, gender, source_language)
             except Exception:
                 continue
             else:
                 return response
         else:
-            raise ValueError("No service has returned the correct result")
+            raise ValueError("No service has returned the valid result")
 
     def clean_cache(self) -> None:
         """

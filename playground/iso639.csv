@@ -20,7 +20,7 @@ alt,,,Southern Altai,,,,,
 amh,,am,Amharic,am,am,am,,
 anp,,,Angika,,,,,
 apa,,,Apache languages,,,,,
-ara,,ar,Arabic,ar,ar,ar,ar,
+ara,,ar,Arabic,ar,ar,ar,ara,
 arg,,an,Aragonese,,,,,
 arm,hye,hy,Armenian,hy,hy,hy,,
 arn,,,Mapudungun,,,,,
@@ -85,7 +85,7 @@ cha,,ch,Chamorro,,,,,
 chb,,,Chibcha,,,,,
 che,,ce,Chechen,,,,,
 chg,,,Chagatai,,,,,
-chi,zho,zh,Chinese,zh,zh-cn,zh-Hans,zh,ZH
+chi,zho,zh,Chinese,zh,zh-cn,zh-Hans,chi,ZH
 chk,,,Chuukese,,,,,
 chm,,,Mari,,,,,
 chn,,,Chinook jargon,,,,,
@@ -125,15 +125,15 @@ doi,,,Dogri,,,,,
 dra,,,Dravidian languages,,,,,
 dsb,,,Lower Sorbian,,,,,
 dua,,,Duala,,,,,
-dut,nld,nl,Dutch,nl,nl,nl,nl,NL
-dut,nld,nl,Flemish,nl,nl,nl,nl,NL
+dut,nld,nl,Dutch,nl,nl,nl,dut,NL
+dut,nld,nl,Flemish,nl,nl,nl,dut,NL
 dyu,,,Dyula,,,,,
 dzo,,dz,Dzongkha,,,,,
 efi,,,Efik,,,,,
 egy,,,Egyptian (Ancient),,,,,
 eka,,,Ekajuk,,,,,
 elx,,,Elamite,,,,,
-eng,,en,English,en,en,en,en,EN
+eng,,en,English,en,en,en,eng,EN
 epo,,eo,Esperanto,eo,eo,,,
 est,,et,Estonian,et,et,et,,ET
 ewe,,ee,Ewe,,,,,
@@ -147,7 +147,7 @@ fil,,,Pilipino,,,fil,,
 fin,,fi,Finnish,fi,fi,fi,,FI
 fiu,,,Finno-Ugrian languages,,,,,
 fon,,,Fon,,,,,
-fre,fra,fr,French,fr,fr,fr,fr,FR
+fre,fra,fr,French,fr,fr,fr,fra,FR
 ,,,French (Canada),,,fr-ca,,
 frr,,,Northern Frisian,,,,,
 frs,,,Eastern Frisian,,,,,
@@ -159,7 +159,7 @@ gay,,,Gayo,,,,,
 gba,,,Gbaya,,,,,
 gem,,,Germanic languages,,,,,
 geo,kat,ka,Georgian,ka,ka,,,
-ger,deu,de,German,de,de,de,de,DE
+ger,deu,de,German,de,de,de,ger,DE
 gez,,,Geez,,,,,
 gil,,,Gilbertese,,,,,
 gla,,gd,Gaelic,gd,gd,,,
@@ -183,7 +183,7 @@ hat,,ht,Haitian,ht,ht,ht,,
 hat,,ht,Haitian Creole,ht,ht,ht,,
 hau,,ha,Hausa,,ha,,,
 haw,,,Hawaiian,,haw,,,
-heb,,he,Hebrew,he,he,he,he,
+heb,,he,Hebrew,he,he,he,heb,
 her,,hz,Herero,,,,,
 hil,,,Hiligaynon,,,,,
 him,,,Himachali languages,,,,,
@@ -216,10 +216,10 @@ inh,,,Ingush,,,,,
 ipk,,ik,Inupiaq,,,,,
 ira,,,Iranian languages,,,,,
 iro,,,Iroquoian languages,,,,,
-ita,,it,Italian,it,it,it,it,IT
+ita,,it,Italian,it,it,it,ita,IT
 jav,,jv,Javanese,jv,jw,,,
 jbo,,,Lojban,,,,,
-jpn,,ja,Japanese,ja,ja,ja,ja,JA
+jpn,,ja,Japanese,ja,ja,ja,jpn,JA
 jpr,,,Judeo-Persian,,,,,
 jrb,,,Judeo-Arabic,,,,,
 kaa,,,Kara-Kalpak,,,,,
@@ -381,9 +381,9 @@ per,fas,fa,Persian,fa,fa,fa,,
 phi,,,Philippine languages,,,,,
 phn,,,Phoenician,,,,,
 pli,,pi,Pali,,,,,
-pol,,pl,Polish,pl,pl,pl,pl,PL
+pol,,pl,Polish,pl,pl,pl,pol,PL
 pon,,,Pohnpeian,,,,,
-por,,pt,Portuguese,pt,pt,pt,pt,PT
+por,,pt,Portuguese,pt,pt,pt,por,PT
 pra,,,Prakrit languages,,,,,
 pus,,ps,Pushto,,ps,ps,,
 pus,,ps,Pashto,,ps,ps,,
@@ -395,14 +395,14 @@ rar,,,Cook Islands Maori,,,,,
 roa,,,Romance languages,,,,,
 roh,,rm,Romansh,,,,,
 rom,,,Romany,,,,,
-rum,ron,ro,Romanian,ro,ro,ro,ro,RO
-rum,ron,ro,Moldavian,ro,ro,ro,ro,RO
-rum,ron,ro,Moldovan,ro,ro,ro,ro,RO
+rum,ron,ro,Romanian,ro,ro,ro,rum,RO
+rum,ron,ro,Moldavian,ro,ro,ro,rum,RO
+rum,ron,ro,Moldovan,ro,ro,ro,rum,RO
 run,,rn,Rundi,,,,,
 rup,,,Aromanian,,,,,
 rup,,,Arumanian,,,,,
 rup,,,Macedo-Romanian,,,,,
-rus,,ru,Russian,ru,ru,ru,ru,RU
+rus,,ru,Russian,ru,ru,ru,rus,RU
 sad,,,Sandawe,,,,,
 sag,,sg,Sango,,,,,
 sah,,,Yakut,sah,,,,
@@ -440,8 +440,8 @@ sog,,,Sogdian,,,,,
 som,,so,Somali,,so,,,
 son,,,Songhai languages,,,,,
 sot,,st,"Sotho, Southern",,st,,,
-spa,,es,Spanish,es,es,es,es,ES
-spa,,es,Castilian,es,es,es,es,ES
+spa,,es,Spanish,es,es,es,spa,ES
+spa,,es,Castilian,es,es,es,spa,ES
 srd,,sc,Sardinian,,,,,
 srn,,,Sranan Tongo,,,,,
 srp,,sr,Serbian,sr,sr,sr-Cyrl,,
@@ -485,7 +485,7 @@ tso,,ts,Tsonga,,,,,
 tuk,,tk,Turkmen,,,,,
 tum,,,Tumbuka,,,,,
 tup,,,Tupi languages,,,,,
-tur,,tr,Turkish,tr,tr,tr,tr,
+tur,,tr,Turkish,tr,tr,tr,tur,
 tut,,,Altaic languages,,,,,
 tvl,,,Tuvalu,,,,,
 twi,,tw,Twi,,,,,
