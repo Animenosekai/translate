@@ -75,7 +75,7 @@ class JSONRPCRequest():
         except Exception:
             self.id_number = randint(2000000, 3000000) # ? I didn't verify the range, but it's better having only DeepL not working than having Translator() crash for only one service
         self.session = request
-        self.last_access = time() + 3
+        self.last_access = 0
 
     def dump(self, method, params):
         self.id_number += 1
@@ -89,12 +89,13 @@ class JSONRPCRequest():
 
     def send_jsonrpc(self, method, params):
         # Take a break 3 sec between requests, so as not to get a block by the IP address
-        if self.last_access < self.last_access + 3:
-            sleep((self.last_access + 3) - self.last_access)
+        if time() - self.last_access < 3:
+            distance = 3 - (time() - self.last_access)
+            sleep((distance if distance >= 0 else 0))
 
         request = requests.post("https://www2.deepl.com/jsonrpc", json=self.dump(method, params))
-        response = request.json()
         self.last_access = time()
+        response = request.json()
         if request.status_code == 200:
             return response["result"]
         else:
