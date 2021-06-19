@@ -1,5 +1,5 @@
-from translatepy.utils import iso639
-from translatepy.utils.iso639_table import Language as LanguageISO639
+#from translatepy.utils import iso639
+#from translatepy.utils.iso639_table import Language as LanguageISO639
 from translatepy.utils.similarity import fuzzy_search
 from translatepy.utils.lru_cacher import LRUDictCache
 from translatepy.exceptions import UnknownLanguage

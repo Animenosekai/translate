@@ -18,9 +18,9 @@ class Translate():
     def __init__(
         self,
         services_list: List[BaseTranslator] = [
-            YandexTranslate,
             GoogleTranslate,
             BingTranslate,
+            YandexTranslate,
             ReversoTranslate,
             DeeplTranslate,
             MyMemoryTranslate,
