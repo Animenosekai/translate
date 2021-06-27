@@ -1,6 +1,6 @@
 # Plugins
 
-You can easily your own translator by adding inheriting the "BaseTranslator" class (`translatepy.translators.base.BaseTranslator`)
+You can easily create your own translator by adding inheriting the "BaseTranslator" class (`translatepy.translators.base.BaseTranslator`)
 
 This is how your class should look like:
 
@@ -77,7 +77,7 @@ class TranslatorName(BaseTranslator):
         """
         # You could use `self.session` to make a request to the endpoint, with all of the parameters
         # Then extract the detected language (or use the "source_language" parameter but what if the user pass in "auto")
-        # the result should be 
+        # the result should be
         return detected_language, result
 
     def _language_normalize(self, language) -> str:
@@ -108,5 +108,5 @@ class TranslatorName(BaseTranslator):
         ... return "Unknown" if class_name == "" else class_name
         """
         return name
-        
+
 ```
