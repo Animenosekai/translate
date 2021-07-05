@@ -1,6 +1,13 @@
 # Plugins
 
-You can easily create your own translator by adding inheriting the "BaseTranslator" class (`translatepy.translators.base.BaseTranslator`)
+You can easily create your own translator by inheriting the "BaseTranslator" class (`translatepy.translators.base.BaseTranslator`)
+
+## Table of Content
+
+- [Template](#template)
+- [Best Practices](#best-practices)
+
+## Template
 
 This is how your class should look like:
 
@@ -110,3 +117,33 @@ class TranslatorName(BaseTranslator):
         return name
 
 ```
+
+## Best Practices
+
+### Requests
+
+Using the object passed in "request" is highly suggested because it is the one passed in by the user (which is in most of the cases our translatepy's version of requests' `Request` object).
+
+### Caching
+
+Responses will be cached in the Base class if successful
+
+### Supported Languages
+
+We might be needing the "_supported_languages" method in the future so it is best to add it.
+
+### Recursion
+
+Avoid making big loops and recursions to wait for a valid result, if the user is using the `Translator` class, you might tremendously slow down the execution of the user's program.
+
+### Unsupported Methods/Endpoints
+
+Your source might not support some of the available features, in which case you need to raise the `translatepy.exceptions.UnsupportedMethod()`exception to let `Translator` know that this is an unsupported feature.
+
+### Non "_" prefixed functions
+
+You should not use the normal functions/methods for the naming of the features you implement. They are used by the `BaseTranslator` class to make verifications, cache and shape your responses before giving it back to the user.
+
+### Usage
+
+The user will be able to use your plugin by importing it and using it normally or adding it to the `services_list` parameter in the `Translator` class.

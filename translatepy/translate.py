@@ -18,9 +18,9 @@ class Translate():
     def __init__(
         self,
         services_list: List[BaseTranslator] = [
-            YandexTranslate,
             GoogleTranslate,
             BingTranslate,
+            YandexTranslate,
             ReversoTranslate,
             DeeplTranslate,
             MyMemoryTranslate,
@@ -51,7 +51,6 @@ class Translate():
 
         i.e Good morning (en) --> おはようございます (ja)
         """
-
         for service in self.services:
             try:
                 result = service.translate(

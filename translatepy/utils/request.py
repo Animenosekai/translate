@@ -63,7 +63,7 @@ class Response():
 
     def raise_for_status(self):
         if self.status_code >= 400:
-            raise RequestStatusError("Request Status Code: {code}".format(code=str(self.status_code)))
+            raise RequestStatusError(self.status_code, "Request Status Code: {code}".format(code=str(self.status_code)))
 
     def json(self, **kwargs):
         return loads(self.text, **kwargs)

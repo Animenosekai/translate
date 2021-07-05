@@ -33,8 +33,8 @@ class TranslationResult:
         return dumps({
             "service": str(self.service),
             "source": str(self.source),
-            "source_language": str((self.source_language.alpha2) if isinstance(self.source_language, Language) else self.source_language),
-            "destination_language": str((self.destination_language.alpha2) if isinstance(self.destination_language, Language) else self.destination_language),
+            "sourceLanguage": str((self.source_language.id) if isinstance(self.source_language, Language) else self.source_language),
+            "destinationLanguage": str((self.destination_language.id) if isinstance(self.destination_language, Language) else self.destination_language),
             "result": str(self.result),
         }, **kwargs)
 
@@ -67,8 +67,8 @@ class TransliterationResult:
         return dumps({
             "service": str(self.service),
             "source": str(self.source),
-            "source_language": str((self.source_language.alpha2) if isinstance(self.source_language, Language) else self.source_language),
-            "destination_language": str((self.destination_language.alpha2) if isinstance(self.destination_language, Language) else self.destination_language),
+            "sourceLanguage": str((self.source_language.id) if isinstance(self.source_language, Language) else self.source_language),
+            "destinationLanguage": str((self.destination_language.id) if isinstance(self.destination_language, Language) else self.destination_language),
             "result": str(self.result),
         }, **kwargs)
 
@@ -98,7 +98,7 @@ class SpellcheckResult:
         return dumps({
             "service": str(self.service),
             "source": str(self.source),
-            "source_language": str((self.source_language.alpha2) if isinstance(self.source_language, Language) else self.source_language),
+            "sourceLanguage": str((self.source_language.id) if isinstance(self.source_language, Language) else self.source_language),
             "result": str(self.result),
         }, **kwargs)
 
@@ -160,8 +160,8 @@ class ExampleResult:
         return dumps({
             "service": str(self.service),
             "source": str(self.source),
-            "source_language": str((self.source_language.alpha2) if isinstance(self.source_language, Language) else self.source_language),
-            "destination_language": str((self.destination_language.alpha2) if isinstance(self.destination_language, Language) else self.destination_language),
+            "sourceLanguage": str((self.source_language.id) if isinstance(self.source_language, Language) else self.source_language),
+            "destinationLanguage": str((self.destination_language.id) if isinstance(self.destination_language, Language) else self.destination_language),
             "result": str(self.result),
         }, **kwargs)
 
@@ -188,8 +188,8 @@ class DictionaryResult:
         return dumps({
             "service": str(self.service),
             "source": str(self.source),
-            "source_language": str((self.source_language.alpha2) if isinstance(self.source_language, Language) else self.source_language),
-            "destination_language": str((self.destination_language.alpha2) if isinstance(self.destination_language, Language) else self.destination_language),
+            "sourceLanguage": str((self.source_language.id) if isinstance(self.source_language, Language) else self.source_language),
+            "destinationLanguage": str((self.destination_language.id) if isinstance(self.destination_language, Language) else self.destination_language),
             "result": str(self.result),
         }, **kwargs)
 

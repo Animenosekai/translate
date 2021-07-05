@@ -51,9 +51,9 @@ class MyMemoryTranslate(BaseTranslator):
 
         Must return a string with the correct language code
         """
-        if language.language.alpha2 == "auto":
+        if language.id == "auto":
             return "autodetect"
-        return language.language.alpha2
+        return language.alpha2
 
     def _language_denormalize(self, language_code) -> str:
         """
@@ -64,5 +64,5 @@ class MyMemoryTranslate(BaseTranslator):
         """
         language_code = str(language_code).split("-")[0]
         if language_code == "autodetect":
-            return Language("Automatic")
+            return Language("auto")
         return Language(language_code)

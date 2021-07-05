@@ -48,7 +48,7 @@ def main():
     args = parser.parse_args()
 
     if args.action == 'translate':
-        result = dl.translate(args.text, args.dest_lang, args.source_lang)
+        result = dl.translate(text=args.text, destination_language=args.dest_lang, source_language=args.source_lang)
         print(result.as_json(indent=4, ensure_ascii=False))
 
     elif args.action == 'transliterate':
@@ -66,6 +66,7 @@ def main():
 
     # INTERACTIVE VERSION
     if args.action == 'shell':
+        print(args)
         destination_language = args.dest_lang
         # source_language = args.source_lang
         try:
@@ -87,7 +88,7 @@ def main():
                     ])
                     try:
                         destination_language = translatepy.Language(answers["destination_language"])
-                        print("The selected language is " + destination_language.english)
+                        print("The selected language is " + destination_language.name)
                         return destination_language
                     except Exception:
                         print("\033[93mThe given input doesn't seem to be a valid language\033[0m")
@@ -103,6 +104,7 @@ def main():
                     destination_language = _prompt_for_destination_language()
 
             print("")
+            print("Destination", destination_language)
             if action == "Translate":
                 print("\033[96mEnter '.quit' to stop translating\033[0m")
                 while True:
@@ -151,7 +153,7 @@ def main():
                     try:
                         result = dl.language(input_text)
                         try:
-                            result = translatepy.Language(result.result).english
+                            result = translatepy.Language(result.result).name
                         except Exception:
                             result = result.result
                         print("The given text is in {lang}".format(lang=result))
