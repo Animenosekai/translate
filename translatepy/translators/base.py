@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 
 from translatepy.language import Language
-from translatepy.exceptions import UnsupportedMethod
+from translatepy.exceptions import TranslatepyException, UnsupportedMethod
 from translatepy.models import TranslationResult, TransliterationResult, SpellcheckResult, LanguageResult, ExampleResult, DictionaryResult, TextToSpechResult
 from translatepy.utils.lru_cacher import LRUDictCache
 from translatepy.utils.annotations import List
 
 
-class BaseTranslateException(Exception):
+class BaseTranslateException(TranslatepyException):
     def __init__(self, status_code, message=None):
         if message is None:
             self.message = self.error_codes.get(status_code, "Unknown error. Error code: {}".format(status_code))
