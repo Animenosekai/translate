@@ -216,10 +216,15 @@ class BingTranslate(BaseTranslator):
         return source_language, spech_result.content
 
     def _language_normalize(self, language):
-        return language.bing
+        _language = Language(language)
+        if _language.id == "auto":
+            return "auto-detect"
+        return _language.alpha2
 
     def _language_denormalize(self, language_code):
-        return Language.by_bing(language_code)
+        if str(language_code) == "auto-detect":
+            return Language("auto")
+        return Language(language_code)
 
     def __repr__(self) -> str:
         return "Microsoft Bing Translator"

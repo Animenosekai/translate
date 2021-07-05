@@ -151,7 +151,7 @@ def main():
                     try:
                         result = dl.language(input_text)
                         try:
-                            result = translatepy.Language(result.result).english
+                            result = translatepy.Language(result.result).name
                         except Exception:
                             result = result.result
                         print("The given text is in {lang}".format(lang=result))

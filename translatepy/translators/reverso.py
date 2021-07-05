@@ -144,11 +144,11 @@ class ReversoTranslate(BaseTranslator):
         if response.status_code < 400:
             return source_language, response.content
 
-    def _language_normalize(self, language) -> str:
-        return language.reverso
+    def _language_normalize(self, language: Language) -> str:
+        return language.alpha3
 
     def _language_denormalize(self, language_code):
-        return Language.by_reverso(language_code)
+        return Language(language_code)
 
     def __repr__(self) -> str:
         return "Reverso Translate"

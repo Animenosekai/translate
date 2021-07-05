@@ -55,11 +55,11 @@ class GoogleTranslate(BaseTranslator):
     def _supported_languages(self):
         raise UnsupportedMethod()
 
-    def _language_normalize(self, language):
-        return language.google
+    def _language_normalize(self, language: Language):
+        return language.alpha2
 
     def _language_denormalize(self, language_code):
-        return Language.by_google(language_code)
+        return Language(language_code)
 
     def _spellcheck(self, text, source_language):
         # TODO: Implement
@@ -226,11 +226,11 @@ class GoogleTranslateV1(BaseTranslator):
 
         return source_language
 
-    def _language_normalize(self, language):
-        return language.google
+    def _language_normalize(self, language: Language):
+        return language.alpha2
 
     def _language_denormalize(self, language_code):
-        return Language.by_google(language_code)
+        return Language(language_code)
 
     def __repr__(self):
         return "Google Translate"
@@ -354,11 +354,11 @@ class GoogleTranslateV2(BaseTranslator):
             return response['ld_result']["srclangs"][0]
 
 
-    def _language_normalize(self, language):
-        return language.google
+    def _language_normalize(self, language: Language):
+        return language.alpha2
 
     def _language_denormalize(self, language_code):
-        return Language.by_google(language_code)
+        return Language(language_code)
 
     def __repr__(self):
         return "Google Translate"

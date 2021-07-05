@@ -47,7 +47,7 @@ class TranslateComTranslate(BaseTranslator):
 
         Must return a string with the correct language code
         """
-        return language.language.alpha2
+        return language.alpha2
 
     def _language_denormalize(self, language_code) -> str:
         """

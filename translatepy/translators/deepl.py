@@ -215,8 +215,8 @@ class DeeplTranslate(BaseTranslator):
         if source_language == "AUTO":
             source_language = self._language(text)
 
-        destination_language = Language(destination_language).english
-        source_language = Language(source_language).english
+        destination_language = Language(destination_language).name.lower()
+        source_language = Language(source_language).name.lower()
 
         request = self.session.post("https://dict.deepl.com/" + source_language + "-" + destination_language + "/search?ajax=1&source=" + source_language + "&onlyDictEntries=1&translator=dnsof7h3k2lgh3gda&delay=800&jsStatus=0&kind=full&eventkind=keyup&forleftside=true", data={"query": text})
         if request.status_code < 400:
@@ -267,10 +267,11 @@ class DeeplTranslate(BaseTranslator):
         return jobs
 
     def _language_normalize(self, language):
-        return language.deepl
+        _language = Language(language)
+        return _language.alpha2.upper()
 
     def _language_denormalize(self, language_code):
-        return Language.by_deepl(language_code)
+        return Language(language_code)
 
     def __repr__(self):
         return "DeepL Tranlsate"

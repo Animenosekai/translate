@@ -189,10 +189,10 @@ class YandexTranslate(BaseTranslator):
             raise YandexTranslateException(response.status_code, response.text)
 
     def _language_normalize(self, language):
-        return language.yandex
+        return language.alpha2
 
     def _language_denormalize(self, language_code):
-        return Language.by_yandex(language_code)
+        return Language(language_code)
 
     def __repr__(self) -> str:
         return "Yandex Translate"
