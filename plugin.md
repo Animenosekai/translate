@@ -16,6 +16,14 @@ from translatepy.language import Language
 from translatepy.utils.request import Request
 from translatepy.translators.base import BaseTranslator
 
+class TranslatorNameException(BaseTranslateException):
+    error_codes = {
+        429: "Too many requests" # add your own status codes and error
+    }
+
+    # you can use it like so in your endpoint:
+    # raise TranslateNameException(request.status_code)
+
 class TranslatorName(BaseTranslator):
     """
     translatepy's implementation of <TranslatorName>
