@@ -36,41 +36,43 @@ Always check if your Python version works with `translatepy` before using it in 
 
 ## Installing
 
-### Option #1. From PyPI
+### Option 1: From PyPI
 
 ```bash
-pip install translatepy
+pip install --upgrade translatepy
 ```
 
-### Option #2. From Git
+### Option 2: From Git
 
 ```bash
-pip install https://github.com/Animenosekai/translate
+pip install --upgrade git+https://github.com/Animenosekai/translate
 ```
 
 You can check if you successfully installed it by printing out its version:
 
 ```bash
-$ python -c "import translatepy; print(translatepy.__version__)"
+$ translatepy --version
 # output:
-translatepy v2.0
+translatepy v2.0.0
 ```
 
 or just:
 
 ```bash
-$ translatepy --version
+$ python -c "import translatepy; print(translatepy.__version__)"
 # output:
-translatepy v2.0
+translatepy v2.0.0
 ```
 
-## List of Services
+## List of Built-in Services
 
 - [Microsoft Bing Translator](https://www.bing.com/translator)
-- [Google Translate](https://translate.google.com)
-- [Yandex Translate](https://translate.yandex.com)
-- [Reverso](https://www.reverso.net/text_translation.aspx)
 - [DeepL](https://www.deepl.com/translator)
+- [Google Translate](https://translate.google.com)
+- [MyMemory](https://mymemory.translated.net)
+- [Reverso](https://www.reverso.net/text_translation.aspx)
+- [Translate.com](https://www.translate.com)
+- [Yandex Translate](https://translate.yandex.com)
 
 All of the names belong to their respective rightholders.
 
@@ -81,87 +83,52 @@ All of the names belong to their respective rightholders.
 #### Interactive Shell (REPL)
 
 ```bash
-$ translatepy shell --dest-lang Russian
->>> Hello
-Привет
+$ translatepy shell
+## Choose the action
+[?] What do you want to do?: Translate
+ > Translate
+   Transliterate
+   Spellcheck
+   Language
+   Example
+   Quit
+
+## Choose the language to translate in (this step can be skipped by passing the `--dest-lang` argument when starting the program)
+In what language do you want to translate in?
+[?] (translatepy ~ Select Lang.) > : ...
+
+## Translate
+Enter '.quit' to stop translating
+(translatepy ~ Translate) > ... # type in whatever you want to translate
+```
+
+#### In other applications/from the terminal
+
+Select an action:
+{translate,transliterate,language}
+
+and pass it as a command with the right arguments:
+
+```bash
+$ translatepy translate --dest-lang Français --text Hello
+{
+    "service": "Google",
+    "source": "Hello",
+    "sourceLanguage": "eng",
+    "destinationLanguage": "fra",
+    "result": "Bonjour"
+}
 ```
 
 ### In Python script
 
 #### The Translator Class
 
-```python
->>> from translatepy import Translator
->>> translator = Translator()
->>> translator.translate("Hello", "French")
-{'service': 'Yandex', 'source': 'Hello', 'source_language': 'auto', 'destination_language': 'French', 'result': 'Bonjour'}
->>> translator.language("こんにちは")
-{'service': 'Yandex', 'source': 'こんにちは', 'result': 'ja'}
-```
+The translator lets you group and use multiple translators at the same time, to increase your chance on getting an answer.
 
-#### The Language Class
+It takes two *optional* arguments: the `services_list` argument, which is a list of `Translator` objects and the second one being the `request` argument which is the object which will be used to make requests.
 
-The language class contains lots of information about a language.
-
-You need to pass the language name or code to the class initialization:
-
-```python
->>> from translatepy import Language
->>> Language("French")
-# Returns a Language class with the "fr" language
->>> Language("en")
-# Returns a Language class with the "en" language
->>> Language("eng")
-# Returns a Language class with the "en" language
->>> Language("日本語")
-# Returns a Language class with the "ja" language
-```
-
-The Language Class contains both the ISO 639-1 Alpha-2 language code and the ISO 639-2 Alpha-3 language code (the latter is nullable)
-
-It also contains the language name for all of the languages available. (nullable)
-
-Example:
-
-```python
->>> Language("日本語").french
-'Japonais'
->>> >>> Language("ru").russian
-'Русский' # Russian
-```
-
-It contains the correct language code for each translation service
-
-It also contains the "similarity" attribute which gives back a number between 0 and 1 and which shows the similarity of the input language with what it found in the language code database:
-
-```python
->>> Language("English").similarity
-100
->>> Language("Englesh").similarity
-95
-```
-
-A `translatepy.exceptions.UnknownLanguage` exception is raised if the given language is unknown.
-
-### The TranslationResult Class
-
-This class contains all of the information needed to get the result of a translation:
-
-- source: The input text
-- result: The translation result
-- source_language: The input language
-- destination_language: The result language
-- service: The source (service used)
-
-## Caching
-
-All of the operations are cached to provide the best performances
-
-You can empty the cache by calling the method "`clean_cache`"
-
-## The Translator Class
-
-It is the High API providing all of the methods and optimizations for `translatepy`
+It has all of the supported methods.
 
 - translate: To translate things
 - transliterate: To transliterate things
@@ -173,7 +140,85 @@ It is the High API providing all of the methods and optimizations for `translate
 
 When something goes wrong or nothing got found, an exception will be raised.
 
-The source language while being most of the time an instance of the Language class can sometimes be a string if the conversion to the Language class failed.
+```python
+>>> from translatepy import Translator
+>>> translator = Translator()
+>>> translator.translate("Hello", "French")
+TranslationResult(service=Yandex, source=Hello, source_language=auto, destination_language=French, result=Bonjour)
+>>> translator.language("こんにちは")
+LanguageResult(service=Yandex, source=こんにちは, result=Language(jpn))
+```
+
+#### Translators
+
+You can use each translators separately by using them the same way as you would with `translatepy.Translator`
+
+#### The Language Class
+
+The language class contains lots of information about a language.
+
+You need to pass the language name or code to the class initialization:
+
+```python
+>>> from translatepy import Language
+>>> Language("French")
+# Returns a Language class with the "fra" language
+>>> Language("en")
+# Returns a Language class with the "eng" language
+>>> Language("eng")
+# Returns a Language class with the "eng" language
+>>> Language("日本語")
+# Returns a Language class with the "jpn" language
+```
+
+The Language Class contains both the ISO 639-1 Alpha-2 language code and the ISO 639-2 Alpha-3 language code.
+
+Each available language has its own ID, coming from the Alpha-3 Language Code most of the times (but which is also unique for languages such as the "Automatic" Language and the "Emoji" one)
+
+It also contains the language name for a lot of languages:
+
+```python
+>>> Language("Français").in_foreign_languages.get("ja", None) # an alpha-2 code needs to be passed in, also make sure to have a fallback such as None here because not all of the languages had been translated.
+'フランス語'
+```
+
+It also contains the "similarity" attribute which gives back a number between 0 and 100 which shows the similarity of the input language with what it found in the language code database:
+
+```python
+>>> round(Language("French").similarity, 2)
+100.0
+>>> Language("Englesh").similarity
+94.86832980505137
+```
+
+A `translatepy.exceptions.UnknownLanguage` exception is raised if the given language is unknown.
+
+This exception contains the most similar language along with its similarity:
+
+```python
+try:
+    language = Language("中国")
+except translatepy.exceptions.UnknownLanguage as error:
+    print("The similarity seemed to be too low for translatepy to accept it as a correct language name")
+    print("The language found is:", error.guessed_language)
+    print("Its similarity from the passed input is:", str(error.similarity))
+```
+
+### Results
+
+All of the methods should have its own result class (defined in [translatepy/models.py](translatepy/models.py)) which all have at least the service, source, result attributes and a "as_json" method to convert everything into a JSON String.
+
+### Plugins
+
+You can make your own `Translator` using the `translatepy.translators.base.BaseTranslator` class.
+
+Make sure that you inherit from this class when creating your translator and to **follow the instruction from [plugin.md](plugin.md)**
+
+## Caching
+
+All of the operations are cached to provide the best performances
+
+You can empty the cache by calling the method "`clean_cache`"
 
 ## Deployment
 
@@ -198,14 +243,11 @@ This project is licensed under the GNU Affero General Public License v3.0 Licens
 
 ### Dataset
 
-All of the datasets are the result of my searches, computation and sometimes translation.
+The 'playground' folder contains a lot of our search and results for the language management on `translatepy`
 
-Please ask me if you want to use them in another project.
-
-(`_languages_name_to_code_international.json` comes from Google Translate translations (fixed by me sometimes) and other sourcecs and took me about 8 to 10 hours of work to get it done)
+Please ask us if you want to use them in another project.
 
 ## Acknowledgments
 
 - Thanks to @ZhymabekRoman (Zhymabek Roman) for working on making Yandex more stable and on the v2!
-- Thanks to @NawtJ0sh for giving me the way to add Microsoft Bing Translate
 - Inspired by py-googletrans (by @ssut) (especially the thread: [Issue #268](https://github.com/ssut/py-googletrans/issues/268))

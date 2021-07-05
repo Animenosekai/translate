@@ -15,6 +15,8 @@ class Language():
             self.scope = data["scope"]
 
     def __init__(self, language: str) -> None:
+        if language is None:
+            raise UnknownLanguage("N/A", 0, "You need to pass in a language")
         language = str(language)
         normalized_language = language.lower().replace(" ", "")
 

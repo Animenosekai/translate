@@ -51,7 +51,6 @@ class Translate():
 
         i.e Good morning (en) --> おはようございます (ja)
         """
-
         for service in self.services:
             try:
                 result = service.translate(
