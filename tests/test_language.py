@@ -7,4 +7,4 @@ def test_language():
     assert Language("Japanese").alpha2 == "ja"
     assert Language("en").name.lower() == "english"
     assert Language("japanese").alpha2 == "ja"
-    assert Language("自动").name.lower() == "auto"
+    assert Language("自动").name.lower() == "automatic"
