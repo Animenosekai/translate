@@ -1,7 +1,13 @@
 from translatepy.exceptions import UnsupportedMethod
 from translatepy.language import Language
 from translatepy.utils.request import Request
-from translatepy.translators.base import BaseTranslator
+from translatepy.translators.base import BaseTranslateException, BaseTranslator
+
+
+class MyMemoryException(BaseTranslateException):
+    error_codes = {
+        "NO_MATCH": "There is no match to the translation"
+    }
 
 class MyMemoryTranslate(BaseTranslator):
     """
@@ -20,9 +26,10 @@ class MyMemoryTranslate(BaseTranslator):
         """
         request = self.session.get(self.base_url, params={"q": text, "langpair": source_language + "|" + destination_language})
         if request.status_code < 400:
-            result = request.json()["matches"]
-            if len(result) > 0:
-                result = result[0]
+            try:
+                result = request.json()["matches"][0]
+            except IndexError:
+                raise MyMemoryException("NO_MATCH")
             try:
                 _detected_language = result["source"].split("-")[0]
             except Exception:

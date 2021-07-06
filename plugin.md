@@ -14,7 +14,7 @@ This is how your class should look like:
 ```python
 from translatepy.language import Language
 from translatepy.utils.request import Request
-from translatepy.translators.base import BaseTranslator
+from translatepy.translators.base import BaseTranslator, BaseTranslateException
 
 class TranslatorNameException(BaseTranslateException):
     error_codes = {
@@ -29,7 +29,7 @@ class TranslatorName(BaseTranslator):
     translatepy's implementation of <TranslatorName>
     """
 
-    def __init__(self, request: Request):
+    def __init__(self, request: Request = Request()):
         self.session = request
 
     def _translate(self, text: str, destination_language: str, source_language: str) -> str:

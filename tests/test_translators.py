@@ -3,7 +3,7 @@ from translatepy.translators.bing import BingTranslate
 from translatepy.translators.yandex import YandexTranslate
 from translatepy.translators.reverso import ReversoTranslate
 from translatepy.translators.deepl import DeeplTranslate, DeeplTranslateException
-from translatepy.translators.mymemory import MyMemoryTranslate
+from translatepy.translators.mymemory import MyMemoryException, MyMemoryTranslate
 from translatepy.translators.translatecom import TranslateComTranslate
 from translatepy.utils.request import Request
 from translatepy.exceptions import UnsupportedMethod
@@ -34,7 +34,7 @@ class TestAllTranslators:
                 try:
                     result = service.translate(*args)
                     assert result
-                except (UnsupportedMethod, DeeplTranslateException):
+                except (UnsupportedMethod, DeeplTranslateException, MyMemoryException):
                     continue
 
     def test_service_transliterate(self):
