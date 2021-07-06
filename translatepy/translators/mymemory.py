@@ -8,7 +8,7 @@ class MyMemoryTranslate(BaseTranslator):
     translatepy's implementation of MyMemory
     """
 
-    def __init__(self, request: Request):
+    def __init__(self, request: Request = Request()):
         self.session = request
         self.base_url = "https://api.mymemory.translated.net/get"
 
@@ -20,7 +20,9 @@ class MyMemoryTranslate(BaseTranslator):
         """
         request = self.session.get(self.base_url, params={"q": text, "langpair": source_language + "|" + destination_language})
         if request.status_code < 400:
-            result = request.json()["matches"][0]
+            result = request.json()["matches"]
+            if len(result) > 0:
+                result = result[0]
             try:
                 _detected_language = result["source"].split("-")[0]
             except Exception:

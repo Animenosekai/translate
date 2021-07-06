@@ -10,7 +10,7 @@ GETCACHE = LRUDictCache()
 CACHE_DURATION = 2 # in sec.
 
 class Response():
-    def __init__(self, request_obj) -> None:
+    def __init__(self, request_obj: requests.Response) -> None:
         #: Integer Code of responded HTTP Status, e.g. 404 or 200.
         self.status_code = request_obj.status_code
 

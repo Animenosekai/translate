@@ -8,7 +8,7 @@ class TranslateComTranslate(BaseTranslator):
     translatepy's implementation of translate.com
     """
 
-    def __init__(self, request: Request):
+    def __init__(self, request: Request = Request()):
         self.session = request
         self.translate_url = "https://www.translate.com/translator/ajax_translate"
         self.langdetect_url = "https://www.translate.com/translator/ajax_lang_auto_detect"
