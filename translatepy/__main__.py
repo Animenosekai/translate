@@ -143,7 +143,6 @@ def main():
                     destination_language = _prompt_for_destination_language()
 
             print("")
-            print("Destination", destination_language)
             if action == "Translate":
                 print("\033[96mEnter '.quit' to stop translating\033[0m")
                 while True:
