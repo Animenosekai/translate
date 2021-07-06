@@ -196,3 +196,6 @@ class YandexTranslate(BaseTranslator):
 
     def __repr__(self) -> str:
         return "Yandex Translate"
+
+    def __str__(self) -> str:
+        return "Yandex"

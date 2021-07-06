@@ -228,3 +228,6 @@ class BingTranslate(BaseTranslator):
 
     def __repr__(self) -> str:
         return "Microsoft Bing Translator"
+
+    def __str__(self) -> str:
+        return "Bing"

@@ -66,3 +66,6 @@ class MyMemoryTranslate(BaseTranslator):
         if language_code == "autodetect":
             return Language("auto")
         return Language(language_code)
+
+    def __str__(self) -> str:
+        return "MyMemory"

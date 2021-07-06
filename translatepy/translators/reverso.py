@@ -152,3 +152,6 @@ class ReversoTranslate(BaseTranslator):
 
     def __repr__(self) -> str:
         return "Reverso Translate"
+
+    def __str__(self) -> str:
+        return "Reverso"

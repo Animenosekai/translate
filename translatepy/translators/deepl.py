@@ -275,3 +275,6 @@ class DeeplTranslate(BaseTranslator):
 
     def __repr__(self):
         return "DeepL Tranlsate"
+
+    def __str__(self) -> str:
+        return "DeepL"

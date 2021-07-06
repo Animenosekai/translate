@@ -57,3 +57,6 @@ class TranslateComTranslate(BaseTranslator):
         Must return a string with the correct language code
         """
         return Language(language_code)
+
+    def __str__(self) -> str:
+        return "Translate.com"

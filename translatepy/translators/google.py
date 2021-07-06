@@ -76,6 +76,9 @@ class GoogleTranslate(BaseTranslator):
     def __repr__(self):
         return "Google Translate"
 
+    def __str__(self) -> str:
+        return "Google"
+
 
 class GoogleTranslateV1(BaseTranslator):
     """
@@ -235,6 +238,9 @@ class GoogleTranslateV1(BaseTranslator):
 
     def __repr__(self):
         return "Google Translate"
+    
+    def __str__(self) -> str:
+        return "Google"
 
 
 class GoogleTranslateV2(BaseTranslator):
@@ -363,3 +369,6 @@ class GoogleTranslateV2(BaseTranslator):
 
     def __repr__(self):
         return "Google Translate"
+
+    def __str__(self) -> str:
+        return "Google"
