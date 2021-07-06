@@ -77,7 +77,7 @@ class BingSessionManager():
         self.cookies = None
         try:
             self._parse_authorization_data()
-        except:
+        except Exception:
             pass
 
     def _parse_authorization_data(self):
