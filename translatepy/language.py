@@ -52,4 +52,7 @@ class Language():
         self._languages_cache.clear()
 
     def __repr__(self) -> str:
+        return "Language({language})".format(language=self.id)
+
+    def __str__(self) -> str:
         return str(self.id)

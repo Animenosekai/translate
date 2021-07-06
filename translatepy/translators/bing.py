@@ -75,7 +75,10 @@ class BingSessionManager():
         self.key = ""
         self.token = ""
         self.cookies = None
-        self._parse_authorization_data()
+        try:
+            self._parse_authorization_data()
+        except:
+            pass
 
     def _parse_authorization_data(self):
         # TODO: Bing Translate won't work via Request session implementation
@@ -96,8 +99,8 @@ class BingSessionManager():
         self.cookies = _request.cookies
 
     def send(self, url, data):
-        # Try 5 times to make a request
-        for _ in range(5):
+        # Try 2 times to make a request
+        for _ in range(2):
             _params = {'IG': self.ig, 'IID': self.iid, "isVertical": 1}
             _data = {'token': self.token, 'key': self.key, "isAuthv2": True}
             _data.update(data)
@@ -112,8 +115,12 @@ class BingSessionManager():
 
             if status_code == 200:
                 return response
-            # elif status_code == 400:
-            #     self._parse_authorization_data()
+            elif status_code == 400:
+                try:
+                    self._parse_authorization_data()
+                    continue
+                except:
+                    raise BingTranslateException(status_code)    
             else:
                 raise BingTranslateException(status_code)
 
