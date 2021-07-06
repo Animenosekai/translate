@@ -254,6 +254,10 @@ Feel free to use it in production if you feel like it is suitable for your produ
 - **Anime no Sekai** - *Initial work* - [Animenosekai](https://github.com/Animenosekai)
 - **Zhymabek Roman** - *Major Contributor (PR #10, PR #15)* - [ZhymabekRoman](https://github.com/ZhymabekRoman)
 
+## Disclaimer
+
+Please **do not** use this module in a commercial manner. Pay a proper API Key from one of the services to do so.
+
 ## License
 
 This project is licensed under the GNU Affero General Public License v3.0 License - see the [LICENSE](LICENSE) file for details
