@@ -31,11 +31,12 @@ class TranslationResult:
 
     def as_json(self, **kwargs) -> str:
         return dumps({
+            "success": True,
             "service": str(self.service),
             "source": str(self.source),
             "sourceLanguage": str((self.source_language.id) if isinstance(self.source_language, Language) else self.source_language),
             "destinationLanguage": str((self.destination_language.id) if isinstance(self.destination_language, Language) else self.destination_language),
-            "result": str(self.result),
+            "result": str(self.result)
         }, **kwargs)
 
 
@@ -65,6 +66,7 @@ class TransliterationResult:
 
     def as_json(self, **kwargs) -> str:
         return dumps({
+            "success": True,
             "service": str(self.service),
             "source": str(self.source),
             "sourceLanguage": str((self.source_language.id) if isinstance(self.source_language, Language) else self.source_language),
@@ -96,6 +98,7 @@ class SpellcheckResult:
 
     def as_json(self, **kwargs) -> str:
         return dumps({
+            "success": True,
             "service": str(self.service),
             "source": str(self.source),
             "sourceLanguage": str((self.source_language.id) if isinstance(self.source_language, Language) else self.source_language),
@@ -124,6 +127,7 @@ class LanguageResult:
 
     def as_json(self, **kwargs) -> str:
         return dumps({
+            "success": True,
             "service": str(self.service),
             "source": str(self.source),
             "result": str(self.result),
@@ -158,6 +162,7 @@ class ExampleResult:
 
     def as_json(self, **kwargs) -> str:
         return dumps({
+            "success": True,
             "service": str(self.service),
             "source": str(self.source),
             "sourceLanguage": str((self.source_language.id) if isinstance(self.source_language, Language) else self.source_language),
@@ -186,6 +191,7 @@ class DictionaryResult:
 
     def as_json(self, **kwargs) -> str:
         return dumps({
+            "success": True,
             "service": str(self.service),
             "source": str(self.source),
             "sourceLanguage": str((self.source_language.id) if isinstance(self.source_language, Language) else self.source_language),

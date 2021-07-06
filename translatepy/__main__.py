@@ -1,4 +1,5 @@
 import argparse
+from json import dumps
 import translatepy
 import inquirer
 from traceback import print_exc
@@ -34,7 +35,7 @@ def main():
     parser_transliterate.add_argument('--dest-lang', '-d', action='store', type=str, default="en", help='destination language')
     parser_transliterate.add_argument('--source-lang', '-s', action='store', default='auto', type=str, help='source language')
 
-    parser_spellcheck = subparser.add_parser('transliterate', help='Checks the spelling of the given text')
+    parser_spellcheck = subparser.add_parser('spellcheck', help='Checks the spelling of the given text')
     parser_spellcheck.add_argument('--text', '-t', action='store', type=str, required=True, help='text to spellcheck')
     parser_spellcheck.add_argument('--source-lang', '-s', action='store', default='auto', type=str, help='source language')
 
@@ -48,20 +49,48 @@ def main():
     args = parser.parse_args()
 
     if args.action == 'translate':
-        result = dl.translate(text=args.text, destination_language=args.dest_lang, source_language=args.source_lang)
-        print(result.as_json(indent=4, ensure_ascii=False))
+        try:
+            result = dl.translate(text=args.text, destination_language=args.dest_lang, source_language=args.source_lang)
+            print(result.as_json(indent=4, ensure_ascii=False))
+        except Exception as err:
+            print(dumps({
+                "success": False,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
 
     elif args.action == 'transliterate':
-        result = dl.transliterate(args.text, args.dest_lang, args.source_lang)
-        print(result.as_json(indent=4, ensure_ascii=False))
+        try:
+            result = dl.transliterate(args.text, args.dest_lang, args.source_lang)
+            print(result.as_json(indent=4, ensure_ascii=False))
+        except Exception as err:
+            print(dumps({
+                "success": False,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
 
     elif args.action == 'spellcheck':
-        result = dl.spellcheck(args.text, args.source_lang)
-        print(result.as_json(indent=4, ensure_ascii=False))
+        try:
+            result = dl.spellcheck(args.text, args.source_lang)
+            print(result.as_json(indent=4, ensure_ascii=False))
+        except Exception as err:
+            print(dumps({
+                "success": False,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
 
     elif args.action == 'language':
-        result = dl.language(args.text)
-        print(result.as_json(indent=4, ensure_ascii=False))
+        try:
+            result = dl.language(args.text)
+            print(result.as_json(indent=4, ensure_ascii=False))
+        except Exception as err:
+            print(dumps({
+                "success": False,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
 
 
     # INTERACTIVE VERSION

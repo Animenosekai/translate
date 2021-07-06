@@ -105,13 +105,14 @@ Enter '.quit' to stop translating
 #### In other applications/from the terminal
 
 Select an action:
-{translate,transliterate,language}
+{translate,transliterate,language,spellcheck}
 
 and pass it as a command with the right arguments:
 
 ```bash
 $ translatepy translate --dest-lang Français --text Hello
 {
+    "success": true,
     "service": "Google",
     "source": "Hello",
     "sourceLanguage": "eng",
