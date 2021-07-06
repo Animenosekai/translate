@@ -1,6 +1,7 @@
 from translatepy.exceptions import UnsupportedMethod
 from translatepy.language import Language
 from translatepy.utils.request import Request
+from translatepy.utils.annotations import Tuple
 from translatepy.translators.base import BaseTranslateException, BaseTranslator
 
 
@@ -18,7 +19,7 @@ class MyMemoryTranslate(BaseTranslator):
         self.session = request
         self.base_url = "https://api.mymemory.translated.net/get"
 
-    def _translate(self, text: str, destination_language: str, source_language: str) -> str:
+    def _translate(self, text: str, destination_language: str, source_language: str) -> Tuple[str, str]:
         """
         This is the translating endpoint
 

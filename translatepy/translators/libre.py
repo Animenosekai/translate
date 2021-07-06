@@ -1,6 +1,7 @@
 from translatepy.language import Language
 from translatepy.utils.request import Request
 from translatepy.translators.base import BaseTranslator
+from translatepy.utils.annotations import Tuple
 
 class LibreTranslate(BaseTranslator):
     """
@@ -10,7 +11,7 @@ class LibreTranslate(BaseTranslator):
     def __init__(self, request: Request = Request()):
         self.session = request
 
-    def _translate(self, text: str, destination_language: str, source_language: str) -> str:
+    def _translate(self, text: str, destination_language: str, source_language: str) -> Tuple[str, str]:
         """
         This is the translating endpoint
 

@@ -15,6 +15,7 @@ This is how your class should look like:
 from translatepy.language import Language
 from translatepy.utils.request import Request
 from translatepy.translators.base import BaseTranslator, BaseTranslateException
+from translatepy.utils.annotations import Tuple, List
 
 class TranslatorNameException(BaseTranslateException):
     error_codes = {
@@ -73,7 +74,7 @@ class TranslatorName(BaseTranslator):
         # You could use `self.session` to make a request to the endpoint, with all of the parameters
         return result
 
-    def _example(self, text: str, destination_language: str, source_language: str) -> List:
+    def _example(self, text: str, destination_language: str, source_language: str) -> Tuple[str, List]:
         """
         This is the examples endpoint
 
@@ -84,7 +85,7 @@ class TranslatorName(BaseTranslator):
         # the result should be a list of use examples
         return detected_language, result
 
-    def _dictionary(self, text: str, destination_language: str, source_language: str) -> List:
+    def _dictionary(self, text: str, destination_language: str, source_language: str) -> Tuple[str, List]:
         """
         This is the dictionary endpoint
 
