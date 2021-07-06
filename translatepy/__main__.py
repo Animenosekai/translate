@@ -6,6 +6,10 @@ from traceback import print_exc
 
 INPUT_PREFIX = "(\033[90mtranslatepy ~ \033[0m{action}) > "
 
+NO_ACTION = """\
+usage: translatepy [-h] [--version] {translate,transliterate,spellcheck,language,shell} ...
+translatepy: error: the following arguments are required: action"""
+
 actions = [
     inquirer.List(
         name='action',
@@ -23,7 +27,8 @@ def main():
 
     parser.add_argument('--version', '-v', action='version', version=translatepy.__version__)
 
-    subparser = parser.add_subparsers(help='Actions', dest="action", required=True)
+    #subparser = parser.add_subparsers(help='Actions', dest="action", required=True)
+    subparser = parser.add_subparsers(help='Actions', dest="action")
 
     parser_translate = subparser.add_parser('translate', help='Translates the given text to the given language')
     parser_translate.add_argument('--text', '-t', action='store', type=str, required=True, help='text to translate')
@@ -47,6 +52,11 @@ def main():
     parser_shell.add_argument('--source-lang', '-s', action='store', default='auto', type=str, help='source language')
 
     args = parser.parse_args()
+
+    if not args.action:
+        # required subparser had been added in Python 3.7
+        print(NO_ACTION)
+        return
 
     if args.action == 'translate':
         try:

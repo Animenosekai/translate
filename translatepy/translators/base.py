@@ -1,4 +1,13 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
+
+# copied from abc.ABC (Python 3.9.5)
+class ABC(metaclass=ABCMeta):
+    """Helper class that provides a standard way to create an ABC using
+    inheritance.
+
+    Added in the ABC module in Python 3.4
+    """
+    __slots__ = ()
 
 from translatepy.language import Language
 from translatepy.exceptions import TranslatepyException, UnsupportedMethod
