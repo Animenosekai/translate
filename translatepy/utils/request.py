@@ -75,10 +75,17 @@ class Request():
             "User-Agent": pyuseragents.random(),
             "Accept": "*/*",
             "Accept-Language": "en-US,en-GB; q=0.5",
-            "Accept-Encoding": "gzip, deflate, br",
+            "Accept-Encoding": "gzip, deflate",
             "Content-Type": "application/x-www-form-urlencoded; application/json; charset=UTF-8",
             "Connection": "keep-alive"
         }
+# default headers
+#        HEADERS = {
+#            "User-Agent": "python-requests/2.23.0",
+#            "Accept": "*/*",
+#            "Accept-Encoding": "gzip, deflate",
+#            "Connection": "keep-alive"
+#        }
         self.session = requests.Session()
         self.headers = HEADERS
         self._proxies_index = 0
