@@ -70,11 +70,18 @@ class BingExampleResult():
 class BingSessionManager():
     def __init__(self, request: Request):
         self.session = request
+        self.ig = ""
+        self.iid = ""
+        self.key = ""
+        self.token = ""
+        self.cookies = None
         self._parse_authorization_data()
 
     def _parse_authorization_data(self):
-        # TODO: Bing Translate won't works via Request session implementation
-        _page = requests.get("https://www.bing.com/translator").text
+        # TODO: Bing Translate won't work via Request session implementation
+        # FIXED: It now works
+        _request = self.session.get("https://www.bing.com/translator")
+        _page = _request.text
         _parsed_IG = re.findall('IG:"(.*?)"', _page)
         _parsed_IID = re.findall('data-iid="(.*?)"', _page)
         _parsed_helper_info = re.findall("params_RichTranslateHelper = (.*?);", _page)
@@ -86,15 +93,16 @@ class BingSessionManager():
         self.iid = _parsed_IID[0]
         self.key = _normalized_key
         self.token = _normalized_token
+        self.cookies = _request.cookies
 
     def send(self, url, data):
         # Try 5 times to make a request
         for _ in range(5):
             _params = {'IG': self.ig, 'IID': self.iid, "isVertical": 1}
-            _data = {'token': self.token, 'key': self.key}
+            _data = {'token': self.token, 'key': self.key, "isAuthv2": True}
             _data.update(data)
 
-            request = requests.post(url, params=_params, data=_data, headers=HEADERS)
+            request = self.session.post(url, params=_params, data=_data, headers=HEADERS, cookies=self.cookies)
             response = request.json()
 
             if isinstance(response, dict):

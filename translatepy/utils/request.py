@@ -1,8 +1,13 @@
+from time import time
 import requests
 import pyuseragents
 from translatepy.exceptions import RequestStatusError
 from json import loads
+from translatepy.utils.lru_cacher import LRUDictCache
+from copy import copy
 
+GETCACHE = LRUDictCache()
+CACHE_DURATION = 2 # in sec.
 
 class Response():
     def __init__(self, request_obj) -> None:
@@ -112,6 +117,9 @@ class Request():
         return result
 
     def get(self, url, **kwargs):
+        _cache_key = str(url) + str(kwargs)
+        if _cache_key in GETCACHE and time() - GETCACHE[_cache_key]["timestamp"] < CACHE_DURATION:
+            return GETCACHE[_cache_key]["response"]
         self._set_session_proxies(self.proxies[self._proxies_index])
         request = self.session.get(url, **kwargs)
         result = Response(request)
@@ -120,6 +128,10 @@ class Request():
             self._proxies_index += 1
         else:
             self._proxies_index = 0
+        GETCACHE[_cache_key] = {
+            "timestamp": time(),
+            "response": copy(result)
+        }
         return result
 
     @property
