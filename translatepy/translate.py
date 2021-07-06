@@ -4,6 +4,7 @@ translatepy v2.0 (Beta)
 © Anime no Sekai — 2021
 """
 
+from translatepy.translators.libre import LibreTranslate
 from translatepy.translators import BaseTranslator, GoogleTranslate, BingTranslate, YandexTranslate, ReversoTranslate, DeeplTranslate, MyMemoryTranslate, TranslateComTranslate
 from translatepy.models import TranslationResult, TransliterationResult, SpellcheckResult, LanguageResult
 from translatepy.utils.annotations import List
@@ -23,8 +24,9 @@ class Translate():
             YandexTranslate,
             ReversoTranslate,
             DeeplTranslate,
-            MyMemoryTranslate,
-            TranslateComTranslate
+            LibreTranslate,
+            TranslateComTranslate,
+            MyMemoryTranslate
         ],
         request: Request = Request()
     ) -> None:

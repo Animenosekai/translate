@@ -95,7 +95,7 @@ class TranslatorName(BaseTranslator):
         # the result should be
         return detected_language, result
 
-    def _language_normalize(self, language) -> str:
+    def _language_normalize(self, language: Language) -> str:
         """
         This is the language validation function
         It receives a "translatepy.language.Language" object and returns the correct language code
@@ -105,7 +105,7 @@ class TranslatorName(BaseTranslator):
         return result
 
 
-    def _language_denormalize(self, language_code) -> str:
+    def _language_denormalize(self, language_code: str) -> Language:
         """
         This is the language denormalization function
         It receives a string with the translator language code and returns a "translatepy.language.Language" object
