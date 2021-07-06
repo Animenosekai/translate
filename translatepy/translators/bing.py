@@ -123,7 +123,7 @@ class BingSessionManager():
                     raise BingTranslateException(status_code)    
             else:
                 raise BingTranslateException(status_code)
-
+        raise BingTranslateException(400)
 
 class BingTranslate(BaseTranslator):
     """
