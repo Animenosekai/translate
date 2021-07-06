@@ -267,10 +267,13 @@ class DeeplTranslate(BaseTranslator):
         return jobs
 
     def _language_normalize(self, language):
-        _language = Language(language)
-        return _language.alpha2.upper()
+        if language.id == "zho":
+            return "zh"
+        return language.alpha2.upper()
 
     def _language_denormalize(self, language_code):
+        if str(language_code).lower() in {"zh", "zh-cn"}:
+            return Language("zho")
         return Language(language_code)
 
     def __repr__(self):

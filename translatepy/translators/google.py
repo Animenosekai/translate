@@ -57,10 +57,19 @@ class GoogleTranslate(BaseTranslator):
         raise UnsupportedMethod()
 
     def _language_normalize(self, language: Language):
+        if language.id == "zho":
+            return "zh-CN"
+        elif language.id == "och":
+            return "zh-TW"
         return language.alpha2
 
     def _language_denormalize(self, language_code):
+        if str(language_code).lower() == "zh-cn":
+            return Language("zho")
+        elif str(language_code).lower() == "zh-TW":
+            return Language("och")
         return Language(language_code)
+
 
     def _spellcheck(self, text, source_language):
         # TODO: Implement
@@ -75,9 +84,6 @@ class GoogleTranslate(BaseTranslator):
 
     def __repr__(self):
         return "Google Translate"
-
-    def __str__(self) -> str:
-        return "Google"
 
 
 class GoogleTranslateV1(BaseTranslator):
@@ -231,16 +237,22 @@ class GoogleTranslateV1(BaseTranslator):
         return source_language
 
     def _language_normalize(self, language: Language):
+        if language.id == "zho":
+            return "zh-CN"
+        elif language.id == "och":
+            return "zh-TW"
         return language.alpha2
 
     def _language_denormalize(self, language_code):
+        if str(language_code).lower() == "zh-cn":
+            return Language("zho")
+        elif str(language_code).lower() == "zh-TW":
+            return Language("och")
         return Language(language_code)
+
 
     def __repr__(self):
         return "Google Translate"
-    
-    def __str__(self) -> str:
-        return "Google"
 
 
 class GoogleTranslateV2(BaseTranslator):
@@ -362,13 +374,18 @@ class GoogleTranslateV2(BaseTranslator):
 
 
     def _language_normalize(self, language: Language):
+        if language.id == "zho":
+            return "zh-CN"
+        elif language.id == "och":
+            return "zh-TW"
         return language.alpha2
 
     def _language_denormalize(self, language_code):
+        if str(language_code).lower() == "zh-cn":
+            return Language("zho")
+        elif str(language_code).lower() == "zh-TW":
+            return Language("och")
         return Language(language_code)
 
     def __repr__(self):
         return "Google Translate"
-
-    def __str__(self) -> str:
-        return "Google"

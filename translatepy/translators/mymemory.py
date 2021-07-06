@@ -65,6 +65,8 @@ class MyMemoryTranslate(BaseTranslator):
         language_code = str(language_code).split("-")[0]
         if language_code == "autodetect":
             return Language("auto")
+        elif str(language_code).lower() in {"zh-cn", "zh"}:
+            return Language("zho")
         return Language(language_code)
 
     def __str__(self) -> str:

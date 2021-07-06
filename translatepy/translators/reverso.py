@@ -145,9 +145,13 @@ class ReversoTranslate(BaseTranslator):
             return source_language, response.content
 
     def _language_normalize(self, language: Language) -> str:
+        if language.id == "zho":
+            return "chi"
         return language.alpha3
 
     def _language_denormalize(self, language_code):
+        if str(language_code).lower() in {"chi", "zh-cn"}:
+            return Language("zho")
         return Language(language_code)
 
     def __repr__(self) -> str:

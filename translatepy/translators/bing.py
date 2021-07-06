@@ -219,15 +219,20 @@ class BingTranslate(BaseTranslator):
         _language = Language(language)
         if _language.id == "auto":
             return "auto-detect"
+        elif language.id == "zho":
+            return "zh-Hans"
+        elif language.id == "och":
+            return "zh-Hant"
         return _language.alpha2
 
     def _language_denormalize(self, language_code):
         if str(language_code) == "auto-detect":
             return Language("auto")
+        elif str(language_code).lower() in {"zh-cn", "zh-hans"}:
+            return Language("zho")
+        elif str(language_code).lower() == "zh-tw":
+            return Language("och")
         return Language(language_code)
 
     def __repr__(self) -> str:
         return "Microsoft Bing Translator"
-
-    def __str__(self) -> str:
-        return "Bing"

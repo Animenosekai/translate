@@ -56,6 +56,8 @@ class TranslateComTranslate(BaseTranslator):
 
         Must return a string with the correct language code
         """
+        if str(language_code).lower() in {"zh-cn", "zh"}:
+            return Language("zho")
         return Language(language_code)
 
     def __str__(self) -> str:
