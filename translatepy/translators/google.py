@@ -188,6 +188,8 @@ class GoogleTranslateV1(BaseTranslator):
 
         try:
             origin_pronunciation = parsed[0][0]
+            if origin_pronunciation is None:
+                raise ValueError("Origin Pronounciation is None")
         except Exception:
             origin_pronunciation = text
 
@@ -332,7 +334,8 @@ class GoogleTranslateV2(BaseTranslator):
                         _detected_language = response.get("ld_result", {}).get("extended_srclangs", [None])[0]
             except Exception:
                 _detected_language = source_language
-            return _detected_language, " ".join([sentence["src_translit"] for sentence in response["sentences"] if "src_translit" in sentence])
+            result = " ".join([sentence["src_translit"] for sentence in response["sentences"] if "src_translit" in sentence])
+            return _detected_language, (result if (result is not None and result != "") else text)
 
     # def define(self):  # XXX: What for need this? --> because I saw on Google Translate that there is a definition feature
     #     """Returns the definition of the given word"""
