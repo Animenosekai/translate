@@ -5,9 +5,8 @@ translatepy v2.0 (Beta)
 """
 
 from translatepy.exceptions import UnknownLanguage
-from translatepy.translators.libre import LibreTranslate
-from translatepy.translators import BaseTranslator, GoogleTranslate, BingTranslate, YandexTranslate, ReversoTranslate, DeeplTranslate, MyMemoryTranslate, TranslateComTranslate
-from translatepy.models import TranslationResult, TransliterationResult, SpellcheckResult, LanguageResult
+from translatepy.translators import BaseTranslator, GoogleTranslate, BingTranslate, YandexTranslate, ReversoTranslate, DeeplTranslate, MyMemoryTranslate, TranslateComTranslate, LibreTranslate
+from translatepy.models import DictionaryResult, ExampleResult, TextToSpechResult, TranslationResult, TransliterationResult, SpellcheckResult, LanguageResult
 from translatepy.utils.annotations import List
 from translatepy.utils.request import Request
 
@@ -125,7 +124,7 @@ class Translate():
         else:
             raise ValueError("No service has returned a valid result")
 
-    def example(self, text: str, destination_language: str, source_language: str = "auto") -> str:
+    def example(self, text: str, destination_language: str, source_language: str = "auto") -> ExampleResult:
         """
         Returns a set of examples / use cases for the given word
 
@@ -144,7 +143,7 @@ class Translate():
         else:
             raise ValueError("No service has returned a valid result")
 
-    def dictionary(self, text: str, destination_language: str, source_language="auto") -> str:
+    def dictionary(self, text: str, destination_language: str, source_language="auto") -> DictionaryResult:
         """
         Returns a list of translations that are classified between two categories: featured and less common
 
@@ -163,7 +162,7 @@ class Translate():
         else:
             raise ValueError("No service has returned a valid result")
 
-    def text_to_speech(self, text: str, speed: int = 100, gender: str = "female", source_language: str = "auto") -> bytes:
+    def text_to_speech(self, text: str, speed: int = 100, gender: str = "female", source_language: str = "auto") -> TextToSpechResult:
         """
         Gives back the text to speech result for the given text
 
@@ -184,7 +183,7 @@ class Translate():
                     result.write_to_file(output)
             # Or you can just use write_to_file method:
             >>> result.write_to_file("output.mp3")
-            ... print("Output of Text to Speech is available in output.mp3!")
+            >>> print("Output of Text to Speech is available in output.mp3!")
 
             # the result is an MP3 file with the text to speech output
         """

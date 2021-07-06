@@ -6,3 +6,4 @@ from translatepy.translators.reverso import ReversoTranslate
 from translatepy.translators.deepl import DeeplTranslate
 from translatepy.translators.mymemory import MyMemoryTranslate
 from translatepy.translators.translatecom import TranslateComTranslate
+from translatepy.translators.libre import LibreTranslate
