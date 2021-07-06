@@ -276,8 +276,5 @@ class DeeplTranslate(BaseTranslator):
             return Language("zho")
         return Language(language_code)
 
-    def __repr__(self):
-        return "DeepL Tranlsate"
-
     def __str__(self) -> str:
         return "DeepL"

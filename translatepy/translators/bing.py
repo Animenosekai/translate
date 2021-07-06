@@ -249,5 +249,5 @@ class BingTranslate(BaseTranslator):
             return Language("och")
         return Language(language_code)
 
-    def __repr__(self) -> str:
-        return "Microsoft Bing Translator"
+    def __str__(self) -> str:
+        return "Microsoft Bing"

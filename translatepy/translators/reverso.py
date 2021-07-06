@@ -154,8 +154,5 @@ class ReversoTranslate(BaseTranslator):
             return Language("zho")
         return Language(language_code)
 
-    def __repr__(self) -> str:
-        return "Reverso Translate"
-
     def __str__(self) -> str:
         return "Reverso"

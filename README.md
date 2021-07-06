@@ -69,6 +69,7 @@ translatepy v2.0
 - [Microsoft Bing Translator](https://www.bing.com/translator)
 - [DeepL](https://www.deepl.com/translator)
 - [Google Translate](https://translate.google.com)
+- [LibreTranslate](https://libretranslate.com)
 - [MyMemory](https://mymemory.translated.net)
 - [Reverso](https://www.reverso.net/text_translation.aspx)
 - [Translate.com](https://www.translate.com)
@@ -153,6 +154,21 @@ LanguageResult(service=Yandex, source=こんにちは, result=Language(jpn))
 #### Translators
 
 You can use each translators separately by using them the same way as you would with `translatepy.Translator`
+
+```python
+>>> from translatepy.translators.google import GoogleTranslate
+>>> gtranslate = GoogleTranslate()
+>>> gtranslate.translate("Hello World", "Japanese")
+TranslationResult(service=Google, source=Hello World, source_language=eng, destination_language=jpn, result=こんにちは世界)
+```
+
+And some translators have their own parameters which can't be configured by the `Translator` class for now:
+
+```python
+>>> gtranslate_china = GoogleTranslate(service_url="translate.google.cn")
+>>> gtranslate_china.translate("Hello World", "Japanese")
+TranslationResult(service=Google, source=Hello World, source_language=eng, destination_language=jpn, result=こんにちは世界)
+```
 
 #### The Language Class
 

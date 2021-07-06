@@ -198,8 +198,5 @@ class YandexTranslate(BaseTranslator):
             return Language("zho")
         return Language(language_code)
 
-    def __repr__(self) -> str:
-        return "Yandex Translate"
-
     def __str__(self) -> str:
         return "Yandex"

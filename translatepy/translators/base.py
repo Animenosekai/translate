@@ -527,3 +527,6 @@ class BaseTranslator(ABC):
         class_name = self.__class__.__name__
         class_name = class_name[:class_name.rfind("Translate")]
         return "Unknown" if class_name == "" else class_name
+
+    def __repr__(self) -> str:
+        return "Translator({translator})".format(translator=self.__str__())

@@ -82,8 +82,8 @@ class GoogleTranslate(BaseTranslator):
             except Exception:
                 continue
 
-    def __repr__(self):
-        return "Google Translate"
+    def __str__(self):
+        return "Google"
 
 
 class GoogleTranslateV1(BaseTranslator):
@@ -251,8 +251,8 @@ class GoogleTranslateV1(BaseTranslator):
         return Language(language_code)
 
 
-    def __repr__(self):
-        return "Google Translate"
+    def __str__(self):
+        return "Google"
 
 
 class GoogleTranslateV2(BaseTranslator):
@@ -387,5 +387,5 @@ class GoogleTranslateV2(BaseTranslator):
             return Language("och")
         return Language(language_code)
 
-    def __repr__(self):
-        return "Google Translate"
+    def __str__(self) -> str:
+        return "Google"
