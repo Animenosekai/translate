@@ -4,6 +4,7 @@ translatepy v2.0 (Beta)
 © Anime no Sekai — 2021
 """
 
+from translatepy.exceptions import UnknownLanguage
 from translatepy.translators.libre import LibreTranslate
 from translatepy.translators import BaseTranslator, GoogleTranslate, BingTranslate, YandexTranslate, ReversoTranslate, DeeplTranslate, MyMemoryTranslate, TranslateComTranslate
 from translatepy.models import TranslationResult, TransliterationResult, SpellcheckResult, LanguageResult
@@ -59,6 +60,8 @@ class Translate():
                     text, destination_language, source_language)
                 if result is None:
                     raise ValueError("Service Returned None")
+            except UnknownLanguage as err:
+                raise err
             except Exception:
                 continue
             else:
@@ -75,6 +78,8 @@ class Translate():
         for service in self.services:
             try:
                 result = service.transliterate(text, destination_language, source_language)
+            except UnknownLanguage as err:
+                raise err
             except Exception:
                 continue
             else:
@@ -92,6 +97,8 @@ class Translate():
         for service in self.services:
             try:
                 result = service.spellcheck(text, source_language)
+            except UnknownLanguage as err:
+                raise err
             except Exception:
                 continue
             else:
@@ -109,6 +116,8 @@ class Translate():
         for service in self.services:
             try:
                 response = service.language(text)
+            except UnknownLanguage as err:
+                raise err
             except Exception:
                 continue
             else:
@@ -126,6 +135,8 @@ class Translate():
         for service in self.services:
             try:
                 response = service.example(text, destination_language, source_language)
+            except UnknownLanguage as err:
+                raise err
             except Exception:
                 continue
             else:
@@ -143,6 +154,8 @@ class Translate():
         for service in self.services:
             try:
                 response = service.dictionary(text, destination_language, source_language)
+            except UnknownLanguage as err:
+                raise err
             except Exception:
                 continue
             else:
@@ -179,6 +192,8 @@ class Translate():
         for service in self.services:
             try:
                 response = service.text_to_speech(text, speed, gender, source_language)
+            except UnknownLanguage as err:
+                raise err
             except Exception:
                 continue
             else:

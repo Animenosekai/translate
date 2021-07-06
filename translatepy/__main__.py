@@ -1,5 +1,6 @@
 import argparse
 from json import dumps
+from translatepy.exceptions import UnknownLanguage
 import translatepy
 import inquirer
 from traceback import print_exc
@@ -62,6 +63,14 @@ def main():
         try:
             result = dl.translate(text=args.text, destination_language=args.dest_lang, source_language=args.source_lang)
             print(result.as_json(indent=4, ensure_ascii=False))
+        except UnknownLanguage as err:
+            print(dumps({
+                "success": False,
+                "guessedLanguage": err.guessed_language,
+                "similarity": err.similarity,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
         except Exception as err:
             print(dumps({
                 "success": False,
@@ -73,6 +82,14 @@ def main():
         try:
             result = dl.transliterate(args.text, args.dest_lang, args.source_lang)
             print(result.as_json(indent=4, ensure_ascii=False))
+        except UnknownLanguage as err:
+            print(dumps({
+                "success": False,
+                "guessedLanguage": err.guessed_language,
+                "similarity": err.similarity,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
         except Exception as err:
             print(dumps({
                 "success": False,
@@ -84,6 +101,14 @@ def main():
         try:
             result = dl.spellcheck(args.text, args.source_lang)
             print(result.as_json(indent=4, ensure_ascii=False))
+        except UnknownLanguage as err:
+            print(dumps({
+                "success": False,
+                "guessedLanguage": err.guessed_language,
+                "similarity": err.similarity,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
         except Exception as err:
             print(dumps({
                 "success": False,
@@ -95,6 +120,14 @@ def main():
         try:
             result = dl.language(args.text)
             print(result.as_json(indent=4, ensure_ascii=False))
+        except UnknownLanguage as err:
+            print(dumps({
+                "success": False,
+                "guessedLanguage": err.guessed_language,
+                "similarity": err.similarity,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
         except Exception as err:
             print(dumps({
                 "success": False,
