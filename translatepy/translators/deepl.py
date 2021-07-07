@@ -12,7 +12,6 @@ About the translation and the language endpoints:
 from time import time, sleep
 from re import compile
 from random import randint
-import requests
 from bs4 import BeautifulSoup
 
 from translatepy.language import Language
@@ -91,7 +90,7 @@ class JSONRPCRequest():
             distance = 3 - (time() - self.last_access)
             sleep((distance if distance >= 0 else 0))
 
-        request = requests.post("https://www2.deepl.com/jsonrpc", json=self.dump(method, params))
+        request = self.session.post("https://www2.deepl.com/jsonrpc", json=self.dump(method, params))
         self.last_access = time()
         response = request.json()
         if request.status_code == 200:
