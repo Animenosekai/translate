@@ -39,13 +39,14 @@ class Translate():
 
         self.services = []
         for service in services_list:
-            if not isinstance(service, type):
-                raise ValueError("Type of the parameter 'services_list' must be a class")
+            if not isinstance(service, BaseTranslator):
+                if not issubclass(service, BaseTranslator):
+                    raise TypeError("{service} must be a child class of the BaseTranslator class".format(service=service))
+                else:
+                    self.services.append(service(request=request))
+            else:
+                self.services.append(service)
 
-            if not issubclass(service, BaseTranslator):
-                raise TypeError("Type of the parameter 'services_list' must be a child class of BaseTranslator class")
-
-            self.services.append(service(request=request))
 
     def translate(self, text: str, destination_language: str, source_language: str = "auto") -> TranslationResult:
         """
