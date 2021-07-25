@@ -2,7 +2,7 @@
 ORIGINAL FILENAME:
     gtoken.py
 SOURCE PROJECT:
-    ssut/py-googletrans (https://github.com/ssut/py-googletrans)\n
+    ssut/py-googletrans (https://github.com/ssut/py-googletrans)
 AUTHOR:
     SuHun Han (@ssut on GitHub)
 EXPLANATION:

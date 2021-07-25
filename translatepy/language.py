@@ -1,3 +1,4 @@
+from typing import Union
 from translatepy.utils.lru_cacher import LRUDictCache
 from translatepy.exceptions import UnknownLanguage
 from translatepy.utils.similarity import StringVector, fuzzy_search
@@ -14,7 +15,7 @@ class Language():
             self.type = data["type"]
             self.scope = data["scope"]
 
-    def __init__(self, language: str) -> None:
+    def __init__(self, language: str, threshold: Union[int, float] = 93) -> None:
         if language is None:
             raise UnknownLanguage("N/A", 0, "You need to pass in a language")
         language = str(language)
@@ -30,7 +31,7 @@ class Language():
             else:
                 _search_result, _similarity = fuzzy_search(VECTORS, normalized_language)
                 self.similarity = _similarity * 100
-                if self.similarity < 93:
+                if self.similarity < threshold:
                     raise UnknownLanguage(_search_result, self.similarity, "Couldn't recognize the given language ({0})\nDid you mean: {1} (Similarity: {2}%)?".format(language, _search_result, round(self.similarity, 2)))
                 self.id = VECTORS_CACHE[_search_result]["id"]
             
