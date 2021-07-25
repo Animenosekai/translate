@@ -15,6 +15,9 @@ class Language():
             self.type = data["type"]
             self.scope = data["scope"]
 
+        def __repr__(self) -> str:
+            return "LanguageExtra(type={type}, scope={scope})".format(type=self.type, scope=self.scope)
+
     def __init__(self, language: str, threshold: Union[int, float] = 93) -> None:
         if language is None:
             raise UnknownLanguage("N/A", 0, "You need to pass in a language")

@@ -5,6 +5,7 @@
 ***Translate, transliterate, get the language of texts in no time with the help of multiple APIs!***
 
 [![PyPI version](https://badge.fury.io/py/translatepy.svg)](https://pypi.org/project/translatepy/)
+[![Downloads](https://static.pepy.tech/personalized-badge/translatepy?period=total&units=international_system&left_color=grey&right_color=blue&left_text=Total%20Downloads)](https://pepy.tech/project/translatepy)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/translatepy)](https://pypistats.org/packages/translatepy)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/translatepy)](https://pypi.org/project/translatepy/)
 [![PyPI - Status](https://img.shields.io/pypi/status/translatepy)](https://pypi.org/project/translatepy/)
@@ -75,7 +76,9 @@ translatepy v2.0
 - [Translate.com](https://www.translate.com)
 - [Yandex Translate](https://translate.yandex.com)
 
-All of the names belong to their respective rightholders.
+... but plugins can be made and/or used. More on that in the [plugins](#plugins) section.
+
+> All of the names belong to their respective rightholders.
 
 ## Usage
 
@@ -140,7 +143,7 @@ It has all of the supported methods.
 - dictionary: To get a list of translations categorized into "featured" and "less common" by DeepL and Linguee
 - text_to_speech: To get an MP3 file containing the speech version of the given text
 
-When something goes wrong or nothing got found, an exception will be raised.
+When something goes wrong or nothing got found, an exception **will** be raised. *(this is in bold because it is one of the difference that comes with `v2`)*
 
 ```python
 >>> from translatepy import Translator
@@ -153,7 +156,7 @@ LanguageResult(service=Yandex, source=こんにちは, result=Language(jpn))
 
 #### Translators
 
-You can use each translators separately by using them the same way as you would with `translatepy.Translator`
+You can use each translators separately by using them the same way as you would with `translatepy.Translator` (or `translatepy.Translate`)
 
 ```python
 >>> from translatepy.translators.google import GoogleTranslate
@@ -190,7 +193,27 @@ You need to pass the language name or code to the class initialization:
 
 The Language Class contains both the ISO 639-1 Alpha-2 language code and the ISO 639-2 Alpha-3 language code.
 
+```python
+>>> Language("English").alpha2 # ISO 639-1 (alpha 2), nullable
+'en'
+>>> Language("English").alpha3 # ISO 639-3 (alpha 3)
+'eng'
+>>> Language("English").alpha3b # ISO 639-2B, nullable
+'eng'
+>>> Language("English").alpha3t # ISO 639-2T, nullable
+'eng'
+```
+
 Each available language has its own ID, coming from the Alpha-3 Language Code most of the times (but which is also unique for languages such as the "Automatic" Language and the "Emoji" one)
+
+```python
+>>> Language("French").id
+'fra'
+>>> Language("Emoji").id
+'emj'
+>>> Language("Automatic").id
+'auto'
+```
 
 It also contains the language name for a lot of languages:
 
@@ -208,6 +231,15 @@ It also contains the "similarity" attribute which gives back a number between 0 
 94.86832980505137
 ```
 
+Other data can be found in it:
+
+```python
+>>> Language("French").extra
+LanguageExtra(type=living, scope=individual)
+>>> Language("Latin").extra.type
+'ancient'
+```
+
 A `translatepy.exceptions.UnknownLanguage` exception is raised if the given language is unknown.
 
 This exception contains the most similar language along with its similarity:
@@ -221,9 +253,44 @@ except translatepy.exceptions.UnknownLanguage as error:
     print("Its similarity from the passed input is:", str(error.similarity))
 ```
 
+> If you find the default threshold given to the language search, you can always change it by passing the `threshold` parameter when initializing a `Language`:
+
+```python
+>>> Language("-- some language --")
+translatepy.exceptions.UnknownLanguage: Couldn't recognize the given language (-- some language --)
+Did you mean: lega-mwenga (Similarity: 79.03%)?
+>>> Language("-- some language --", threshold=78)
+Language(lgm)
+```
+
 ### Results
 
 All of the methods should have its own result class (defined in [translatepy/models.py](translatepy/models.py)) which all have at least the service, source, result attributes and a "as_json" method to convert everything into a JSON String.
+
+### Errors
+
+All of the `translatepy` errors are inherited from `translatepy.exceptions.TranslatepyException` so that you can easily catch a `translatepy` error.
+
+```python
+>>> from translatepy import Translator
+>>> from translatepy.exceptions import TranslatepyException, UnknownLanguage
+>>> t = Translator()
+>>> def translate(text, dest):
+...     try:
+...         result = t.translate(text, destination_language=dest)
+        except UnknownLanguage as err:
+            print("An error occured while searching for the language you passed in")
+            print("Similarity:", round(err.similarity), "%")
+            return
+        except TranslatepyException:
+            print("An error occured while translating with translatepy")
+            return
+        except Exception:
+            print("An unknown error occured")
+            return
+...     # do something with the result...
+...     
+```
 
 ### Plugins
 
@@ -248,6 +315,7 @@ Feel free to use it in production if you feel like it is suitable for your produ
 - [pyuseragents](https://github.com/Animenosekai/useragents) - To generate the "User-Agent" HTTP header
 - [requests](https://github.com/psf/requests) - To make HTTP requests
 - [beautifulsoup4](https://pypi.org/project/beautifulsoup4/) - To parse HTML
+- [inquirer](https://github.com/magmax/python-inquirer) - To make beautiful CLIs
 
 ## Authors
 
@@ -264,9 +332,13 @@ This project is licensed under the GNU Affero General Public License v3.0 Licens
 
 ### Dataset
 
-The 'playground' folder contains a lot of our search and results for the language management on `translatepy`
+The 'playground' folder contains a lot of our search and results for the language management on `translatepy` (this folder might be very messy because of all of our experiments in it)
+
+The `translatepy/utils/_language_cache.py` file contains all of the data for the language searching used by `translatepy`
 
 Please ask us if you want to use them in another project.
+
+Most of the language data come from [Google Translate](http://translate.google.com), [Yandex Translate](http://translate.yandex.com) and [`iso-639-3`](https://github.com/wooorm/iso-639-3)
 
 ## Acknowledgments
 
