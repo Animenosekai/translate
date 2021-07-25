@@ -165,11 +165,17 @@ You can use each translators separately by using them the same way as you would 
 TranslationResult(service=Google, source=Hello World, source_language=eng, destination_language=jpn, result=こんにちは世界)
 ```
 
-And some translators have their own parameters which can't be configured by the `Translator` class for now:
+And some translators have their own parameters:
 
 ```python
 >>> gtranslate_china = GoogleTranslate(service_url="translate.google.cn")
 >>> gtranslate_china.translate("Hello World", "Japanese")
+TranslationResult(service=Google, source=Hello World, source_language=eng, destination_language=jpn, result=こんにちは世界)
+
+# it can even be used by translatepy.Translator
+>>> from translatepy import Translator
+>>> t = Translator([gtranslate_china])
+>>> t.translate("Hello World", "Japanese")
 TranslationResult(service=Google, source=Hello World, source_language=eng, destination_language=jpn, result=こんにちは世界)
 ```
 
