@@ -1,7 +1,8 @@
 from translatepy.language import Language
-from translatepy.utils.request import Request
 from translatepy.translators.base import BaseTranslator
 from translatepy.utils.annotations import Tuple
+from translatepy.utils.request import Request
+
 
 class LibreTranslate(BaseTranslator):
     """
@@ -22,7 +23,6 @@ class LibreTranslate(BaseTranslator):
         response = self.session.post("https://libretranslate.com/translate", data={"q": str(text), "source": str(source_language), "target": str(destination_language)}, headers={"Origin": "https://libretranslate.com", "Host": "libretranslate.com", "Referer": "https://libretranslate.com/"})
         return source_language, response.json()["translatedText"]
 
-
     def _language(self, text: str) -> str:
         """
         This is the language detection endpoint
@@ -32,7 +32,6 @@ class LibreTranslate(BaseTranslator):
         response = self.session.post("https://libretranslate.com/detect", data={"q": str(text)}, headers={"Origin": "https://libretranslate.com", "Host": "libretranslate.com", "Referer": "https://libretranslate.com/"})
         return response.json()[0]["language"]
 
-
     def _language_normalize(self, language: Language) -> str:
         """
         This is the language validation function
@@ -41,7 +40,6 @@ class LibreTranslate(BaseTranslator):
         Must return a string with the correct language code
         """
         return language.alpha2
-
 
     def _language_denormalize(self, language_code: str) -> Language:
         """

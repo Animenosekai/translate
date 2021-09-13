@@ -1,9 +1,11 @@
 import argparse
 from json import dumps
-from translatepy.exceptions import UnknownLanguage
-import translatepy
-import inquirer
 from traceback import print_exc
+
+import inquirer
+
+import translatepy
+from translatepy.exceptions import UnknownLanguage
 
 INPUT_PREFIX = "(\033[90mtranslatepy ~ \033[0m{action}) > "
 
@@ -20,6 +22,7 @@ actions = [
     )
 ]
 
+
 def main():
     dl = translatepy.Translator()
 
@@ -28,7 +31,7 @@ def main():
 
     parser.add_argument('--version', '-v', action='version', version=translatepy.__version__)
 
-    #subparser = parser.add_subparsers(help='Actions', dest="action", required=True)
+    # subparser = parser.add_subparsers(help='Actions', dest="action", required=True)
     subparser = parser.add_subparsers(help='Actions', dest="action")
 
     parser_translate = subparser.add_parser('translate', help='Translates the given text to the given language')
@@ -134,7 +137,6 @@ def main():
                 "exception": err.__class__.__name__,
                 "error": str(err)
             }, indent=4, ensure_ascii=False))
-
 
     # INTERACTIVE VERSION
     if args.action == 'shell':

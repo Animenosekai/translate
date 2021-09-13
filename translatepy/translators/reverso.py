@@ -1,15 +1,16 @@
+import base64
+
+from translatepy.exceptions import UnsupportedMethod
 from translatepy.language import Language
 from translatepy.translators.base import BaseTranslator
-from translatepy.exceptions import UnsupportedMethod
 from translatepy.utils.request import Request
-
-import base64
 
 
 class ReversoTranslate(BaseTranslator):
     """
     A Python implementation of Reverso's API
     """
+
     def __init__(self, request: Request = Request()):
         self.session = request
 

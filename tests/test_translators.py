@@ -1,13 +1,15 @@
-from translatepy.translators.google import GoogleTranslateV1, GoogleTranslateV2
-from translatepy.translators.bing import BingTranslate
-from translatepy.translators.yandex import YandexTranslate
-from translatepy.translators.reverso import ReversoTranslate
-from translatepy.translators.deepl import DeeplTranslate, DeeplTranslateException
-from translatepy.translators.mymemory import MyMemoryException, MyMemoryTranslate
-from translatepy.translators.translatecom import TranslateComTranslate
-from translatepy.utils.request import Request
-from translatepy.exceptions import UnsupportedMethod
 from translatepy import Translator
+from translatepy.exceptions import UnsupportedMethod
+from translatepy.translators.bing import BingTranslate
+from translatepy.translators.deepl import (DeeplTranslate,
+                                           DeeplTranslateException)
+from translatepy.translators.google import GoogleTranslateV1, GoogleTranslateV2
+from translatepy.translators.mymemory import (MyMemoryException,
+                                              MyMemoryTranslate)
+from translatepy.translators.reverso import ReversoTranslate
+from translatepy.translators.translatecom import TranslateComTranslate
+from translatepy.translators.yandex import YandexTranslate
+from translatepy.utils.request import Request
 
 
 class TestAllTranslators:

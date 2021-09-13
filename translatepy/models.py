@@ -2,6 +2,7 @@
 Module containing various models for holding informations.
 """
 from json import dumps
+
 from translatepy.language import Language
 
 
@@ -79,6 +80,7 @@ class SpellcheckResult:
     """
     Class that holds the result of a Spellchecking.
     """
+
     def __init__(self, service, source, source_language, result):
         self.service = service
         self.source = source
@@ -110,6 +112,7 @@ class LanguageResult:
     """
     Class that holds the result of a Language.
     """
+
     def __init__(self, service, source, result):
         self.service = service
         self.source = source
@@ -132,6 +135,7 @@ class LanguageResult:
             "source": str(self.source),
             "result": str(self.result),
         }, **kwargs)
+
 
 class ExampleResult:
     """

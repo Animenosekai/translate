@@ -1,4 +1,13 @@
+from translatepy.exceptions import TranslatepyException, UnsupportedMethod
+from translatepy.utils.lru_cacher import LRUDictCache
+from translatepy.utils.annotations import List
+from translatepy.models import (DictionaryResult, ExampleResult,
+                                LanguageResult, SpellcheckResult,
+                                TextToSpechResult, TranslationResult,
+                                TransliterationResult)
+from translatepy.language import Language
 from abc import ABCMeta, abstractmethod
+
 
 # copied from abc.ABC (Python 3.9.5)
 class ABC(metaclass=ABCMeta):
@@ -8,12 +17,6 @@ class ABC(metaclass=ABCMeta):
     Added in the ABC module in Python 3.4
     """
     __slots__ = ()
-
-from translatepy.language import Language
-from translatepy.exceptions import TranslatepyException, UnsupportedMethod
-from translatepy.models import TranslationResult, TransliterationResult, SpellcheckResult, LanguageResult, ExampleResult, DictionaryResult, TextToSpechResult
-from translatepy.utils.lru_cacher import LRUDictCache
-from translatepy.utils.annotations import List
 
 
 class BaseTranslateException(TranslatepyException):

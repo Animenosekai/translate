@@ -6,11 +6,11 @@ This implementation was made specifically for translatepy from 'Zhymabek Roman',
 
 import uuid
 
-from translatepy.translators.base import BaseTranslator, BaseTranslateException
 from translatepy.exceptions import UnsupportedMethod
+from translatepy.language import Language
+from translatepy.translators.base import BaseTranslateException, BaseTranslator
 from translatepy.utils.lru_cacher import timed_lru_cache
 from translatepy.utils.request import Request
-from translatepy.language import Language
 
 
 class YandexTranslateException(BaseTranslateException):
