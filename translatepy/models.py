@@ -187,7 +187,13 @@ class DictionaryResult:
         return self.result
 
     def __repr__(self) -> str:
-        return str(self.__dict__)
+        return "DictionaryResult(service={service}, source={source}, source_language={source_language}, destination_language={destination_language}, result={result})".format(
+            service=self.service,
+            source=self.source,
+            source_language=self.source_language,
+            destination_language=self.destination_language,
+            result=self.result
+        )
 
     def as_json(self, **kwargs) -> str:
         return dumps({
@@ -234,4 +240,10 @@ class TextToSpechResult:
         return self.result
 
     def __repr__(self) -> str:
-        return str(self.__dict__)
+        return "TextToSpechResult(service={service}, source={source}, source_language={source_language}, speed={speed}, gender={result}, result=<RawAudioFile>)".format(
+            service=self.service,
+            source=self.source,
+            source_language=self.source_language,
+            speed=self.speed,
+            gender=self.gender
+        )
