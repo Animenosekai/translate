@@ -4,24 +4,12 @@ This implementation was made specifically for translatepy from 'Zhymabek Roman',
 
 import json
 import re
-import time
+from datetime import datetime, timedelta
 
-import pyuseragents
 from translatepy.exceptions import UnsupportedMethod
 from translatepy.language import Language
 from translatepy.translators.base import BaseTranslateException, BaseTranslator
 from translatepy.utils.request import Request
-
-HEADERS = {
-    # "Host": "www.bing.com",
-    "User-Agent": pyuseragents.random(),
-    "Accept": "*/*",
-    "Accept-Language": "en-US,en;q=0.5",
-    "Accept-Encoding": "gzip, deflate",
-    # "Referer": "https://www.bing.com/",
-    "Content-Type": "application/x-www-form-urlencoded",
-    "Connection": "keep-alive"
-}
 
 
 class BingTranslateException(BaseTranslateException):
@@ -79,8 +67,6 @@ class BingSessionManager():
             pass
 
     def _parse_authorization_data(self):
-        # TODO: Bing Translate won't work via Request session implementation
-        # FIXED: It now works
         _request = self.session.get("https://www.bing.com/translator")
         _page = _request.text
         _parsed_IG = re.findall('IG:"(.*?)"', _page)
@@ -103,7 +89,7 @@ class BingSessionManager():
             _data = {'token': self.token, 'key': self.key, "isAuthv2": True}
             _data.update(data)
 
-            request = self.session.post(url, params=_params, data=_data, headers=HEADERS, cookies=self.cookies)
+            request = self.session.post(url, params=_params, data=_data, cookies=self.cookies)
             response = request.json()
 
             if isinstance(response, dict):
@@ -117,11 +103,12 @@ class BingSessionManager():
                 try:
                     self._parse_authorization_data()
                     continue
-                except:
-                    raise BingTranslateException(status_code)    
+                except Exception:
+                    raise BingTranslateException(status_code)
             else:
                 raise BingTranslateException(status_code)
         raise BingTranslateException(400)
+
 
 class BingTranslate(BaseTranslator):
     """
@@ -131,6 +118,10 @@ class BingTranslate(BaseTranslator):
     def __init__(self, request: Request = Request()):
         self.session_manager = BingSessionManager(request)
         self.session = request
+
+        self._speech_region = None
+        self._speech_token = None
+        self._speech_token_expiry = 0
 
     def _translate(self, text: str, destination_language: str, source_language: str) -> str:
         response = self.session_manager.send("https://www.bing.com/ttranslatev3", data={'text': text, 'fromLang': source_language, 'to': destination_language})
@@ -193,9 +184,8 @@ class BingTranslate(BaseTranslator):
         if source_language == "auto-detect":
             source_language = self._language(text)
 
-        timestamp_now = time.time()
+        if not self._speech_token or datetime.now() > self._speech_token_expiry:
 
-        if not self.__dict__.get("_speech_token") or not self.__dict__.get("_speech_token_expiry") or timestamp_now > float(self._speech_token_expiry):
             token_response = self.session_manager.send("https://www.bing.com/tfetspktok", data={})
             # print(token_response)
             token_status = token_response.get("statusCode", 200)
@@ -203,7 +193,8 @@ class BingTranslate(BaseTranslator):
             if token_status != 200:
                 raise BingTranslateException(token_status, "Error during token request from the server")
 
-            self._speech_token, self._speech_token_expiry, self._speech_region = token_response.get("token"), token_response.get("expiry"), token_response.get("region")
+            self._speech_token, self._speech_region = token_response.get("token"), token_response.get("region")
+            self._speech_token_expiry = datetime.now() + timedelta(milliseconds=int(token_response.get("expiryDurationInMS", 600000)))
 
         gender = gender.capitalize()
 
