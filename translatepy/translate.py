@@ -5,8 +5,15 @@ translatepy v2.0
 """
 
 from translatepy.exceptions import UnknownLanguage
-from translatepy.translators import BaseTranslator, GoogleTranslate, BingTranslate, YandexTranslate, ReversoTranslate, DeeplTranslate, MyMemoryTranslate, TranslateComTranslate, LibreTranslate
-from translatepy.models import DictionaryResult, ExampleResult, TextToSpechResult, TranslationResult, TransliterationResult, SpellcheckResult, LanguageResult
+from translatepy.models import (DictionaryResult, ExampleResult,
+                                LanguageResult, SpellcheckResult,
+                                TextToSpechResult, TranslationResult,
+                                TransliterationResult)
+from translatepy.translators import (BaseTranslator, BingTranslate,
+                                     DeeplTranslate, GoogleTranslate,
+                                     LibreTranslate, MyMemoryTranslate,
+                                     ReversoTranslate, TranslateComTranslate,
+                                     YandexTranslate)
 from translatepy.utils.annotations import List
 from translatepy.utils.request import Request
 
@@ -36,18 +43,18 @@ class Translate():
 
         if not services_list:
             raise ValueError("Parameter 'services_list' must not be empty")
-        
+
         self.request = Request()
         self.services = []
         for service in services_list:
-            if not isinstance(service, BaseTranslator): # not instantiated
+            if not isinstance(service, BaseTranslator):  # not instantiated
                 if not issubclass(service, BaseTranslator):
                     raise TypeError("{service} must be a child class of the BaseTranslator class".format(service=service))
             self.services.append(service)
 
     def _instantiate_translator(self, service: BaseTranslator, services_list: list, index: int):
-        if not isinstance(service, BaseTranslator): # not instantiated
-            if "request" in service.__init__.__code__.co_varnames: # check if __init__ wants a request parameter
+        if not isinstance(service, BaseTranslator):  # not instantiated
+            if "request" in service.__init__.__code__.co_varnames:  # check if __init__ wants a request parameter
                 service = service()
             else:
                 service = service(request=self.request)

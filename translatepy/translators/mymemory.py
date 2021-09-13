@@ -1,14 +1,15 @@
 from translatepy.exceptions import UnsupportedMethod
 from translatepy.language import Language
-from translatepy.utils.request import Request
-from translatepy.utils.annotations import Tuple
 from translatepy.translators.base import BaseTranslateException, BaseTranslator
+from translatepy.utils.annotations import Tuple
+from translatepy.utils.request import Request
 
 
 class MyMemoryException(BaseTranslateException):
     error_codes = {
         "NO_MATCH": "There is no match to the translation"
     }
+
 
 class MyMemoryTranslate(BaseTranslator):
     """
@@ -49,10 +50,8 @@ class MyMemoryTranslate(BaseTranslator):
         result = request.json()["matches"][0]
         return result["source"]
 
-
     def _supported_languages(self):
         raise UnsupportedMethod()
-
 
     def _language_normalize(self, language: Language) -> str:
         """

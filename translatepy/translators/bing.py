@@ -22,6 +22,7 @@ class BingExampleResult():
 
     class SourceExample():
         """The source for an example"""
+
         def __init__(self, data) -> None:
             self._data = data
             self.prefix = self._data.get("sourcePrefix", "")
@@ -34,6 +35,7 @@ class BingExampleResult():
 
     class DestinationExample():
         """The target language example"""
+
         def __init__(self, data) -> None:
             self._data = data
             self.prefix = self._data.get("targetPrefix", "")

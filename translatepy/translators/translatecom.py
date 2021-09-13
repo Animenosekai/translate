@@ -1,8 +1,9 @@
 from translatepy.exceptions import UnsupportedMethod
 from translatepy.language import Language
-from translatepy.utils.request import Request
-from translatepy.utils.annotations import Tuple
 from translatepy.translators.base import BaseTranslator
+from translatepy.utils.annotations import Tuple
+from translatepy.utils.request import Request
+
 
 class TranslateComTranslate(BaseTranslator):
     """
@@ -40,7 +41,7 @@ class TranslateComTranslate(BaseTranslator):
 
     def _supported_languages(self):
         raise UnsupportedMethod()
-        
+
     def _language_normalize(self, language: Language) -> str:
         """
         This is the language validation function
