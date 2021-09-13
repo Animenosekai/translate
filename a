@@ -1,4 +1,0 @@
-from translatepy import Translator
-from translatepy.translators.translatecom import TranslateComTranslate
-t = Translator([TranslateComTranslate])
-t.translate("Hello, how are you?", "Japanese")
