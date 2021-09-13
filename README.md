@@ -316,6 +316,11 @@ This module is currently in development and might contain bugs.
 
 Feel free to use it in production if you feel like it is suitable for your production even if you may encounter issues.
 
+## Contributing
+Pull requests are welcome. For major changes, please open an discussion first to discuss what you would like to change.
+
+Please make sure to update the tests as appropriate.
+
 ## Built With
 
 - [pyuseragents](https://github.com/Animenosekai/useragents) - To generate the "User-Agent" HTTP header
@@ -348,5 +353,6 @@ Most of the language data come from [Google Translate](http://translate.google.c
 
 ## Acknowledgments
 
+- Thanks to @spamz23 (Diogo Silva) for the development of a new code architecture and code refactoring, which is used in version v2
 - Thanks to @ZhymabekRoman (Zhymabek Roman) for working on making Yandex more stable and on the v2!
 - Inspired by py-googletrans (by @ssut) (especially the thread: [Issue #268](https://github.com/ssut/py-googletrans/issues/268))
