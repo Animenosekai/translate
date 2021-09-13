@@ -1,0 +1,62 @@
+{
+    "normal": {
+        "LANGUAGE_DATA": {
+            "id": {
+                "codes": {
+                    "alpha2": "?",
+                    "alpha3": {
+                        "iso6392-b": "?",
+                        "iso6392-t": "?",
+                        "iso6393": "?"
+                    }
+                },
+                "english": "",
+                "foreign": {
+                    "": "?"
+                },
+                "extra": {
+                    "type": "?",
+                    "scope": "?"
+                }
+            }
+        },
+        "CODES": {
+            "code": "id"
+        },
+        "VECTORS_CACHE": {
+            "": {
+                "id": "",
+                "set": [""],
+                "length": 1.2345
+            }
+        }
+    },
+    "minified": {
+        "LANGUAGE_DATA": {
+            "id": {
+                "2": "?",
+                "b": "?",
+                "t": "?",
+                "3": "?",
+                "e": "",
+                "f": {
+                    "": "?"
+                },
+                "x": {
+                    "t": "?",
+                    "s": "?"
+                }
+            }
+        },
+        "CODES": {
+            "code": "id"
+        },
+        "VECTORS_CACHE": {
+            "": {
+                "i": "",
+                "s": [""],
+                "l": 1.2345
+            }
+        }
+    }
+}
