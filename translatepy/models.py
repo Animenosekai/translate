@@ -240,7 +240,7 @@ class TextToSpechResult:
         return self.result
 
     def __repr__(self) -> str:
-        return "TextToSpechResult(service={service}, source={source}, source_language={source_language}, speed={speed}, gender={result}, result=<RawAudioFile>)".format(
+        return "TextToSpechResult(service={service}, source={source}, source_language={source_language}, speed={speed}, gender={gender}, result=<RawAudioFile>)".format(
             service=self.service,
             source=self.source,
             source_language=self.source_language,
