@@ -195,7 +195,7 @@ class BingTranslate(BaseTranslator):
 
         timestamp_now = time.time()
 
-        if not self.__dict__.get("_speech_token") or timestamp_now > float(self._speech_token_expiry):
+        if not self.__dict__.get("_speech_token") or not self.__dict__.get("_speech_token_expiry") or timestamp_now > float(self._speech_token_expiry):
             token_response = self.session_manager.send("https://www.bing.com/tfetspktok", data={})
             # print(token_response)
             token_status = token_response.get("statusCode", 200)
