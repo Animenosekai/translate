@@ -2,17 +2,15 @@
 This implementation was made specifically for translatepy from 'Zhymabek Roman', based on 'Anime no Sekai' version.
 """
 
-import re
 import json
+import re
 import time
-import requests
+
 import pyuseragents
-
-from translatepy.translators.base import BaseTranslator, BaseTranslateException
-from translatepy.utils.request import Request
-from translatepy.language import Language
 from translatepy.exceptions import UnsupportedMethod
-
+from translatepy.language import Language
+from translatepy.translators.base import BaseTranslateException, BaseTranslator
+from translatepy.utils.request import Request
 
 HEADERS = {
     # "Host": "www.bing.com",
@@ -199,7 +197,8 @@ class BingTranslate(BaseTranslator):
 
         if not self.__dict__.get("_speech_token") or timestamp_now > float(self._speech_token_expiry):
             token_response = self.session_manager.send("https://www.bing.com/tfetspktok", data={})
-            token_status = token_response.get("statusCode")
+            # print(token_response)
+            token_status = token_response.get("statusCode", 200)
 
             if token_status != 200:
                 raise BingTranslateException(token_status, "Error during token request from the server")

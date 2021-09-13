@@ -81,7 +81,7 @@ class Request():
             "Accept": "*/*",
             "Accept-Language": "en-US,en-GB; q=0.5",
             "Accept-Encoding": "gzip, deflate",
-            "Content-Type": "application/x-www-form-urlencoded; application/json; charset=UTF-8",
+            # "Content-Type": "application/x-www-form-urlencoded; application/json; charset=UTF-8",
             "Connection": "keep-alive"
         }
 # default headers
