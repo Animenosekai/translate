@@ -141,7 +141,7 @@ It has all of the supported methods.
 - language: To get the language of a text
 - example: To get a list of examples of a word
 - dictionary: To get a list of translations categorized into "featured" and "less common" by DeepL and Linguee
-- text_to_speech: To get an MP3 file containing the speech version of the given text
+- text_to_speech: To get an audio file containing the speech version of the given text
 
 When something goes wrong or nothing got found, an exception **will** be raised. *(this is in bold because it is one of the difference that comes with `v2`)*
 
