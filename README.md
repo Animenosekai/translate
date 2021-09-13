@@ -353,6 +353,6 @@ Most of the language data come from [Google Translate](http://translate.google.c
 
 ## Acknowledgments
 
-- Thanks to @spamz23 (Diogo Silva) for the development of a new code architecture and code refactoring, which is used in version v2
+- Thanks to @spamz23 (Diogo Silva) for the development of the code refactoring used in v2 (tests and `Translator`) (check: [spamz23/translate](https://github.com/spamz23/translate))
 - Thanks to @ZhymabekRoman (Zhymabek Roman) for working on making Yandex more stable and on the v2!
 - Inspired by py-googletrans (by @ssut) (especially the thread: [Issue #268](https://github.com/ssut/py-googletrans/issues/268))
