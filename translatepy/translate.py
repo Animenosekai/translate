@@ -36,17 +36,23 @@ class Translate():
 
         if not services_list:
             raise ValueError("Parameter 'services_list' must not be empty")
-
+        
+        self.request = Request()
         self.services = []
         for service in services_list:
-            if not isinstance(service, BaseTranslator):
+            if not isinstance(service, BaseTranslator): # not instantiated
                 if not issubclass(service, BaseTranslator):
                     raise TypeError("{service} must be a child class of the BaseTranslator class".format(service=service))
-                else:
-                    self.services.append(service(request=request))
-            else:
-                self.services.append(service)
+            self.services.append(service)
 
+    def _instantiate_translator(self, service: BaseTranslator, services_list: list, index: int):
+        if not isinstance(service, BaseTranslator): # not instantiated
+            if "request" in service.__init__.__code__.co_varnames: # check if __init__ wants a request parameter
+                service = service()
+            else:
+                service = service(request=self.request)
+            services_list[index] = service
+        return service
 
     def translate(self, text: str, destination_language: str, source_language: str = "auto") -> TranslationResult:
         """
@@ -54,8 +60,9 @@ class Translate():
 
         i.e Good morning (en) --> おはようございます (ja)
         """
-        for service in self.services:
+        for index, service in enumerate(self.services):
             try:
+                service = self._instantiate_translator(service, self.services, index)
                 result = service.translate(
                     text, destination_language, source_language)
                 if result is None:
@@ -75,8 +82,9 @@ class Translate():
 
         i.e おはよう --> Ohayou
         """
-        for service in self.services:
+        for index, service in enumerate(self.services):
             try:
+                service = self._instantiate_translator(service, self.services, index)
                 result = service.transliterate(text, destination_language, source_language)
             except UnknownLanguage as err:
                 raise err
@@ -93,9 +101,9 @@ class Translate():
 
         i.e God morning --> Good morning
         """
-
-        for service in self.services:
+        for index, service in enumerate(self.services):
             try:
+                service = self._instantiate_translator(service, self.services, index)
                 result = service.spellcheck(text, source_language)
             except UnknownLanguage as err:
                 raise err
@@ -112,9 +120,9 @@ class Translate():
 
         i.e 皆さんおはようございます！ --> Japanese
         """
-
-        for service in self.services:
+        for index, service in enumerate(self.services):
             try:
+                service = self._instantiate_translator(service, self.services, index)
                 response = service.language(text)
             except UnknownLanguage as err:
                 raise err
@@ -131,9 +139,9 @@ class Translate():
 
         i.e Hello --> ['Hello friends how are you?', 'Hello im back again.']
         """
-
-        for service in self.services:
+        for index, service in enumerate(self.services):
             try:
+                service = self._instantiate_translator(service, self.services, index)
                 response = service.example(text, destination_language, source_language)
             except UnknownLanguage as err:
                 raise err
@@ -150,9 +158,9 @@ class Translate():
 
         i.e Hello --> {'featured': ['ハロー', 'こんにちは'], 'less_common': ['hello', '今日は', 'どうも', 'こんにちわ', 'こにちは', 'ほいほい', 'おーい', 'アンニョンハセヨ', 'アニョハセヨ'}
         """
-
-        for service in self.services:
+        for index, service in enumerate(self.services):
             try:
+                service = self._instantiate_translator(service, self.services, index)
                 response = service.dictionary(text, destination_language, source_language)
             except UnknownLanguage as err:
                 raise err
@@ -188,9 +196,9 @@ class Translate():
 
             # the result is an MP3 file with the text to speech output
         """
-
-        for service in self.services:
+        for index, service in enumerate(self.services):
             try:
+                service = self._instantiate_translator(service, self.services, index)
                 response = service.text_to_speech(text, speed, gender, source_language)
             except UnknownLanguage as err:
                 raise err

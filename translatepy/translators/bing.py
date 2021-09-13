@@ -185,6 +185,7 @@ class BingTranslate(BaseTranslator):
             source_language = self._language(text)
 
         if not self._speech_token or datetime.now() > self._speech_token_expiry:
+
             token_response = self.session_manager.send("https://www.bing.com/tfetspktok", data={})
             # print(token_response)
             token_status = token_response.get("statusCode", 200)

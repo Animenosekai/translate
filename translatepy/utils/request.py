@@ -76,6 +76,13 @@ class Response():
 
 class Request():
     def __init__(self, proxy_urls=None):
+        """
+        translatepy's version of `requests.Session`
+
+        It includes caching, headers management and proxy management
+
+        `proxy_urls` is either a string, or an iterable if provided
+        """
         HEADERS = {
             "User-Agent": pyuseragents.random(),
             "Accept": "*/*",
@@ -94,7 +101,7 @@ class Request():
         self.session = requests.Session()
         self.headers = HEADERS
         self._proxies_index = 0
-        self.proxies = (list(proxy_urls) if proxy_urls is not None else [])
+        self.proxies = ([proxy_urls] if isinstance(proxy_urls, str) else list(proxy_urls) if proxy_urls is not None else [])
         if len(self.proxies) == 0:
             self.proxies = [None]
 
