@@ -138,7 +138,6 @@ def main():
 
     # INTERACTIVE VERSION
     if args.action == 'shell':
-        print(args)
         destination_language = args.dest_lang
         # source_language = args.source_lang
         try:
