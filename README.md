@@ -317,6 +317,7 @@ This module is currently in development and might contain bugs.
 Feel free to use it in production if you feel like it is suitable for your production even if you may encounter issues.
 
 ## Contributing
+
 Pull requests are welcome. For major changes, please open an discussion first to discuss what you would like to change.
 
 Please make sure to update the tests as appropriate.
