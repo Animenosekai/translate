@@ -11,11 +11,13 @@ from translatepy.utils.annotations import Tuple, List
 class StringVector():
     def __init__(self, string: str, data: dict = None) -> None:
         self.string = str(string)
-        self.count = Counter(self.string)
-        if data is not None:
-            self.set = set(data["set"])
-            self.length = data["length"]
+        if data is not None and False:
+            self.set = data["s"]
+            self.length = data["l"]
+            self.count = data["c"]
+            #self.count = Counter(self.string)
         else:
+            self.count = Counter(self.string)
             self.set = set(self.count)
             self.length = sqrt(sum(char_count ** 2 for char_count in self.count.values()))
 

@@ -1,22 +1,83 @@
+from re import compile
 from typing import Union
 
+#from translatepy.utils._language_cache import VECTORS, CODES, LANGUAGE_DATA
+from playground.results import CODES, LANGUAGE_DATA, VECTORS
+
 from translatepy.exceptions import UnknownLanguage
-from translatepy.utils._language_cache import (CODES, LANGUAGE_DATA,
-                                               VECTORS_CACHE)
 from translatepy.utils.lru_cacher import LRUDictCache
 from translatepy.utils.similarity import StringVector, fuzzy_search
 
 # preparing the vectors
-VECTORS = [StringVector(language, data=VECTORS_CACHE[language]) for language in VECTORS_CACHE]
+LOADED_VECTORS = [StringVector(language, data=VECTORS[language]) for language in VECTORS]
+
+LANGUAGE_CLEANUP_REGEX = compile("\(.+\)")
+
+
+class Scopes():
+    class Scope():
+        def __init__(self, name: str) -> None:
+            self.name = str(name)
+
+        def __repr__(self) -> str:
+            return "LanguageScope({name})".format(name=self.name)
+
+    def get(self, name: str):
+        if name is None:
+            return
+        name = str(name).lower().replace(" ", "")
+        if name == "individual":
+            return self.INDIVIDUAL
+        elif name == "macrolanguage":
+            return self.MACROLANGUAGE
+        return self.SPECIAL
+
+    INDIVIDUAL = Scope("Individual")
+    MACROLANGUAGE = Scope("Macrolanguage")
+    SPECIAL = Scope("Special")
+
+
+class Types():
+    class Type():
+        def __init__(self, name: str) -> None:
+            self.name = str(name)
+
+        def __repr__(self) -> str:
+            return "LanguageType({name})".format(name=self.name)
+
+    def get(self, name: str):
+        if name is None:
+            return
+        name = str(name).lower().replace(" ", "")
+        if name == "living":
+            return self.LIVING
+        elif name == "ancient":
+            return self.ANCIENT
+        elif name == "extinct":
+            return self.EXTINCT
+        elif name == "historical":
+            return self.HISTORICAL
+        elif name == "constructed":
+            return self.CONSTRUCTED
+        return self.SPECIAL
+
+    ANCIENT = Type("Ancient")
+    CONSTRUCTED = Type("Constructed")
+    EXTINCT = Type("Extinct")
+    HISTORICAL = Type("Historical")
+    LIVING = Type("Living")
+    SPECIAL = Type("Special")
+
+
+_languages_cache = LRUDictCache(512)
 
 
 class Language():
-    _languages_cache = LRUDictCache(512)
 
     class LanguageExtra():
         def __init__(self, data: dict) -> None:
-            self.type = data["type"]
-            self.scope = data["scope"]
+            self.type = Types().get(data.get("t", None))
+            self.scope = Scopes().get(data.get("s", None))
 
         def __repr__(self) -> str:
             return "LanguageExtra(type={type}, scope={scope})".format(type=self.type, scope=self.scope)
@@ -25,37 +86,40 @@ class Language():
         if language is None or (isinstance(language, str) and language.replace(" ", "") == ""):
             raise UnknownLanguage("N/A", 0, "You need to pass in a language")
         language = str(language)
-        normalized_language = language.lower().replace(" ", "")
+        normalized_language = LANGUAGE_CLEANUP_REGEX.sub("", language.lower()).replace(" ", "")
+        print(normalized_language)
 
         # Check the incoming language, whether it is in the cache, then return the values from the cache
-        if normalized_language in self._languages_cache:
-            self.id, self.similarity = self._languages_cache[normalized_language]
+        if normalized_language in _languages_cache:
+            self.id, self.similarity = _languages_cache[normalized_language]
         else:
             if normalized_language in CODES:
                 self.id = CODES[normalized_language]
                 self.similarity = 100
             else:
-                _search_result, _similarity = fuzzy_search(VECTORS, normalized_language)
+                _search_result, _similarity = fuzzy_search(LOADED_VECTORS, normalized_language)
                 self.similarity = _similarity * 100
                 if self.similarity < threshold:
                     raise UnknownLanguage(_search_result, self.similarity, "Couldn't recognize the given language ({0})\nDid you mean: {1} (Similarity: {2}%)?".format(language, _search_result, round(self.similarity, 2)))
-                self.id = VECTORS_CACHE[_search_result]["id"]
+                print(_search_result)
+                print(VECTORS[_search_result])
+                self.id = VECTORS[_search_result]["i"]
 
         data = LANGUAGE_DATA[self.id]
 
         # Сache the language values to speed up the language recognition process in the future
-        self._languages_cache[normalized_language] = (self.id, self.similarity)
+        _languages_cache[normalized_language] = (self.id, self.similarity)
 
-        self.alpha2 = data["codes"]["alpha2"]
-        self.alpha3b = data["codes"]["alpha3"]["iso6392-b"]
-        self.alpha3t = data["codes"]["alpha3"]["iso6392-t"]
-        self.alpha3 = data["codes"]["alpha3"]["iso6393"]
-        self.name = data["english"]
-        self.extra = self.LanguageExtra(data["extra"])
-        self.in_foreign_languages = data["foreign"]
+        self.alpha2 = data.get("2", None)
+        self.alpha3b = data.get("b", None)
+        self.alpha3t = data.get("t", None)
+        self.alpha3 = str(data["3"])
+        self.name = str(data["e"])
+        self.extra = self.LanguageExtra(data.get("x", {}))
+        self.in_foreign_languages = dict(data.get("f", {}))
 
     def clean_cache(self) -> None:
-        self._languages_cache.clear()
+        _languages_cache.clear()
 
     def __repr__(self) -> str:
         return "Language({language})".format(language=self.id)
