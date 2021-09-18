@@ -1,15 +1,13 @@
 from re import compile
 from typing import Union
 
-#from translatepy.utils._language_cache import VECTORS, CODES, LANGUAGE_DATA
-from playground.results import CODES, LANGUAGE_DATA, VECTORS
-
 from translatepy.exceptions import UnknownLanguage
+from translatepy.utils._language_data import CODES, LANGUAGE_DATA, VECTORS
 from translatepy.utils.lru_cacher import LRUDictCache
 from translatepy.utils.similarity import StringVector, fuzzy_search
 
 # preparing the vectors
-LOADED_VECTORS = [StringVector(language, data=VECTORS[language]) for language in VECTORS]
+LOADED_VECTORS = [StringVector(language, data=data) for language, data in VECTORS.items()]
 
 LANGUAGE_CLEANUP_REGEX = compile("\(.+\)")
 
@@ -87,7 +85,6 @@ class Language():
             raise UnknownLanguage("N/A", 0, "You need to pass in a language")
         language = str(language)
         normalized_language = LANGUAGE_CLEANUP_REGEX.sub("", language.lower()).replace(" ", "")
-        print(normalized_language)
 
         # Check the incoming language, whether it is in the cache, then return the values from the cache
         if normalized_language in _languages_cache:
@@ -101,8 +98,6 @@ class Language():
                 self.similarity = _similarity * 100
                 if self.similarity < threshold:
                     raise UnknownLanguage(_search_result, self.similarity, "Couldn't recognize the given language ({0})\nDid you mean: {1} (Similarity: {2}%)?".format(language, _search_result, round(self.similarity, 2)))
-                print(_search_result)
-                print(VECTORS[_search_result])
                 self.id = VECTORS[_search_result]["i"]
 
         data = LANGUAGE_DATA[self.id]
@@ -117,6 +112,7 @@ class Language():
         self.name = str(data["e"])
         self.extra = self.LanguageExtra(data.get("x", {}))
         self.in_foreign_languages = dict(data.get("f", {}))
+        self.in_foreign_languages["en"] = self.name
 
     def clean_cache(self) -> None:
         _languages_cache.clear()

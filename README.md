@@ -54,7 +54,7 @@ You can check if you successfully installed it by printing out its version:
 ```bash
 $ translatepy --version
 # output:
-translatepy v2.0
+translatepy v2.1
 ```
 
 or just:
@@ -62,7 +62,7 @@ or just:
 ```bash
 $ python -c "import translatepy; print(translatepy.__version__)"
 # output:
-translatepy v2.0
+translatepy v2.1
 ```
 
 ## List of Built-in Services
@@ -228,7 +228,15 @@ It also contains the language name for a lot of languages:
 'フランス語'
 ```
 
-It also contains the "similarity" attribute which gives back a number between 0 and 100 which shows the similarity of the input language with what it found in the language code database:
+All of the languages which have an `alpha2` code are assured to have at least their translation in all of the following languages:
+
+```python
+to = ['af', 'am', 'ar', 'az', 'be', 'bg', 'bn', 'bs', 'ca', 'ceb', 'co', 'cs', 'cy', 'da', 'de', 'el', 'eo', 'es', 'et', 'eu', 'fa', 'fi', 'fr', 'fy', 'ga', 'gd', 'gl', 'gu', 'ha', 'haw', 'hi', 'hmn', 'hr', 'ht', 'hu', 'hy', 'id', 'ig', 'is', 'it', 'he', 'ja', 'jv', 'ka', 'kk', 'km', 'kn', 'ko', 'ku', 'ky', 'la', 'lb', 'lo', 'lt', 'lv', 'mg', 'mi', 'mk', 'ml', 'mn', 'mr', 'ms', 'mt', 'my', 'ne', 'nl', 'no', 'ny', 'or', 'pa', 'pl', 'ps', 'pt', 'ro', 'ru', 'sd', 'si', 'sk', 'sl', 'sm', 'sn', 'so', 'sq', 'sr', 'st', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'tl', 'tr', 'ug', 'uk', 'ur', 'uz', 'vi', 'xh', 'yi', 'yo', 'zh', 'zu']
+```
+
+The other ones may or may not have a translation in more or less languages.
+
+The Language class also contains the "similarity" attribute which gives back a number between 0 and 100 which shows the similarity of the input language with what it found in the language code database:
 
 ```python
 >>> round(Language("French").similarity, 2)
@@ -237,13 +245,19 @@ It also contains the "similarity" attribute which gives back a number between 0 
 94.86832980505137
 ```
 
-Other data can be found in it:
+<details>
+    <summary>Note</summary>
+    <p>Only the languages which have an <i>alpha2</i> language code and are of type <i>Living</i> or <i>Ancient</i> are vectorized and will be used in the similarity search.</p>
+</details>
+<br>
+
+Each language also have 'extra' data: their type *(nullable)* and the scope *(nullable)*.
 
 ```python
 >>> Language("French").extra
-LanguageExtra(type=living, scope=individual)
+LanguageExtra(type=LanguageType(Living), scope=LanguageScope(Individual))
 >>> Language("Latin").extra.type
-'ancient'
+LanguageType(Ancient)
 ```
 
 A `translatepy.exceptions.UnknownLanguage` exception is raised if the given language is unknown.
