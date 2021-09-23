@@ -1,13 +1,14 @@
-from time import time
-import requests
-import pyuseragents
-from translatepy.exceptions import RequestStatusError
-from json import loads
-from translatepy.utils.lru_cacher import LRUDictCache
 from copy import copy
+from json import loads
+from time import time
+from typing import List, Union
 
-GETCACHE = LRUDictCache()
-CACHE_DURATION = 2 # in sec.
+import pyuseragents
+import requests
+from requests.models import CaseInsensitiveDict
+from translatepy.exceptions import RequestStatusError
+from translatepy.utils.lru_cacher import LRUDictCache
+
 
 class Response():
     def __init__(self, request_obj: requests.Response) -> None:
@@ -63,10 +64,12 @@ class Response():
         self.ok = request_obj.ok
 
     @property
-    def text(self, encoding="utf-8"):
+    def text(self, encoding="utf-8") -> str:
+        """Returns the text/str version of the response (decoded)"""
         return self.content.decode(encoding)
 
     def raise_for_status(self):
+        """Raise an exception if the status code of the response is less than 400"""
         if self.status_code >= 400:
             raise RequestStatusError(self.status_code, "Request Status Code: {code}".format(code=str(self.status_code)))
 
@@ -75,13 +78,23 @@ class Response():
 
 
 class Request():
-    def __init__(self, proxy_urls=None):
+    def __init__(self, proxy_urls: Union[str, List] = None, cache_duration: Union[int, float] = 2):
         """
         translatepy's version of `requests.Session`
 
         It includes caching, headers management and proxy management
 
-        `proxy_urls` is either a string, or an iterable if provided
+        Parameters:
+        ----------
+            proxy_urls : str | list
+                The URL(s) for the proxies to be used (they will be used as HTTP and HTTPS proxies)
+            cache_duration : int | float
+                The duration of the cache for GET requests
+
+        Returns:
+        --------
+            Response:
+                The response for the request
         """
         HEADERS = {
             "User-Agent": pyuseragents.random(),
@@ -99,20 +112,41 @@ class Request():
 #            "Connection": "keep-alive"
 #        }
         self.session = requests.Session()
+
+        self.self.GETCACHE = LRUDictCache()
+        self.cache_duration = float(cache_duration)
+
         self.headers = HEADERS
+
         self._proxies_index = 0
         self.proxies = ([proxy_urls] if isinstance(proxy_urls, str) else list(proxy_urls) if proxy_urls is not None else [])
         if len(self.proxies) == 0:
             self.proxies = [None]
 
-    def _set_session_proxies(self, url):
+    def _set_session_proxies(self, url: str = None):
+        """Internal function to set the proxies"""
         if url is not None:
             self.session.proxies.update({
                 "http": url,
                 "https": url
             })
 
-    def post(self, url, **kwargs):
+    def post(self, url: str, **kwargs) -> Response:
+        """
+        Makes a POST request with the given URL
+
+        Parameters:
+        ----------
+            url : str
+                The URL to send a POST request to
+            **kwargs : parameters
+                This is the options that will be passed to requests.Session.post
+
+        Returns:
+        --------
+            Response:
+                The response for the request
+        """
         self._set_session_proxies(self.proxies[self._proxies_index])
         request = self.session.post(url, **kwargs)
         result = Response(request)
@@ -123,10 +157,25 @@ class Request():
             self._proxies_index = 0
         return result
 
-    def get(self, url, **kwargs):
+    def get(self, url: str, **kwargs) -> Response:
+        """
+        Makes a GET request with the given URL
+
+        Parameters:
+        ----------
+            url : str
+                The URL to send a GET request to
+            **kwargs : parameters
+                This is the options that will be passed to requests.Session.get
+
+        Returns:
+        --------
+            Response:
+                The response for the request
+        """
         _cache_key = str(url) + str(kwargs)
-        if _cache_key in GETCACHE and time() - GETCACHE[_cache_key]["timestamp"] < CACHE_DURATION:
-            return GETCACHE[_cache_key]["response"]
+        if _cache_key in self.GETCACHE and time() - self.GETCACHE[_cache_key]["timestamp"] < self.cache_duration:
+            return self.GETCACHE[_cache_key]["response"]
         self._set_session_proxies(self.proxies[self._proxies_index])
         request = self.session.get(url, **kwargs)
         result = Response(request)
@@ -135,23 +184,29 @@ class Request():
             self._proxies_index += 1
         else:
             self._proxies_index = 0
-        GETCACHE[_cache_key] = {
+        self.GETCACHE[_cache_key] = {
             "timestamp": time(),
             "response": copy(result)
         }
         return result
 
     @property
-    def headers(self):
+    def headers(self) -> CaseInsensitiveDict:
+        """The headers set for the session"""
         return self.session.headers
 
     @headers.setter
-    def headers(self, header_key_value):
+    def headers(self, header_key_value: dict):
+        """Setter for the headers"""
         for key, value in header_key_value.items():
             if value is None:
-                self.session.headers.pop(key)
+                try:
+                    self.session.headers.pop(key)
+                except Exception:
+                    continue
             else:
                 self.session.headers.update(header_key_value)
 
     def __del__(self):
+        """Closing the session"""
         self.session.close()
