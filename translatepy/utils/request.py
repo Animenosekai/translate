@@ -113,7 +113,7 @@ class Request():
 #        }
         self.session = requests.Session()
 
-        self.self.GETCACHE = LRUDictCache()
+        self.GETCACHE = LRUDictCache()
         self.cache_duration = float(cache_duration)
 
         self.headers = HEADERS
