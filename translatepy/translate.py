@@ -3,8 +3,9 @@ translatepy v2.1
 
 © Anime no Sekai — 2021
 """
+from threading import Thread
 
-from translatepy.exceptions import UnknownLanguage
+from translatepy.language import Language
 from translatepy.models import (DictionaryResult, ExampleResult,
                                 LanguageResult, SpellcheckResult,
                                 TextToSpechResult, TranslationResult,
@@ -15,6 +16,7 @@ from translatepy.translators import (BaseTranslator, BingTranslate,
                                      ReversoTranslate, TranslateComTranslate,
                                      YandexTranslate)
 from translatepy.utils.annotations import List
+from translatepy.utils.queue import Queue
 from translatepy.utils.request import Request
 
 
@@ -35,8 +37,21 @@ class Translate():
             TranslateComTranslate,
             MyMemoryTranslate
         ],
-        request: Request = Request()
+        request: Request = Request(),
+        fast: bool = False
     ) -> None:
+        """
+        A special Translator class grouping multiple translators to have better results.
+
+        Parameters:
+        ----------
+            services_list : list
+                A list of instanciated or not BaseTranslator subclasses to use as translators
+            request : Request
+                The Request class used to make requests
+            fast : bool
+                Enabling fast mode (concurrent processing) or not
+        """
 
         if not isinstance(services_list, List):
             raise TypeError("Parameter 'services_list' must be a list, {} was given".format(type(services_list).__name__))
@@ -44,7 +59,9 @@ class Translate():
         if not services_list:
             raise ValueError("Parameter 'services_list' must not be empty")
 
-        if isinstance(request, type): # is instantiated
+        self.FAST_MODE = fast
+
+        if isinstance(request, type):  # is instantiated
             self.request = request()
         else:
             self.request = request
@@ -71,19 +88,41 @@ class Translate():
 
         i.e Good morning (en) --> おはようございます (ja)
         """
+        dest_lang = Language(destination_language)
+        source_lang = Language(source_language)
+
+        def _translate(translator: BaseTranslator, index: int):
+            translator = self._instantiate_translator(translator, self.services, index)
+            result = translator.translate(
+                text=text, destination_language=dest_lang, source_language=source_lang
+            )
+            if result is None:
+                raise ValueError("{service} did not return any value".format(service=translator.__repr__()))
+            return result
+
+        def _fast_translate(queue: Queue, translator: BaseTranslator, index: int):
+            try:
+                queue.put(_translate(translator=translator, index=index))
+            except Exception:
+                pass
+
+        if self.FAST_MODE:
+            _queue = Queue()
+            threads = []
+            for index, service in enumerate(self.services):
+                thread = Thread(target=_fast_translate, args=(_queue, service, index), daemon=True)
+                thread.start()
+                threads.append(thread)
+            result = _queue.get(threads=threads)  # wait for a value and return it
+            if result is None:
+                raise ValueError("No service has returned a valid result")
+            return result
+
         for index, service in enumerate(self.services):
             try:
-                service = self._instantiate_translator(service, self.services, index)
-                result = service.translate(
-                    text, destination_language, source_language)
-                if result is None:
-                    raise ValueError("Service Returned None")
-            except UnknownLanguage as err:
-                raise err
+                return _translate(translator=service, index=index)
             except Exception:
                 continue
-            else:
-                return result
         else:
             raise ValueError("No service has returned a valid result")
 
@@ -93,16 +132,41 @@ class Translate():
 
         i.e おはよう --> Ohayou
         """
+        dest_lang = Language(destination_language)
+        source_lang = Language(source_language)
+
+        def _transliterate(translator: BaseTranslator, index: int):
+            translator = self._instantiate_translator(translator, self.services, index)
+            result = translator.transliterate(
+                text=text, destination_language=dest_lang, source_language=source_lang
+            )
+            if result is None:
+                raise ValueError("{service} did not return any value".format(service=translator.__repr__()))
+            return result
+
+        def _fast_transliterate(queue: Queue, translator: BaseTranslator, index: int):
+            try:
+                queue.put(_transliterate(translator=translator, index=index))
+            except Exception:
+                pass
+
+        if self.FAST_MODE:
+            _queue = Queue()
+            threads = []
+            for index, service in enumerate(self.services):
+                thread = Thread(target=_fast_transliterate, args=(_queue, service, index), daemon=True)
+                thread.start()
+                threads.append(thread)
+            result = _queue.get(threads=threads)  # wait for a value and return it
+            if result is None:
+                raise ValueError("No service has returned a valid result")
+            return result
+
         for index, service in enumerate(self.services):
             try:
-                service = self._instantiate_translator(service, self.services, index)
-                result = service.transliterate(text, destination_language, source_language)
-            except UnknownLanguage as err:
-                raise err
+                return _transliterate(translator=service, index=index)
             except Exception:
                 continue
-            else:
-                return result
         else:
             raise ValueError("No service has returned a valid result")
 
@@ -112,16 +176,40 @@ class Translate():
 
         i.e God morning --> Good morning
         """
+        source_lang = Language(source_language)
+
+        def _spellcheck(translator: BaseTranslator, index: int):
+            translator = self._instantiate_translator(translator, self.services, index)
+            result = translator.spellcheck(
+                text=text, source_language=source_lang
+            )
+            if result is None:
+                raise ValueError("{service} did not return any value".format(service=translator.__repr__()))
+            return result
+
+        def _fast_spellcheck(queue: Queue, translator: BaseTranslator, index: int):
+            try:
+                queue.put(_spellcheck(translator=translator, index=index))
+            except Exception:
+                pass
+
+        if self.FAST_MODE:
+            _queue = Queue()
+            threads = []
+            for index, service in enumerate(self.services):
+                thread = Thread(target=_fast_spellcheck, args=(_queue, service, index), daemon=True)
+                thread.start()
+                threads.append(thread)
+            result = _queue.get(threads=threads)  # wait for a value and return it
+            if result is None:
+                raise ValueError("No service has returned a valid result")
+            return result
+
         for index, service in enumerate(self.services):
             try:
-                service = self._instantiate_translator(service, self.services, index)
-                result = service.spellcheck(text, source_language)
-            except UnknownLanguage as err:
-                raise err
+                return _spellcheck(translator=service, index=index)
             except Exception:
                 continue
-            else:
-                return result
         else:
             raise ValueError("No service has returned a valid result")
 
@@ -131,16 +219,38 @@ class Translate():
 
         i.e 皆さんおはようございます！ --> Japanese
         """
+        def _language(translator: BaseTranslator, index: int):
+            translator = self._instantiate_translator(translator, self.services, index)
+            result = translator.language(
+                text=text
+            )
+            if result is None:
+                raise ValueError("{service} did not return any value".format(service=translator.__repr__()))
+            return result
+
+        def _fast_language(queue: Queue, translator: BaseTranslator, index: int):
+            try:
+                queue.put(_language(translator=translator, index=index))
+            except Exception:
+                pass
+
+        if self.FAST_MODE:
+            _queue = Queue()
+            threads = []
+            for index, service in enumerate(self.services):
+                thread = Thread(target=_fast_language, args=(_queue, service, index), daemon=True)
+                thread.start()
+                threads.append(thread)
+            result = _queue.get(threads=threads)  # wait for a value and return it
+            if result is None:
+                raise ValueError("No service has returned a valid result")
+            return result
+
         for index, service in enumerate(self.services):
             try:
-                service = self._instantiate_translator(service, self.services, index)
-                response = service.language(text)
-            except UnknownLanguage as err:
-                raise err
+                return _language(translator=service, index=index)
             except Exception:
                 continue
-            else:
-                return response
         else:
             raise ValueError("No service has returned a valid result")
 
@@ -150,16 +260,41 @@ class Translate():
 
         i.e Hello --> ['Hello friends how are you?', 'Hello im back again.']
         """
+        dest_lang = Language(destination_language)
+        source_lang = Language(source_language)
+
+        def _example(translator: BaseTranslator, index: int):
+            translator = self._instantiate_translator(translator, self.services, index)
+            result = translator.example(
+                text=text, destination_language=dest_lang, source_language=source_lang
+            )
+            if result is None:
+                raise ValueError("{service} did not return any value".format(service=translator.__repr__()))
+            return result
+
+        def _fast_example(queue: Queue, translator: BaseTranslator, index: int):
+            try:
+                queue.put(_example(translator=translator, index=index))
+            except Exception:
+                pass
+
+        if self.FAST_MODE:
+            _queue = Queue()
+            threads = []
+            for index, service in enumerate(self.services):
+                thread = Thread(target=_fast_example, args=(_queue, service, index), daemon=True)
+                thread.start()
+                threads.append(thread)
+            result = _queue.get(threads=threads)  # wait for a value and return it
+            if result is None:
+                raise ValueError("No service has returned a valid result")
+            return result
+
         for index, service in enumerate(self.services):
             try:
-                service = self._instantiate_translator(service, self.services, index)
-                response = service.example(text, destination_language, source_language)
-            except UnknownLanguage as err:
-                raise err
+                return _example(translator=service, index=index)
             except Exception:
                 continue
-            else:
-                return response
         else:
             raise ValueError("No service has returned a valid result")
 
@@ -169,16 +304,41 @@ class Translate():
 
         i.e Hello --> {'featured': ['ハロー', 'こんにちは'], 'less_common': ['hello', '今日は', 'どうも', 'こんにちわ', 'こにちは', 'ほいほい', 'おーい', 'アンニョンハセヨ', 'アニョハセヨ'}
         """
+        dest_lang = Language(destination_language)
+        source_lang = Language(source_language)
+
+        def _dictionary(translator: BaseTranslator, index: int):
+            translator = self._instantiate_translator(translator, self.services, index)
+            result = translator.dictionary(
+                text=text, destination_language=dest_lang, source_language=source_lang
+            )
+            if result is None:
+                raise ValueError("{service} did not return any value".format(service=translator.__repr__()))
+            return result
+
+        def _fast_dictionary(queue: Queue, translator: BaseTranslator, index: int):
+            try:
+                queue.put(_dictionary(translator=translator, index=index))
+            except Exception:
+                pass
+
+        if self.FAST_MODE:
+            _queue = Queue()
+            threads = []
+            for index, service in enumerate(self.services):
+                thread = Thread(target=_fast_dictionary, args=(_queue, service, index), daemon=True)
+                thread.start()
+                threads.append(thread)
+            result = _queue.get(threads=threads)  # wait for a value and return it
+            if result is None:
+                raise ValueError("No service has returned a valid result")
+            return result
+
         for index, service in enumerate(self.services):
             try:
-                service = self._instantiate_translator(service, self.services, index)
-                response = service.dictionary(text, destination_language, source_language)
-            except UnknownLanguage as err:
-                raise err
+                return _dictionary(translator=service, index=index)
             except Exception:
                 continue
-            else:
-                return response
         else:
             raise ValueError("No service has returned a valid result")
 
@@ -207,18 +367,42 @@ class Translate():
 
             # the result is an MP3 file with the text to speech output
         """
+        source_lang = Language(source_language)
+
+        def _text_to_speech(translator: BaseTranslator, index: int):
+            translator = self._instantiate_translator(translator, self.services, index)
+            result = translator.text_to_speech(
+                text=text, speed=speed, gender=gender, source_language=source_lang
+            )
+            if result is None:
+                raise ValueError("{service} did not return any value".format(service=translator.__repr__()))
+            return result
+
+        def _fast_text_to_speech(queue: Queue, translator: BaseTranslator, index: int):
+            try:
+                queue.put(_text_to_speech(translator=translator, index=index))
+            except Exception:
+                pass
+
+        if self.FAST_MODE:
+            _queue = Queue()
+            threads = []
+            for index, service in enumerate(self.services):
+                thread = Thread(target=_fast_text_to_speech, args=(_queue, service, index), daemon=True)
+                thread.start()
+                threads.append(thread)
+            result = _queue.get(threads=threads)  # wait for a value and return it
+            if result is None:
+                raise ValueError("No service has returned a valid result")
+            return result
+
         for index, service in enumerate(self.services):
             try:
-                service = self._instantiate_translator(service, self.services, index)
-                response = service.text_to_speech(text, speed, gender, source_language)
-            except UnknownLanguage as err:
-                raise err
+                return _text_to_speech(translator=service, index=index)
             except Exception:
                 continue
-            else:
-                return response
         else:
-            raise ValueError("No service has returned the valid result")
+            raise ValueError("No service has returned a valid result")
 
     def clean_cache(self) -> None:
         """
