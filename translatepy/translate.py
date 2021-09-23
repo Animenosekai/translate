@@ -110,7 +110,7 @@ class Translate():
             _queue = Queue()
             threads = []
             for index, service in enumerate(self.services):
-                thread = Thread(target=_fast_translate, args=(_queue, service, index), daemon=True)
+                thread = Thread(target=_fast_translate, args=(_queue, service, index))
                 thread.start()
                 threads.append(thread)
             result = _queue.get(threads=threads)  # wait for a value and return it
@@ -154,7 +154,7 @@ class Translate():
             _queue = Queue()
             threads = []
             for index, service in enumerate(self.services):
-                thread = Thread(target=_fast_transliterate, args=(_queue, service, index), daemon=True)
+                thread = Thread(target=_fast_transliterate, args=(_queue, service, index))
                 thread.start()
                 threads.append(thread)
             result = _queue.get(threads=threads)  # wait for a value and return it
@@ -197,7 +197,7 @@ class Translate():
             _queue = Queue()
             threads = []
             for index, service in enumerate(self.services):
-                thread = Thread(target=_fast_spellcheck, args=(_queue, service, index), daemon=True)
+                thread = Thread(target=_fast_spellcheck, args=(_queue, service, index))
                 thread.start()
                 threads.append(thread)
             result = _queue.get(threads=threads)  # wait for a value and return it
@@ -238,7 +238,7 @@ class Translate():
             _queue = Queue()
             threads = []
             for index, service in enumerate(self.services):
-                thread = Thread(target=_fast_language, args=(_queue, service, index), daemon=True)
+                thread = Thread(target=_fast_language, args=(_queue, service, index))
                 thread.start()
                 threads.append(thread)
             result = _queue.get(threads=threads)  # wait for a value and return it
@@ -282,7 +282,7 @@ class Translate():
             _queue = Queue()
             threads = []
             for index, service in enumerate(self.services):
-                thread = Thread(target=_fast_example, args=(_queue, service, index), daemon=True)
+                thread = Thread(target=_fast_example, args=(_queue, service, index))
                 thread.start()
                 threads.append(thread)
             result = _queue.get(threads=threads)  # wait for a value and return it
@@ -326,7 +326,7 @@ class Translate():
             _queue = Queue()
             threads = []
             for index, service in enumerate(self.services):
-                thread = Thread(target=_fast_dictionary, args=(_queue, service, index), daemon=True)
+                thread = Thread(target=_fast_dictionary, args=(_queue, service, index))
                 thread.start()
                 threads.append(thread)
             result = _queue.get(threads=threads)  # wait for a value and return it
@@ -388,7 +388,7 @@ class Translate():
             _queue = Queue()
             threads = []
             for index, service in enumerate(self.services):
-                thread = Thread(target=_fast_text_to_speech, args=(_queue, service, index), daemon=True)
+                thread = Thread(target=_fast_text_to_speech, args=(_queue, service, index))
                 thread.start()
                 threads.append(thread)
             result = _queue.get(threads=threads)  # wait for a value and return it
