@@ -44,7 +44,11 @@ class Translate():
         if not services_list:
             raise ValueError("Parameter 'services_list' must not be empty")
 
-        self.request = Request()
+        if isinstance(request, type): # is instantiated
+            self.request = request()
+        else:
+            self.request = request
+
         self.services = []
         for service in services_list:
             if not isinstance(service, BaseTranslator):  # not instantiated
@@ -55,9 +59,9 @@ class Translate():
     def _instantiate_translator(self, service: BaseTranslator, services_list: list, index: int):
         if not isinstance(service, BaseTranslator):  # not instantiated
             if "request" in service.__init__.__code__.co_varnames:  # check if __init__ wants a request parameter
-                service = service()
-            else:
                 service = service(request=self.request)
+            else:
+                service = service()
             services_list[index] = service
         return service
 
