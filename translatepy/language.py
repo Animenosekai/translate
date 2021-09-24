@@ -82,7 +82,7 @@ class Language():
             return "LanguageExtra(type={type}, scope={scope})".format(type=self.type, scope=self.scope)
 
     def __init__(self, language: str, threshold: Union[int, float] = 93) -> None:
-        if language is None or (isinstance(language, str) and remove_spaces(language) == ""):
+        if language is None or remove_spaces(language) == "":
             raise UnknownLanguage("N/A", 0, "You need to pass in a language")
         language = str(language)
         normalized_language = remove_spaces(LANGUAGE_CLEANUP_REGEX.sub("", language.lower()))
