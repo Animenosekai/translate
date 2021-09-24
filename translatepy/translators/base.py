@@ -1,3 +1,4 @@
+from translatepy.utils.sanitize import remove_spaces
 from translatepy.exceptions import TranslatepyException, UnsupportedMethod
 from translatepy.utils.lru_cacher import LRUDictCache
 from translatepy.utils.annotations import List
@@ -499,7 +500,7 @@ class BaseTranslator(ABC):
         if not isinstance(text, str):
             raise TypeError("Parameter 'text' must be a string, {} was given".format(type(text).__name__))
 
-        if text.replace(" ", "").replace("\n", "") == "":
+        if remove_spaces(text) == "":
             raise ValueError("Parameter 'text' must not be empty")
 
     def _validate_language_pair(self, source_language, destination_language):

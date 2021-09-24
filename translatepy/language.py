@@ -1,4 +1,5 @@
 from re import compile
+from translatepy.utils.sanitize import remove_spaces
 from typing import Union
 
 from translatepy.exceptions import UnknownLanguage
@@ -81,10 +82,10 @@ class Language():
             return "LanguageExtra(type={type}, scope={scope})".format(type=self.type, scope=self.scope)
 
     def __init__(self, language: str, threshold: Union[int, float] = 93) -> None:
-        if language is None or (isinstance(language, str) and language.replace(" ", "") == ""):
+        if language is None or (isinstance(language, str) and remove_spaces(language) == ""):
             raise UnknownLanguage("N/A", 0, "You need to pass in a language")
         language = str(language)
-        normalized_language = LANGUAGE_CLEANUP_REGEX.sub("", language.lower()).replace(" ", "")
+        normalized_language = remove_spaces(LANGUAGE_CLEANUP_REGEX.sub("", language.lower()))
 
         # Check the incoming language, whether it is in the cache, then return the values from the cache
         if normalized_language in _languages_cache:
