@@ -4,6 +4,11 @@ translatepy v2.1
 © Anime no Sekai — 2021
 """
 from threading import Thread
+from multiprocessing.pool import ThreadPool
+from translatepy.utils.sanitize import remove_spaces
+from typing import Union
+from bs4 import BeautifulSoup
+from bs4.element import NavigableString, PageElement, PreformattedString, Tag
 
 from translatepy.language import Language
 from translatepy.models import (DictionaryResult, ExampleResult,
@@ -18,6 +23,8 @@ from translatepy.translators import (BaseTranslator, BingTranslate,
 from translatepy.utils.annotations import List
 from translatepy.utils.queue import Queue
 from translatepy.utils.request import Request
+
+pool = ThreadPool(100)
 
 
 class Translate():
@@ -125,6 +132,59 @@ class Translate():
                 continue
         else:
             raise ValueError("No service has returned a valid result")
+
+    def translate_html(self, html: Union[str, PageElement, Tag, BeautifulSoup], destination_language: str, source_language: str = "auto", parser: str = "html.parser") -> Union[str, PageElement, Tag, BeautifulSoup]:
+        """
+        Translates the given HTML string or BeautifulSoup object to the given language
+
+        i.e
+         English: `<div class="hello"><h1>Hello</h1> everyone and <a href="/welcome">welcome</a> to <span class="w-full">my website</span></div>`
+         French: `<div class="hello"><h1>Bonjour</h1>tout le monde et<a href="/welcome">Bienvenue</a>à<span class="w-full">Mon site internet</span></div>`
+
+        Note: This method is not perfect since it is not tag/context aware. Example: `<span>Hello <strong>everyone</strong></span>` will not be understood as 
+        "Hello everyone" with "everyone" in bold but rather "Hello" and "everyone" separately.
+
+        Warning: If you give a `bs4.BeautifulSoup`, `bs4.element.PageElement` or `bs4.element.Tag` input (which are mutable), they will be modified.
+        If you don't want this behavior, please make sure to pass the string version of the element:
+        >>> result = Translate().translate_html(str(page_element), "French")
+
+        Parameters:
+        ----------
+            html : str | bs4.element.PageElement | bs4.element.Tag | bs4.BeautifulSoup
+                The HTML string to be translated. This can also be an instance of BeautifulSoup's `BeautifulSoup` element, `PageElement` or `Tag` element.
+            destination_language : str
+                The language the HTML string needs to be translated in.
+            source_language : str
+                The language of the HTML string.
+            parser : str
+                The parser that BeautifulSoup will use to parse the HTML string.
+
+        Returns:
+        --------
+            BeautifulSoup:
+                The result will be the same element as the input `html` parameter with the values modified if the given
+                input is of bs4.BeautifulSoup, bs4.element.PageElement or bs4.element.Tag instance.
+            str:
+                The result will be a string in any other case.
+
+        """
+        dest_lang = Language(destination_language)
+        source_lang = Language(source_language)
+
+        def _translate(node: NavigableString):
+            try:
+                node.replace_with(self.translate(str(node), destination_language=dest_lang, source_language=source_lang).result)
+            except Exception:  # ignore if it couldn't find any result or an error occured
+                pass
+
+        if not isinstance(html, (PageElement, Tag, BeautifulSoup)):
+            page = BeautifulSoup(str(html), str(parser))
+        else:
+            page = html
+        #nodes = [tag.text for tag in page.find_all(text=True, recursive=True, attrs=lambda class_name: "notranslate" not in str(class_name).split()) if not isinstance(tag, (PreformattedString)) and remove_spaces(tag) != ""]
+        nodes = [tag for tag in page.find_all(text=True, recursive=True) if not isinstance(tag, (PreformattedString)) and remove_spaces(tag) != ""]
+        pool.map(_translate, nodes)
+        return page if isinstance(html, (PageElement, Tag, BeautifulSoup)) else str(page)
 
     def transliterate(self, text: str, destination_language: str = "en", source_language: str = "auto") -> TransliterationResult:
         """
