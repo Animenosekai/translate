@@ -37,6 +37,8 @@ class YandexTranslate(BaseTranslator):
     """
 
     _api_url = "https://translate.yandex.net/api/v1/tr.json/{endpoint}"
+    _supported_languages = {'auto', 'af', 'sq', 'am', 'ar', 'hy', 'az', 'ba', 'eu', 'be', 'bn', 'bs', 'bg', 'my', 'ca', 'ca', 'ceb', 'zh', 'cv', 'cs', 'da', 'nl', 'nl', 'en', 'eo', 'et', 'fi', 'fr', 'ka', 'de', 'gd', 'gd', 'ga', 'gl', 'el', 'gu', 'ht', 'ht', 'he', 'hi', 'hr', 'hu', 'is', 'id', 'it', 'jv', 'ja', 'kn', 'kk', 'km', 'ky', 'ky', 'ko', 'lo', 'la', 'lv', 'lt', 'lb', 'lb', 'mk', 'ml', 'mi', 'mr', 'ms', 'mg', 'mt', 'mn', 'mrj', 'mhr', 'ne', 'no', 'pa', 'pa', 'pap', 'fa', 'pl', 'pt', 'ro', 'ro', 'ro', 'ru', 'sah', 'si', 'si', 'sk', 'sl', 'es', 'es', 'sr', 'sjn', 'su', 'sw', 'sv', 'ta', 'tt', 'te', 'tg', 'tl', 'th', 'tr', 'udm', 'uk', 'ur', 'uz', 'vi', 'cy', 'xh', 'yi', 'zu', 'kazlat', 'uzbcyr', 'emj'}
+    _language_aliases = {"zho": "zh"}
 
     def __init__(self, request: Request = Request()):
         self.session = request
@@ -189,13 +191,14 @@ class YandexTranslate(BaseTranslator):
             raise YandexTranslateException(response.status_code, response.text)
 
     def _language_normalize(self, language):
-        if language.id == "zho":
-            return "zh"
-        return language.alpha2
+        return self._language_aliases.get(language.id, language.alpha2)
+        # return language.alpha2
 
     def _language_denormalize(self, language_code):
-        if str(language_code).lower() in {"zh", "zh-cn"}:
-            return Language("zho")
+        for _language_code, _service_code in self._language_aliases.items():
+            if _service_code.lower() == language_code.lower():
+                language_code = _language_code
+                break
         return Language(language_code)
 
     def __str__(self) -> str:

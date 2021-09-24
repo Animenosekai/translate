@@ -55,10 +55,15 @@ DOMAINS = {
     "translate.google.us", "translate.google.vg", "translate.google.vu", "translate.google.ws",
 
 }
+
+_google_supported_languages = {'auto', 'af', 'sq', 'am', 'ar', 'hy', 'az', 'eu', 'be', 'bn', 'bs', 'bg', 'my', 'ca', 'ca', 'ceb', 'zh-cn', 'co', 'cs', 'da', 'nl', 'nl', 'en', 'eo', 'et', 'fi', 'fr', 'fy', 'ka', 'de', 'gd', 'gd', 'ga', 'gl', 'el', 'gu', 'ht', 'ht', 'ha', 'haw', 'he', 'hi', 'hr', 'hu', 'ig', 'is', 'id', 'it', 'jw', 'ja', 'kn', 'kk', 'km', 'ky', 'ky', 'ko', 'ku', 'lo', 'la', 'lv', 'lt', 'lb', 'lb', 'mk', 'ml', 'mi', 'mr', 'ms', 'mg', 'mt', 'mn', 'ne', 'no', 'ny', 'ny', 'ny', 'or', 'pa', 'pa', 'fa', 'pl', 'pt', 'ps', 'ps', 'ro', 'ro', 'ro', 'ru', 'si', 'si', 'sk', 'sl', 'sm', 'sn', 'sd', 'so', 'st', 'es', 'es', 'sr', 'su', 'sw', 'sv', 'ta', 'te', 'tg', 'tl', 'th', 'tr', 'ug', 'ug', 'uk', 'ur', 'uz', 'vi', 'cy', 'xh', 'yi', 'yo', 'zu', 'zh-cn', 'zh-tw'}
+
+
 # For backward compatibility
-
-
 class GoogleTranslate(BaseTranslator):
+
+    _supported_languages = _google_supported_languages
+
     def __init__(self, request: Request = Request(), service_url: str = "translate.google.com"):
 
         if service_url not in DOMAINS:
@@ -126,6 +131,8 @@ class GoogleTranslateV1(BaseTranslator):
     """
     A Python implementation of Google Translate's RPC API
     """
+
+    _supported_languages = _google_supported_languages
 
     def __init__(self, request: Request = Request(), service_url: str = "translate.google.com"):
         self.session = request
@@ -303,6 +310,8 @@ class GoogleTranslateV2(BaseTranslator):
     """
     A Python implementation of Google Translate's APIs
     """
+
+    _supported_languages = _google_supported_languages
 
     def __init__(self, request: Request = Request(), service_url: str = "translate.google.com"):
         self.session = request

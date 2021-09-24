@@ -8,6 +8,7 @@ from translatepy.models import (DictionaryResult, ExampleResult,
 from translatepy.language import Language
 from abc import ABCMeta, abstractmethod
 
+from icecream import ic
 
 # copied from abc.ABC (Python 3.9.5)
 class ABC(metaclass=ABCMeta):
@@ -21,8 +22,9 @@ class ABC(metaclass=ABCMeta):
 
 class BaseTranslateException(TranslatepyException):
     def __init__(self, status_code, message=None):
+        unknown_status_code_msg = "Unknown error. Error code: {}".format(status_code)
         if message is None:
-            self.message = self.error_codes.get(status_code, "Unknown error. Error code: {}".format(status_code))
+            self.message = self.error_codes.get(status_code, unknown_status_code_msg)
         else:
             self.message = message
 
@@ -49,6 +51,8 @@ class BaseTranslator(ABC):
     _examples_cache = LRUDictCache()
     _dictionaries_cache = LRUDictCache()
     _text_to_speeches_cache = LRUDictCache(8)
+
+    _supported_languages = {}
 
     def translate(self, text: str, destination_language: str, source_language: str = "auto") -> TranslationResult:
         """
@@ -84,7 +88,7 @@ class BaseTranslator(ABC):
         dest_code = self._detect_and_validate_lang(destination_language)
         source_code = self._detect_and_validate_lang(source_language)
 
-        self._validate_language_pair(source_code, dest_code)
+        self._validate_language(source_language=source_code, destination_language=dest_code)
 
         # Build cache key
         _cache_key = str({"t": text, "d": dest_code, "s": source_code})
@@ -143,7 +147,7 @@ class BaseTranslator(ABC):
         dest_code = self._detect_and_validate_lang(destination_language)
         source_code = self._detect_and_validate_lang(source_language)
 
-        self._validate_language_pair(source_code, dest_code)
+        self._validate_language(source_language=source_code, destination_language=dest_code)
 
         # Build cache key
         _cache_key = str({"t": text, "d": dest_code, "s": source_code})
@@ -198,6 +202,8 @@ class BaseTranslator(ABC):
         # With this we can use the original codes to build the response,
         # this makes the code transformation transparent to the user.
         source_code = self._detect_and_validate_lang(source_language)
+
+        self._validate_language(source_language=source_code)
 
         # Build cache key
         _cache_key = str({"t": text, "s": source_code})
@@ -307,7 +313,7 @@ class BaseTranslator(ABC):
         dest_code = self._detect_and_validate_lang(destination_language)
         source_code = self._detect_and_validate_lang(source_language)
 
-        self._validate_language_pair(source_code, dest_code)
+        self._validate_language(source_language=source_code, destination_language=dest_code)
 
         # Build cache key
         _cache_key = str({"t": text, "d": dest_code, "s": source_code})
@@ -373,7 +379,7 @@ class BaseTranslator(ABC):
         dest_code = self._detect_and_validate_lang(destination_language)
         source_code = self._detect_and_validate_lang(source_language)
 
-        self._validate_language_pair(source_code, dest_code)
+        self._validate_language(source_language=source_code, destination_language=dest_code)
 
         # Build cache key
         _cache_key = str({"t": text, "d": dest_code, "s": source_code})
@@ -427,6 +433,8 @@ class BaseTranslator(ABC):
         # With this we can use the original codes to build the response,
         # this makes the code transformation transparent to the user.
         source_code = self._detect_and_validate_lang(source_language)
+
+        self._validate_language(source_language=source_code)
 
         gender = gender.lower()
 
@@ -502,12 +510,23 @@ class BaseTranslator(ABC):
         if text.replace(" ", "").replace("\n", "") == "":
             raise ValueError("Parameter 'text' must not be empty")
 
-    def _validate_language_pair(self, source_language, destination_language):
+    def _validate_language(self, **kwargs):
         """
-        Performs language pair validation
+        Performs language validation
         """
-        if source_language == destination_language:
-            raise ValueError("Parameter source_language cannot be equal to the destination_language parametr")
+        source_language = kwargs.pop("source_language")
+        destination_language = kwargs.pop("destination_language", None)
+
+        if self._supported_languages:  # Check if the attribute is not empty
+            if source_language not in self._supported_languages:
+                raise ValueError("Unknown language")
+            if destination_language:
+                if destination_language not in self._supported_languages:
+                    raise ValueError("Unknown language")
+
+        if destination_language:
+            if source_language == destination_language:
+                raise ValueError("Parameter source_language cannot be equal to the destination_language parametr")
 
     def clean_cache(self) -> None:
         """
