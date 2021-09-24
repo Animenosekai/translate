@@ -61,7 +61,7 @@ class Translate():
 
         self.FAST_MODE = fast
 
-        if isinstance(request, type):  # is instantiated
+        if isinstance(request, type):  # is not instantiated
             self.request = request()
         else:
             self.request = request
