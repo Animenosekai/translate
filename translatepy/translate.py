@@ -3,10 +3,10 @@ translatepy v2.1
 
 © Anime no Sekai — 2021
 """
-from threading import Thread
 from multiprocessing.pool import ThreadPool
-from translatepy.utils.sanitize import remove_spaces
+from threading import Thread
 from typing import Union
+
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, PageElement, PreformattedString, Tag
 
@@ -23,8 +23,7 @@ from translatepy.translators import (BaseTranslator, BingTranslate,
 from translatepy.utils.annotations import List
 from translatepy.utils.queue import Queue
 from translatepy.utils.request import Request
-
-pool = ThreadPool(100)
+from translatepy.utils.sanitize import remove_spaces
 
 
 class Translate():
@@ -183,7 +182,8 @@ class Translate():
             page = html
         #nodes = [tag.text for tag in page.find_all(text=True, recursive=True, attrs=lambda class_name: "notranslate" not in str(class_name).split()) if not isinstance(tag, (PreformattedString)) and remove_spaces(tag) != ""]
         nodes = [tag for tag in page.find_all(text=True, recursive=True) if not isinstance(tag, (PreformattedString)) and remove_spaces(tag) != ""]
-        pool.map(_translate, nodes)
+        with ThreadPool(100) as pool:
+            pool.map(_translate, nodes)
         return page if isinstance(html, (PageElement, Tag, BeautifulSoup)) else str(page)
 
     def transliterate(self, text: str, destination_language: str = "en", source_language: str = "auto") -> TransliterationResult:
