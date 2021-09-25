@@ -82,6 +82,8 @@ class Language():
             return "LanguageExtra(type={type}, scope={scope})".format(type=self.type, scope=self.scope)
 
     def __init__(self, language: str, threshold: Union[int, float] = 93) -> None:
+        if isinstance(language, Language):
+            return language
         if language is None or remove_spaces(language) == "":
             raise UnknownLanguage("N/A", 0, "You need to pass in a language")
         language = str(language)
