@@ -429,11 +429,10 @@ class BaseTranslator(ABC):
         # this makes the code transformation transparent to the user.
         source_code = self._detect_and_validate_lang(source_language)
 
-        gender = gender.lower()
+        gender = remove_spaces(gender).lower()
 
-        genders_list = ["male", "female"]
-        if gender not in genders_list:
-            raise ValueError("Gender {gender} not supported. Supported genders: {genders_list}".format(gender=gender, genders_list=genders_list))
+        if gender not in {"male", "female"}:
+            raise ValueError("Gender {gender} not supported. Supported genders: male, female".format(gender=gender))
 
         # Build cache key
         _cache_key = str({"t": text, "sp": speed, "s": source_code, "g": gender})

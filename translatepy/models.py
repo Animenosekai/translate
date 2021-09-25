@@ -1,7 +1,9 @@
 """
 Module containing various models for holding informations.
 """
+from io import BytesIO
 from json import dumps
+from typing import Union
 
 from translatepy.language import Language
 
@@ -11,12 +13,12 @@ class TranslationResult:
     Class that holds the result of a Translation.
     """
 
-    def __init__(self, service, source, source_language, destination_language, result):
+    def __init__(self, service, source, source_language, destination_language, result) -> None:
         self.service = service
-        self.source = source
-        self.source_language = source_language
-        self.destination_language = destination_language
-        self.result = result
+        self.source = str(source)
+        self.source_language = Language(source_language)
+        self.destination_language = Language(destination_language)
+        self.result = str(result)
 
     def __str__(self) -> str:
         return self.result
@@ -48,10 +50,10 @@ class TransliterationResult:
 
     def __init__(self, service, source, source_language, destination_language, result):
         self.service = service
-        self.source = source
-        self.source_language = source_language
-        self.destination_language = destination_language
-        self.result = result
+        self.source = str(source)
+        self.source_language = Language(source_language)
+        self.destination_language = Language(destination_language)
+        self.result = str(result)
 
     def __str__(self) -> str:
         return self.result
@@ -83,9 +85,9 @@ class SpellcheckResult:
 
     def __init__(self, service, source, source_language, result):
         self.service = service
-        self.source = source
-        self.source_language = source_language
-        self.result = result
+        self.source = str(source)
+        self.source_language = Language(source_language)
+        self.result = str(result)
 
     def __str__(self) -> str:
         return self.result
@@ -115,8 +117,8 @@ class LanguageResult:
 
     def __init__(self, service, source, result):
         self.service = service
-        self.source = source
-        self.result = result
+        self.source = str(source)
+        self.result = Language(result)
 
     def __str__(self) -> str:
         return self.result
@@ -144,9 +146,9 @@ class ExampleResult:
 
     def __init__(self, service, source, source_language, destination_language, result):  # source_result, destination_result):
         self.service = service
-        self.source = source
-        self.source_language = source_language
-        self.destination_language = destination_language
+        self.source = str(source)
+        self.source_language = Language(source_language)
+        self.destination_language = Language(destination_language)
         self.result = result
         # self.source_result = source_result
         # self.destination_result = destination_result
@@ -182,9 +184,9 @@ class DictionaryResult:
 
     def __init__(self, service, source, source_language, destination_language, result):
         self.service = service
-        self.source = source
-        self.source_language = source_language
-        self.destination_language = destination_language
+        self.source = str(source)
+        self.source_language = Language(source_language)
+        self.destination_language = Language(destination_language)
         self.result = result
 
     def __str__(self) -> str:
@@ -217,13 +219,13 @@ class TextToSpechResult:
 
     def __init__(self, service, source, source_language, speed, gender, result):
         self.service = service
-        self.source = source
-        self.source_language = source_language
-        self.speed = speed,
-        self.gender = gender
+        self.source = str(source)
+        self.source_language = Language(source_language)
+        self.speed = int(speed),
+        self.gender = str(gender)
         self.result = result
 
-    def write_to_file(self, file):
+    def write_to_file(self, file: Union[str, BytesIO]):
         """
         Writes the spoken text to an MP3 file.
 
@@ -231,14 +233,13 @@ class TextToSpechResult:
             file: The output file
         """
 
-        if isinstance(file, str):
-            with open(file, "wb") as fp:
-                fp.write(self.result)
-            return
-
         if hasattr(file, "write"):
             file.write(self.result)
             return
+
+        with open(str(file), "wb") as fp:
+            fp.write(self.result)
+        return
 
     def __str__(self) -> str:
         return self.result
@@ -251,3 +252,15 @@ class TextToSpechResult:
             speed=self.speed,
             gender=self.gender
         )
+
+
+class Speed():
+    FULL = 100
+    HALF = 50
+    QUARTER = 25
+    SLOW = HALF
+
+
+class Gender():
+    MALE = "male"
+    FEMALE = "female"
