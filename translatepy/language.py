@@ -82,31 +82,33 @@ class Language():
             return "LanguageExtra(type={type}, scope={scope})".format(type=self.type, scope=self.scope)
 
     def __init__(self, language: str, threshold: Union[int, float] = 93) -> None:
-        if isinstance(language, Language):
-            return language
         if language is None or remove_spaces(language) == "":
             raise UnknownLanguage("N/A", 0, "You need to pass in a language")
-        language = str(language)
-        normalized_language = remove_spaces(LANGUAGE_CLEANUP_REGEX.sub("", language.lower()))
-
-        # Check the incoming language, whether it is in the cache, then return the values from the cache
-        if normalized_language in _languages_cache:
-            self.id, self.similarity = _languages_cache[normalized_language]
+        if isinstance(language, Language):
+            self.id = language.id
+            self.similarity = language.similarity
         else:
-            if normalized_language in CODES:
-                self.id = CODES[normalized_language]
-                self.similarity = 100
+            language = str(language)
+            normalized_language = remove_spaces(LANGUAGE_CLEANUP_REGEX.sub("", language.lower()))
+
+            # Check the incoming language, whether it is in the cache, then return the values from the cache
+            if normalized_language in _languages_cache:
+                self.id, self.similarity = _languages_cache[normalized_language]
             else:
-                _search_result, _similarity = fuzzy_search(LOADED_VECTORS, normalized_language)
-                self.similarity = _similarity * 100
-                if self.similarity < threshold:
-                    raise UnknownLanguage(_search_result, self.similarity, "Couldn't recognize the given language ({0})\nDid you mean: {1} (Similarity: {2}%)?".format(language, _search_result, round(self.similarity, 2)))
-                self.id = VECTORS[_search_result]["i"]
+                if normalized_language in CODES:
+                    self.id = CODES[normalized_language]
+                    self.similarity = 100
+                else:
+                    _search_result, _similarity = fuzzy_search(LOADED_VECTORS, normalized_language)
+                    self.similarity = _similarity * 100
+                    if self.similarity < threshold:
+                        raise UnknownLanguage(_search_result, self.similarity, "Couldn't recognize the given language ({0})\nDid you mean: {1} (Similarity: {2}%)?".format(language, _search_result, round(self.similarity, 2)))
+                    self.id = VECTORS[_search_result]["i"]
+
+            # Сache the language values to speed up the language recognition process in the future
+            _languages_cache[normalized_language] = (self.id, self.similarity)
 
         data = LANGUAGE_DATA[self.id]
-
-        # Сache the language values to speed up the language recognition process in the future
-        _languages_cache[normalized_language] = (self.id, self.similarity)
 
         self.alpha2 = data.get("2", None)
         self.alpha3b = data.get("b", None)
