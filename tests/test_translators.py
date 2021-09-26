@@ -1,13 +1,13 @@
 from translatepy.exceptions import UnsupportedMethod
 from translatepy.translators.bing import BingTranslate
-from translatepy.translators.deepl import DeeplTranslate
+from translatepy.translators.deepl import (DeeplTranslate, DeeplTranslateException)
 from translatepy.translators.google import GoogleTranslateV1, GoogleTranslateV2
 from translatepy.translators.mymemory import MyMemoryTranslate
 from translatepy.translators.reverso import ReversoTranslate
 from translatepy.translators.translatecom import TranslateComTranslate
 from translatepy.translators.yandex import YandexTranslate
 
-IGNORED_EXCEPTIONS = (UnsupportedMethod,)
+IGNORED_EXCEPTIONS = (UnsupportedMethod, DeeplTranslateException) # DeepL's rate limit is way too sensitive
 
 
 class TestAllTranslators:
