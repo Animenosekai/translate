@@ -66,7 +66,10 @@ class Response():
     @property
     def text(self, encoding="utf-8") -> str:
         """Returns the text/str version of the response (decoded)"""
-        return self.content.decode(encoding)
+        try:
+            return self.content.decode(encoding)
+        except Exception:
+            return str(self.content).encode(encoding).decode(encoding)
 
     def raise_for_status(self):
         """Raise an exception if the status code of the response is less than 400"""

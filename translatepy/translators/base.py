@@ -1,18 +1,18 @@
-from typing import Union
-from bs4 import BeautifulSoup
+from abc import ABCMeta, abstractmethod
 from multiprocessing.pool import ThreadPool
+from typing import Union
 
+from bs4 import BeautifulSoup
 from bs4.element import NavigableString, PageElement, PreformattedString, Tag
-from translatepy.utils.sanitize import remove_spaces
 from translatepy.exceptions import TranslatepyException, UnsupportedMethod
-from translatepy.utils.lru_cacher import LRUDictCache
-from translatepy.utils.annotations import List
+from translatepy.language import Language
 from translatepy.models import (DictionaryResult, ExampleResult,
                                 LanguageResult, SpellcheckResult,
                                 TextToSpechResult, TranslationResult,
                                 TransliterationResult)
-from translatepy.language import Language
-from abc import ABCMeta, abstractmethod
+from translatepy.utils.annotations import List
+from translatepy.utils.lru_cacher import LRUDictCache
+from translatepy.utils.sanitize import remove_spaces
 
 
 # copied from abc.ABC (Python 3.9.5)
