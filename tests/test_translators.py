@@ -1,23 +1,18 @@
-from translatepy.translators.base import BaseTranslator
-from typing import List
 from translatepy.exceptions import UnsupportedMethod
 from translatepy.translators.bing import BingTranslate
-from translatepy.translators.deepl import (DeeplTranslate,
-                                           DeeplTranslateException)
+from translatepy.translators.deepl import DeeplTranslate
 from translatepy.translators.google import GoogleTranslateV1, GoogleTranslateV2
-from translatepy.translators.mymemory import (MyMemoryException,
-                                              MyMemoryTranslate)
+from translatepy.translators.mymemory import MyMemoryTranslate
 from translatepy.translators.reverso import ReversoTranslate
 from translatepy.translators.translatecom import TranslateComTranslate
 from translatepy.translators.yandex import YandexTranslate
-from translatepy.utils.request import Request
 
 IGNORED_EXCEPTIONS = (UnsupportedMethod,)
 
 
 class TestAllTranslators:
     def setup(self):
-        self.services_list: List[BaseTranslator] = [
+        self.services_list = [
             GoogleTranslateV1(),
             GoogleTranslateV2(),
             BingTranslate(),
