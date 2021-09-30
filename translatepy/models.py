@@ -8,6 +8,8 @@ from typing import Union
 from translatepy.language import Language
 
 
+# TODO: Feat: add raw model attribute, which will return a raw request response
+
 class TranslationResult:
     """
     Class that holds the result of a Translation.

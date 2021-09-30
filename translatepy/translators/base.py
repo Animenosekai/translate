@@ -4,7 +4,7 @@ from typing import Union
 
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, PageElement, PreformattedString, Tag
-from translatepy.exceptions import TranslatepyException, UnsupportedMethod
+from translatepy.exceptions import TranslatepyException, UnsupportedMethod, UnsupportedLanguage
 from translatepy.language import Language
 from translatepy.models import (DictionaryResult, ExampleResult,
                                 LanguageResult, SpellcheckResult,
@@ -27,8 +27,9 @@ class ABC(metaclass=ABCMeta):
 
 class BaseTranslateException(TranslatepyException):
     def __init__(self, status_code, message=None):
+        unknown_status_code_msg = "Unknown error. Error code: {}".format(status_code)
         if message is None:
-            self.message = self.error_codes.get(status_code, "Unknown error. Error code: {}".format(status_code))
+            self.message = self.error_codes.get(status_code, unknown_status_code_msg)
         else:
             self.message = message
 
@@ -55,6 +56,8 @@ class BaseTranslator(ABC):
     _examples_cache = LRUDictCache()
     _dictionaries_cache = LRUDictCache()
     _text_to_speeches_cache = LRUDictCache(8)
+
+    _supported_languages = {}
 
     def translate(self, text: str, destination_language: str, source_language: str = "auto") -> TranslationResult:
         """
@@ -130,7 +133,7 @@ class BaseTranslator(ABC):
          English: `<div class="hello"><h1>Hello</h1> everyone and <a href="/welcome">welcome</a> to <span class="w-full">my website</span></div>`
          French: `<div class="hello"><h1>Bonjour</h1>tout le monde et<a href="/welcome">Bienvenue</a>à<span class="w-full">Mon site internet</span></div>`
 
-        Note: This method is not perfect since it is not tag/context aware. Example: `<span>Hello <strong>everyone</strong></span>` will not be understood as 
+        Note: This method is not perfect since it is not tag/context aware. Example: `<span>Hello <strong>everyone</strong></span>` will not be understood as
         "Hello everyone" with "everyone" in bold but rather "Hello" and "everyone" separately.
 
         Warning: If you give a `bs4.BeautifulSoup`, `bs4.element.PageElement` or `bs4.element.Tag` input (which are mutable), they will be modified.
@@ -170,7 +173,7 @@ class BaseTranslator(ABC):
             page = BeautifulSoup(str(html), str(parser))
         else:
             page = html
-        #nodes = [tag.text for tag in page.find_all(text=True, recursive=True, attrs=lambda class_name: "notranslate" not in str(class_name).split()) if not isinstance(tag, (PreformattedString)) and remove_spaces(tag) != ""]
+        # nodes = [tag.text for tag in page.find_all(text=True, recursive=True, attrs=lambda class_name: "notranslate" not in str(class_name).split()) if not isinstance(tag, (PreformattedString)) and remove_spaces(tag) != ""]
         nodes = [tag for tag in page.find_all(text=True, recursive=True) if not isinstance(tag, (PreformattedString)) and remove_spaces(tag) != ""]
         with ThreadPool(100) as pool:
             pool.map(_translate, nodes)
@@ -548,7 +551,13 @@ class BaseTranslator(ABC):
         else:
             result = Language(language)
 
-        return self._language_normalize(result)
+        normalized_result = self._language_normalize(result)
+
+        if self._supported_languages:  # Check if the attribute is not empty
+            if normalized_result not in self._supported_languages:
+                raise UnsupportedLanguage("Language {language_code} doesn't supported by {service}".format(language_code=language, service=str(self)))
+
+        return normalized_result
 
     def _validate_text(self, text: str) -> None:
         """
