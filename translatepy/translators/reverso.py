@@ -11,6 +11,8 @@ class ReversoTranslate(BaseTranslator):
     A Python implementation of Reverso's API
     """
 
+    _supported_languages = {'auto', 'ara', 'chi', 'dut', 'dut', 'eng', 'fra', 'ger', 'heb', 'ita', 'jpn', 'pol', 'por', 'rum', 'rum', 'rum', 'rus', 'spa', 'spa', 'tur'}
+
     def __init__(self, request: Request = Request()):
         self.session = request
 

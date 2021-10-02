@@ -50,9 +50,6 @@ class MyMemoryTranslate(BaseTranslator):
         result = request.json()["matches"][0]
         return result["source"]
 
-    def _supported_languages(self):
-        raise UnsupportedMethod()
-
     def _language_normalize(self, language: Language) -> str:
         """
         This is the language validation function

@@ -20,6 +20,11 @@ class UnsupportedMethod(TranslatepyException):
         super().__init__(*args)
 
 
+class UnsupportedLanguage(TranslatepyException):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
 class RequestStatusError(TranslatepyException):
     def __init__(self, status_code, *args: object) -> None:
         super().__init__(*args)
