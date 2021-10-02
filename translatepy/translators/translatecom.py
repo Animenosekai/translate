@@ -39,9 +39,6 @@ class TranslateComTranslate(BaseTranslator):
         request.raise_for_status()
         return request.json()["language"]
 
-    def _supported_languages(self):
-        raise UnsupportedMethod()
-
     def _language_normalize(self, language: Language) -> str:
         """
         This is the language validation function

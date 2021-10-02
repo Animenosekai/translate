@@ -95,9 +95,6 @@ class GoogleTranslate(BaseTranslator):
             except Exception:
                 continue
 
-    def _supported_languages(self):
-        raise UnsupportedMethod()
-
     def _language_normalize(self, language: Language):
         if language.id == "zho":
             return "zh-CN"

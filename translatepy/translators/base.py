@@ -555,7 +555,7 @@ class BaseTranslator(ABC):
 
         if self._supported_languages:  # Check if the attribute is not empty
             if normalized_result not in self._supported_languages:
-                raise UnsupportedLanguage("Language {language_code} doesn't supported by {service}".format(language_code=language, service=str(self)))
+                raise UnsupportedLanguage("The language {language_code} is not supported by {service}".format(language_code=language, service=str(self)))
 
         return normalized_result
 
