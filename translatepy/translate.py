@@ -132,7 +132,7 @@ class Translate():
         else:
             raise ValueError("No service has returned a valid result")
 
-    def translate_html(self, html: Union[str, PageElement, Tag, BeautifulSoup], destination_language: str, source_language: str = "auto", parser: str = "html.parser") -> Union[str, PageElement, Tag, BeautifulSoup]:
+    def translate_html(self, html: Union[str, PageElement, Tag, BeautifulSoup], destination_language: str, source_language: str = "auto", parser: str = "html.parser", threads_limit: int = 100) -> Union[str, PageElement, Tag, BeautifulSoup]:
         """
         Translates the given HTML string or BeautifulSoup object to the given language
 
@@ -153,10 +153,12 @@ class Translate():
                 The HTML string to be translated. This can also be an instance of BeautifulSoup's `BeautifulSoup` element, `PageElement` or `Tag` element.
             destination_language : str
                 The language the HTML string needs to be translated in.
-            source_language : str
+            source_language : str, default = "auto"
                 The language of the HTML string.
-            parser : str
+            parser : str, default = "html.parser"
                 The parser that BeautifulSoup will use to parse the HTML string.
+            threads_limit : int, default = 100
+                The maximum number of threads that will be spawned by translate_html
 
         Returns:
         --------
@@ -182,7 +184,7 @@ class Translate():
             page = html
         # nodes = [tag.text for tag in page.find_all(text=True, recursive=True, attrs=lambda class_name: "notranslate" not in str(class_name).split()) if not isinstance(tag, (PreformattedString)) and remove_spaces(tag) != ""]
         nodes = [tag for tag in page.find_all(text=True, recursive=True) if not isinstance(tag, (PreformattedString)) and remove_spaces(tag) != ""]
-        with ThreadPool(100) as pool:
+        with ThreadPool(int(threads_limit)) as pool:
             pool.map(_translate, nodes)
         return page if isinstance(html, (PageElement, Tag, BeautifulSoup)) else str(page)
 
