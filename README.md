@@ -136,6 +136,7 @@ It takes two *optional* arguments: the `services_list` argument, which is a list
 It has all of the supported methods.
 
 - translate: To translate things
+- translate_html : To translate HTML snippets
 - transliterate: To transliterate things
 - spellcheck: To check the spelling of a text
 - language: To get the language of a text
