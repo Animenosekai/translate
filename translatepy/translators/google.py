@@ -233,7 +233,7 @@ class GoogleTranslateV1(BaseTranslator):
         try:
             origin_pronunciation = parsed[0][0]
             if origin_pronunciation is None:
-                raise ValueError("Origin Pronounciation is None")
+                raise ValueError("translatepy internal exception: Origin Pronounciation is None")
         except Exception:
             origin_pronunciation = text
 

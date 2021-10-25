@@ -3,6 +3,26 @@ class TranslatepyException(Exception):
         super().__init__(*args)
 
 
+class NoResult(TranslatepyException, ValueError):  # ValueError is needed for backward compatibility
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class ParameterError(TranslatepyException):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class ParameterTypeError(ParameterError, TypeError):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class ParameterValueError(ParameterError, ValueError):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
 class TranslationError(TranslatepyException):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)

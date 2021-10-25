@@ -10,6 +10,7 @@ from typing import Union
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, PageElement, PreformattedString, Tag
 
+from translatepy.exceptions import NoResult, ParameterTypeError, ParameterValueError
 from translatepy.language import Language
 from translatepy.models import (DictionaryResult, ExampleResult,
                                 LanguageResult, SpellcheckResult,
@@ -60,10 +61,10 @@ class Translate():
         """
 
         if not isinstance(services_list, List):
-            raise TypeError("Parameter 'services_list' must be a list, {} was given".format(type(services_list).__name__))
+            raise ParameterTypeError("Parameter 'services_list' must be a list, {} was given".format(type(services_list).__name__))
 
         if not services_list:
-            raise ValueError("Parameter 'services_list' must not be empty")
+            raise ParameterValueError("Parameter 'services_list' must not be empty")
 
         self.FAST_MODE = fast
 
@@ -76,7 +77,7 @@ class Translate():
         for service in services_list:
             if not isinstance(service, BaseTranslator):  # not instantiated
                 if not issubclass(service, BaseTranslator):
-                    raise TypeError("{service} must be a child class of the BaseTranslator class".format(service=service))
+                    raise ParameterTypeError("{service} must be a child class of the BaseTranslator class".format(service=service))
             self.services.append(service)
 
     def _instantiate_translator(self, service: BaseTranslator, services_list: list, index: int):
@@ -103,7 +104,7 @@ class Translate():
                 text=text, destination_language=dest_lang, source_language=source_lang
             )
             if result is None:
-                raise ValueError("{service} did not return any value".format(service=translator.__repr__()))
+                raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
             return result
 
         def _fast_translate(queue: Queue, translator: BaseTranslator, index: int):
@@ -121,7 +122,7 @@ class Translate():
                 threads.append(thread)
             result = _queue.get(threads=threads)  # wait for a value and return it
             if result is None:
-                raise ValueError("No service has returned a valid result")
+                raise NoResult("No service has returned a valid result")
             return result
 
         for index, service in enumerate(self.services):
@@ -130,7 +131,7 @@ class Translate():
             except Exception:
                 continue
         else:
-            raise ValueError("No service has returned a valid result")
+            raise NoResult("No service has returned a valid result")
 
     def translate_html(self, html: Union[str, PageElement, Tag, BeautifulSoup], destination_language: str, source_language: str = "auto", parser: str = "html.parser", threads_limit: int = 100) -> Union[str, PageElement, Tag, BeautifulSoup]:
         """
@@ -203,7 +204,7 @@ class Translate():
                 text=text, destination_language=dest_lang, source_language=source_lang
             )
             if result is None:
-                raise ValueError("{service} did not return any value".format(service=translator.__repr__()))
+                raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
             return result
 
         def _fast_transliterate(queue: Queue, translator: BaseTranslator, index: int):
@@ -221,7 +222,7 @@ class Translate():
                 threads.append(thread)
             result = _queue.get(threads=threads)  # wait for a value and return it
             if result is None:
-                raise ValueError("No service has returned a valid result")
+                raise NoResult("No service has returned a valid result")
             return result
 
         for index, service in enumerate(self.services):
@@ -230,7 +231,7 @@ class Translate():
             except Exception:
                 continue
         else:
-            raise ValueError("No service has returned a valid result")
+            raise NoResult("No service has returned a valid result")
 
     def spellcheck(self, text: str, source_language: str = "auto") -> SpellcheckResult:
         """
@@ -246,7 +247,7 @@ class Translate():
                 text=text, source_language=source_lang
             )
             if result is None:
-                raise ValueError("{service} did not return any value".format(service=translator.__repr__()))
+                raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
             return result
 
         def _fast_spellcheck(queue: Queue, translator: BaseTranslator, index: int):
@@ -264,7 +265,7 @@ class Translate():
                 threads.append(thread)
             result = _queue.get(threads=threads)  # wait for a value and return it
             if result is None:
-                raise ValueError("No service has returned a valid result")
+                raise NoResult("No service has returned a valid result")
             return result
 
         for index, service in enumerate(self.services):
@@ -273,7 +274,7 @@ class Translate():
             except Exception:
                 continue
         else:
-            raise ValueError("No service has returned a valid result")
+            raise NoResult("No service has returned a valid result")
 
     def language(self, text: str) -> LanguageResult:
         """
@@ -287,7 +288,7 @@ class Translate():
                 text=text
             )
             if result is None:
-                raise ValueError("{service} did not return any value".format(service=translator.__repr__()))
+                raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
             return result
 
         def _fast_language(queue: Queue, translator: BaseTranslator, index: int):
@@ -305,7 +306,7 @@ class Translate():
                 threads.append(thread)
             result = _queue.get(threads=threads)  # wait for a value and return it
             if result is None:
-                raise ValueError("No service has returned a valid result")
+                raise NoResult("No service has returned a valid result")
             return result
 
         for index, service in enumerate(self.services):
@@ -314,7 +315,7 @@ class Translate():
             except Exception:
                 continue
         else:
-            raise ValueError("No service has returned a valid result")
+            raise NoResult("No service has returned a valid result")
 
     def example(self, text: str, destination_language: str, source_language: str = "auto") -> ExampleResult:
         """
@@ -331,7 +332,7 @@ class Translate():
                 text=text, destination_language=dest_lang, source_language=source_lang
             )
             if result is None:
-                raise ValueError("{service} did not return any value".format(service=translator.__repr__()))
+                raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
             return result
 
         def _fast_example(queue: Queue, translator: BaseTranslator, index: int):
@@ -349,7 +350,7 @@ class Translate():
                 threads.append(thread)
             result = _queue.get(threads=threads)  # wait for a value and return it
             if result is None:
-                raise ValueError("No service has returned a valid result")
+                raise NoResult("No service has returned a valid result")
             return result
 
         for index, service in enumerate(self.services):
@@ -358,7 +359,7 @@ class Translate():
             except Exception:
                 continue
         else:
-            raise ValueError("No service has returned a valid result")
+            raise NoResult("No service has returned a valid result")
 
     def dictionary(self, text: str, destination_language: str, source_language="auto") -> DictionaryResult:
         """
@@ -375,7 +376,7 @@ class Translate():
                 text=text, destination_language=dest_lang, source_language=source_lang
             )
             if result is None:
-                raise ValueError("{service} did not return any value".format(service=translator.__repr__()))
+                raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
             return result
 
         def _fast_dictionary(queue: Queue, translator: BaseTranslator, index: int):
@@ -393,7 +394,7 @@ class Translate():
                 threads.append(thread)
             result = _queue.get(threads=threads)  # wait for a value and return it
             if result is None:
-                raise ValueError("No service has returned a valid result")
+                raise NoResult("No service has returned a valid result")
             return result
 
         for index, service in enumerate(self.services):
@@ -402,7 +403,7 @@ class Translate():
             except Exception:
                 continue
         else:
-            raise ValueError("No service has returned a valid result")
+            raise NoResult("No service has returned a valid result")
 
     def text_to_speech(self, text: str, speed: int = 100, gender: str = "female", source_language: str = "auto") -> TextToSpechResult:
         """
@@ -437,7 +438,7 @@ class Translate():
                 text=text, speed=speed, gender=gender, source_language=source_lang
             )
             if result is None:
-                raise ValueError("{service} did not return any value".format(service=translator.__repr__()))
+                raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
             return result
 
         def _fast_text_to_speech(queue: Queue, translator: BaseTranslator, index: int):
@@ -455,7 +456,7 @@ class Translate():
                 threads.append(thread)
             result = _queue.get(threads=threads)  # wait for a value and return it
             if result is None:
-                raise ValueError("No service has returned a valid result")
+                raise NoResult("No service has returned a valid result")
             return result
 
         for index, service in enumerate(self.services):
@@ -464,7 +465,7 @@ class Translate():
             except Exception:
                 continue
         else:
-            raise ValueError("No service has returned a valid result")
+            raise NoResult("No service has returned a valid result")
 
     def clean_cache(self) -> None:
         """

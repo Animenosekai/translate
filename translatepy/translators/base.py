@@ -4,7 +4,7 @@ from typing import Union
 
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, PageElement, PreformattedString, Tag
-from translatepy.exceptions import TranslatepyException, UnsupportedMethod, UnsupportedLanguage
+from translatepy.exceptions import ParameterTypeError, ParameterValueError, TranslatepyException, UnsupportedMethod, UnsupportedLanguage
 from translatepy.language import Language
 from translatepy.models import (DictionaryResult, ExampleResult,
                                 LanguageResult, SpellcheckResult,
@@ -496,7 +496,7 @@ class BaseTranslator(ABC):
         gender = remove_spaces(gender).lower()
 
         if gender not in {"male", "female"}:
-            raise ValueError("Gender {gender} not supported. Supported genders: male, female".format(gender=gender))
+            raise ParameterValueError("Gender {gender} not supported. Supported genders: male, female".format(gender=gender))
 
         # Build cache key
         _cache_key = str({"t": text, "sp": speed, "s": source_code, "g": gender})
@@ -567,17 +567,17 @@ class BaseTranslator(ABC):
         and if it is not empty
         """
         if not isinstance(text, str):
-            raise TypeError("Parameter 'text' must be a string, {} was given".format(type(text).__name__))
+            raise ParameterTypeError("Parameter 'text' must be a string, {} was given".format(type(text).__name__))
 
         if remove_spaces(text) == "":
-            raise ValueError("Parameter 'text' must not be empty")
+            raise ParameterValueError("Parameter 'text' must not be empty")
 
     def _validate_language_pair(self, source_language, destination_language):
         """
         Performs language pair validation
         """
         if source_language == destination_language:
-            raise ValueError("Parameter source_language cannot be equal to the destination_language parametr")
+            raise ParameterValueError("Parameter source_language cannot be equal to the destination_language parameter")
 
     def clean_cache(self) -> None:
         """
