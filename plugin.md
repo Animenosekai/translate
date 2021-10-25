@@ -30,6 +30,8 @@ class TranslatorName(BaseTranslator):
     translatepy's implementation of <TranslatorName>
     """
 
+    _supported_languages = {"set", "of", "supported", "language", "code"}
+
     def __init__(self, request: Request = Request()):
         self.session = request
 
@@ -139,7 +141,7 @@ Responses will be cached in the Base class if successful
 
 ### Supported Languages
 
-We might be needing the "_supported_languages" method in the future so it is best to add it.
+The `_supported_languages` set is optional but highly recommended to avoid making unneeded requests.
 
 ### Recursion
 

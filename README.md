@@ -324,7 +324,7 @@ All of the `translatepy` errors are inherited from `translatepy.exceptions.Trans
 
 You can make your own `Translator` using the `translatepy.translators.base.BaseTranslator` class.
 
-Make sure that you inherit from this class when creating your translator and to **follow the instruction from [plugin.md](plugin.md)**
+Make sure that you inherit from this class when creating your translator and to **follow the instruction from [plugin.md](https://github.com/Animenosekai/translate/blob/main/plugin.md)**
 
 ## Caching
 
