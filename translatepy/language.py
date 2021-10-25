@@ -102,7 +102,8 @@ class Language():
                     _search_result, _similarity = fuzzy_search(LOADED_VECTORS, normalized_language)
                     self.similarity = _similarity * 100
                     if self.similarity < threshold:
-                        raise UnknownLanguage(_search_result, self.similarity, "Couldn't recognize the given language ({0})\nDid you mean: {1} (Similarity: {2}%)?".format(language, _search_result, round(self.similarity, 2)))
+                        raising_message = "Couldn't recognize the given language ({0})\nDid you mean: {1} (Similarity: {2}%)?".format(language, _search_result, round(self.similarity, 2))
+                        raise UnknownLanguage(_search_result, self.similarity, raising_message)
                     self.id = VECTORS[_search_result]["i"]
 
             # Сache the language values to speed up the language recognition process in the future

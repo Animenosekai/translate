@@ -266,22 +266,29 @@ A `translatepy.exceptions.UnknownLanguage` exception is raised if the given lang
 This exception contains the most similar language along with its similarity:
 
 ```python
-try:
-    language = Language("中国")
-except translatepy.exceptions.UnknownLanguage as error:
-    print("The similarity seemed to be too low for translatepy to accept it as a correct language name")
-    print("The language found is:", error.guessed_language)
-    print("Its similarity from the passed input is:", str(error.similarity))
+>>> from translatepy import Language
+>>> from translatepy.exceptions import UnknownLanguage
+>>> try:
+...     language = Language("中国")
+... except UnknownLanguage as error:
+...     print("The similarity seemed to be too low for translatepy to accept it as a correct language name")
+...     print("The language found is:", error.guessed_language)
+...     print("Its similarity from the passed input is:", str(error.similarity))
 ```
 
 > If you find the default threshold given to the language search, you can always change it by passing the `threshold` parameter when initializing a `Language`:
 
 ```python
->>> Language("-- some language --")
-translatepy.exceptions.UnknownLanguage: Couldn't recognize the given language (-- some language --)
-Did you mean: lega-mwenga (Similarity: 79.03%)?
->>> Language("-- some language --", threshold=78)
-Language(lgm)
+>>> from translatepy import Language
+>>> Language("国語")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/Users/animenosekai/Documents/Coding/Projects/translate/translatepy/language.py", line 106, in __init__
+    raise UnknownLanguage(_search_result, self.similarity, raising_message)
+translatepy.exceptions.UnknownLanguage: Couldn't recognize the given language (中国)
+Did you mean: 中国語 (Similarity: 81.65%)?
+>>> Language("中国", threshold=80)
+Language(zho)
 ```
 
 ### Results
