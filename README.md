@@ -276,7 +276,7 @@ This exception contains the most similar language along with its similarity:
 ...     print("Its similarity from the passed input is:", str(error.similarity))
 ```
 
-> If you find the default threshold given to the language search, you can always change it by passing the `threshold` parameter when initializing a `Language`:
+> If you find that the default threshold given to the language search is too low, you can always change it by passing the `threshold` parameter when initializing a `Language`:
 
 ```python
 >>> from translatepy import Language
