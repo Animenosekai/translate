@@ -2,4 +2,4 @@ requests
 beautifulsoup4
 typing; python_version<"3.5" # for backward compatibility
 pyuseragents
-inquirer==2.8.0
+inquirer>=2.8.0
