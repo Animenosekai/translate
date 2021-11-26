@@ -10,7 +10,7 @@ from translatepy.utils.similarity import StringVector, fuzzy_search
 # preparing the vectors
 LOADED_VECTORS = [StringVector(language, data=data) for language, data in VECTORS.items()]
 
-LANGUAGE_CLEANUP_REGEX = compile("\(.+\)")
+LANGUAGE_CLEANUP_REGEX = compile(r"\(.+\)")
 
 
 class Scopes():

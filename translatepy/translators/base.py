@@ -105,7 +105,7 @@ class BaseTranslator(ABC):
             # Call the private concrete implementation of the Translator to get the translation
             source_language, translation = self._translate(text, dest_code, source_code)
 
-            # Сache the translation values to speed up the translation process in the future
+            # Cache the translation values to speed up the translation process in the future
             self._translations_cache[_cache_key] = (source_language, translation)
 
         # Return a `TranslationResult` object
@@ -220,7 +220,7 @@ class BaseTranslator(ABC):
             # Call the private concrete implementation of the Translator to get the transliteration
             source_language, transliteration = self._transliterate(text, dest_code, source_code)
 
-            # Сache the transliteration values to speed up the translation process in the future
+            # Cache the transliteration values to speed up the translation process in the future
             self._transliterations_cache[_cache_key] = (source_language, transliteration)
 
         # Return a `TransliterationResult` object
@@ -274,7 +274,7 @@ class BaseTranslator(ABC):
             # Call the private concrete implementation of the Translator to get the spellchecked text
             source_language, spellcheck = self._spellcheck(text, source_code)
 
-            # Сache the spellcheck values to speed up the translation process in the future
+            # Cache the spellcheck values to speed up the translation process in the future
             self._spellchecks_cache[_cache_key] = (source_language, spellcheck)
 
         # Return a `SpellcheckResult` object
@@ -318,7 +318,7 @@ class BaseTranslator(ABC):
             # Call the private concrete implementation of the Translator to get the language
             language = self._language(text)
 
-            # Сache the languages values to speed up the translation process in the future
+            # Cache the languages values to speed up the translation process in the future
             self._languages_cache[_cache_key] = language
 
         denormalized_lang = self._language_denormalize(language)
@@ -384,7 +384,7 @@ class BaseTranslator(ABC):
             # Call the private concrete implementation of the Translator to get the examples
             source_language, example = self._example(text, dest_code, source_code)
 
-            # Сache the translation values to speed up the translation process in the future
+            # Cache the translation values to speed up the translation process in the future
             self._examples_cache[_cache_key] = (source_language, example)
 
         # Return a `ExampleResult` object
@@ -450,7 +450,7 @@ class BaseTranslator(ABC):
             # Call the private concrete implementation of the Translator to get the dictionary result
             source_language, dictionary = self._dictionary(text, dest_code, source_code)
 
-            # Сache the translation values to speed up the translation process in the future
+            # Cache the translation values to speed up the translation process in the future
             self._dictionaries_cache[_cache_key] = (source_language, dictionary)
 
         # Return a `DictionaryResult` object
@@ -508,7 +508,7 @@ class BaseTranslator(ABC):
             # Call the private concrete implementation of the Translator to get text to spech result
             source_language, text_to_speech = self._text_to_speech(text, speed, gender, source_code)
 
-            # Сache the text to spech result to speed up the translation process in the future
+            # Cache the text to spech result to speed up the translation process in the future
             self._text_to_speeches_cache[_cache_key] = (source_language, text_to_speech)
 
         # Return a `TextToSpechResult` object

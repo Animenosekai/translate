@@ -56,7 +56,7 @@ DOMAINS = {
 
 }
 
-_google_supported_languages = {'auto', 'af', 'sq', 'am', 'ar', 'hy', 'az', 'eu', 'be', 'bn', 'bs', 'bg', 'my', 'ca', 'ca', 'ceb', 'zh-cn', 'co', 'cs', 'da', 'nl', 'nl', 'en', 'eo', 'et', 'fi', 'fr', 'fy', 'ka', 'de', 'gd', 'gd', 'ga', 'gl', 'el', 'gu', 'ht', 'ht', 'ha', 'haw', 'he', 'hi', 'hr', 'hu', 'ig', 'is', 'id', 'it', 'jw', 'ja', 'kn', 'kk', 'km', 'ky', 'ky', 'ko', 'ku', 'lo', 'la', 'lv', 'lt', 'lb', 'lb', 'mk', 'ml', 'mi', 'mr', 'ms', 'mg', 'mt', 'mn', 'ne', 'no', 'ny', 'ny', 'ny', 'or', 'pa', 'pa', 'fa', 'pl', 'pt', 'ps', 'ps', 'ro', 'ro', 'ro', 'ru', 'si', 'si', 'sk', 'sl', 'sm', 'sn', 'sd', 'so', 'st', 'es', 'es', 'sr', 'su', 'sw', 'sv', 'ta', 'te', 'tg', 'tl', 'th', 'tr', 'ug', 'ug', 'uk', 'ur', 'uz', 'vi', 'cy', 'xh', 'yi', 'yo', 'zu', 'zh-cn', 'zh-tw'}
+_google_supported_languages = {'auto', 'af', 'sq', 'am', 'ar', 'hy', 'az', 'eu', 'be', 'bn', 'bs', 'bg', 'my', 'ca', 'ca', 'ceb', 'zh-cn', 'co', 'cs', 'da', 'nl', 'nl', 'en', 'eo', 'et', 'fi', 'fr', 'fy', 'ka', 'de', 'gd', 'gd', 'ga', 'gl', 'el', 'gu', 'ht', 'ht', 'ha', 'haw', 'he', 'hi', 'hr', 'hu', 'ig', 'is', 'id', 'it', 'jw', 'ja', 'kn', 'kk', 'km', 'ky', 'ky', 'ko', 'ku', 'lo', 'la', 'lv', 'lt', 'lb', 'lb', 'mk', 'ml', 'mi', 'mr', 'ms', 'mg', 'mt', 'mn', 'ne', 'no', 'ny', 'ny', 'ny', 'or', 'pa', 'pa', 'fa', 'pl', 'pt', 'ps', 'ps', 'ro', 'ro', 'ro', 'ru', 'si', 'si', 'sk', 'sl', 'sm', 'sn', 'sd', 'so', 'st', 'es', 'es', 'sr', 'su', 'sw', 'sv', 'ta', 'te', 'tg', 'tl', 'th', 'tr', 'ug', 'ug', 'uk', 'ur', 'uz', 'vi', 'cy', 'xh', 'yi', 'yo', 'zu', 'zh-CN', 'zh-TW'}
 
 
 # For backward compatibility
@@ -295,7 +295,7 @@ class GoogleTranslateV1(BaseTranslator):
     def _language_denormalize(self, language_code):
         if str(language_code).lower() == "zh-cn":
             return Language("zho")
-        elif str(language_code).lower() == "zh-TW":
+        elif str(language_code).lower() == "zh-tw":
             return Language("och")
         return Language(language_code)
 
