@@ -270,7 +270,7 @@ class DeeplTranslate(BaseTranslator):
 
     def _language_normalize(self, language):
         if language.id == "zho":
-            return "zh"
+            return "ZH"
         return language.alpha2.upper()
 
     def _language_denormalize(self, language_code):
