@@ -434,7 +434,7 @@ class GoogleTranslateV2(BaseTranslator):
     def _language_denormalize(self, language_code):
         if str(language_code).lower() == "zh-cn":
             return Language("zho")
-        elif str(language_code).lower() == "zh-TW":
+        elif str(language_code).lower() == "zh-tw":
             return Language("och")
         return Language(language_code)
 
