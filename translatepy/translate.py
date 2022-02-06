@@ -20,7 +20,7 @@ from translatepy.translators import (BaseTranslator, BingTranslate,
                                      DeeplTranslate, GoogleTranslate,
                                      LibreTranslate, MyMemoryTranslate,
                                      ReversoTranslate, TranslateComTranslate,
-                                     YandexTranslate)
+                                     YandexTranslate, MicrosoftTranslate)
 from translatepy.utils.annotations import List
 from translatepy.utils.queue import Queue
 from translatepy.utils.request import Request
@@ -36,9 +36,10 @@ class Translate():
         self,
         services_list: List[BaseTranslator] = [
             GoogleTranslate,
-            BingTranslate,
             YandexTranslate,
+            MicrosoftTranslate,
             ReversoTranslate,
+            BingTranslate,
             DeeplTranslate,
             LibreTranslate,
             TranslateComTranslate,
