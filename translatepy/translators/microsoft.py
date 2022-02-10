@@ -46,7 +46,7 @@ class MicrosoftSessionManager():
                 raise MicrosoftException(token_status, "Error during token request from the server")
 
             self._token, self._region = token_response.get("token"), token_response.get("region")
-            self._token_expiries = time.time() + (int(token_response.get("expiryDurationInMS", 600_000)) - 1_000) / 1_000
+            self._token_expiries = time.time() + (int(token_response.get("expiryDurationInMS", 600000)) - 1000) / 1000
 
             self._auth_session_file.write({"token": self._token, "region": self._region, "token_expiries": self._token_expiries})
 
