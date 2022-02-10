@@ -14,7 +14,8 @@ from translatepy.translators.base import BaseTranslateException, BaseTranslator
 from translatepy.utils.request import Request
 from translatepy.utils.annotations import Callable, Dict
 
-HOME_DIR = os.path.expanduser("~")
+HOME_DIR = os.path.abspath(os.path.dirname(__file__))
+
 
 class BingTranslateException(BaseTranslateException):
     error_codes = {
@@ -76,6 +77,9 @@ class BingSessionManager():
         _parsed_IG = re.findall('IG:"(.*?)"', _page)
         _parsed_IID = re.findall('data-iid="(.*?)"', _page)
         _parsed_helper_info = re.findall("params_RichTranslateHelper = (.*?);", _page)
+
+        if not _parsed_helper_info:
+            raise BingTranslateException(message="Can't parse the authorization data, try again later or use MicrosoftTranslate")
 
         _normalized_key = json.loads(_parsed_helper_info[0])[0]
         _normalized_token = json.loads(_parsed_helper_info[0])[1]

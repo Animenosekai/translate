@@ -1,4 +1,5 @@
 requests
+safeIO>=1.2
 beautifulsoup4
 typing; python_version<"3.5" # for backward compatibility
 pyuseragents

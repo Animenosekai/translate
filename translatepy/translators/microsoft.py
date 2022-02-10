@@ -16,7 +16,7 @@ from translatepy.utils.request import Request
 from translatepy.utils.annotations import Callable, Dict
 from translatepy.translators.bing import BingSessionManager, BingExampleResult
 
-HOME_DIR = os.path.expanduser("~")
+HOME_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 class MicrosoftException(BaseTranslateException):

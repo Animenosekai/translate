@@ -126,3 +126,7 @@ dmypy.json
 
 # macOS
 .DS_Store
+
+# translatepy translate service session files
+.bing_translatepy
+.microsoft_translatepy
