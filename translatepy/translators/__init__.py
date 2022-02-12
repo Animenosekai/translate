@@ -8,3 +8,4 @@ from translatepy.translators.mymemory import MyMemoryTranslate
 from translatepy.translators.reverso import ReversoTranslate
 from translatepy.translators.translatecom import TranslateComTranslate
 from translatepy.translators.yandex import YandexTranslate
+from translatepy.translators.microsoft import MicrosoftTranslate
