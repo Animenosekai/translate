@@ -556,6 +556,16 @@ class BaseTranslator(ABC):
         normalized_result = self._language_normalize(result)
 
         if self._supported_languages:  # Check if the attribute is not empty
+
+            # For some languages, like Chinese, function [ _language_normalize() ] maybe result "zh", "zh-ch"
+            # this results are not in [ self._supported_languages ]
+            # so, it cannnot work
+
+            if str(self) == "DeepL": # normalized_result is 'zh', but it supposed to be 'ZH'
+                normalized_result = normalized_result.upper()
+            if str(self) == "Google": # normalized_result is 'zh-CN', but it supposed to be 'zh-cn'
+                normalized_result = normalized_result.lower()
+
             if normalized_result not in self._supported_languages:
                 raise UnsupportedLanguage("The language {language_code} is not supported by {service}".format(language_code=language, service=str(self)))
 
