@@ -27,7 +27,7 @@ jobs:
           python3 setup.py install
       - name: Test with pytest
         run: |
-          pytest --cov-report xml:coverage.xml --cov=translatepy -vv tests/
+          pytest --cov-config=.coveragerc --cov-report xml:coverage.xml --cov=translatepy -vv tests/
       - name: Upload Coverage report
         uses: codecov/codecov-action@v2
         with:

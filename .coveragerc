@@ -1,0 +1,9 @@
+[run]
+omit =
+    */utils/gtoken.py
+    */utils/annotations.py
+    */utils/utils.py
+
+[report]
+exclude_lines =
+    super().__init__(*args)
