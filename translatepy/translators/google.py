@@ -97,15 +97,15 @@ class GoogleTranslate(BaseTranslator):
 
     def _language_normalize(self, language: Language):
         if language.id == "zho":
-            return "zh-CN"
+            return "zh-cn"
         elif language.id == "och":
-            return "zh-TW"
+            return "zh-tw"
         return language.alpha2
 
     def _language_denormalize(self, language_code):
         if str(language_code).lower() == "zh-cn":
             return Language("zho")
-        elif str(language_code).lower() == "zh-TW":
+        elif str(language_code).lower() == "zh-tw":
             return Language("och")
         return Language(language_code)
 
