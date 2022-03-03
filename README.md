@@ -54,7 +54,7 @@ You can check if you successfully installed it by printing out its version:
 ```bash
 $ translatepy --version
 # output:
-translatepy v2.2
+translatepy v2.3.0
 ```
 
 or just:
@@ -62,7 +62,7 @@ or just:
 ```bash
 $ python -c "import translatepy; print(translatepy.__version__)"
 # output:
-translatepy v2.2
+translatepy v2.3
 ```
 
 ## List of Built-in Services
@@ -71,6 +71,7 @@ translatepy v2.2
 - [DeepL](https://www.deepl.com/translator)
 - [Google Translate](https://translate.google.com)
 - [LibreTranslate](https://libretranslate.com)
+- [Microsoft Translator](http://translator.microsoft.com/)
 - [MyMemory](https://mymemory.translated.net)
 - [Reverso](https://www.reverso.net/text_translation.aspx)
 - [Translate.com](https://www.translate.com)
