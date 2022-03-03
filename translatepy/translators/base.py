@@ -26,7 +26,9 @@ class ABC(metaclass=ABCMeta):
 
 
 class BaseTranslateException(TranslatepyException):
-    def __init__(self, status_code, message=None):
+    error_codes = {}
+
+    def __init__(self, status_code: int = -1, message=None):
         unknown_status_code_msg = "Unknown error. Error code: {}".format(status_code)
         if message is None:
             self.message = self.error_codes.get(status_code, unknown_status_code_msg)
@@ -34,6 +36,8 @@ class BaseTranslateException(TranslatepyException):
             self.message = message
 
         self.status_code = status_code
+
+        super().__init__(self.message)
 
     def __str__(self):
         return "{} | {}".format(self.status_code, self.message)
