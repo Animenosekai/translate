@@ -6,6 +6,7 @@ from translatepy.translators.mymemory import (MyMemoryTranslate, MyMemoryExcepti
 from translatepy.translators.reverso import ReversoTranslate
 from translatepy.translators.translatecom import TranslateComTranslate
 from translatepy.translators.yandex import YandexTranslate
+from translatepy.translators.microsoft import MicrosoftTranslate
 
 IGNORED_EXCEPTIONS = (UnsupportedMethod, DeeplTranslateException, BingTranslateException, MyMemoryException)  # DeepL's and Bing's rate limit is way too sensitive
 
@@ -20,7 +21,8 @@ class TestAllTranslators:
             YandexTranslate(),
             DeeplTranslate(),
             TranslateComTranslate(),
-            MyMemoryTranslate()
+            MyMemoryTranslate(),
+            MicrosoftTranslate()
         ]
 
     def test_service_translate(self):
