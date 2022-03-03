@@ -6,4 +6,4 @@ omit =
 
 [report]
 exclude_lines =
-    super().__init__(*args)
+    super().__init__
