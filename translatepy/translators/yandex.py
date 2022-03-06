@@ -193,11 +193,15 @@ class YandexTranslate(BaseTranslator):
     def _language_normalize(self, language):
         if language.id == "zho":
             return "zh"
+        elif language.id == "srd":
+            return "sjn"
         return language.alpha2
 
     def _language_denormalize(self, language_code):
         if str(language_code).lower() in {"zh", "zh-cn"}:
             return Language("zho")
+        elif str(language_code).lower() == "sjn":
+            return Language("srd")
         return Language(language_code)
 
     """
