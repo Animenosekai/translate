@@ -37,26 +37,27 @@ class GetClientState():
     DeepL Translate state manager
     """
     def __init__(self, request: Request):
-        self.id_number = randint(100, 9999) * 1000
+        self.id_number = randint(1000, 9999) * 10000
         self.session = request
 
-    def dump(self):
+    def dump(self) -> dict:
         self.id_number += 1
         data = {
-            "id": self.id_number,
-            "jsonrpc": "2.0",
-            "method": "getClientState",
-            "params": {
-                "v": "20180814"
-            }
+            'jsonrpc': '2.0',
+            'method': 'getClientState',
+            'params': {
+                'v': '20180814',
+                'clientVars': {},
+            },
+            'id': self.id_number,
         }
         return data
 
-    def get(self):
+    def get(self) -> int:
         """
         Returns a new Client State ID
         """
-        request = self.session.post("https://www.deepl.com/PHP/backend/clientState.php", params={"request_type": "jsonrpc", "il": "EN", "method": "getClientState"}, json=self.dump())
+        request = self.session.post("https://w.deepl.com/web", params={'request_type': 'jsonrpc', 'il': 'E', 'method': 'getClientState'}, json=self.dump())
         response = request.json()
         return response["id"]
 
@@ -70,7 +71,7 @@ class JSONRPCRequest():
         try:
             self.id_number = self.client_state.get()
         except Exception:
-            self.id_number = randint(2000000, 3000000) # ? I didn't verify the range, but it's better having only DeepL not working than having Translator() crash for only one service
+            self.id_number = (randint(1000, 9999) * 10000) + 1  # ? I didn't verify the range, but it's better having only DeepL not working than having Translator() crash for only one service
         self.session = request
         self.last_access = 0
 
