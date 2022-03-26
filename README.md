@@ -54,7 +54,7 @@ You can check if you successfully installed it by printing out its version:
 ```bash
 $ translatepy --version
 # output:
-translatepy v2.3.0
+translatepy v2.3
 ```
 
 or just:

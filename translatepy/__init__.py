@@ -21,7 +21,7 @@ def __version_string__():
 
 
 __author__ = 'Anime no Sekai'
-__copyright__ = 'Copyright 2021, translate'
+__copyright__ = 'Copyright 2022, translate'
 __credits__ = ['animenosekai']
 __license__ = 'GNU General Public License v3 (GPLv3)'
 __version__ = 'translatepy v{}'.format(__version_string__())
