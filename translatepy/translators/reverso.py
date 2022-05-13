@@ -34,8 +34,7 @@ class ReversoTranslate(BaseTranslator):
                     "languageDetection": False
                 }
             },
-            headers={"Content-Type": "application/json; charset=UTF-8"},
-            verify=False
+            headers={"Content-Type": "application/json; charset=UTF-8"}
         )
         if request.status_code < 400:
             response = request.json()
@@ -62,8 +61,7 @@ class ReversoTranslate(BaseTranslator):
                 "generateRecommendations": False,
                 "getCorrectionDetails": False
             },
-            headers={"Content-Type": "application/json; charset=UTF-8"},
-            verify=False
+            headers={"Content-Type": "application/json; charset=UTF-8"}
         )
         response = request.json()
         if request.status_code < 400:
@@ -104,7 +102,7 @@ class ReversoTranslate(BaseTranslator):
 
         url = "https://context.reverso.net/bst-query-service"
         params = {"source_text": text, "source_lang": source_language, "target_lang": destination_language, "npage": 1, "nrows": 20, "expr_sug": 0, "json": 1, "dym_apply": True, "pos_reorder": 5}
-        request = self.session.post(url, params=params, headers={"Content-Type": "application/x-www-form-urlencoded"}, verify=False)
+        request = self.session.post(url, params=params, headers={"Content-Type": "application/x-www-form-urlencoded"})
         response = request.json()
 
         if request.status_code < 400:
@@ -119,7 +117,7 @@ class ReversoTranslate(BaseTranslator):
 
         url = "https://context.reverso.net/bst-query-service"
         params = {"source_text": text, "source_lang": source_language, "target_lang": destination_language, "npage": 1, "nrows": 20, "expr_sug": 0, "json": 1, "dym_apply": True, "pos_reorder": 5}
-        request = self.session.post(url, params=params, headers={"Content-Type": "application/x-www-form-urlencoded"}, verify=False)
+        request = self.session.post(url, params=params, headers={"Content-Type": "application/x-www-form-urlencoded"})
         response = request.json()
 
         if request.status_code < 400:
@@ -133,7 +131,7 @@ class ReversoTranslate(BaseTranslator):
             source_language = self._language(text)
 
         _supported_langs_url = "https://voice.reverso.net/RestPronunciation.svc/v1/output=json/GetAvailableVoices"
-        _supported_langs_result = self.session.get(_supported_langs_url, verify=False)
+        _supported_langs_result = self.session.get(_supported_langs_url)
         _supported_langs_list = _supported_langs_result.json()["Voices"]
 
         _gender = "M" if gender == "male" else "F"
@@ -148,7 +146,7 @@ class ReversoTranslate(BaseTranslator):
             raise UnsupportedMethod("{source_lang} language not supported by Reverso".format(source_lang=source_language))
 
         url = "https://voice.reverso.net/RestPronunciation.svc/v1/output=json/GetVoiceStream/voiceName={}?voiceSpeed={}&inputText={}".format(voice, speed, _text)
-        response = self.session.get(url, verify=False)
+        response = self.session.get(url)
         if response.status_code < 400:
             return source_language, response.content
 
