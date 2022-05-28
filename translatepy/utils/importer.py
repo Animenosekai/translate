@@ -180,6 +180,7 @@ def get_translator(translator: str, threshold: float = 90, forceload: bool = Fal
     UnknownTranslator
         If the translator is not found.
     """
+    translator = str(translator)
     try:
         result = locate(translator, forceload)
         if not isinstance(result, BaseTranslator):

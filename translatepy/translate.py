@@ -1,11 +1,12 @@
 """
-translatepy v2.3
+translatepy v2.4
 
 © Anime no Sekai — 2021
 """
+import inspect
 from multiprocessing.pool import ThreadPool
 from threading import Thread
-from typing import Union
+from typing import Iterable, Union
 
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, PageElement, PreformattedString, Tag
@@ -25,6 +26,7 @@ from translatepy.utils.annotations import List
 from translatepy.utils.queue import Queue
 from translatepy.utils.request import Request
 from translatepy.utils.sanitize import remove_spaces
+from translatepy.utils.importer import get_translator
 
 
 class Translate():
@@ -60,9 +62,8 @@ class Translate():
             fast : bool
                 Enabling fast mode (concurrent processing) or not
         """
-
-        if not isinstance(services_list, List):
-            raise ParameterTypeError("Parameter 'services_list' must be a list, {} was given".format(type(services_list).__name__))
+        if not isinstance(services_list, Iterable):
+            raise ParameterTypeError("Parameter 'services_list' must be iterable, {} was given".format(type(services_list).__name__))
 
         if not services_list:
             raise ParameterValueError("Parameter 'services_list' must not be empty")
@@ -76,6 +77,8 @@ class Translate():
 
         self.services = []
         for service in services_list:
+            if isinstance(service, str):
+                service = get_translator(service)
             if not isinstance(service, BaseTranslator):  # not instantiated
                 if not issubclass(service, BaseTranslator):
                     raise ParameterTypeError("{service} must be a child class of the BaseTranslator class".format(service=service))
@@ -83,7 +86,7 @@ class Translate():
 
     def _instantiate_translator(self, service: BaseTranslator, services_list: list, index: int):
         if not isinstance(service, BaseTranslator):  # not instantiated
-            if "request" in service.__init__.__code__.co_varnames:  # check if __init__ wants a request parameter
+            if "request" in inspect.getfullargspec(service.__init__).args:  # check if __init__ wants a request parameter
                 service = service(request=self.request)
             else:
                 service = service()
