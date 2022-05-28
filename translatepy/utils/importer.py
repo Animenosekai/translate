@@ -7,6 +7,7 @@ A module to allow for dynamic importing of translators.
 import builtins
 import sys
 from translatepy.exceptions import UnknownTranslator
+from translatepy.language import LANGUAGE_CLEANUP_REGEX
 
 from translatepy.translators import (BingTranslate, DeeplTranslate,
                                      GoogleTranslate, GoogleTranslateV1,
@@ -15,6 +16,7 @@ from translatepy.translators import (BingTranslate, DeeplTranslate,
                                      ReversoTranslate, TranslateComTranslate,
                                      YandexTranslate)
 from translatepy.translators.base import BaseTranslator
+from translatepy.utils.sanitize import remove_spaces
 from translatepy.utils.similarity import fuzzy_search, StringVector
 from translatepy.utils._importer_data import VECTORS
 
@@ -188,7 +190,8 @@ def get_translator(translator: str, threshold: float = 90, forceload: bool = Fal
         return result
     except ImportError:  # this also catches ErrorDuringImport
         pass
-    alias, similarity = fuzzy_search(LOADED_VECTORS, translator)
+    normalized = remove_spaces(LANGUAGE_CLEANUP_REGEX.sub("", translator.lower()))
+    alias, similarity = fuzzy_search(LOADED_VECTORS, normalized)
     similarity *= 100
     result = VECTORS[alias]["t"]
     if similarity < threshold:

@@ -24,12 +24,11 @@ actions = [
 
 
 def main():
-    dl = translatepy.Translator()
-
     # Create the parser
     parser = argparse.ArgumentParser(prog='translatepy', description='Translate, transliterate, get the language of texts in no time with the help of multiple APIs!')
 
     parser.add_argument('--version', '-v', action='version', version=translatepy.__version__)
+    parser.add_argument("--translators", action="store", type=str, help="List of translators to use. Each translator name should be comma-separated.", required=False, default=None)
 
     # subparser = parser.add_subparsers(help='Actions', dest="action", required=True)
     subparser = parser.add_subparsers(help='Actions', dest="action")
@@ -61,6 +60,11 @@ def main():
         # required subparser had been added in Python 3.7
         print(NO_ACTION)
         return
+
+    if args.translators is not None:
+        dl = translatepy.Translator(args.translators.split(","))
+    else:
+        dl = translatepy.Translator()
 
     if args.action == 'translate':
         try:
