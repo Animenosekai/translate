@@ -11,7 +11,7 @@ This file lists and explains the different endpoints available in the Translatio
 GET /translate
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L30)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L29)
 
 ### Authentication
 

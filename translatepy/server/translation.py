@@ -2,11 +2,9 @@ from nasse import Response
 from nasse.models import Endpoint, Error, Param, Return
 from translatepy import Translator
 from translatepy.exceptions import UnknownLanguage, UnknownTranslator
-from translatepy.language import Language
 from translatepy.server.server import app
-from translatepy.utils.importer import get_translator
 
-t = Translator()
+
 base = Endpoint(
     section="Translation",
     errors=[
@@ -26,6 +24,7 @@ def TranslatorList(value: str):
     return value.split(",")
     # return get_translator(value.split(","))
 
+t = Translator()
 
 @app.route("/translate", Endpoint(
     endpoint=base,
@@ -45,47 +44,33 @@ def TranslatorList(value: str):
     ]
 ))
 def translate(text: str, dest: str, source: str = "auto", translators: list[str] = None):
+    current_translator = t
     if translators is not None:
-        services = []
-        for service in translators:
-            try:
-                services.append(get_translator(service))
-            except UnknownTranslator as err:
-                return Response(
-                    data={
-                        "guessed": str(err.guessed_translator),
-                        "similarity": err.similarity,
-                    },
-                    message="translatepy could not find the given translator ({})".format(service),
-                    error="UNKNOWN_TRANSLATOR",
-                    code=400
-                )
-        t = Translator(services)
+        try:
+            current_translator = Translator(translators)
+        except UnknownTranslator as err:
+            return Response(
+                data={
+                    "guessed": str(err.guessed_translator),
+                    "similarity": err.similarity,
+                },
+                message="translatepy could not find the given translator",
+                error="UNKNOWN_TRANSLATOR",
+                code=400
+            )
+
     try:
-        dest = Language(dest)
+        result = current_translator.translate(text=text, destination_language=dest, source_language=source)
     except UnknownLanguage as err:
         return Response(
             data={
                 "guessed": str(err.guessed_language),
                 "similarity": err.similarity,
             },
-            message="translatepy could not understand the given destination language ({})".format(dest),
+            message="translatepy could not understand the given language ({})".format(dest),
             error="UNKNOWN_LANGUAGE",
             code=400
         )
-    try:
-        source = Language(source)
-    except UnknownLanguage as err:
-        return Response(
-            data={
-                "guessed": str(err.guessed_language),
-                "similarity": err.similarity,
-            },
-            message="translatepy could not understand the given source language ({})".format(dest),
-            error="UNKNOWN_LANGUAGE",
-            code=400
-        )
-    result = t.translate(text=text, destination_language=dest, source_language=source)
     return 200, {
         "service": str(result.service),
         "source": result.source,
