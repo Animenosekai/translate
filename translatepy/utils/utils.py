@@ -10,5 +10,4 @@ def convert_to_float(element) -> float:
     element = POSITIVE_FLOAT_REGEX.sub("", str(element))
     if element != '':
         return float(element)
-    else:
-        return float(0)
+    return float(0)
