@@ -78,22 +78,25 @@ class GoogleTranslate(BaseTranslator):
         for service in self.services:
             try:
                 return service._translate(text, destination_language, source_language)
-            except Exception:
+            except Exception as err:
                 continue
+        raise err
 
     def _transliterate(self, text, destination_language, source_language):
         for service in self.services:
             try:
                 return service._transliterate(text, destination_language, source_language)
-            except Exception:
+            except Exception as err:
                 continue
+        raise err
 
     def _language(self, text):
         for service in self.services:
             try:
                 return service._language(text)
-            except Exception:
+            except Exception as err:
                 continue
+        raise err
 
     def _language_normalize(self, language: Language):
         if language.id == "zho":
@@ -117,8 +120,9 @@ class GoogleTranslate(BaseTranslator):
         for service in self.services:
             try:
                 return service._text_to_speech(text, speed, gender, source_language)
-            except Exception:
+            except Exception as err:
                 continue
+        raise err
 
     def __str__(self):
         return "Google"
