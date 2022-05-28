@@ -1,14 +1,14 @@
-from pathlib import Path
-from nasse.models import Endpoint, Param, Return, Error
-
+from nasse import Response
+from nasse.models import Endpoint, Error, Param, Return
 from translatepy import Translator
+from translatepy.exceptions import UnknownLanguage, UnknownTranslator
+from translatepy.language import Language
 from translatepy.server.server import app
-from translatepy.translators.base import BaseTranslator
 from translatepy.utils.importer import get_translator
 
 t = Translator()
 base = Endpoint(
-    base_dir=Path(__file__).parent,
+    section="Translation",
     errors=[
         Error("TRANSLATEPY_EXCEPTION", "Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy."),
         Error("NO_RESULT", "When no result is returned from the translator(s)"),
@@ -23,16 +23,18 @@ base = Endpoint(
 
 
 def TranslatorList(value: str):
-    return get_translator(value.split(","))
+    return value.split(",")
+    # return get_translator(value.split(","))
 
 
-@app.route(endpoint=Endpoint(
+@app.route("/translate", Endpoint(
     endpoint=base,
+    name="Translate",
     params=[
         Param("text", "The text to translate"),
         Param("dest", "The destination language"),
         Param("source", "The source language", required=False),
-        Param("services", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
+        Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
     ],
     returning=[
         Return("service", "Google", "The translator used"),
@@ -42,9 +44,47 @@ def TranslatorList(value: str):
         Return("result", "こんにちは世界", "The translated text")
     ]
 ))
-def translate(text: str, dest: str, source: str = "auto", services: list[BaseTranslator] = None):
-    if services is not None:
+def translate(text: str, dest: str, source: str = "auto", translators: list[str] = None):
+    if translators is not None:
+        services = []
+        for service in translators:
+            try:
+                services.append(get_translator(service))
+            except UnknownTranslator as err:
+                return Response(
+                    data={
+                        "guessed": str(err.guessed_translator),
+                        "similarity": err.similarity,
+                    },
+                    message="translatepy could not find the given translator ({})".format(service),
+                    error="UNKNOWN_TRANSLATOR",
+                    code=400
+                )
         t = Translator(services)
+    try:
+        dest = Language(dest)
+    except UnknownLanguage as err:
+        return Response(
+            data={
+                "guessed": str(err.guessed_language),
+                "similarity": err.similarity,
+            },
+            message="translatepy could not understand the given destination language ({})".format(dest),
+            error="UNKNOWN_LANGUAGE",
+            code=400
+        )
+    try:
+        source = Language(source)
+    except UnknownLanguage as err:
+        return Response(
+            data={
+                "guessed": str(err.guessed_language),
+                "similarity": err.similarity,
+            },
+            message="translatepy could not understand the given source language ({})".format(dest),
+            error="UNKNOWN_LANGUAGE",
+            code=400
+        )
     result = t.translate(text=text, destination_language=dest, source_language=source)
     return 200, {
         "service": str(result.service),
