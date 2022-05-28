@@ -9,3 +9,6 @@ coverage:
           - main
         if_not_found: success
         only_pulls: false
+    patch:
+      default:
+        threshold: 5%
