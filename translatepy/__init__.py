@@ -11,7 +11,7 @@ from translatepy.translate import Translate
 # For backward compatibility
 Translator = Translate
 
-__version_tuple__ = (2, 3)
+__version_tuple__ = (2, 4, '(alpha)')
 
 
 def __version_string__():

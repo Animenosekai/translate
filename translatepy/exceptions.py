@@ -34,6 +34,12 @@ class UnknownLanguage(TranslatepyException):
         self.guessed_language = str(guessed_language)
         self.similarity = similarity
 
+class UnknownTranslator(TranslatepyException):
+    def __init__(self, guessed_translator, similarity, *args: object) -> None:
+        super().__init__(*args)
+        self.guessed_translator = str(guessed_translator)
+        self.similarity = similarity
+
 
 class UnsupportedMethod(TranslatepyException):
     def __init__(self, *args: object) -> None:
