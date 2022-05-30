@@ -195,7 +195,7 @@ class Translate():
 
     def transliterate(self, text: str, destination_language: str = "en", source_language: str = "auto") -> TransliterationResult:
         """
-        Transliterates the given text
+        Transliterates the given text, get its pronunciation
 
         i.e おはよう --> Ohayou
         """
