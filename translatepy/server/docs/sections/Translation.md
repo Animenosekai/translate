@@ -15,7 +15,7 @@ This file lists and explains the different endpoints available in the Translatio
 GET /translate
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L32)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L34)
 
 ### Authentication
 
@@ -120,6 +120,163 @@ print(r.json()["data"])
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
+## Translate HTML
+
+
+        Translates the given HTML string or BeautifulSoup object to the given language
+
+        i.e
+         English: `<div class="hello"><h1>Hello</h1> everyone and <a href="/welcome">welcome</a> to <span class="w-full">my website</span></div>`
+         French: `<div class="hello"><h1>Bonjour</h1>tout le monde et<a href="/welcome">Bienvenue</a>à<span class="w-full">Mon site internet</span></div>`
+
+        Note: This method is not perfect since it is not tag/context aware. Example: `<span>Hello <strong>everyone</strong></span>` will not be understood as
+        "Hello everyone" with "everyone" in bold but rather "Hello" and "everyone" separately.
+
+        Warning: If you give a `bs4.BeautifulSoup`, `bs4.element.PageElement` or `bs4.element.Tag` input (which are mutable), they will be modified.
+        If you don't want this behavior, please make sure to pass the string version of the element:
+        >>> result = Translate().translate_html(str(page_element), "French")
+
+        Parameters:
+        ----------
+            html : str | bs4.element.PageElement | bs4.element.Tag | bs4.BeautifulSoup
+                The HTML string to be translated. This can also be an instance of BeautifulSoup's `BeautifulSoup` element, `PageElement` or `Tag` element.
+            destination_language : str
+                The language the HTML string needs to be translated in.
+            source_language : str, default = "auto"
+                The language of the HTML string.
+            parser : str, default = "html.parser"
+                The parser that BeautifulSoup will use to parse the HTML string.
+            threads_limit : int, default = 100
+                The maximum number of threads that will be spawned by translate_html
+            __internal_replacement_function__ : function, default = None
+                This is used internally, especially by the translatepy HTTP server to modify the translation step.
+
+        Returns:
+        --------
+            BeautifulSoup:
+                The result will be the same element as the input `html` parameter with the values modified if the given
+                input is of bs4.BeautifulSoup, bs4.element.PageElement or bs4.element.Tag instance.
+            str:
+                The result will be a string in any other case.
+
+        
+
+```http
+GET /html
+```
+
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L89)
+
+### Authentication
+
+Login is **not** required
+
+### Parameters
+
+| Name         | Description                      | Required         | Type             |
+| ------------ | -------------------------------- | ---------------- | ---------------- |
+| `code` | The HTML snippet to translate  | True            | str            |
+| `dest` | The destination language  | True            | str            |
+| `source` | The source language  | False            | str            |
+| `parser` | The HTML parser to use  | False            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+
+### Example
+
+<!-- tabs:start -->
+
+#### **cURL**
+
+```bash
+curl -X GET \
+    --data-urlencode "code=<The HTML snippet to translate>"\
+    --data-urlencode "dest=<The destination language>" \
+    "/html"
+```
+
+#### **JavaScript**
+
+```bash
+fetch(`/html?code=${encodeURIComponent("code")}&dest=${encodeURIComponent("dest")}`, {
+    method: "GET"
+})
+.then((response) => {response.json()})
+.then((response) => {
+    if (response.success) {
+        console.info("Successfully requested for /html")
+        console.log(response.data)
+    } else {
+        console.error("An error occured while requesting for /html, error: " + response.error)
+    }
+})
+```
+
+#### **Python**
+
+```bash
+import requests
+r = requests.request("GET", "/html",
+        params = {
+            "code": "The HTML snippet to translate",
+            "dest": "The destination language"
+        })
+if r.status_code >= 400 or not r.json()["success"]:
+    raise ValueError("An error occured while requesting for /html, error: " + r.json()["error"])
+print("Successfully requested for /html")
+print(r.json()["data"])
+```
+<!-- tabs:end -->
+
+### Response
+
+#### Example Response
+
+```json
+{
+    "success": true,
+    "message": "Successfully processed your request",
+    "error": null,
+    "data": {
+        "services": [
+            "Google",
+            "Bing"
+        ],
+        "source": "<div><p>Hello, how are you today</p><p>Comment allez-vous</p></div>",
+        "sourceLang": [
+            "fra",
+            "eng"
+        ],
+        "destLang": "Japanese",
+        "result": "<div><p>こんにちは、今日はお元気ですか</p><p>大丈夫</p></div>"
+    }
+}
+
+```
+
+#### Returns
+
+| Field        | Description                      | Type   | Nullable  |
+| ----------   | -------------------------------- | ------ | --------- |
+| `services` | The translators used  | array      | False      |
+| `source` | The source text  | str      | False      |
+| `sourceLang` | The source languages  | array      | False      |
+| `destLang` | The destination language  | str      | False      |
+| `result` | The translated text  | str      | False      |
+
+#### Possible Errors
+
+| Exception         | Description                      | Code   |
+| ---------------   | -------------------------------- | ------ |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
+| `PARAMETER_ERROR` | When a parameter is missing or invalid  | 500  |
+| `PARAMETER_TYPE_ERROR` | When a parameter is of the wrong type  | 500  |
+| `PARAMETER_VALUE_ERROR` | When a parameter is of the wrong value  | 500  |
+| `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
+| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+[Return to the Index](../Getting%20Started.md#index)
+
 ## Transliterate
 
 
@@ -132,7 +289,7 @@ print(r.json()["data"])
 GET /transliterate
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L87)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L160)
 
 ### Authentication
 
@@ -247,7 +404,7 @@ print(r.json()["data"])
 GET /spellcheck
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L142)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L215)
 
 ### Authentication
 
@@ -359,7 +516,7 @@ print(r.json()["data"])
 GET /language
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L194)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L267)
 
 ### Authentication
 
@@ -487,7 +644,7 @@ print(r.json()["data"])
 GET /tts
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L233)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L306)
 
 ### Authentication
 

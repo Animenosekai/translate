@@ -35,13 +35,19 @@ language_details_endpoint = Endpoint(
         Return("alpha3t", nullable=True, example="eng", description="The language alpha3t code"),
         Return("alpha3", example="eng", description="The language alpha3 code"),
         Return("name", example="English", description="The language name"),
-        Return("foreign", nullable=True, description="The language in foreign languages", type=dict, example={'af': 'Engels', 'sq': 'Anglisht', 'am': 'እንግሊዝኛ', 'ar': 'الإنجليزية', 'hy': 'Անգլերեն', "...": "...", 'zh': '英语', 'he': 'אנגלית', 'jv': 'Inggris', 'en': 'English'}),
-        Return("extra", example={
-            "type": "Living",
-            "scope": None,
-        }, description="The language extra data", children=["type", "scope"], type=dict),
-        Return("type", nullable=True, example="Living", description="The language type"),
-        Return("scope", nullable=True, example="Individual", description="The language scope")
+        Return("foreign", nullable=True, description="The language in foreign languages", type="dict", example={'af': 'Engels', 'sq': 'Anglisht', 'am': 'እንግሊዝኛ', 'ar': 'الإنجليزية', 'hy': 'Անգլերեն', "...": "...", 'zh': '英语', 'he': 'אנגלית', 'jv': 'Inggris', 'en': 'English'}),
+        Return(
+            "extra",
+            example={
+                "type": "Living",
+                "scope": None,
+            },
+            description="The language extra data",
+            children=[
+                Return("type", nullable=True, example="Living", description="The language type"),
+                Return("scope", nullable=True, example="Individual", description="The language scope")
+            ]
+        )
     ]
 )
 

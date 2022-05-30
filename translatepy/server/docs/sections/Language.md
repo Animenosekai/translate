@@ -11,7 +11,7 @@ Retrieving details about the given language
 GET /language/details
 ```
 
-> [translatepy/server/language.py](../../translatepy/server/language.py#L48)
+> [translatepy/server/language.py](../../translatepy/server/language.py#L55)
 
 ### Authentication
 
@@ -85,24 +85,11 @@ print(r.json()["data"])
         "alpha3t": "eng",
         "alpha3": "eng",
         "name": "English",
-        "foreign": {
-            "af": "Engels",
-            "sq": "Anglisht",
-            "am": "እንግሊዝኛ",
-            "ar": "الإنجليزية",
-            "hy": "Անգլերեն",
-            "...": "...",
-            "zh": "英语",
-            "he": "אנגלית",
-            "jv": "Inggris",
-            "en": "English"
-        },
+        "foreign": {},
         "extra": {
-            "type": "Living",
-            "scope": null
-        },
-        "type": "Living",
-        "scope": "Individual"
+            "scope": "Individual",
+            "type": "Living"
+        }
     }
 }
 
@@ -118,10 +105,8 @@ print(r.json()["data"])
 | `alpha3t` | The language alpha3t code  | str      | False      |
 | `alpha3` | The language alpha3 code  | str      | False      |
 | `name` | The language name  | str      | False      |
-| `foreign` | The language in foreign languages  | <class 'dict'>      | False      |
-| `extra` | The language extra data  | <class 'dict'>      | False      |
-| `type` | The language type  | str      | False      |
-| `scope` | The language scope  | str      | False      |
+| `foreign` | The language in foreign languages  | object      | False      |
+| `extra` | The language extra data  | object      | False      |
 
 #### Possible Errors
 
@@ -139,7 +124,7 @@ Retrieving details about the given language
 GET /language/details/<language>
 ```
 
-> [translatepy/server/language.py](../../translatepy/server/language.py#L81)
+> [translatepy/server/language.py](../../translatepy/server/language.py#L88)
 
 ### Authentication
 
@@ -213,24 +198,11 @@ print(r.json()["data"])
         "alpha3t": "eng",
         "alpha3": "eng",
         "name": "English",
-        "foreign": {
-            "af": "Engels",
-            "sq": "Anglisht",
-            "am": "እንግሊዝኛ",
-            "ar": "الإنجليزية",
-            "hy": "Անգլերեն",
-            "...": "...",
-            "zh": "英语",
-            "he": "אנגלית",
-            "jv": "Inggris",
-            "en": "English"
-        },
+        "foreign": {},
         "extra": {
-            "type": "Living",
-            "scope": null
-        },
-        "type": "Living",
-        "scope": "Individual"
+            "scope": "Individual",
+            "type": "Living"
+        }
     }
 }
 
@@ -246,10 +218,8 @@ print(r.json()["data"])
 | `alpha3t` | The language alpha3t code  | str      | False      |
 | `alpha3` | The language alpha3 code  | str      | False      |
 | `name` | The language name  | str      | False      |
-| `foreign` | The language in foreign languages  | <class 'dict'>      | False      |
-| `extra` | The language extra data  | <class 'dict'>      | False      |
-| `type` | The language type  | str      | False      |
-| `scope` | The language scope  | str      | False      |
+| `foreign` | The language in foreign languages  | object      | False      |
+| `extra` | The language extra data  | object      | False      |
 
 #### Possible Errors
 

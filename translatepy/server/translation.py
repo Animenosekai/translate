@@ -1,9 +1,11 @@
+from bs4 import NavigableString
 from nasse import Response
 from nasse.models import Endpoint, Error, Login, Param, Return
 from translatepy import Translator
 from translatepy.exceptions import UnknownLanguage, UnknownTranslator
 from translatepy.language import Language
 from translatepy.server.server import app
+from collections import Counter
 
 base = Endpoint(
     section="Translation",
@@ -81,6 +83,77 @@ def translate(text: str, dest: str, source: str = "auto", translators: list[str]
         "sourceLang": result.source_language,
         "destLang": result.destination_language,
         "result": result.result
+    }
+
+
+@app.route("/html", Endpoint(
+    endpoint=base,
+    name="Translate HTML",
+    description=t.translate_html.__doc__,
+    params=[
+        Param("code", "The HTML snippet to translate"),
+        Param("dest", "The destination language"),
+        Param("source", "The source language", required=False),
+        Param("parser", "The HTML parser to use", required=False),
+        Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
+    ],
+    returning=[
+        Return("services", ["Google", "Bing"], "The translators used"),
+        Return("source", "<div><p>Hello, how are you today</p><p>Comment allez-vous</p></div>", "The source text"),
+        Return("sourceLang", ["fra", "eng"], "The source languages"),
+        Return("destLang", "Japanese", "The destination language"),
+        Return("result", "<div><p>こんにちは、今日はお元気ですか</p><p>大丈夫</p></div>", "The translated text")
+    ]
+))
+def translate(code: str, dest: str, source: str = "auto", parser: str = "html.parser", translators: list[str] = None):
+    current_translator = t
+    if translators is not None:
+        try:
+            current_translator = Translator(translators)
+        except UnknownTranslator as err:
+            return Response(
+                data={
+                    "guessed": str(err.guessed_translator),
+                    "similarity": err.similarity,
+                },
+                message="translatepy could not find the given translator",
+                error="UNKNOWN_TRANSLATOR",
+                code=400
+            )
+
+    try:
+        dest = Language(dest)
+        source = Language(source)
+    except UnknownLanguage as err:
+        return Response(
+            data={
+                "guessed": str(err.guessed_language),
+                "similarity": err.similarity,
+            },
+            message=str(err),
+            error="UNKNOWN_LANGUAGE",
+            code=400
+        )
+    services = []
+    languages = []
+
+    def _translate(node: NavigableString):
+        try:
+            result = current_translator.translate(str(node), destination_language=dest, source_language=source)
+            services.append(str(result.service))
+            languages.append(str(result.source_language))
+            node.replace_with(result.result)
+        except Exception:  # ignore if it couldn't find any result or an error occured
+            pass
+
+    result = current_translator.translate_html(html=code, destination_language=dest, source_language=source, parser=parser, __internal_replacement_function__=_translate)
+
+    return 200, {
+        "services": [element for element, _ in Counter(services).most_common()],
+        "source": code,
+        "sourceLang": [element for element, _ in Counter(languages).most_common()],
+        "destLang": dest,
+        "result": result
     }
 
 

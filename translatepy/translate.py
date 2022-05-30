@@ -137,7 +137,7 @@ class Translate():
         else:
             raise NoResult("No service has returned a valid result")
 
-    def translate_html(self, html: Union[str, PageElement, Tag, BeautifulSoup], destination_language: str, source_language: str = "auto", parser: str = "html.parser", threads_limit: int = 100) -> Union[str, PageElement, Tag, BeautifulSoup]:
+    def translate_html(self, html: Union[str, PageElement, Tag, BeautifulSoup], destination_language: str, source_language: str = "auto", parser: str = "html.parser", threads_limit: int = 100, __internal_replacement_function__ = None) -> Union[str, PageElement, Tag, BeautifulSoup]:
         """
         Translates the given HTML string or BeautifulSoup object to the given language
 
@@ -164,6 +164,8 @@ class Translate():
                 The parser that BeautifulSoup will use to parse the HTML string.
             threads_limit : int, default = 100
                 The maximum number of threads that will be spawned by translate_html
+            __internal_replacement_function__ : function, default = None
+                This is used internally, especially by the translatepy HTTP server to modify the translation step.
 
         Returns:
         --------
@@ -182,6 +184,9 @@ class Translate():
                 node.replace_with(self.translate(str(node), destination_language=dest_lang, source_language=source_lang).result)
             except Exception:  # ignore if it couldn't find any result or an error occured
                 pass
+
+        if __internal_replacement_function__ is not None:
+            _translate = __internal_replacement_function__
 
         if not isinstance(html, (PageElement, Tag, BeautifulSoup)):
             page = BeautifulSoup(str(html), str(parser))
