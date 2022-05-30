@@ -149,6 +149,8 @@ def main():
     # SERVER
     if args.action == "server":
         try:
+            from translatepy.server import translation
+            from translatepy.server import language
             from translatepy.server.server import app
             from nasse.logging import log, LogLevels
             log("🍡 Press Ctrl+C to quit", LogLevels.INFO)
