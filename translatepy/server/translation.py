@@ -1,9 +1,9 @@
 from nasse import Response
-from nasse.models import Endpoint, Error, Param, Return, Login
+from nasse.models import Endpoint, Error, Login, Param, Return
 from translatepy import Translator
 from translatepy.exceptions import UnknownLanguage, UnknownTranslator
+from translatepy.language import Language
 from translatepy.server.server import app
-
 
 base = Endpoint(
     section="Translation",
@@ -25,7 +25,9 @@ def TranslatorList(value: str):
     return value.split(",")
     # return get_translator(value.split(","))
 
+
 t = Translator()
+
 
 @app.route("/translate", Endpoint(
     endpoint=base,
@@ -33,8 +35,8 @@ t = Translator()
     description=t.translate.__doc__,
     params=[
         Param("text", "The text to translate"),
-        Param("dest", "The destination language"),
-        Param("source", "The source language", required=False),
+        Param("dest", "The destination language", type=Language),
+        Param("source", "The source language", required=False, type=Language),
         Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
     ],
     returning=[
@@ -45,7 +47,7 @@ t = Translator()
         Return("result", "こんにちは世界", "The translated text")
     ]
 ))
-def translate(text: str, dest: str, source: str = "auto", translators: list[str] = None):
+def translate(text: str, dest: Language, source: Language = "auto", translators: list[str] = None):
     current_translator = t
     if translators is not None:
         try:
@@ -81,14 +83,15 @@ def translate(text: str, dest: str, source: str = "auto", translators: list[str]
         "result": result.result
     }
 
+
 @app.route("/transliterate", Endpoint(
     endpoint=base,
     name="Transliterate",
     description=t.transliterate.__doc__,
     params=[
         Param("text", "The text to transliterate"),
-        Param("dest", "The destination language", required=False),
-        Param("source", "The source language", required=False),
+        Param("dest", "The destination language", required=False, type=Language),
+        Param("source", "The source language", required=False, type=Language),
         Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
     ],
     returning=[
@@ -99,7 +102,7 @@ def translate(text: str, dest: str, source: str = "auto", translators: list[str]
         Return("result", "Ohayou", "The transliteration")
     ]
 ))
-def transliterate(text: str, dest: str = "en", source: str = "auto", translators: list[str] = None):
+def transliterate(text: str, dest: Language = "English", source: Language = "auto", translators: list[str] = None):
     current_translator = t
     if translators is not None:
         try:
@@ -142,7 +145,7 @@ def transliterate(text: str, dest: str = "en", source: str = "auto", translators
     description=t.spellcheck.__doc__,
     params=[
         Param("text", "The text to spellcheck"),
-        Param("source", "The source language", required=False),
+        Param("source", "The source language", required=False, type=Language),
         Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
     ],
     returning=[
@@ -152,7 +155,7 @@ def transliterate(text: str, dest: str = "en", source: str = "auto", translators
         Return("result", "Good morning", "The spellchecked text")
     ]
 ))
-def spellcheck(text: str, source: str = "auto", translators: list[str] = None):
+def spellcheck(text: str, source: Language = "auto", translators: list[str] = None):
     current_translator = t
     if translators is not None:
         try:
@@ -187,6 +190,7 @@ def spellcheck(text: str, source: str = "auto", translators: list[str] = None):
         "result": result.result
     }
 
+
 @app.route("/language", Endpoint(
     endpoint=base,
     name="Language",
@@ -218,12 +222,13 @@ def language(text: str, translators: list[str] = None):
             )
 
     result = current_translator.language(text=text)
-    
+
     return 200, {
         "service": str(result.service),
         "source": result.source,
         "result": result.result
     }
+
 
 @app.route("/tts", Endpoint(
     endpoint=base,
@@ -231,7 +236,7 @@ def language(text: str, translators: list[str] = None):
     description=t.text_to_speech.__doc__,
     params=[
         Param("text", "The text to convert to speech"),
-        Param("source", "The source language", required=False),
+        Param("source", "The source language", required=False, type=Language),
         Param("speed", "The speed of the speech", required=False, type=int),
         Param("gender", "The gender of the speech", required=False),
         Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
@@ -244,7 +249,7 @@ def language(text: str, translators: list[str] = None):
         Return("result", "こんにちは世界", "The translated text")
     ]
 ))
-def language(text: str, translators: list[str] = None):
+def tts(text: str, speed: int = 100, gender: str = "female", source: Language = "auto", translators: list[str] = None):
     current_translator = t
     if translators is not None:
         try:
@@ -260,10 +265,6 @@ def language(text: str, translators: list[str] = None):
                 code=400
             )
 
-    result = current_translator.language(text=text)
-    
-    return 200, {
-        "service": str(result.service),
-        "source": result.source,
-        "result": result.result
-    }
+    result = current_translator.text_to_speech(text=text, speed=speed, gender=gender, source_language=source)
+
+    return Response(result.result, content_type="audio/mpeg")
