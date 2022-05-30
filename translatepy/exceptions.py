@@ -2,6 +2,9 @@ class TranslatepyException(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
+class PythonVersionNotSupported(TranslatepyException):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
 class NoResult(TranslatepyException, ValueError):  # ValueError is needed for backward compatibility
     def __init__(self, *args: object) -> None:

@@ -5,12 +5,12 @@ from traceback import print_exc
 import inquirer
 
 import translatepy
-from translatepy.exceptions import UnknownLanguage
+from translatepy.exceptions import PythonVersionNotSupported, UnknownLanguage
 
 INPUT_PREFIX = "(\033[90mtranslatepy ~ \033[0m{action}) > "
 
 NO_ACTION = """\
-usage: translatepy [-h] [--version] {translate,transliterate,spellcheck,language,shell} ...
+usage: translatepy [-h] [--version] {translate,transliterate,spellcheck,language,shell,server} ...
 translatepy: error: the following arguments are required: action"""
 
 actions = [
@@ -53,6 +53,10 @@ def main():
     parser_shell = subparser.add_parser('shell', help="Opens translatepy's interactive mode")
     parser_shell.add_argument('--dest-lang', '-d', action='store', default=None, type=str, help='destination language')
     parser_shell.add_argument('--source-lang', '-s', action='store', default='auto', type=str, help='source language')
+
+    parser_server = subparser.add_parser("server", help="Starts the translatepy HTTP server")
+    parser_server.add_argument('--port', '-p', action='store', default=5000, type=int, help='port to run the server on')
+    parser_server.add_argument('--host', action='store', default="127.0.0.1", type=str, help='host to run the server on')
 
     args = parser.parse_args()
 
@@ -141,6 +145,19 @@ def main():
                 "exception": err.__class__.__name__,
                 "error": str(err)
             }, indent=4, ensure_ascii=False))
+
+    # SERVER
+    if args.action == "server":
+        try:
+            from translatepy.server.server import app
+            from nasse.logging import log, LogLevels
+            log("🍡 Press Ctrl+C to quit", LogLevels.INFO)
+            app.run(host=args.host, port=args.port)
+        except Exception as err:
+            from sys import version_info
+            if version_info >= (3, 4):
+                raise err
+            raise PythonVersionNotSupported("Python 3.4 or higher is required to run the server with Nasse") from err
 
     # INTERACTIVE VERSION
     if args.action == 'shell':
