@@ -1,3 +1,4 @@
+from typing import List
 from bs4 import NavigableString
 from nasse import Response
 from nasse.models import Endpoint, Error, Login, Param, Return
@@ -49,7 +50,7 @@ t = Translator()
         Return("result", "こんにちは世界", "The translated text")
     ]
 ))
-def translate(text: str, dest: str, source: str = "auto", translators: list[str] = None):
+def translate(text: str, dest: str, source: str = "auto", translators: List[str] = None):
     current_translator = t
     if translators is not None:
         try:
@@ -105,7 +106,7 @@ def translate(text: str, dest: str, source: str = "auto", translators: list[str]
         Return("result", "<div><p>こんにちは、今日はお元気ですか</p><p>大丈夫</p></div>", "The translated text")
     ]
 ))
-def translate(code: str, dest: str, source: str = "auto", parser: str = "html.parser", translators: list[str] = None):
+def translate(code: str, dest: str, source: str = "auto", parser: str = "html.parser", translators: List[str] = None):
     current_translator = t
     if translators is not None:
         try:
@@ -175,7 +176,7 @@ def translate(code: str, dest: str, source: str = "auto", parser: str = "html.pa
         Return("result", "Ohayou", "The transliteration")
     ]
 ))
-def transliterate(text: str, dest: str = "English", source: str = "auto", translators: list[str] = None):
+def transliterate(text: str, dest: str = "English", source: str = "auto", translators: List[str] = None):
     current_translator = t
     if translators is not None:
         try:
@@ -228,7 +229,7 @@ def transliterate(text: str, dest: str = "English", source: str = "auto", transl
         Return("result", "Good morning", "The spellchecked text")
     ]
 ))
-def spellcheck(text: str, source: str = "auto", translators: list[str] = None):
+def spellcheck(text: str, source: str = "auto", translators: List[str] = None):
     current_translator = t
     if translators is not None:
         try:
@@ -278,7 +279,7 @@ def spellcheck(text: str, source: str = "auto", translators: list[str] = None):
         Return("result", "jpa", "The resulting language alpha-3 code")
     ]
 ))
-def language(text: str, translators: list[str] = None):
+def language(text: str, translators: List[str] = None):
     current_translator = t
     if translators is not None:
         try:
@@ -322,7 +323,7 @@ def language(text: str, translators: list[str] = None):
         Return("result", "こんにちは世界", "The translated text")
     ]
 ))
-def tts(text: str, speed: int = 100, gender: str = "female", source: str = "auto", translators: list[str] = None):
+def tts(text: str, speed: int = 100, gender: str = "female", source: str = "auto", translators: List[str] = None):
     current_translator = t
     if translators is not None:
         try:
