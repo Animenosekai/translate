@@ -1,5 +1,5 @@
 from nasse import Response
-from nasse.models import Endpoint, Error, Login, Param, Return
+from nasse.models import Endpoint, Error, Login, Param, Return, Dynamic
 from nasse.utils.boolean import to_bool
 from translatepy.exceptions import UnknownLanguage
 from translatepy.language import Language
@@ -20,12 +20,11 @@ def Bool(value):
     return to_bool(value, default=True)
 
 
-@app.route("/language/details", Endpoint(
+language_details_endpoint = Endpoint(
     endpoint=base,
     name="Language Details",
     description="Retrieving details about the given language",
     params=[
-        Param("lang", "The language to lookup"),
         Param("threshold", "The similarity threshold to use when searching for similar languages", required=False, type=float),
         Param("foreign", "Whether to include the language in foreign languages", required=False, type=Bool)
     ],
@@ -44,10 +43,50 @@ def Bool(value):
         Return("type", nullable=True, example="Living", description="The language type"),
         Return("scope", nullable=True, example="Individual", description="The language scope")
     ]
+)
+
+
+@app.route("/language/details", Endpoint(
+    endpoint=language_details_endpoint,
+    params=[Param("lang", "The language to lookup")] + language_details_endpoint.params
 ))
 def language_details(lang: str, threshold: float = 93, foreign: bool = True):
     try:
         result = Language(lang, threshold)
+    except UnknownLanguage as err:
+        return Response(
+            data={
+                "guessed": str(err.guessed_language),
+                "similarity": err.similarity,
+            },
+            message=str(err),
+            error="UNKNOWN_LANGUAGE",
+            code=400
+        )
+    return 200, {
+        "id": result.id,
+        "similarity": result.similarity,
+        "alpha2": result.alpha2,
+        "alpha3b": result.alpha3b,
+        "alpha3t": result.alpha3t,
+        "alpha3": result.alpha3,
+        "name": result.name,
+        "foreign": (result.in_foreign_languages if foreign else None),
+        "extra": {
+            "type": result.extra.type.name if result.extra.type is not None else None,
+            "scope": result.extra.scope.name if result.extra.scope is not None else None
+        }
+    }
+
+
+@app.route("/language/details/<language>", Endpoint(
+    endpoint=language_details_endpoint,
+    name="Language Details (dynamic)",
+    dynamics=Dynamic("language", "The language to lookup")
+))
+def language_details_dynamic(language: str, threshold: float = 93, foreign: bool = True):
+    try:
+        result = Language(language, threshold)
     except UnknownLanguage as err:
         return Response(
             data={
