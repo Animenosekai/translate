@@ -35,8 +35,8 @@ t = Translator()
     description=t.translate.__doc__,
     params=[
         Param("text", "The text to translate"),
-        Param("dest", "The destination language", type=Language),
-        Param("source", "The source language", required=False, type=Language),
+        Param("dest", "The destination language"),
+        Param("source", "The source language", required=False),
         Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
     ],
     returning=[
@@ -47,7 +47,7 @@ t = Translator()
         Return("result", "こんにちは世界", "The translated text")
     ]
 ))
-def translate(text: str, dest: Language, source: Language = "auto", translators: list[str] = None):
+def translate(text: str, dest: str, source: str = "auto", translators: list[str] = None):
     current_translator = t
     if translators is not None:
         try:
@@ -90,8 +90,8 @@ def translate(text: str, dest: Language, source: Language = "auto", translators:
     description=t.transliterate.__doc__,
     params=[
         Param("text", "The text to transliterate"),
-        Param("dest", "The destination language", required=False, type=Language),
-        Param("source", "The source language", required=False, type=Language),
+        Param("dest", "The destination language", required=False),
+        Param("source", "The source language", required=False),
         Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
     ],
     returning=[
@@ -102,7 +102,7 @@ def translate(text: str, dest: Language, source: Language = "auto", translators:
         Return("result", "Ohayou", "The transliteration")
     ]
 ))
-def transliterate(text: str, dest: Language = "English", source: Language = "auto", translators: list[str] = None):
+def transliterate(text: str, dest: str = "English", source: str = "auto", translators: list[str] = None):
     current_translator = t
     if translators is not None:
         try:
@@ -145,7 +145,7 @@ def transliterate(text: str, dest: Language = "English", source: Language = "aut
     description=t.spellcheck.__doc__,
     params=[
         Param("text", "The text to spellcheck"),
-        Param("source", "The source language", required=False, type=Language),
+        Param("source", "The source language", required=False),
         Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
     ],
     returning=[
@@ -155,7 +155,7 @@ def transliterate(text: str, dest: Language = "English", source: Language = "aut
         Return("result", "Good morning", "The spellchecked text")
     ]
 ))
-def spellcheck(text: str, source: Language = "auto", translators: list[str] = None):
+def spellcheck(text: str, source: str = "auto", translators: list[str] = None):
     current_translator = t
     if translators is not None:
         try:
@@ -236,7 +236,7 @@ def language(text: str, translators: list[str] = None):
     description=t.text_to_speech.__doc__,
     params=[
         Param("text", "The text to convert to speech"),
-        Param("source", "The source language", required=False, type=Language),
+        Param("source", "The source language", required=False),
         Param("speed", "The speed of the speech", required=False, type=int),
         Param("gender", "The gender of the speech", required=False),
         Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
@@ -249,7 +249,7 @@ def language(text: str, translators: list[str] = None):
         Return("result", "こんにちは世界", "The translated text")
     ]
 ))
-def tts(text: str, speed: int = 100, gender: str = "female", source: Language = "auto", translators: list[str] = None):
+def tts(text: str, speed: int = 100, gender: str = "female", source: str = "auto", translators: list[str] = None):
     current_translator = t
     if translators is not None:
         try:

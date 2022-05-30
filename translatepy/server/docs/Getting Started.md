@@ -101,9 +101,11 @@ The "call_stack" attribute is enabled only when an error occurs or the `call_sta
 
 ## Index
 
+- [Language](./sections/Language.md#language)
+  - [Language Details](./sections/Language.md#language-details)
 - [Translation](./sections/Translation.md#translation)
   - [Translate](./sections/Translation.md#translate)
   - [Transliterate](./sections/Translation.md#transliterate)
   - [Spellcheck](./sections/Translation.md#spellcheck)
-  - [Language](./sections/Translation.md#language)
+  - [Language](./sections/Translation.md#language-1)
   - [Text to Speech](./sections/Translation.md#text-to-speech)

@@ -18,6 +18,9 @@ class Scopes():
         def __init__(self, name: str) -> None:
             self.name = str(name)
 
+        def __str__(self) -> str:
+            return self.name
+
         def __repr__(self) -> str:
             return "LanguageScope({name})".format(name=self.name)
 
@@ -40,6 +43,9 @@ class Types():
     class Type():
         def __init__(self, name: str) -> None:
             self.name = str(name)
+
+        def __str__(self) -> str:
+            return self.name
 
         def __repr__(self) -> str:
             return "LanguageType({name})".format(name=self.name)
@@ -72,6 +78,9 @@ _languages_cache = LRUDictCache(512)
 
 
 class Language():
+    """
+    A class holding language data
+    """
 
     class LanguageExtra():
         def __init__(self, data: dict) -> None:

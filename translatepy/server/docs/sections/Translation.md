@@ -26,8 +26,8 @@ Login is **not** required
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `text` | The text to translate  | True            | str            |
-| `dest` | The destination language  | True            | Language            |
-| `source` | The source language  | False            | Language            |
+| `dest` | The destination language  | True            | str            |
+| `source` | The source language  | False            | str            |
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
 
 ### Example
@@ -143,8 +143,8 @@ Login is **not** required
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `text` | The text to transliterate  | True            | str            |
-| `dest` | The destination language  | False            | Language            |
-| `source` | The source language  | False            | Language            |
+| `dest` | The destination language  | False            | str            |
+| `source` | The source language  | False            | str            |
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
 
 ### Example
@@ -258,7 +258,7 @@ Login is **not** required
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `text` | The text to spellcheck  | True            | str            |
-| `source` | The source language  | False            | Language            |
+| `source` | The source language  | False            | str            |
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
 
 ### Example
@@ -498,7 +498,7 @@ Login is **not** required
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `text` | The text to convert to speech  | True            | str            |
-| `source` | The source language  | False            | Language            |
+| `source` | The source language  | False            | str            |
 | `speed` | The speed of the speech  | False            | int            |
 | `gender` | The gender of the speech  | False            | str            |
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
