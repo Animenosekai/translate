@@ -5,7 +5,7 @@ from traceback import print_exc
 import inquirer
 
 import translatepy
-from translatepy.exceptions import PythonVersionNotSupported, UnknownLanguage
+from translatepy.exceptions import UnknownLanguage, VersionNotSupported
 
 INPUT_PREFIX = "(\033[90mtranslatepy ~ \033[0m{action}) > "
 
@@ -155,9 +155,12 @@ def main():
             app.run(host=args.host, port=args.port)
         except Exception as err:
             from sys import version_info
-            if version_info >= (3, 4):
-                raise err
-            raise PythonVersionNotSupported("Python 3.4 or higher is required to run the server with Nasse") from err
+            if version_info < (3, 4):
+                raise VersionNotSupported("Python 3.4 or higher is required to run the server with Nasse") from err
+            from os import name
+            if name == "nt":
+                raise VersionNotSupported("The server can only be ran on Unix-like systems") from err
+            raise err
 
     # INTERACTIVE VERSION
     if args.action == 'shell':

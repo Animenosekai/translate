@@ -2,7 +2,7 @@ class TranslatepyException(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
-class PythonVersionNotSupported(TranslatepyException):
+class VersionNotSupported(TranslatepyException):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
