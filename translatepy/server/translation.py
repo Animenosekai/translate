@@ -1,12 +1,17 @@
+import json
+from threading import Thread
 from typing import List
 from bs4 import NavigableString
 from nasse import Response
+from flask import Response as FlaskResponse
 from nasse.models import Endpoint, Error, Login, Param, Return
 from translatepy import Translator
-from translatepy.exceptions import UnknownLanguage, UnknownTranslator
+from translatepy.exceptions import NoResult, UnknownLanguage, UnknownTranslator
 from translatepy.language import Language
 from translatepy.server.server import app
 from collections import Counter
+
+from translatepy.utils.queue import Queue
 
 base = Endpoint(
     section="Translation",
@@ -85,6 +90,110 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
         "destLang": result.destination_language,
         "result": result.result
     }
+
+
+@app.route("/stream", Endpoint(
+    endpoint=base,
+    name="Translation Stream",
+    description=t.translate.__doc__ + " This endpoint returns a stream of results.",
+    params=[
+        Param("text", "The text to translate"),
+        Param("dest", "The destination language"),
+        Param("source", "The source language", required=False),
+        Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
+    ],
+    returning=[
+        Return("service", "Google", "The translator used"),
+        Return("source", "Hello world", "The source text"),
+        Return("sourceLang", "English", "The source language"),
+        Return("destLang", "Japanese", "The destination language"),
+        Return("result", "こんにちは世界", "The translated text")
+    ]
+))
+def translate(text: str, dest: str, source: str = "auto", translators: List[str] = None):
+    current_translator = t
+    if translators is not None:
+        try:
+            current_translator = Translator(translators)
+        except UnknownTranslator as err:
+            return Response(
+                data={
+                    "guessed": str(err.guessed_translator),
+                    "similarity": err.similarity,
+                },
+                message="translatepy could not find the given translator",
+                error="UNKNOWN_TRANSLATOR",
+                code=400
+            )
+
+    try:
+        dest = Language(dest)
+        source = Language(source)
+        # result = current_translator.translate(text=text, destination_language=dest, source_language=source)
+    except UnknownLanguage as err:
+        return Response(
+            data={
+                "guessed": str(err.guessed_language),
+                "similarity": err.similarity,
+            },
+            message=str(err),
+            error="UNKNOWN_LANGUAGE",
+            code=400
+        )
+
+    def _translate(translator):
+        result = translator.translate(
+            text=text, destination_language=dest, source_language=source
+        )
+        if result is None:
+            raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
+        return result
+
+    def _fast_translate(queue: Queue, translator, index: int):
+        try:
+            translator = current_translator._instantiate_translator(translator, current_translator.services, index)
+            result = _translate(translator)
+            queue.put({
+                "success": True,
+                "error": None,
+                "message": None,
+                "data": {
+                    "service": str(result.service),
+                    "source": str(result.source),
+                    "sourceLang": str(result.source_language),
+                    "destLang": str(result.destination_language),
+                    "result": str(result.result)
+                }
+            })
+        except Exception as err:
+            queue.put({
+                "success": False,
+                "error": str(err.__class__.__name__),
+                "message": "; ".join(err.args),
+                "data": {
+                    "service": str(translator),
+                }
+            })
+
+    _queue = Queue()
+    threads = []
+    for index, service in enumerate(current_translator.services):
+        thread = Thread(target=_fast_translate, args=(_queue, service, index))
+        thread.start()
+        threads.append(thread)
+
+    def handler():
+        while True:
+            try:
+                result = _queue.get(threads=threads)  # wait for a value and return it
+            except ValueError:
+                break
+            if result is None:
+                break
+
+            yield "data: {result}\n\n".format(result=json.dumps(result, ensure_ascii=False))
+
+    return FlaskResponse(handler(), mimetype="text/event-stream")
 
 
 @app.route("/html", Endpoint(

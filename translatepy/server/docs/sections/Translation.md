@@ -15,7 +15,7 @@ This file lists and explains the different endpoints available in the Translatio
 GET /translate
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L34)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L40)
 
 ### Authentication
 
@@ -120,6 +120,123 @@ print(r.json()["data"])
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
+## Translation Stream
+
+
+        Translates the given text to the given language
+
+        i.e Good morning (en) --> おはようございます (ja)
+         This endpoint returns a stream of results.
+
+```http
+GET /stream
+```
+
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L95)
+
+### Authentication
+
+Login is **not** required
+
+### Parameters
+
+| Name         | Description                      | Required         | Type             |
+| ------------ | -------------------------------- | ---------------- | ---------------- |
+| `text` | The text to translate  | True            | str            |
+| `dest` | The destination language  | True            | str            |
+| `source` | The source language  | False            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+
+### Example
+
+<!-- tabs:start -->
+
+#### **cURL**
+
+```bash
+curl -X GET \
+    --data-urlencode "text=<The text to translate>"\
+    --data-urlencode "dest=<The destination language>" \
+    "/stream"
+```
+
+#### **JavaScript**
+
+```bash
+fetch(`/stream?text=${encodeURIComponent("text")}&dest=${encodeURIComponent("dest")}`, {
+    method: "GET"
+})
+.then((response) => {response.json()})
+.then((response) => {
+    if (response.success) {
+        console.info("Successfully requested for /stream")
+        console.log(response.data)
+    } else {
+        console.error("An error occured while requesting for /stream, error: " + response.error)
+    }
+})
+```
+
+#### **Python**
+
+```bash
+import requests
+r = requests.request("GET", "/stream",
+        params = {
+            "text": "The text to translate",
+            "dest": "The destination language"
+        })
+if r.status_code >= 400 or not r.json()["success"]:
+    raise ValueError("An error occured while requesting for /stream, error: " + r.json()["error"])
+print("Successfully requested for /stream")
+print(r.json()["data"])
+```
+<!-- tabs:end -->
+
+### Response
+
+#### Example Response
+
+```json
+{
+    "success": true,
+    "message": "Successfully processed your request",
+    "error": null,
+    "data": {
+        "service": "Google",
+        "source": "Hello world",
+        "sourceLang": "English",
+        "destLang": "Japanese",
+        "result": "こんにちは世界"
+    }
+}
+
+```
+
+#### Returns
+
+| Field        | Description                      | Type   | Nullable  |
+| ----------   | -------------------------------- | ------ | --------- |
+| `service` | The translator used  | str      | False      |
+| `source` | The source text  | str      | False      |
+| `sourceLang` | The source language  | str      | False      |
+| `destLang` | The destination language  | str      | False      |
+| `result` | The translated text  | str      | False      |
+
+#### Possible Errors
+
+| Exception         | Description                      | Code   |
+| ---------------   | -------------------------------- | ------ |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
+| `PARAMETER_ERROR` | When a parameter is missing or invalid  | 500  |
+| `PARAMETER_TYPE_ERROR` | When a parameter is of the wrong type  | 500  |
+| `PARAMETER_VALUE_ERROR` | When a parameter is of the wrong value  | 500  |
+| `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
+| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+[Return to the Index](../Getting%20Started.md#index)
+
 ## Translate HTML
 
 
@@ -165,7 +282,7 @@ print(r.json()["data"])
 GET /html
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L89)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L199)
 
 ### Authentication
 
@@ -289,7 +406,7 @@ print(r.json()["data"])
 GET /transliterate
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L160)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L270)
 
 ### Authentication
 
@@ -404,7 +521,7 @@ print(r.json()["data"])
 GET /spellcheck
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L215)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L325)
 
 ### Authentication
 
@@ -516,7 +633,7 @@ print(r.json()["data"])
 GET /language
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L267)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L377)
 
 ### Authentication
 
@@ -644,7 +761,7 @@ print(r.json()["data"])
 GET /tts
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L306)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L416)
 
 ### Authentication
 
