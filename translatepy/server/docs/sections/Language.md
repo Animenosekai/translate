@@ -11,7 +11,7 @@ Retrieving details about the given language
 GET /language/details
 ```
 
-> [translatepy/server/language.py](../../translatepy/server/language.py#L55)
+> [translatepy/server/language.py](../../translatepy/server/language.py#L57)
 
 ### Authentication
 
@@ -116,6 +116,131 @@ print(r.json()["data"])
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
+## Language Search
+
+Searching for a language
+
+```http
+GET /language/search
+```
+
+> [translatepy/server/language.py](../../translatepy/server/language.py#L90)
+
+### Authentication
+
+Login is **not** required
+
+### Parameters
+
+| Name         | Description                      | Required         | Type             |
+| ------------ | -------------------------------- | ---------------- | ---------------- |
+| `lang` | The language to lookup  | True            | str            |
+| `limit` | The limit of languages to return. (max: 100, default: 10)  | False            | int            |
+| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
+
+### Example
+
+<!-- tabs:start -->
+
+#### **cURL**
+
+```bash
+curl -X GET \
+    --data-urlencode "lang=<The language to lookup>" \
+    "/language/search"
+```
+
+#### **JavaScript**
+
+```bash
+fetch(`/language/search?lang=${encodeURIComponent("lang")}`, {
+    method: "GET"
+})
+.then((response) => {response.json()})
+.then((response) => {
+    if (response.success) {
+        console.info("Successfully requested for /language/search")
+        console.log(response.data)
+    } else {
+        console.error("An error occured while requesting for /language/search, error: " + response.error)
+    }
+})
+```
+
+#### **Python**
+
+```bash
+import requests
+r = requests.request("GET", "/language/search",
+        params = {
+            "lang": "The language to lookup"
+        })
+if r.status_code >= 400 or not r.json()["success"]:
+    raise ValueError("An error occured while requesting for /language/search, error: " + r.json()["error"])
+print("Successfully requested for /language/search")
+print(r.json()["data"])
+```
+<!-- tabs:end -->
+
+### Response
+
+#### Example Response
+
+```json
+{
+    "success": true,
+    "message": "Successfully processed your request",
+    "error": null,
+    "data": {
+        "languages": [
+            {
+                "string": "English",
+                "similarity": 100,
+                "language": {
+                    "id": "eng",
+                    "alpha2": "en",
+                    "alpha3b": "eng",
+                    "alpha3t": "eng",
+                    "alpha3": "eng",
+                    "name": "English",
+                    "foreign": {
+                        "af": "Engels",
+                        "sq": "Anglisht",
+                        "am": "እንግሊዝኛ",
+                        "ar": "الإنجليزية",
+                        "hy": "Անգլերեն",
+                        "...": "...",
+                        "zh": "英语",
+                        "he": "אנגלית",
+                        "jv": "Inggris",
+                        "en": "English"
+                    },
+                    "extra": {
+                        "type": "Living",
+                        "scope": null
+                    }
+                }
+            }
+        ]
+    }
+}
+
+```
+
+#### Returns
+
+| Field        | Description                      | Type   | Nullable  |
+| ----------   | -------------------------------- | ------ | --------- |
+| `languages` | The languages found  | array      | False      |
+
+#### Possible Errors
+
+| Exception         | Description                      | Code   |
+| ---------------   | -------------------------------- | ------ |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
+| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+[Return to the Index](../Getting%20Started.md#index)
+
 ## Language Details (dynamic)
 
 Retrieving details about the given language
@@ -124,7 +249,7 @@ Retrieving details about the given language
 GET /language/details/<language>
 ```
 
-> [translatepy/server/language.py](../../translatepy/server/language.py#L88)
+> [translatepy/server/language.py](../../translatepy/server/language.py#L160)
 
 ### Authentication
 

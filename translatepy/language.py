@@ -90,6 +90,12 @@ class Language():
         def __repr__(self) -> str:
             return "LanguageExtra(type={type}, scope={scope})".format(type=self.type, scope=self.scope)
 
+        def as_dict(self) -> dict:
+            return {
+                "type": self.type.name if self.type is not None else None,
+                "scope": self.scope.name if self.scope is not None else None
+            }
+
     def __init__(self, language: str, threshold: Union[int, float] = 93) -> None:
         if language is None or remove_spaces(language) == "":
             raise UnknownLanguage("N/A", 0, "You need to pass in a language")
@@ -137,3 +143,15 @@ class Language():
 
     def __str__(self) -> str:
         return str(self.id)
+
+    def as_dict(self, foreign: bool = True) -> dict:
+        return {
+            "id": self.id,
+            "alpha2": self.alpha2,
+            "alpha3b": self.alpha3b,
+            "alpha3t": self.alpha3t,
+            "alpha3": self.alpha3,
+            "name": self.name,
+            "extra": self.extra.as_dict(),
+            "in_foreign_languages": self.in_foreign_languages if foreign else None
+        }

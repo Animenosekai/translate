@@ -10,6 +10,14 @@ from translatepy.language import Language
 
 # TODO: Feat: add raw model attribute, which will return a raw request response
 
+# class Result:
+#     """
+#     A class which holds the result for any method
+#     """
+#     def __init__(self, service, source, source_language) -> None:
+#         pass
+
+
 class TranslationResult:
     """
     Class that holds the result of a Translation.

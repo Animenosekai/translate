@@ -31,11 +31,11 @@ def fuzzy_search(search_source: List, query: str) -> Tuple[str, float]:
     Finds the most similar string
     """
     results_dict = {}
-    InputQueryVector = StringVector(query)
+    input_query = StringVector(query)
     for vector in search_source:
-        summation = sum(vector.counter[character] * InputQueryVector.counter[character] for character in vector.set.intersection(InputQueryVector.set))
-        length = vector.length * InputQueryVector.length
+        summation = sum(vector.counter[character] * input_query.counter[character] for character in vector.set.intersection(input_query.set))
+        length = vector.length * input_query.length
         similarity = (0 if length == 0 else summation / length)
         results_dict[vector] = similarity
-    bestResult = max(results_dict.items(), key=itemgetter(1))[0]  # Returns the max value
-    return bestResult.string, results_dict[bestResult]
+    best_result = max(results_dict.items(), key=itemgetter(1))[0]  # Returns the max value
+    return best_result.string, results_dict[best_result]

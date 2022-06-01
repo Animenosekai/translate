@@ -2,8 +2,10 @@ from nasse import Response
 from nasse.models import Endpoint, Error, Login, Param, Return, Dynamic
 from nasse.utils.boolean import to_bool
 from translatepy.exceptions import UnknownLanguage
-from translatepy.language import Language
+from translatepy.language import LANGUAGE_CLEANUP_REGEX, LOADED_VECTORS, Language, VECTORS
 from translatepy.server.server import app
+from translatepy.utils.sanitize import remove_spaces
+from translatepy.utils.similarity import StringVector
 
 base = Endpoint(
     section="Language",
@@ -82,6 +84,76 @@ def language_details(lang: str, threshold: float = 93, foreign: bool = True):
             "type": result.extra.type.name if result.extra.type is not None else None,
             "scope": result.extra.scope.name if result.extra.scope is not None else None
         }
+    }
+
+
+@app.route("/language/search", Endpoint(
+    endpoint=base,
+    name="Language Search",
+    description="Searching for a language",
+    returning=Return(
+        name="languages",
+        example=[
+            {
+                "string": "English",
+                "similarity": 100,
+                "language": {
+                    "id": "eng",
+                    "alpha2": "en",
+                    "alpha3b": "eng",
+                    "alpha3t": "eng",
+                    "alpha3": "eng",
+                    "name": "English",
+                    "foreign": {
+                        "af": "Engels",
+                        "sq": "Anglisht",
+                        "am": "እንግሊዝኛ",
+                        "ar": "الإنجليزية",
+                        "hy": "Անգլերեն",
+                        "...": "...",
+                        "zh": "英语",
+                        "he": "אנגלית",
+                        "jv": "Inggris",
+                        "en": "English"
+                    },
+                    "extra": {
+                        "type": "Living",
+                        "scope": None
+                    }
+                }
+            }
+        ],
+        description="The languages found"
+    ),
+    params=[
+        Param("lang", "The language to lookup"),
+        Param("limit", "The limit of languages to return. (max: 100, default: 10)", required=False, type=int),
+        Param("foreign", "Whether to include the language in foreign languages", required=False, type=Bool)
+    ]
+))
+def language_search(lang: str, foreign: bool = True, limit: int = 10):
+    limit = max(min(limit, 100), 0)
+
+    normalized_language = StringVector(remove_spaces(LANGUAGE_CLEANUP_REGEX.sub("", lang.lower())))
+
+    results_dict = {}
+    for vector in LOADED_VECTORS:
+        summation = sum(vector.counter[character] * normalized_language.counter[character] for character in vector.set.intersection(normalized_language.set))
+        length = vector.length * normalized_language.length
+        similarity = (0 if length == 0 else summation / length)
+        results_dict[vector] = similarity
+
+    results = sorted(results_dict.items(), key=lambda x: x[1], reverse=True)[:limit]
+
+    return 200, {
+        "languages": [
+            {
+                "string": str(vector.string),
+                "similarity": similarity,
+                "language": Language(VECTORS[vector.string]["i"]).as_dict(foreign)
+            }
+            for vector, similarity in results
+        ]
     }
 
 
