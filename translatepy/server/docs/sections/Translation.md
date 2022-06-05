@@ -15,7 +15,7 @@ This file lists and explains the different endpoints available in the Translatio
 GET /translate
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L40)
+> [translatepy/server/translation.py](../../translation.py#L44)
 
 ### Authentication
 
@@ -29,6 +29,7 @@ Login is **not** required
 | `dest` | The destination language  | True            | str            |
 | `source` | The source language  | False            | str            |
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
 
 ### Example
 
@@ -88,8 +89,32 @@ print(r.json()["data"])
     "data": {
         "service": "Google",
         "source": "Hello world",
-        "sourceLang": "English",
-        "destLang": "Japanese",
+        "sourceLanguage": {
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English",
+            "foreign": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            }
+        },
+        "destinationLanguage": {
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English",
+            "foreign": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            }
+        },
         "result": "こんにちは世界"
     }
 }
@@ -102,8 +127,8 @@ print(r.json()["data"])
 | ----------   | -------------------------------- | ------ | --------- |
 | `service` | The translator used  | str      | False      |
 | `source` | The source text  | str      | False      |
-| `sourceLang` | The source language  | str      | False      |
-| `destLang` | The destination language  | str      | False      |
+| `sourceLanguage` | The source language  | object      | False      |
+| `destinationLanguage` | The destination language  | object      | False      |
 | `result` | The translated text  | str      | False      |
 
 #### Possible Errors
@@ -132,7 +157,7 @@ print(r.json()["data"])
 GET /stream
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L95)
+> [translatepy/server/translation.py](../../translation.py#L94)
 
 ### Authentication
 
@@ -146,6 +171,7 @@ Login is **not** required
 | `dest` | The destination language  | True            | str            |
 | `source` | The source language  | False            | str            |
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
 
 ### Example
 
@@ -205,8 +231,8 @@ print(r.json()["data"])
     "data": {
         "service": "Google",
         "source": "Hello world",
-        "sourceLang": "English",
-        "destLang": "Japanese",
+        "sourceLanguage": "English",
+        "destinationLanguage": "Japanese",
         "result": "こんにちは世界"
     }
 }
@@ -219,8 +245,8 @@ print(r.json()["data"])
 | ----------   | -------------------------------- | ------ | --------- |
 | `service` | The translator used  | str      | False      |
 | `source` | The source text  | str      | False      |
-| `sourceLang` | The source language  | str      | False      |
-| `destLang` | The destination language  | str      | False      |
+| `sourceLanguage` | The source language  | str      | False      |
+| `destinationLanguage` | The destination language  | str      | False      |
 | `result` | The translated text  | str      | False      |
 
 #### Possible Errors
@@ -282,7 +308,7 @@ print(r.json()["data"])
 GET /html
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L199)
+> [translatepy/server/translation.py](../../translation.py#L193)
 
 ### Authentication
 
@@ -297,6 +323,7 @@ Login is **not** required
 | `source` | The source language  | False            | str            |
 | `parser` | The HTML parser to use  | False            | str            |
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
 
 ### Example
 
@@ -359,11 +386,23 @@ print(r.json()["data"])
             "Bing"
         ],
         "source": "<div><p>Hello, how are you today</p><p>Comment allez-vous</p></div>",
-        "sourceLang": [
+        "sourceLanguage": [
             "fra",
             "eng"
         ],
-        "destLang": "Japanese",
+        "destinationLanguage": {
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English",
+            "foreign": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            }
+        },
         "result": "<div><p>こんにちは、今日はお元気ですか</p><p>大丈夫</p></div>"
     }
 }
@@ -376,8 +415,8 @@ print(r.json()["data"])
 | ----------   | -------------------------------- | ------ | --------- |
 | `services` | The translators used  | array      | False      |
 | `source` | The source text  | str      | False      |
-| `sourceLang` | The source languages  | array      | False      |
-| `destLang` | The destination language  | str      | False      |
+| `sourceLanguage` | The source languages  | array      | False      |
+| `destinationLanguage` | The destination language  | object      | False      |
 | `result` | The translated text  | str      | False      |
 
 #### Possible Errors
@@ -406,7 +445,7 @@ print(r.json()["data"])
 GET /transliterate
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L270)
+> [translatepy/server/translation.py](../../translation.py#L265)
 
 ### Authentication
 
@@ -420,6 +459,7 @@ Login is **not** required
 | `dest` | The destination language  | False            | str            |
 | `source` | The source language  | False            | str            |
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
 
 ### Example
 
@@ -477,8 +517,32 @@ print(r.json()["data"])
     "data": {
         "service": "Google",
         "source": "おはよう",
-        "sourceLang": "Japanese",
-        "destLang": "English",
+        "sourceLanguage": {
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English",
+            "foreign": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            }
+        },
+        "destinationLanguage": {
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English",
+            "foreign": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            }
+        },
         "result": "Ohayou"
     }
 }
@@ -491,8 +555,8 @@ print(r.json()["data"])
 | ----------   | -------------------------------- | ------ | --------- |
 | `service` | The translator used  | str      | False      |
 | `source` | The source text  | str      | False      |
-| `sourceLang` | The source language  | str      | False      |
-| `destLang` | The destination language  | str      | False      |
+| `sourceLanguage` | The source language  | object      | False      |
+| `destinationLanguage` | The destination language  | object      | False      |
 | `result` | The transliteration  | str      | False      |
 
 #### Possible Errors
@@ -521,7 +585,7 @@ print(r.json()["data"])
 GET /spellcheck
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L325)
+> [translatepy/server/translation.py](../../translation.py#L315)
 
 ### Authentication
 
@@ -534,6 +598,7 @@ Login is **not** required
 | `text` | The text to spellcheck  | True            | str            |
 | `source` | The source language  | False            | str            |
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
 
 ### Example
 
@@ -591,7 +656,19 @@ print(r.json()["data"])
     "data": {
         "service": "Google",
         "source": "God morning",
-        "sourceLang": "English",
+        "sourceLang": {
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English",
+            "foreign": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            }
+        },
         "result": "Good morning"
     }
 }
@@ -604,7 +681,7 @@ print(r.json()["data"])
 | ----------   | -------------------------------- | ------ | --------- |
 | `service` | The translator used  | str      | False      |
 | `source` | The source text  | str      | False      |
-| `sourceLang` | The source language  | str      | False      |
+| `sourceLang` | The source language  | object      | False      |
 | `result` | The spellchecked text  | str      | False      |
 
 #### Possible Errors
@@ -633,7 +710,7 @@ print(r.json()["data"])
 GET /language
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L377)
+> [translatepy/server/translation.py](../../translation.py#L363)
 
 ### Authentication
 
@@ -645,6 +722,7 @@ Login is **not** required
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `text` | The text to get the language of  | True            | str            |
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
 
 ### Example
 
@@ -702,7 +780,19 @@ print(r.json()["data"])
     "data": {
         "service": "Google",
         "source": "Hello world",
-        "result": "jpa"
+        "result": {
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English",
+            "foreign": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            }
+        }
     }
 }
 
@@ -714,7 +804,7 @@ print(r.json()["data"])
 | ----------   | -------------------------------- | ------ | --------- |
 | `service` | The translator used  | str      | False      |
 | `source` | The source text  | str      | False      |
-| `result` | The resulting language alpha-3 code  | str      | False      |
+| `result` | The resulting language alpha-3 code  | object      | False      |
 
 #### Possible Errors
 
@@ -761,7 +851,7 @@ print(r.json()["data"])
 GET /tts
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L416)
+> [translatepy/server/translation.py](../../translation.py#L399)
 
 ### Authentication
 
@@ -820,36 +910,6 @@ print("Successfully requested for /tts")
 print(r.json()["data"])
 ```
 <!-- tabs:end -->
-
-### Response
-
-#### Example Response
-
-```json
-{
-    "success": true,
-    "message": "Successfully processed your request",
-    "error": null,
-    "data": {
-        "service": "Google",
-        "source": "Hello world",
-        "sourceLang": "English",
-        "destLang": "Japanese",
-        "result": "こんにちは世界"
-    }
-}
-
-```
-
-#### Returns
-
-| Field        | Description                      | Type   | Nullable  |
-| ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | False      |
-| `source` | The source text  | str      | False      |
-| `sourceLang` | The source language  | str      | False      |
-| `destLang` | The destination language  | str      | False      |
-| `result` | The translated text  | str      | False      |
 
 #### Possible Errors
 

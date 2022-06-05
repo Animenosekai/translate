@@ -24,7 +24,7 @@ EXAMPLE_ENGLISH = {
     "alpha3t": "eng",
     "alpha3": "eng",
     "name": "English",
-    "foreign": {
+    "inForeignLanguages": {
         "af": "Engels",
         "sq": "Anglisht",
         "am": "እንግሊዝኛ",
@@ -38,7 +38,7 @@ EXAMPLE_ENGLISH = {
     },
     "extra": {
         "type": "Living",
-        "scope": None
+        "scope": "Individual"
     }
 }
 
@@ -51,9 +51,9 @@ EXAMPLE_JAPANESE = {
     "name": "Japanese",
     "extra": {
         "type": "Living",
-        "scope": None
+        "scope": "Individual"
     },
-    "in_foreign_languages": {
+    "inForeignLanguages": {
         "af": "Japanese",
         "sq": "Japonez",
         "am": "ጃፓንኛ",

@@ -11,7 +11,7 @@ Retrieving details about the given language
 GET /language/details
 ```
 
-> [translatepy/server/language.py](../../translatepy/server/language.py#L57)
+> [translatepy/server/language.py](../../language.py#L110)
 
 ### Authentication
 
@@ -124,7 +124,7 @@ Searching for a language
 GET /language/search
 ```
 
-> [translatepy/server/language.py](../../translatepy/server/language.py#L90)
+> [translatepy/server/language.py](../../language.py#L143)
 
 ### Authentication
 
@@ -203,7 +203,7 @@ print(r.json()["data"])
                     "alpha3t": "eng",
                     "alpha3": "eng",
                     "name": "English",
-                    "foreign": {
+                    "inForeignLanguages": {
                         "af": "Engels",
                         "sq": "Anglisht",
                         "am": "እንግሊዝኛ",
@@ -217,7 +217,7 @@ print(r.json()["data"])
                     },
                     "extra": {
                         "type": "Living",
-                        "scope": null
+                        "scope": "Individual"
                     }
                 }
             }
@@ -249,7 +249,7 @@ Retrieving details about the given language
 GET /language/details/<language>
 ```
 
-> [translatepy/server/language.py](../../translatepy/server/language.py#L160)
+> [translatepy/server/language.py](../../language.py#L190)
 
 ### Authentication
 
