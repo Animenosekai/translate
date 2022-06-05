@@ -87,8 +87,8 @@ print(r.json()["data"])
         "name": "English",
         "foreign": {},
         "extra": {
-            "scope": "Individual",
-            "type": "Living"
+            "type": "Living",
+            "scope": "Individual"
         }
     }
 }
@@ -325,8 +325,8 @@ print(r.json()["data"])
         "name": "English",
         "foreign": {},
         "extra": {
-            "scope": "Individual",
-            "type": "Living"
+            "type": "Living",
+            "scope": "Individual"
         }
     }
 }

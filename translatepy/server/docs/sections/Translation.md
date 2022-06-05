@@ -90,30 +90,30 @@ print(r.json()["data"])
         "service": "Google",
         "source": "Hello world",
         "sourceLanguage": {
-            "id": "eng",
-            "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
             "alpha3": "eng",
             "name": "English",
             "foreign": {},
             "extra": {
-                "scope": "Individual",
-                "type": "Living"
-            }
+                "type": "Living",
+                "scope": "Individual"
+            },
+            "id": "eng",
+            "alpha2": "en"
         },
         "destinationLanguage": {
-            "id": "eng",
-            "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
             "alpha3": "eng",
             "name": "English",
             "foreign": {},
             "extra": {
-                "scope": "Individual",
-                "type": "Living"
-            }
+                "type": "Living",
+                "scope": "Individual"
+            },
+            "id": "eng",
+            "alpha2": "en"
         },
         "result": "こんにちは世界"
     }
@@ -231,8 +231,32 @@ print(r.json()["data"])
     "data": {
         "service": "Google",
         "source": "Hello world",
-        "sourceLanguage": "English",
-        "destinationLanguage": "Japanese",
+        "sourceLanguage": {
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English",
+            "foreign": {},
+            "extra": {
+                "type": "Living",
+                "scope": "Individual"
+            },
+            "id": "eng",
+            "alpha2": "en"
+        },
+        "destinationLanguage": {
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English",
+            "foreign": {},
+            "extra": {
+                "type": "Living",
+                "scope": "Individual"
+            },
+            "id": "eng",
+            "alpha2": "en"
+        },
         "result": "こんにちは世界"
     }
 }
@@ -245,8 +269,8 @@ print(r.json()["data"])
 | ----------   | -------------------------------- | ------ | --------- |
 | `service` | The translator used  | str      | False      |
 | `source` | The source text  | str      | False      |
-| `sourceLanguage` | The source language  | str      | False      |
-| `destinationLanguage` | The destination language  | str      | False      |
+| `sourceLanguage` | The source language  | object      | False      |
+| `destinationLanguage` | The destination language  | object      | False      |
 | `result` | The translated text  | str      | False      |
 
 #### Possible Errors
@@ -391,17 +415,17 @@ print(r.json()["data"])
             "eng"
         ],
         "destinationLanguage": {
-            "id": "eng",
-            "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
             "alpha3": "eng",
             "name": "English",
             "foreign": {},
             "extra": {
-                "scope": "Individual",
-                "type": "Living"
-            }
+                "type": "Living",
+                "scope": "Individual"
+            },
+            "id": "eng",
+            "alpha2": "en"
         },
         "result": "<div><p>こんにちは、今日はお元気ですか</p><p>大丈夫</p></div>"
     }
@@ -518,30 +542,30 @@ print(r.json()["data"])
         "service": "Google",
         "source": "おはよう",
         "sourceLanguage": {
-            "id": "eng",
-            "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
             "alpha3": "eng",
             "name": "English",
             "foreign": {},
             "extra": {
-                "scope": "Individual",
-                "type": "Living"
-            }
+                "type": "Living",
+                "scope": "Individual"
+            },
+            "id": "eng",
+            "alpha2": "en"
         },
         "destinationLanguage": {
-            "id": "eng",
-            "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
             "alpha3": "eng",
             "name": "English",
             "foreign": {},
             "extra": {
-                "scope": "Individual",
-                "type": "Living"
-            }
+                "type": "Living",
+                "scope": "Individual"
+            },
+            "id": "eng",
+            "alpha2": "en"
         },
         "result": "Ohayou"
     }
@@ -657,17 +681,17 @@ print(r.json()["data"])
         "service": "Google",
         "source": "God morning",
         "sourceLang": {
-            "id": "eng",
-            "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
             "alpha3": "eng",
             "name": "English",
             "foreign": {},
             "extra": {
-                "scope": "Individual",
-                "type": "Living"
-            }
+                "type": "Living",
+                "scope": "Individual"
+            },
+            "id": "eng",
+            "alpha2": "en"
         },
         "result": "Good morning"
     }
@@ -781,17 +805,17 @@ print(r.json()["data"])
         "service": "Google",
         "source": "Hello world",
         "result": {
-            "id": "eng",
-            "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
             "alpha3": "eng",
             "name": "English",
             "foreign": {},
             "extra": {
-                "scope": "Individual",
-                "type": "Living"
-            }
+                "type": "Living",
+                "scope": "Individual"
+            },
+            "id": "eng",
+            "alpha2": "en"
         }
     }
 }

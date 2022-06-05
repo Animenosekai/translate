@@ -105,8 +105,8 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
     returning=[
         Return("service", "Google", "The translator used"),
         Return("source", "Hello world", "The source text"),
-        Return("sourceLanguage", "English", "The source language", children=language_details_endpoint.returning),
-        Return("destinationLanguage", "Japanese", "The destination language", children=language_details_endpoint.returning),
+        Return("sourceLanguage", EXAMPLE_ENGLISH, "The source language", children=language_details_endpoint.returning),
+        Return("destinationLanguage", EXAMPLE_JAPANESE, "The destination language", children=language_details_endpoint.returning),
         Return("result", "こんにちは世界", "The translated text")
     ]
 ))
