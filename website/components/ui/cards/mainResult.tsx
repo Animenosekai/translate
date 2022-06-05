@@ -2,6 +2,7 @@ import { Card, Tooltip } from "@nextui-org/react";
 import { TransliterateRequest, TransliterateResult } from "types/transliterate";
 import { useEffect, useState } from "react";
 
+import Configuration from "config";
 import ContentLoader from "react-content-loader";
 import { EditIcon } from "components/icons/edit";
 import { LanguageDetailsResult } from "types/languageDetails";
@@ -11,17 +12,36 @@ import { Service } from "lib/services";
 import { ServiceElement } from "components/common/service";
 import { SourceTextArea } from "../textareas/source";
 import { TTSIcon } from "components/icons/tts";
+import { TTSRequest } from "types/tts";
 import { TranslateRequest } from "types/translate";
 import { request } from "lib/request";
 import { useLanguage } from "contexts/language";
 
 const THROTTLE = 1000;
 
-export const TTSButton = ({ text, sourceLang, ...props }) => {
+export const TTSButton = ({ text, sourceLang, ...props }: {text: string, sourceLang: LanguageDetailsResult}) => {
     const [tts, setTTS] = useState(false);
+    const [audio, setAudio] = useState<HTMLAudioElement>(null);
+
+    useEffect(() => {
+        if (!audio) { return }
+        audio.play();
+    }, [audio])
+
     useEffect(() => {
         if (tts) {
-            console.log("Should play audio")
+            request<TTSRequest>("/tts", {
+                params: {
+                    text: text,
+                    lang: sourceLang.id
+                }
+            })
+            .then(response => {
+                if (!response.success) { return }
+                const buffer = Buffer.from(response.data.base64, 'base64')
+                const blob = new Blob([buffer])
+                setAudio(new Audio(URL.createObjectURL(blob)))
+            })
             setTTS(false);
         }
     }, [tts]);
