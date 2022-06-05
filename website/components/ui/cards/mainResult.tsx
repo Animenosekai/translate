@@ -10,44 +10,12 @@ import { LanguagePicker } from "../modals/languagePicker";
 import { Service } from "lib/services";
 import { ServiceElement } from "components/common/service";
 import { SourceTextArea } from "../textareas/source";
-import { TTSIcon } from "components/icons/tts";
-import { TTSRequest } from "types/tts";
+import { TTSButton } from "../buttons/tts";
 import { TranslateRequest } from "types/translate";
 import { request } from "lib/request";
 import { useLanguage } from "contexts/language";
 
 const THROTTLE = 1000;
-
-export const TTSButton = ({ text, sourceLang, ...props }: { text: string, sourceLang: LanguageDetailsResult }) => {
-    const [tts, setTTS] = useState(false);
-    const [audio, setAudio] = useState<HTMLAudioElement>(null);
-
-    useEffect(() => {
-        if (!audio) { return }
-        audio.play();
-    }, [audio])
-
-    useEffect(() => {
-        if (tts) {
-            request<TTSRequest>("/tts", {
-                params: {
-                    text: text,
-                    lang: sourceLang.id
-                }
-            })
-                .then(response => {
-                    if (!response.success) { return }
-                    const buffer = Buffer.from(response.data.base64, 'base64')
-                    const blob = new Blob([buffer])
-                    setAudio(new Audio(URL.createObjectURL(blob)))
-                })
-            setTTS(false);
-        }
-    }, [tts]);
-    return <button className="opacity-80 hover:opacity-100 transition active:scale-95" onClick={() => setTTS(true)}>
-        <TTSIcon />
-    </button>
-}
 
 export const MainResultLoader = (props) => {
     return <div className="w-1/3 mb-2 p-1 mx-1 min-w-[300px]">
@@ -169,7 +137,7 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
                 <TTSButton text={currentText} sourceLang={language} />
                 {
                     service
-                        ? <CopyIcon onClick={() => {navigator.clipboard.writeText(currentText)}} className="opacity-80 hover:opacity-100 transition active:scale-95 cursor-pointer" />
+                        ? <CopyIcon onClick={() => { navigator.clipboard.writeText(currentText) }} className="opacity-70 hover:opacity-100 transition active:scale-95 cursor-pointer" />
                         : ""
                 }
             </div>

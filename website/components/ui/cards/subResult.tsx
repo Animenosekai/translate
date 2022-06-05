@@ -1,9 +1,12 @@
 import { Card } from "@nextui-org/react"
 import ContentLoader from "react-content-loader";
+import { CopyIcon } from "components/icons/copy";
 import { Service } from "lib/services"
 import { ServiceElement } from "components/common/service"
+import { TTSButton } from "../buttons/tts";
 import { TranslateRequest } from "types/translate"
 import { useLanguage } from "contexts/language";
+import { useState } from "react";
 
 export const SubResultLoader = (props) => {
     return <div className="w-1/3 mb-2 p-1 mx-1 min-w-[300px]">
@@ -25,14 +28,23 @@ export const SubResultLoader = (props) => {
 
 export const SubResult = ({ result, ...props }: { result: TranslateRequest }) => {
     const { strings } = useLanguage();
+    const [expanded, setExpanded] = useState<boolean>(false);
     const service = new Service(result.data.service)
     return <div className="w-1/4 p-1 mx-1 min-w-[300px]">
-        <Card onClick={() => {navigator.clipboard.writeText(result.data.result)}} clickable={result.success} shadow={false} className={result.success ? "opacity-100" : "opacity-50"}>
-            <span>
+        <Card clickable={result.success} shadow={false} className={result.success ? "opacity-100" : "opacity-50"}>
+            <span onClick={() => { setExpanded(expanded => !expanded) }} className={expanded ? "h-max" : "max-h-[7.5rem]"}>
                 {result.success ? result.data.result : strings.labels.translationFailure}
             </span>
-            <Card.Footer className="flex-start">
+            <Card.Footer className="flex-start z-[2]">
                 <ServiceElement service={service} />
+                {
+                    result.success
+                        ? <div className="ml-auto flex flex-row space-x-2">
+                            <TTSButton text={result.data.result} sourceLang={result.data.destinationLanguage} />
+                            <CopyIcon onClick={(ev) => { navigator.clipboard.writeText(result.data.result); ev.stopPropagation(); }} className="opacity-70 hover:opacity-100 transition active:scale-95 cursor-pointer" />
+                        </div>
+                        : ""
+                }
             </Card.Footer>
         </Card>
     </div>
