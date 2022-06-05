@@ -1,16 +1,20 @@
 import json
+from collections import Counter
 from threading import Thread
 from typing import List
+
 from bs4 import NavigableString
-from nasse import Response
 from flask import Response as FlaskResponse
+from nasse import Response
 from nasse.models import Endpoint, Error, Login, Param, Return
 from translatepy import Translator
 from translatepy.exceptions import NoResult, UnknownLanguage, UnknownTranslator
 from translatepy.language import Language
+from translatepy.server.language import (EXAMPLE_ENGLISH, EXAMPLE_JAPANESE,
+                                         PARAM_FOREIGN,
+                                         language_details_endpoint)
 from translatepy.server.server import app
-from collections import Counter
-
+from translatepy.translators.base import BaseTranslator
 from translatepy.utils.queue import Queue
 
 base = Endpoint(
@@ -46,16 +50,17 @@ t = Translator()
         Param("dest", "The destination language"),
         Param("source", "The source language", required=False),
         Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
+        PARAM_FOREIGN
     ],
     returning=[
         Return("service", "Google", "The translator used"),
         Return("source", "Hello world", "The source text"),
-        Return("sourceLang", "English", "The source language"),
-        Return("destLang", "Japanese", "The destination language"),
+        Return("sourceLanguage", EXAMPLE_ENGLISH, "The source language", children=language_details_endpoint.returning),
+        Return("destinationLanguage", EXAMPLE_JAPANESE, "The destination language", children=language_details_endpoint.returning),
         Return("result", "こんにちは世界", "The translated text")
     ]
 ))
-def translate(text: str, dest: str, source: str = "auto", translators: List[str] = None):
+def translate(text: str, dest: str, source: str = "auto", translators: List[str] = None, foreign: bool = True):
     current_translator = t
     if translators is not None:
         try:
@@ -83,13 +88,7 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
             error="UNKNOWN_LANGUAGE",
             code=400
         )
-    return 200, {
-        "service": str(result.service),
-        "source": result.source,
-        "sourceLang": result.source_language,
-        "destLang": result.destination_language,
-        "result": result.result
-    }
+    return 200, result.as_dict(True, foreign=foreign)
 
 
 @app.route("/stream", Endpoint(
@@ -101,16 +100,17 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
         Param("dest", "The destination language"),
         Param("source", "The source language", required=False),
         Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
+        PARAM_FOREIGN
     ],
     returning=[
         Return("service", "Google", "The translator used"),
         Return("source", "Hello world", "The source text"),
-        Return("sourceLang", "English", "The source language"),
-        Return("destLang", "Japanese", "The destination language"),
+        Return("sourceLanguage", "English", "The source language", children=language_details_endpoint.returning),
+        Return("destinationLanguage", "Japanese", "The destination language", children=language_details_endpoint.returning),
         Return("result", "こんにちは世界", "The translated text")
     ]
 ))
-def translate(text: str, dest: str, source: str = "auto", translators: List[str] = None):
+def translate(text: str, dest: str, source: str = "auto", translators: List[str] = None, foreign: bool = True):
     current_translator = t
     if translators is not None:
         try:
@@ -141,7 +141,7 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
             code=400
         )
 
-    def _translate(translator):
+    def _translate(translator: BaseTranslator):
         result = translator.translate(
             text=text, destination_language=dest, source_language=source
         )
@@ -157,13 +157,7 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
                 "success": True,
                 "error": None,
                 "message": None,
-                "data": {
-                    "service": str(result.service),
-                    "source": str(result.source),
-                    "sourceLang": str(result.source_language),
-                    "destLang": str(result.destination_language),
-                    "result": str(result.result)
-                }
+                "data": result.as_dict(camelCase=True, foreign=foreign)
             })
         except Exception as err:
             queue.put({
@@ -206,16 +200,17 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
         Param("source", "The source language", required=False),
         Param("parser", "The HTML parser to use", required=False),
         Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
+        PARAM_FOREIGN
     ],
     returning=[
         Return("services", ["Google", "Bing"], "The translators used"),
         Return("source", "<div><p>Hello, how are you today</p><p>Comment allez-vous</p></div>", "The source text"),
-        Return("sourceLang", ["fra", "eng"], "The source languages"),
-        Return("destLang", "Japanese", "The destination language"),
+        Return("sourceLanguage", ["fra", "eng"], "The source languages"),
+        Return("destinationLanguage", EXAMPLE_JAPANESE, "The destination language", children=language_details_endpoint.returning),
         Return("result", "<div><p>こんにちは、今日はお元気ですか</p><p>大丈夫</p></div>", "The translated text")
     ]
 ))
-def translate(code: str, dest: str, source: str = "auto", parser: str = "html.parser", translators: List[str] = None):
+def translate(code: str, dest: str, source: str = "auto", parser: str = "html.parser", translators: List[str] = None, foreign: bool = True):
     current_translator = t
     if translators is not None:
         try:
@@ -232,7 +227,7 @@ def translate(code: str, dest: str, source: str = "auto", parser: str = "html.pa
             )
 
     try:
-        dest = Language(dest)
+        destination = Language(dest)
         source = Language(source)
     except UnknownLanguage as err:
         return Response(
@@ -249,20 +244,20 @@ def translate(code: str, dest: str, source: str = "auto", parser: str = "html.pa
 
     def _translate(node: NavigableString):
         try:
-            result = current_translator.translate(str(node), destination_language=dest, source_language=source)
+            result = current_translator.translate(str(node), destination_language=destination, source_language=source)
             services.append(str(result.service))
             languages.append(str(result.source_language))
             node.replace_with(result.result)
         except Exception:  # ignore if it couldn't find any result or an error occured
             pass
 
-    result = current_translator.translate_html(html=code, destination_language=dest, source_language=source, parser=parser, __internal_replacement_function__=_translate)
+    result = current_translator.translate_html(html=code, destination_language=destination, source_language=source, parser=parser, __internal_replacement_function__=_translate)
 
     return 200, {
         "services": [element for element, _ in Counter(services).most_common()],
         "source": code,
-        "sourceLang": [element for element, _ in Counter(languages).most_common()],
-        "destLang": dest,
+        "sourceLanguage": [element for element, _ in Counter(languages).most_common()],
+        "destinationLanguage": destination.as_dict(foreign=foreign),
         "result": result
     }
 
@@ -276,16 +271,17 @@ def translate(code: str, dest: str, source: str = "auto", parser: str = "html.pa
         Param("dest", "The destination language", required=False),
         Param("source", "The source language", required=False),
         Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
+        PARAM_FOREIGN
     ],
     returning=[
         Return("service", "Google", "The translator used"),
         Return("source", "おはよう", "The source text"),
-        Return("sourceLang", "Japanese", "The source language"),
-        Return("destLang", "English", "The destination language"),
+        Return("sourceLanguage", EXAMPLE_JAPANESE, "The source language", children=language_details_endpoint.returning),
+        Return("destinationLanguage", EXAMPLE_ENGLISH, "The destination language", children=language_details_endpoint.returning),
         Return("result", "Ohayou", "The transliteration")
     ]
 ))
-def transliterate(text: str, dest: str = "English", source: str = "auto", translators: List[str] = None):
+def transliterate(text: str, dest: str = "English", source: str = "auto", translators: List[str] = None, foreign: bool = True):
     current_translator = t
     if translators is not None:
         try:
@@ -313,13 +309,7 @@ def transliterate(text: str, dest: str = "English", source: str = "auto", transl
             error="UNKNOWN_LANGUAGE",
             code=400
         )
-    return 200, {
-        "service": str(result.service),
-        "source": result.source,
-        "sourceLang": result.source_language,
-        "destLang": result.destination_language,
-        "result": result.result
-    }
+    return 200, result.as_dict(True, foreign=foreign)
 
 
 @app.route("/spellcheck", Endpoint(
@@ -330,15 +320,16 @@ def transliterate(text: str, dest: str = "English", source: str = "auto", transl
         Param("text", "The text to spellcheck"),
         Param("source", "The source language", required=False),
         Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
+        PARAM_FOREIGN
     ],
     returning=[
         Return("service", "Google", "The translator used"),
         Return("source", "God morning", "The source text"),
-        Return("sourceLang", "English", "The source language"),
+        Return("sourceLang", EXAMPLE_ENGLISH, "The source language", children=language_details_endpoint.returning),
         Return("result", "Good morning", "The spellchecked text")
     ]
 ))
-def spellcheck(text: str, source: str = "auto", translators: List[str] = None):
+def spellcheck(text: str, source: str = "auto", translators: List[str] = None, foreign: bool = True):
     current_translator = t
     if translators is not None:
         try:
@@ -366,12 +357,7 @@ def spellcheck(text: str, source: str = "auto", translators: List[str] = None):
             error="UNKNOWN_LANGUAGE",
             code=400
         )
-    return 200, {
-        "service": str(result.service),
-        "source": result.source,
-        "sourceLang": result.source_language,
-        "result": result.result
-    }
+    return 200, result.as_dict(True, foreign=foreign)
 
 
 @app.route("/language", Endpoint(
@@ -381,14 +367,15 @@ def spellcheck(text: str, source: str = "auto", translators: List[str] = None):
     params=[
         Param("text", "The text to get the language of"),
         Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
+        PARAM_FOREIGN
     ],
     returning=[
         Return("service", "Google", "The translator used"),
         Return("source", "Hello world", "The source text"),
-        Return("result", "jpa", "The resulting language alpha-3 code")
+        Return("result", EXAMPLE_JAPANESE, "The resulting language alpha-3 code", children=language_details_endpoint.returning)
     ]
 ))
-def language(text: str, translators: List[str] = None):
+def language(text: str, translators: List[str] = None, foreign: bool = True):
     current_translator = t
     if translators is not None:
         try:
@@ -406,11 +393,7 @@ def language(text: str, translators: List[str] = None):
 
     result = current_translator.language(text=text)
 
-    return 200, {
-        "service": str(result.service),
-        "source": result.source,
-        "result": result.result
-    }
+    return 200, result.as_dict(True, foreign=foreign)
 
 
 @app.route("/tts", Endpoint(
@@ -423,13 +406,6 @@ def language(text: str, translators: List[str] = None):
         Param("speed", "The speed of the speech", required=False, type=int),
         Param("gender", "The gender of the speech", required=False),
         Param("translators", "The translator(s) to use. When providing multiple translators, the names should be comma-separated.", required=False, type=TranslatorList),
-    ],
-    returning=[
-        Return("service", "Google", "The translator used"),
-        Return("source", "Hello world", "The source text"),
-        Return("sourceLang", "English", "The source language"),
-        Return("destLang", "Japanese", "The destination language"),
-        Return("result", "こんにちは世界", "The translated text")
     ]
 ))
 def tts(text: str, speed: int = 100, gender: str = "female", source: str = "auto", translators: List[str] = None):
