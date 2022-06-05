@@ -9,9 +9,11 @@ import { TranslateRequest } from 'types/translate'
 import { generateRandomID } from 'utils/random'
 import { services } from 'lib/services'
 import { useLanguage } from 'contexts/language'
+import { useRouter } from 'next/router'
 
 const Translate: NextPage = () => {
     const { strings } = useLanguage();
+    const router = useRouter();
     const [toLoad, setToLoad] = useState(Object.keys(services).length);
     const [results, setResults] = useState<TranslateRequest[]>([]);
     let URLParams: URLSearchParams
@@ -63,6 +65,7 @@ const Translate: NextPage = () => {
     }, [streamID]);
 
     useEffect(() => {
+        router.push(`/translate?text=${encodeURIComponent(currentTranslation.text)}&source=${encodeURIComponent(currentTranslation.source)}&dest=${encodeURIComponent(currentTranslation.dest)}`, undefined, { shallow: true })
         const currentID = generateRandomID(12);
         setStreamID(currentID);
     }, [currentTranslation])

@@ -16,7 +16,7 @@ module.exports = {
           },
           '100%': {
             opacity: 1,
-            backgroundColor: 'rgba(255, 255, 255, 0.7)',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
           }
         }
       },

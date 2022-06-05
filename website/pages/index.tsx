@@ -12,6 +12,11 @@ const Home: NextPage = () => {
     const { strings } = useLanguage();
     const [text, setText] = useState<string>(null);
     const router = useRouter();
+
+    const translate = () => {
+        router.push(`/translate?text=${encodeURIComponent(text)}&dest=eng`)
+    }
+
     return <div className='h-full'>
         <Head>
             <title>translate — Use multiple services to translate your texts!</title>
@@ -22,10 +27,14 @@ const Home: NextPage = () => {
         <div className="flex items-center flex-col w-1/2 h-full justify-center mx-auto -mt-20">
             <LanguageIcon size={100} />
             <div className='w-full flex items-end flex-col'>
-                <TranslationTextArea onChange={el => setText(el.target.value)} />
-                <Button onClick={() => {
-                    router.push(`/translate?text=${encodeURIComponent(text)}&dest=eng`)
-                }} hidden={text ? false : true} disabled={text ? false : true} auto flat>{strings.buttons.translate}</Button>
+                <TranslationTextArea onKeyDown={(ev) => {
+                    if ((ev.key === "Enter" || ev.keyCode === 13) && !ev.shiftKey) {
+                        translate()
+                        ev.preventDefault()
+                        return false
+                    }
+                }} onChange={el => setText(el.target.value)} />
+                <Button onClick={translate} type="submit" hidden={text ? false : true} disabled={text ? false : true} auto flat>{strings.buttons.translate}</Button>
             </div>
         </div>
 
