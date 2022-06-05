@@ -7,7 +7,6 @@ from json import dumps
 from typing import Union
 
 from translatepy.language import Language
-from translatepy.utils.string import toCamelCase
 
 # TODO: Feat: add raw model attribute, which will return a raw request response
 
@@ -47,12 +46,13 @@ class TranslationResult:
         result = {
             "service": str(self.service),
             "source": self.source,
-            "source_language": self.source_language.as_dict(foreign),
-            "destination_language": self.destination_language.as_dict(foreign),
+            "source_language": self.source_language.as_dict(camelCase, foreign),
+            "destination_language": self.destination_language.as_dict(camelCase, foreign),
             "result": self.result
         }
         if camelCase:
-            return {toCamelCase(k): v for k, v in result.items()}
+            result["destinationLanguage"] = result.pop("destination_language")
+            result["sourceLanguage"] = result.pop("source_language")
         return result
 
     def as_json(self, **kwargs) -> str:
@@ -94,12 +94,13 @@ class TransliterationResult:
         result = {
             "service": str(self.service),
             "source": self.source,
-            "source_language": self.source_language.as_dict(foreign),
-            "destination_language": self.destination_language.as_dict(foreign),
+            "source_language": self.source_language.as_dict(camelCase, foreign),
+            "destination_language": self.destination_language.as_dict(camelCase, foreign),
             "result": self.result
         }
         if camelCase:
-            return {toCamelCase(k): v for k, v in result.items()}
+            result["destinationLanguage"] = result.pop("destination_language")
+            result["sourceLanguage"] = result.pop("source_language")
         return result
 
     def as_json(self, **kwargs) -> str:
@@ -139,11 +140,11 @@ class SpellcheckResult:
         result = {
             "service": str(self.service),
             "source": self.source,
-            "source_language": self.source_language.as_dict(foreign),
+            "source_language": self.source_language.as_dict(camelCase, foreign),
             "result": self.result
         }
         if camelCase:
-            return {toCamelCase(k): v for k, v in result.items()}
+            result["sourceLanguage"] = result.pop("source_language")
         return result
 
     def as_json(self, **kwargs) -> str:
@@ -180,10 +181,8 @@ class LanguageResult:
         result = {
             "service": str(self.service),
             "source": self.source,
-            "result": self.result.as_dict(foreign)
+            "result": self.result.as_dict(camelCase, foreign)
         }
-        if camelCase:
-            return {toCamelCase(k): v for k, v in result.items()}
         return result
 
     def as_json(self, **kwargs) -> str:
@@ -226,12 +225,13 @@ class ExampleResult:
         result = {
             "service": str(self.service),
             "source": self.source,
-            "source_language": self.source_language.as_dict(foreign),
-            "destination_language": self.destination_language.as_dict(foreign),
+            "source_language": self.source_language.as_dict(camelCase, foreign),
+            "destination_language": self.destination_language.as_dict(camelCase, foreign),
             "result": self.result
         }
         if camelCase:
-            return {toCamelCase(k): v for k, v in result.items()}
+            result["destinationLanguage"] = result.pop("destination_language")
+            result["sourceLanguage"] = result.pop("source_language")
         return result
 
     def as_json(self, **kwargs) -> str:
@@ -273,12 +273,13 @@ class DictionaryResult:
         result = {
             "service": str(self.service),
             "source": self.source,
-            "source_language": self.source_language.as_dict(foreign),
-            "destination_language": self.destination_language.as_dict(foreign),
+            "source_language": self.source_language.as_dict(camelCase, foreign),
+            "destination_language": self.destination_language.as_dict(camelCase, foreign),
             "result": self.result
         }
         if camelCase:
-            return {toCamelCase(k): v for k, v in result.items()}
+            result["destinationLanguage"] = result.pop("destination_language")
+            result["sourceLanguage"] = result.pop("source_language")
         return result
 
     def as_json(self, **kwargs) -> str:
