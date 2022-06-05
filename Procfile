@@ -1,1 +1,1 @@
-web: python translatepy/__main__.py server
+web: python translatepy/__main__.py server --host "0.0.0.0" --port $PORT
