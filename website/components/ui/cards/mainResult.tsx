@@ -75,8 +75,6 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
     const [currentTimeout, setCurrentTimeout] = useState(null);
     const [transliteration, setTransliteration] = useState<TransliterateResult>(null);
 
-    console.log("MainResultCard", { text, language, service, loading, onNewTranslation, props })
-
     useEffect(() => {
         if (!service) { return }
         request<TransliterateRequest>("/transliterate", {
@@ -187,7 +185,6 @@ export const MainResult = ({ result, onNewTranslation, ...props }: {
     }, [result])
 
     const service = new Service(result.data.service)
-    console.log("result", result)
     return <div className="flex lg:flex-row flex-col lg:space-x-10 lg:space-y-0 space-y-5 mb-10">
         <MainResultCard text={result.data.source} language={result.data.sourceLanguage} onNewTranslation={(text, lang) => {
             if (!onNewTranslation) {
