@@ -1,10 +1,10 @@
 import { DefaultTranslateRequest, TranslateRequest } from 'types/translate'
-import { MainResult, MainResultCard, MainResultLoader } from 'components/ui/cards/mainResult'
 import { SubResult, SubResultLoader } from 'components/ui/cards/subResult'
 import { useEffect, useState } from 'react'
 
 import Configuration from 'config'
 import Head from 'next/head'
+import { MainResult } from 'components/ui/cards/mainResult'
 import type { NextPage } from 'next'
 import { generateRandomID } from 'utils/random'
 import { services } from 'lib/services'
@@ -96,7 +96,7 @@ const Translate: NextPage = () => {
             }
             <div className="mx-3 mt-16">
                 <h2 className="font-semibold text-xl mb-5">{strings.heading.otherTranslations}</h2>
-                <div className='flex flex-row flex-wrap w-full'>
+                <div className='flex flex-row flex-wrap w-full justify-center md:justify-start'>
                     {results.slice(1).map((result, index) => <SubResult key={index} result={result} />)}
                     {
                         toLoad > 0

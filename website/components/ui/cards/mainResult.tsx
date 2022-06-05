@@ -3,6 +3,7 @@ import { TransliterateRequest, TransliterateResult } from "types/transliterate";
 import { useEffect, useState } from "react";
 
 import ContentLoader from "react-content-loader";
+import { CopyIcon } from "components/icons/copy";
 import { EditIcon } from "components/icons/edit";
 import { LanguageDetailsResult } from "types/languageDetails";
 import { LanguagePicker } from "../modals/languagePicker";
@@ -43,11 +44,9 @@ export const TTSButton = ({ text, sourceLang, ...props }: { text: string, source
             setTTS(false);
         }
     }, [tts]);
-    return <div className="ml-auto" {...props}>
-        <button className="opacity-80 hover:opacity-100 transition active:scale-95" onClick={() => setTTS(true)}>
-            <TTSIcon />
-        </button>
-    </div>
+    return <button className="opacity-80 hover:opacity-100 transition active:scale-95" onClick={() => setTTS(true)}>
+        <TTSIcon />
+    </button>
 }
 
 export const MainResultLoader = (props) => {
@@ -150,7 +149,7 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
                 : <SourceTextArea value={currentText} onChange={el => setCurrentText(el.target.value)} />
         }
         <Card.Footer>
-            <div className="w-11/12 flex flex-row">
+            <div className="w-10/12 flex flex-row">
                 <ServiceElement service={service} />
                 {
                     transliteration && <div className="opacity-70 flex flex-row">
@@ -166,7 +165,14 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
                     </div>
                 }
             </div>
-            <TTSButton text={currentText} sourceLang={language} />
+            <div className="ml-auto flex flex-row space-x-2">
+                <TTSButton text={currentText} sourceLang={language} />
+                {
+                    service
+                        ? <CopyIcon onClick={() => {navigator.clipboard.writeText(currentText)}} className="opacity-80 hover:opacity-100 transition active:scale-95 cursor-pointer" />
+                        : ""
+                }
+            </div>
         </Card.Footer>
     </Card>
 }
