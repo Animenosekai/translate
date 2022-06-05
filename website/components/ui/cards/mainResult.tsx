@@ -13,6 +13,7 @@ import { SourceTextArea } from "../textareas/source";
 import { TTSIcon } from "components/icons/tts";
 import { TranslateRequest } from "types/translate";
 import { request } from "lib/request";
+import { useLanguage } from "contexts/language";
 
 const THROTTLE = 1000;
 
@@ -49,6 +50,7 @@ export const MainResultLoader = (props) => {
     </div>
 }
 export const MainResultCard = ({ text, language, service, onNewTranslation, ...props }: { text: string, language: LanguageDetailsResult, service?: Service, onNewTranslation?: (text: string, language: LanguageDetailsResult) => any }) => {
+    const { strings } = useLanguage();
     const [currentText, setCurrentText] = useState<string>(text);
     const [currentLanguage, setCurrentLanguage] = useState<LanguageDetailsResult>(language);
     const [showModal, setShowModal] = useState<boolean>(false);
@@ -111,7 +113,7 @@ export const MainResultCard = ({ text, language, service, onNewTranslation, ...p
                 transliteration && <div className="opacity-70 flex flex-row">
                     {"・"}
                     <div className="h-5">
-                        <Tooltip content={`Transliteration by ${transliteration.service}`} rounded hideArrow placement="right" style={{
+                        <Tooltip content={strings.labels.transliterationBy.format({service: transliteration.service})} rounded hideArrow placement="right" style={{
                             color: "white"
                         }} contentColor="primary">
                             <span className="italic w-full">{transliteration.result}</span>
@@ -124,11 +126,13 @@ export const MainResultCard = ({ text, language, service, onNewTranslation, ...p
     </Card>
 }
 
-export const MainResult = ({ result, onNewTranslation, ...props }: { result: TranslateRequest, onNewTranslation?: (translation: {
-    text: string,
-    dest: string,
-    source: string
-}) => any }) => {
+export const MainResult = ({ result, onNewTranslation, ...props }: {
+    result: TranslateRequest, onNewTranslation?: (translation: {
+        text: string,
+        dest: string,
+        source: string
+    }) => any
+}) => {
     const service = new Service(result.data.service)
     return <div className="flex lg:flex-row flex-col lg:space-x-10 lg:space-y-0 space-y-5 mb-10">
         <MainResultCard text={result.data.source} language={result.data.sourceLanguage} onNewTranslation={(text, lang) => {
@@ -150,6 +154,6 @@ export const MainResult = ({ result, onNewTranslation, ...props }: { result: Tra
                 source: result.data.sourceLanguage.id,
                 dest: lang.id,
             })
-        }}/>
+        }} />
     </div>
 }

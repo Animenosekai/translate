@@ -8,18 +8,26 @@ import type { NextPage } from 'next'
 import { TranslateRequest } from 'types/translate'
 import { generateRandomID } from 'utils/random'
 import { services } from 'lib/services'
+import { useLanguage } from 'contexts/language'
 
 const Translate: NextPage = () => {
+    const { strings } = useLanguage();
     const [toLoad, setToLoad] = useState(Object.keys(services).length);
     const [results, setResults] = useState<TranslateRequest[]>([]);
+    let URLParams: URLSearchParams
+    if (typeof window !== "undefined") {
+        URLParams = new URLSearchParams(location.search);
+    } else {
+        URLParams = new URLSearchParams();
+    }
     const [currentTranslation, setCurrentTranslation] = useState<{
         text: string,
         source: string,
         dest: string
     }>({
-        text: "Hello world!",
-        source: "English",
-        dest: "Japanese"
+        text: URLParams.get("text") || "Hello world",
+        source: URLParams.get("source") || "auto",
+        dest: URLParams.get("dest") || "eng"
     })
     const [streamID, setStreamID] = useState(null);
 
@@ -72,7 +80,7 @@ const Translate: NextPage = () => {
                     : <MainResultLoader />
             }
             <div className="mx-3 mt-16">
-                <h2 className="font-semibold text-xl mb-5">Other translations</h2>
+                <h2 className="font-semibold text-xl mb-5">{strings.heading.otherTranslations}</h2>
                 <div className='flex flex-row flex-wrap w-full'>
                     {results.slice(1).map((result, index) => <SubResult key={index} result={result} />)}
                     {

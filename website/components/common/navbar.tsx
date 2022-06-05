@@ -17,8 +17,8 @@ const NavbarLink = ({ href, name }: { href: string, name: string }) => {
 export const Navbar = (props: any) => {
     const { strings } = useLanguage();
     return <ul className="flex flex-row absolute right-10" {...props}>
-        <NavbarLink href="/translate" name="Translate" />
-        <NavbarLink href="/documentation" name="Documentation" />
-        <NavbarLink href="/stats" name="Stats" />
+        <NavbarLink href="/translate" name={strings.pages.translate} />
+        <NavbarLink href="/documentation" name={strings.pages.documentation} />
+        <NavbarLink href="/stats" name={strings.pages.stats} />
     </ul>
 }

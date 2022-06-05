@@ -4,10 +4,12 @@ import Head from 'next/head'
 import { LanguageIcon } from 'components/icons/language'
 import type { NextPage } from 'next'
 import { TranslationTextArea } from 'components/ui/textareas/translation'
+import { useLanguage } from 'contexts/language'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 
 const Home: NextPage = () => {
+    const { strings } = useLanguage();
     const [text, setText] = useState<string>(null);
     const router = useRouter();
     return <div className='h-full'>
@@ -23,7 +25,7 @@ const Home: NextPage = () => {
                 <TranslationTextArea onChange={el => setText(el.target.value)} />
                 <Button onClick={() => {
                     router.push("/translate")
-                }} hidden={text ? false : true} disabled={text ? false : true} auto flat>Translate</Button>
+                }} hidden={text ? false : true} disabled={text ? false : true} auto flat>{strings.buttons.translate}</Button>
             </div>
         </div>
 
