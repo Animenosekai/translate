@@ -2,7 +2,6 @@ import * as localizations from "../../localizations";
 
 import { IconChevronUp } from "@tabler/icons";
 import { useLanguage } from "contexts/language";
-import { useRef } from "react";
 
 export const Footer = () => {
     const { strings, setLanguage } = useLanguage();
@@ -17,7 +16,7 @@ export const Footer = () => {
                         })
                     }
                 </select>
-                <IconChevronUp className="-ml-7" />
+                <IconChevronUp className={`-ml-${10 - strings.name.length}`} />
             </div>
         </div>
     </footer>
