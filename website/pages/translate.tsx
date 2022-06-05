@@ -1,3 +1,4 @@
+import { DefaultTranslateRequest, TranslateRequest } from 'types/translate'
 import { MainResult, MainResultCard, MainResultLoader } from 'components/ui/cards/mainResult'
 import { SubResult, SubResultLoader } from 'components/ui/cards/subResult'
 import { useEffect, useState } from 'react'
@@ -5,7 +6,6 @@ import { useEffect, useState } from 'react'
 import Configuration from 'config'
 import Head from 'next/head'
 import type { NextPage } from 'next'
-import { TranslateRequest } from 'types/translate'
 import { generateRandomID } from 'utils/random'
 import { services } from 'lib/services'
 import { useLanguage } from 'contexts/language'
@@ -15,7 +15,9 @@ const Translate: NextPage = () => {
     const { strings } = useLanguage();
     const router = useRouter();
     const [toLoad, setToLoad] = useState(Object.keys(services).length);
-    const [results, setResults] = useState<TranslateRequest[]>([]);
+    const [results, setResults] = useState<TranslateRequest[]>([DefaultTranslateRequest]);
+    const [mainResult, setMainResult] = useState<TranslateRequest>(DefaultTranslateRequest)
+
     let URLParams: URLSearchParams
     if (typeof window !== "undefined") {
         URLParams = new URLSearchParams(location.search);
@@ -27,7 +29,7 @@ const Translate: NextPage = () => {
         source: string,
         dest: string
     }>({
-        text: URLParams.get("text") || "Hello world",
+        text: URLParams.get("text"),
         source: URLParams.get("source") || "auto",
         dest: URLParams.get("dest") || "eng"
     })
@@ -40,7 +42,7 @@ const Translate: NextPage = () => {
             console.log("Connecting to stream...", currentID, streamID);
             console.log(`Translate: ${currentTranslation.text} from ${currentTranslation.source} to ${currentTranslation.dest}`);
             const stream = new EventSource(`${Configuration.request.host}/stream?text=${encodeURIComponent(currentTranslation.text)}&dest=${currentTranslation.dest}&source=${currentTranslation.source}`)
-            setResults([])
+            setResults([DefaultTranslateRequest])
             setToLoad(Object.keys(services).length);
             stream.onmessage = (event) => {
                 if (!event) {
@@ -49,8 +51,12 @@ const Translate: NextPage = () => {
                 }
                 const data = JSON.parse(event.data)
                 setResults(results => {
-                    if (results.length > 0 && !results[0].success) {
-                        return [data, ...results]
+                    if (results.length > 0) {
+                        if (results[0] === DefaultTranslateRequest) {
+                            return [data]
+                        } else if (!results[0].success) {
+                            return [data, ...results]
+                        }
                     }
                     return [...results, data]
                 })
@@ -61,10 +67,11 @@ const Translate: NextPage = () => {
                     stream.close();
                 }
             }
-        }, 1000)
+        }, 200)
     }, [streamID]);
 
     useEffect(() => {
+        if (!currentTranslation.text) { return }
         router.push(`/translate?text=${encodeURIComponent(currentTranslation.text)}&source=${encodeURIComponent(currentTranslation.source)}&dest=${encodeURIComponent(currentTranslation.dest)}`, undefined, { shallow: true })
         const currentID = generateRandomID(12);
         setStreamID(currentID);
@@ -80,7 +87,12 @@ const Translate: NextPage = () => {
             {
                 (results.length > 0 && results[0].success)
                     ? <MainResult onNewTranslation={setCurrentTranslation} result={results[0]} />
-                    : <MainResultLoader />
+                    : <MainResult onNewTranslation={setCurrentTranslation} result={
+                        {
+                            ...DefaultTranslateRequest,
+                            data: {...DefaultTranslateRequest.data, source: currentTranslation.text}
+                        }
+                    } />
             }
             <div className="mx-3 mt-16">
                 <h2 className="font-semibold text-xl mb-5">{strings.heading.otherTranslations}</h2>

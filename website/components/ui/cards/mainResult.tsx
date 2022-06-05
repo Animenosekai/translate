@@ -1,13 +1,11 @@
-import { Card, Tooltip } from "@nextui-org/react";
+import { Card, Loading, Tooltip } from "@nextui-org/react";
 import { TransliterateRequest, TransliterateResult } from "types/transliterate";
 import { useEffect, useState } from "react";
 
-import Configuration from "config";
 import ContentLoader from "react-content-loader";
 import { EditIcon } from "components/icons/edit";
 import { LanguageDetailsResult } from "types/languageDetails";
 import { LanguagePicker } from "../modals/languagePicker";
-import Link from "next/link";
 import { Service } from "lib/services";
 import { ServiceElement } from "components/common/service";
 import { SourceTextArea } from "../textareas/source";
@@ -19,7 +17,7 @@ import { useLanguage } from "contexts/language";
 
 const THROTTLE = 1000;
 
-export const TTSButton = ({ text, sourceLang, ...props }: {text: string, sourceLang: LanguageDetailsResult}) => {
+export const TTSButton = ({ text, sourceLang, ...props }: { text: string, sourceLang: LanguageDetailsResult }) => {
     const [tts, setTTS] = useState(false);
     const [audio, setAudio] = useState<HTMLAudioElement>(null);
 
@@ -36,12 +34,12 @@ export const TTSButton = ({ text, sourceLang, ...props }: {text: string, sourceL
                     lang: sourceLang.id
                 }
             })
-            .then(response => {
-                if (!response.success) { return }
-                const buffer = Buffer.from(response.data.base64, 'base64')
-                const blob = new Blob([buffer])
-                setAudio(new Audio(URL.createObjectURL(blob)))
-            })
+                .then(response => {
+                    if (!response.success) { return }
+                    const buffer = Buffer.from(response.data.base64, 'base64')
+                    const blob = new Blob([buffer])
+                    setAudio(new Audio(URL.createObjectURL(blob)))
+                })
             setTTS(false);
         }
     }, [tts]);
@@ -69,7 +67,7 @@ export const MainResultLoader = (props) => {
         </Card>
     </div>
 }
-export const MainResultCard = ({ text, language, service, onNewTranslation, ...props }: { text: string, language: LanguageDetailsResult, service?: Service, onNewTranslation?: (text: string, language: LanguageDetailsResult) => any }) => {
+export const MainResultCard = ({ text, language, service, loading, onNewTranslation, ...props }: { text: string, language: LanguageDetailsResult, service?: Service, loading?: boolean, onNewTranslation?: (text: string, language: LanguageDetailsResult) => any }) => {
     const { strings } = useLanguage();
     const [currentText, setCurrentText] = useState<string>(text);
     const [currentLanguage, setCurrentLanguage] = useState<LanguageDetailsResult>(language);
@@ -77,21 +75,30 @@ export const MainResultCard = ({ text, language, service, onNewTranslation, ...p
     const [currentTimeout, setCurrentTimeout] = useState(null);
     const [transliteration, setTransliteration] = useState<TransliterateResult>(null);
 
+    console.log("MainResultCard", { text, language, service, loading, onNewTranslation, props })
+
     useEffect(() => {
         if (!service) { return }
         request<TransliterateRequest>("/transliterate", {
             params: {
-                text: text,
+                text: currentText,
                 dest: language.id
             }
         })
             .then(value => {
-                if (value.success && value.data.result != text) { setTransliteration(value.data); }
+                if (value.success && value.data.result != currentText) {
+                    setTransliteration(value.data);
+                } else {
+                    setTransliteration(null);
+                }
             })
-    }, [])
+            .catch(_ => {
+                setTransliteration(null);
+            })
+    }, [currentText])
 
     useEffect(() => {
-        if (currentLanguage != language) {
+        if (currentLanguage.id != language.id) {
             return onNewTranslation && onNewTranslation(currentText, currentLanguage);
         }
     }, [currentLanguage])
@@ -104,6 +111,10 @@ export const MainResultCard = ({ text, language, service, onNewTranslation, ...p
             return onNewTranslation(currentText, currentLanguage);
         }, THROTTLE))
     }, [currentText]);
+
+    useEffect(() => {
+        setCurrentText(text);
+    }, [text])
 
     return <Card color={service ? "primary" : "default"}>
         <h3>
@@ -124,23 +135,34 @@ export const MainResultCard = ({ text, language, service, onNewTranslation, ...p
         </h3>
         {
             service
-                ? <p className="mt-3 mb-5">{currentText}</p>
+                ? <div className="flex flex-row space-x-1">
+                    <p className="mt-3 mb-5">{currentText}</p>
+                    {
+                        loading
+                            ? <Loading type="points-opacity" color={"white"} size="sm" />
+                            // ? <Loading type="points-opacity" color={"white"} size="xs" />
+                            : ""
+                    }
+                </div>
                 : <SourceTextArea value={currentText} onChange={el => setCurrentText(el.target.value)} />
         }
         <Card.Footer>
-            <ServiceElement service={service} />
-            {
-                transliteration && <div className="opacity-70 flex flex-row">
-                    {"・"}
-                    <div className="h-5">
-                        <Tooltip content={strings.labels.transliterationBy.format({service: transliteration.service})} rounded hideArrow placement="right" style={{
-                            color: "white"
-                        }} contentColor="primary">
-                            <span className="italic w-full">{transliteration.result}</span>
-                        </Tooltip>
+            <div className="w-11/12 flex flex-row">
+                <ServiceElement service={service} />
+                {
+                    transliteration && <div className="opacity-70 flex flex-row">
+                        {"・"}
+                        <div className="h-5">
+                            <Tooltip content={strings.labels.transliterationBy.format({ service: transliteration.service })} rounded hideArrow placement="right" style={{
+                                color: "white",
+                                width: "100%"
+                            }} contentColor="primary">
+                                <span className="italic w-full">{transliteration.result}</span>
+                            </Tooltip>
+                        </div>
                     </div>
-                </div>
-            }
+                }
+            </div>
             <TTSButton text={currentText} sourceLang={language} />
         </Card.Footer>
     </Card>
@@ -153,22 +175,31 @@ export const MainResult = ({ result, onNewTranslation, ...props }: {
         source: string
     }) => any
 }) => {
+
+    const [loading, setLoading] = useState(result.loading);
+    useEffect(() => {
+        setLoading(result.loading);
+    }, [result])
+
     const service = new Service(result.data.service)
+    console.log("result", result)
     return <div className="flex lg:flex-row flex-col lg:space-x-10 lg:space-y-0 space-y-5 mb-10">
         <MainResultCard text={result.data.source} language={result.data.sourceLanguage} onNewTranslation={(text, lang) => {
             if (!onNewTranslation) {
                 return console.log("source", text, lang)
             }
+            setLoading(true);
             return onNewTranslation({
                 text,
                 source: lang.id,
                 dest: result.data.destinationLanguage.id,
             })
         }} />
-        <MainResultCard text={result.data.result} language={result.data.destinationLanguage} service={service} onNewTranslation={(text, lang) => {
+        <MainResultCard loading={loading} text={result.data.result} language={result.data.destinationLanguage} service={service} onNewTranslation={(text, lang) => {
             if (!onNewTranslation) {
                 return console.log("dest", text, lang)
             }
+            setLoading(true);
             return onNewTranslation({
                 text: result.data.source,
                 source: result.data.sourceLanguage.id,

@@ -32,7 +32,12 @@ export const LanguagePicker = ({ text, setShowModal, setLanguage, ...props }: { 
 
     return <div className={"flex items-center justify-center w-screen h-screen top-0 left-0 fixed z-10 bg-white bg-opacity-80 animate-enter-modal"} onClick={() => { setShowModal(false); }}>
         <div className="flex flex-col rounded md:w-1/2 w-3/4 2xl:w-1/3" onClick={el => { el.stopPropagation() }}>
-            <input autoFocus value={query} onChange={ev => setQuery(ev.target.value)} placeholder="Type a language..." type="text" className="w-full h-10 p-3 outline-none rounded border-[1px] shadow-lg" />
+            <input autoFocus value={query} onKeyUp={(ev) => {
+                if (ev.key == "Enter" || ev.keyCode === 13) {
+                    setLanguage(results[0].language)
+                    setShowModal(false)
+                }
+            }} onChange={ev => setQuery(ev.target.value)} placeholder="Type a language..." type="text" className="w-full h-10 p-3 outline-none rounded border-[1px] shadow-lg" />
             <div className="w-full rounded h-full mt-3 overflow-hidden shadow-lg border-[1px]">
                 {
                     results.map((language, key) => {

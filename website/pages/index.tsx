@@ -14,7 +14,7 @@ const Home: NextPage = () => {
     const router = useRouter();
 
     const translate = () => {
-        router.push(`/translate?text=${encodeURIComponent(text)}&dest=eng`)
+        router.push(`/translate?text=${encodeURIComponent(text)}&dest=${strings.language}`)
     }
 
     return <div className='h-full'>
