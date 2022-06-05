@@ -73,7 +73,7 @@ def Bool(value):
     return to_bool(value, default=True)
 
 
-PARAM_FOREIGN = PARAM_FOREIGN
+PARAM_FOREIGN = Param("foreign", "Whether to include the language in foreign languages", required=False, type=Bool)
 
 language_details_endpoint = Endpoint(
     endpoint=base,
