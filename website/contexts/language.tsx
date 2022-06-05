@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import EnglishLocalization from "../localizations/eng";
 import FrenchLocalization from "localizations/fra";
 import JapaneseLocalization from "localizations/jpn";
+import SpanishLocalization from "localizations/spa";
 
 export const LanguageContext = createContext<{
     strings: EnglishLocalization
@@ -32,6 +33,9 @@ export const LanguageContextProvider = ({ children }: LanguageContextProps) => {
                 break;
             case "jpn":
                 setLanguageData(new JapaneseLocalization());
+                break;
+            case "spa":
+                setLanguageData(new SpanishLocalization());
                 break;
             default:
                 setLanguageData(new EnglishLocalization());

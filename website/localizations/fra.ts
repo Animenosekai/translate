@@ -3,6 +3,7 @@ import { TemplateString } from "utils/string";
 
 class FrenchLocalization extends EnglishLocalization {
     language: string = "fra";
+    alpha2: string = "fr";
     name: string = "Français";
     placeholders = {
         translationTextArea: 'Entrez le texte à traduire...',

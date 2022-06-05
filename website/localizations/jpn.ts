@@ -3,6 +3,7 @@ import { TemplateString } from "utils/string";
 
 class JapaneseLocalization extends EnglishLocalization {
     language: string = "jpn";
+    alpha2: string = "ja";
     name: string = "日本語";
     placeholders = {
         translationTextArea: '翻訳する文章を入力してください...',

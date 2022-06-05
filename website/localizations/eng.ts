@@ -2,6 +2,7 @@ import { TemplateString } from "utils/string";
 
 class EnglishLocalization {
     language: string = "eng";
+    alpha2: string = "en";
     name: string = "English";
     placeholders = {
         translationTextArea: 'Enter your text to translate...',

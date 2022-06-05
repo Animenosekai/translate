@@ -1,0 +1,1 @@
+web: python translatepy/__main__.py server

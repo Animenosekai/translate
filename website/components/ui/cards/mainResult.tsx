@@ -127,12 +127,13 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
                     showModal && <LanguagePicker
                         setLanguage={setCurrentLanguage}
                         setShowModal={setShowModal}
-                        text={currentLanguage.inForeignLanguages[currentLanguage.alpha2] ? currentLanguage.inForeignLanguages[currentLanguage.alpha2] : currentLanguage.name} />
+                        text={currentLanguage?.inForeignLanguages[strings.alpha2] ? currentLanguage.inForeignLanguages[strings.alpha2] : currentLanguage.name} />
                 }
             </div>
             <div className="flex flex-row group w-max cursor-pointer" onClick={el => { setShowModal(true); }}>
                 <span className="font-medium text-sm">
-                    {currentLanguage.inForeignLanguages[currentLanguage.alpha2] ? currentLanguage.inForeignLanguages[currentLanguage.alpha2] : currentLanguage.name}
+                    {/* {currentLanguage?.inForeignLanguages[currentLanguage.alpha2] ? currentLanguage.inForeignLanguages[currentLanguage.alpha2] : currentLanguage.name} */}
+                    {currentLanguage?.inForeignLanguages[strings.alpha2] ? currentLanguage.inForeignLanguages[strings.alpha2] : currentLanguage.name}
                 </span>
                 <EditIcon className="scale-[.7] -mt-[.2rem] transition opacity-50 group-hover:opacity-80" />
             </div>
