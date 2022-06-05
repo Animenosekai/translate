@@ -22,6 +22,7 @@ export const LanguageContextProvider = ({ children }: LanguageContextProps) => {
     const [strings, setLanguageData] = useState<EnglishLocalization>(new EnglishLocalization());
 
     const setLanguage = (language: string) => {
+        window.localStorage.setItem("ui-language", language);
         switch (language) {
             case "eng":
                 setLanguageData(new EnglishLocalization());

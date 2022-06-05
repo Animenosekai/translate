@@ -24,7 +24,7 @@ const Home: NextPage = () => {
             <div className='w-full flex items-end flex-col'>
                 <TranslationTextArea onChange={el => setText(el.target.value)} />
                 <Button onClick={() => {
-                    router.push("/translate")
+                    router.push(`/translate?text=${encodeURIComponent(text)}&dest=eng`)
                 }} hidden={text ? false : true} disabled={text ? false : true} auto flat>{strings.buttons.translate}</Button>
             </div>
         </div>
