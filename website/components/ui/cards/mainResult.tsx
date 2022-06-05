@@ -116,6 +116,10 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
         setCurrentText(text);
     }, [text])
 
+    useEffect(() => {
+        setCurrentLanguage(language);
+    }, [language])
+
     return <Card color={service ? "primary" : "default"}>
         <h3>
             <div className="text-black">
