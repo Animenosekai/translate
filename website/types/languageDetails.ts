@@ -25,7 +25,7 @@ export interface LanguageDetailsResult {
     alpha3t: string
     alpha3: string
     name: string
-    foreign: { [key in languages]?: string }
+    inForeignLanguages: { [key in languages]?: string }
     extra: Extra
 }
 

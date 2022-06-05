@@ -1,3 +1,4 @@
+import { LanguageDetailsResult } from "./languageDetails"
 import { Request } from "./base"
 
 export interface TranslateRequest extends Request {
@@ -7,7 +8,7 @@ export interface TranslateRequest extends Request {
 export interface TranslateResult {
     service: string
     source: string
-    sourceLang: string
-    destLang: string
+    sourceLanguage: LanguageDetailsResult
+    destinationLanguage: LanguageDetailsResult
     result: string
 }

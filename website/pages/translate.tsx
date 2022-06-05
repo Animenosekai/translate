@@ -1,26 +1,64 @@
-import { MainResult, MainResultCard } from 'components/ui/cards/mainResult'
+import { MainResult, MainResultCard, MainResultLoader } from 'components/ui/cards/mainResult'
 import { SubResult, SubResultLoader } from 'components/ui/cards/subResult'
+import { useEffect, useState } from 'react'
 
+import Configuration from 'config'
 import Head from 'next/head'
 import type { NextPage } from 'next'
 import { TranslateRequest } from 'types/translate'
-import { useState } from 'react'
+import { generateRandomID } from 'utils/random'
+import { services } from 'lib/services'
 
 const Translate: NextPage = () => {
-    const [toLoad, setToLoad] = useState(4);
-    const test: TranslateRequest = {
-        success: true,
-        message: "",
-        error: null,
-        data: {
-            service: "Google",
-            source: "Hello World",
-            sourceLang: "eng",
-            destLang: "jpa",
-            result: "こんにちは世界"
-        }
+    const [toLoad, setToLoad] = useState(Object.keys(services).length);
+    const [results, setResults] = useState<TranslateRequest[]>([]);
+    const [currentTranslation, setCurrentTranslation] = useState<{
+        text: string,
+        source: string,
+        dest: string
+    }>({
+        text: "Hello world!",
+        source: "English",
+        dest: "Japanese"
+    })
+    const [streamID, setStreamID] = useState(null);
 
-    }
+    useEffect(() => {
+        const currentID = streamID;
+        setTimeout(() => {
+            if (!currentID || currentID != streamID) { return }
+            console.log("Connecting to stream...", currentID, streamID);
+            console.log(`Translate: ${currentTranslation.text} from ${currentTranslation.source} to ${currentTranslation.dest}`);
+            const stream = new EventSource(`${Configuration.request.host}/stream?text=${encodeURIComponent(currentTranslation.text)}&dest=${currentTranslation.dest}&source=${currentTranslation.source}`)
+            setResults([])
+            setToLoad(Object.keys(services).length);
+            stream.onmessage = (event) => {
+                if (!event) {
+                    stream.close();
+                    return
+                }
+                const data = JSON.parse(event.data)
+                setResults(results => {
+                    if (results.length > 0 && !results[0].success) {
+                        return [data, ...results]
+                    }
+                    return [...results, data]
+                })
+                setToLoad(toLoad => toLoad - 1)
+            }
+            stream.onerror = (event) => {
+                if (event.eventPhase === EventSource.CLOSED) {
+                    stream.close();
+                }
+            }
+        }, 1000)
+    }, [streamID]);
+
+    useEffect(() => {
+        const currentID = generateRandomID(12);
+        setStreamID(currentID);
+    }, [currentTranslation])
+
     return <div className='h-full'>
         <Head>
             <title>translate — Use multiple services to translate your texts!</title>
@@ -28,13 +66,19 @@ const Translate: NextPage = () => {
             <link rel="icon" href="/favicon.ico" />
         </Head>
         <div className="p-16">
-            <MainResult result={test} />
-            <div className="mx-3 mt-16 w-full">
+            {
+                (results.length > 0 && results[0].success)
+                    ? <MainResult onNewTranslation={setCurrentTranslation} result={results[0]} />
+                    : <MainResultLoader />
+            }
+            <div className="mx-3 mt-16">
                 <h2 className="font-semibold text-xl mb-5">Other translations</h2>
-                <div className='flex flex-row flex-wrap w-3/4'>
-                    <SubResult result={test} />
+                <div className='flex flex-row flex-wrap w-full'>
+                    {results.slice(1).map((result, index) => <SubResult key={index} result={result} />)}
                     {
-                        Array(toLoad).fill(0).map((_, i) => <SubResultLoader key={i} />)
+                        toLoad > 0
+                            ? Array(toLoad).fill(0).map((_, i) => <SubResultLoader key={i} />)
+                            : ""
                     }
                 </div>
             </div>

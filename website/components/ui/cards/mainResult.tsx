@@ -1,6 +1,8 @@
 import { Card, Tooltip } from "@nextui-org/react";
+import { TransliterateRequest, TransliterateResult } from "types/transliterate";
 import { useEffect, useState } from "react";
 
+import ContentLoader from "react-content-loader";
 import { EditIcon } from "components/icons/edit";
 import { LanguageDetailsResult } from "types/languageDetails";
 import { LanguagePicker } from "../modals/languagePicker";
@@ -10,7 +12,7 @@ import { ServiceElement } from "components/common/service";
 import { SourceTextArea } from "../textareas/source";
 import { TTSIcon } from "components/icons/tts";
 import { TranslateRequest } from "types/translate";
-import { TransliterateResult } from "types/transliterate";
+import { request } from "lib/request";
 
 const THROTTLE = 1000;
 
@@ -29,54 +31,47 @@ export const TTSButton = ({ text, sourceLang, ...props }) => {
     </div>
 }
 
-export const MainResultCard = ({ text, language, service, onNewTranslation, ...props }: { text: string, language: string, service?: Service, onNewTranslation?: (text: string, language: string) => any }) => {
+export const MainResultLoader = (props) => {
+    return <div className="w-1/3 mb-2 p-1 mx-1 min-w-[300px]">
+        <Card clickable shadow={false}>
+            <ContentLoader
+                speed={2}
+                height={70}
+                viewBox="0 0 320 70"
+                backgroundColor="#f3f3f3"
+                foregroundColor="#ecebeb"
+                {...props}
+            >
+                <rect x="0" y="0" rx="3" ry="3" width={180 + (Math.random() * 100)} height="20" />
+                <rect x="0" y="50" rx="3" ry="3" width={80 + (Math.random() * 50)} height="20" />
+            </ContentLoader>
+        </Card>
+    </div>
+}
+export const MainResultCard = ({ text, language, service, onNewTranslation, ...props }: { text: string, language: LanguageDetailsResult, service?: Service, onNewTranslation?: (text: string, language: LanguageDetailsResult) => any }) => {
     const [currentText, setCurrentText] = useState<string>(text);
-    const [currentLanguage, setCurrentLanguage] = useState<string>(language);
-    const [langDetails, setLangDetails] = useState<LanguageDetailsResult>(null)
+    const [currentLanguage, setCurrentLanguage] = useState<LanguageDetailsResult>(language);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [currentTimeout, setCurrentTimeout] = useState(null);
-    const [transliteration, setTransliteration] = useState<TransliterateResult>(
-        service
-            ? {
-                service: "Google",
-                source: "Hello World",
-                sourceLang: "eng",
-                destLang: "jpa",
-                result: "Kon'nichiwa Sekai"
-            }
-            : null
-    );
+    const [transliteration, setTransliteration] = useState<TransliterateResult>(null);
 
-    const retrieveLanguageDetails = () => {
-        setLangDetails(
-            service
-                ? {
-                    id: "jpa",
-                    alpha2: "ja",
-                    alpha3b: "jpa",
-                    alpha3t: "jpa",
-                    alpha3: "jpa",
-                    name: "Japanese",
-                    foreign: { ja: "日本語" },
-                    extra: null
-                }
-                : {
-                    id: "eng",
-                    alpha2: "en",
-                    alpha3b: "eng",
-                    alpha3t: "eng",
-                    alpha3: "eng",
-                    name: "English",
-                    foreign: { en: "English" },
-                    extra: null
-                })
-    }
+    useEffect(() => {
+        if (!service) { return }
+        request<TransliterateRequest>("/transliterate", {
+            params: {
+                text: text,
+                dest: language.id
+            }
+        })
+            .then(value => {
+                if (value.success && value.data.result != text) { setTransliteration(value.data); }
+            })
+    }, [])
 
     useEffect(() => {
         if (currentLanguage != language) {
             return onNewTranslation && onNewTranslation(currentText, currentLanguage);
         }
-        return retrieveLanguageDetails();
     }, [currentLanguage])
 
 
@@ -94,22 +89,13 @@ export const MainResultCard = ({ text, language, service, onNewTranslation, ...p
                 {
                     showModal && <LanguagePicker
                         setLanguage={setCurrentLanguage}
-                        setDetails={setLangDetails}
                         setShowModal={setShowModal}
-                        text={
-                            langDetails
-                                ? (langDetails.foreign[langDetails.alpha2] ? langDetails.foreign[langDetails.alpha2] : langDetails.name)
-                                : currentLanguage
-                        } />
+                        text={currentLanguage.inForeignLanguages[currentLanguage.alpha2] ? currentLanguage.inForeignLanguages[currentLanguage.alpha2] : currentLanguage.name} />
                 }
             </div>
             <div className="flex flex-row group w-max cursor-pointer" onClick={el => { setShowModal(true); }}>
                 <span className="font-medium text-sm">
-                    {
-                        langDetails
-                            ? (langDetails.foreign[langDetails.alpha2] ? langDetails.foreign[langDetails.alpha2] : langDetails.name)
-                            : currentLanguage
-                    }
+                    {currentLanguage.inForeignLanguages[currentLanguage.alpha2] ? currentLanguage.inForeignLanguages[currentLanguage.alpha2] : currentLanguage.name}
                 </span>
                 <EditIcon className="scale-[.7] -mt-[.2rem] transition opacity-50 group-hover:opacity-80" />
             </div>
@@ -138,10 +124,32 @@ export const MainResultCard = ({ text, language, service, onNewTranslation, ...p
     </Card>
 }
 
-export const MainResult = ({ result, ...props }: { result: TranslateRequest }) => {
+export const MainResult = ({ result, onNewTranslation, ...props }: { result: TranslateRequest, onNewTranslation?: (translation: {
+    text: string,
+    dest: string,
+    source: string
+}) => any }) => {
     const service = new Service(result.data.service)
     return <div className="flex lg:flex-row flex-col lg:space-x-10 lg:space-y-0 space-y-5 mb-10">
-        <MainResultCard text={result.data.source} language={result.data.sourceLang} onNewTranslation={(text, lang) => { console.log("text:" + text + "|lang:" + lang) }} />
-        <MainResultCard text={result.data.result} language={result.data.destLang} service={service} onNewTranslation={(text, lang) => { console.log("text:" + text + "|lang:" + lang) }} />
+        <MainResultCard text={result.data.source} language={result.data.sourceLanguage} onNewTranslation={(text, lang) => {
+            if (!onNewTranslation) {
+                return console.log("source", text, lang)
+            }
+            return onNewTranslation({
+                text,
+                source: lang.id,
+                dest: result.data.destinationLanguage.id,
+            })
+        }} />
+        <MainResultCard text={result.data.result} language={result.data.destinationLanguage} service={service} onNewTranslation={(text, lang) => {
+            if (!onNewTranslation) {
+                return console.log("dest", text, lang)
+            }
+            return onNewTranslation({
+                text: result.data.source,
+                source: result.data.sourceLanguage.id,
+                dest: lang.id,
+            })
+        }}/>
     </div>
 }

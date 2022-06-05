@@ -25,7 +25,7 @@ export const SubResultLoader = (props) => {
 export const SubResult = ({ result, ...props }: { result: TranslateRequest }) => {
     const service = new Service(result.data.service)
     return <div className="w-1/4 p-1 mx-1 min-w-[300px]">
-        <Card clickable shadow={false}>
+        <Card clickable={result.success} shadow={false} className={result.success ? "opacity-100" : "opacity-50"}>
             <span>
                 {result.success ? result.data.result : "Failed"}
             </span>

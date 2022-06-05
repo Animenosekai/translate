@@ -165,7 +165,7 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
                 "error": str(err.__class__.__name__),
                 "message": "; ".join(err.args),
                 "data": {
-                    "service": str(translator),
+                    "service": str(translator) if isinstance(translator, BaseTranslator) else translator.__name__,
                 }
             })
 

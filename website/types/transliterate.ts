@@ -1,3 +1,4 @@
+import { LanguageDetailsResult } from "./languageDetails"
 import { Request } from "./base"
 
 export interface TransliterateRequest extends Request {
@@ -7,7 +8,7 @@ export interface TransliterateRequest extends Request {
 export interface TransliterateResult {
     service: string
     source: string
-    sourceLang: string
-    destLang: string
+    sourceLanguage: LanguageDetailsResult
+    destinationLanguage: LanguageDetailsResult
     result: string
 }
