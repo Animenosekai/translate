@@ -51,6 +51,9 @@ const Translate: NextPage = () => {
                 }
                 const data = JSON.parse(event.data)
                 setResults(results => {
+                    const success = results.filter((val) => val.success)
+                    const failed = results.filter((val) => !val.success)
+
                     if (results.length > 0) {
                         if (results[0] === DefaultTranslateRequest) {
                             return [data]
@@ -58,7 +61,8 @@ const Translate: NextPage = () => {
                             return [data, ...results]
                         }
                     }
-                    return [...results, data]
+                    // return [...results, data]
+                    return [...success, data, ...failed]
                 })
                 setToLoad(toLoad => toLoad - 1)
             }
