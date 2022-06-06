@@ -8,6 +8,7 @@ module.exports = {
       animation: {
         'enter-modal': 'enter-modal 300ms ease 1',
         'enter-menu': 'enter-menu 300ms ease 1',
+        'exit-menu': 'enter-menu 300ms ease 1 reverse',
       },
       keyframes: {
         'enter-modal': {

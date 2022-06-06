@@ -12,10 +12,10 @@ export const HamburgerMenuElement = ({ href, name, ...props }: any) => {
 
 export const HamburgerModal = ({ onClose, ...props }) => {
     const { strings } = useLanguage();
-    return <div className="h-screen animate-enter-menu w-4/5 z-10 right-0 fixed bg-white shadow-xl flex flex-col space-y-5 items-center sm:hidden">
-        <CloseIcon className="absolute top-0 right-0 mx-10 cursor-pointer opacity-60 hover:opacity-100 transition" onClick={() => { onClose(); }} />
+    return <div className="h-screen animate-enter-menu w-4/5 z-20 top-0 right-0 fixed bg-white shadow-xl flex flex-col space-y-5 items-center sm:hidden">
+        <CloseIcon className="absolute top-0 right-0 mx-10 my-5 cursor-pointer opacity-60 hover:opacity-100 transition" onClick={() => { onClose(); }} />
         {/* <span className="text-xl justify-center">Menu</span> */}
-        <div className="h-5"></div>
+        <div className="h-12"></div>
         <div className="w-full">
             <hr />
             <HamburgerMenuElement onClick={onClose} href="/translate" name={strings.pages.translate} />
