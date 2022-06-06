@@ -23,11 +23,11 @@ module.exports = {
         'enter-menu': {
           '0%': {
             opacity: 0,
-            right: '-100%',
+            transform: "translateX(100%)"
           },
           '100%': {
             opacity: 1,
-            right: '0',
+            transform: "translateX(0%)"
           }
         }
       },
