@@ -1,5 +1,5 @@
 import Link from "next/link";
-// import cn from "classnames"
+import cn from "classnames"
 import { useLanguage } from "contexts/language";
 
 export interface NavbarProps {
@@ -14,9 +14,9 @@ const NavbarLink = ({ href, name }: { href: string, name: string }) => {
     </li>
 }
 
-export const Navbar = (props: any) => {
+export const Navbar = ({className, props}: any) => {
     const { strings } = useLanguage();
-    return <ul className="flex flex-row absolute right-10" {...props}>
+    return <ul className={cn("flex flex-row absolute right-10", className)} {...props}>
         <NavbarLink href="/translate" name={strings.pages.translate} />
         <NavbarLink href="/documentation" name={strings.pages.documentation} />
         <NavbarLink href="/stats" name={strings.pages.stats} />

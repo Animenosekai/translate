@@ -24,7 +24,7 @@ const Home: NextPage = () => {
             <link rel="icon" href="/favicon.ico" />
         </Head>
 
-        <div className="flex items-center flex-col md:w-1/2 w-3/4 h-full justify-center mx-auto -mt-20">
+        <div className="flex items-center flex-col md:w-1/2 w-3/4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -mt-10">
             <LanguageIcon size={100} />
             <div className='w-full flex items-end flex-col'>
                 <TranslationTextArea onKeyDown={(ev) => {
