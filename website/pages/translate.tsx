@@ -91,7 +91,7 @@ const Translate: NextPage = () => {
             <meta name="description" content="Use multiple services to translate your texts!" />
             <link rel="icon" href="/favicon.ico" />
         </Head>
-        <div className="p-16">
+        <div className="sm:p-16 p-5">
             {
                 (results.length > 0 && results[0].success)
                     ? <MainResult onNewTranslation={setCurrentTranslation} result={results[0]} />
