@@ -22,6 +22,7 @@ export const DefaultTranslateRequest: TranslateRequest = {
         source: "",
         sourceLanguage: {
             "id": "auto",
+            "similarity": 100,
             "alpha2": "auto",
             "alpha3b": "auto",
             "alpha3t": "auto",
@@ -32,6 +33,7 @@ export const DefaultTranslateRequest: TranslateRequest = {
         },
         destinationLanguage: {
             "id": "eng",
+            "similarity": 100,
             "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
