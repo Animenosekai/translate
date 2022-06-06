@@ -90,6 +90,7 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
             <div className="text-black">
                 {
                     showModal && <LanguagePicker
+                        automatic={!service}
                         setLanguage={setCurrentLanguage}
                         setShowModal={setShowModal}
                         text={currentLanguage?.inForeignLanguages[strings.alpha2] ? currentLanguage.inForeignLanguages[strings.alpha2] : currentLanguage.name} />

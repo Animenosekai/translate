@@ -1,7 +1,8 @@
+import { AutomaticDetailsRequest, LanguageDetailsRequest, LanguageDetailsResult, LanguageSearchRequest, SearchResultContainer } from "types/languageDetails"
 import { Dispatch, HTMLAttributes, SetStateAction, useEffect, useState } from "react"
-import { LanguageDetailsResult, LanguageSearchRequest, SearchResultContainer } from "types/languageDetails"
 
 import { request } from "lib/request"
+import { useLanguage } from "contexts/language"
 
 export interface LanguageElementProps extends HTMLAttributes<HTMLDivElement> {
     language: SearchResultContainer
@@ -14,9 +15,12 @@ export const LanguageElement = ({ language, ...props }: LanguageElementProps) =>
 }
 
 
-export const LanguagePicker = ({ text, setShowModal, setLanguage, ...props }: { text?: string, setShowModal: Dispatch<SetStateAction<boolean>>, setLanguage: Dispatch<SetStateAction<LanguageDetailsResult>> }) => {
+export const LanguagePicker = ({ text, setShowModal, setLanguage, automatic, ...props }: { text?: string, setShowModal: Dispatch<SetStateAction<boolean>>, setLanguage: Dispatch<SetStateAction<LanguageDetailsResult>>, automatic?: boolean }) => {
+    const { strings } = useLanguage();
     const [query, setQuery] = useState(text)
     const [results, setResults] = useState<SearchResultContainer[]>([])
+    const [autoResult, setAutoResult] = useState<SearchResultContainer>(AutomaticDetailsRequest);
+
     useEffect(() => {
         if (!query) { return }
         request<LanguageSearchRequest>("/language/search", {
@@ -30,6 +34,13 @@ export const LanguagePicker = ({ text, setShowModal, setLanguage, ...props }: { 
             })
     }, [query])
 
+    useEffect(() => {
+        setAutoResult({
+            ...AutomaticDetailsRequest,
+            string: AutomaticDetailsRequest.language.inForeignLanguages[strings.alpha2] ? AutomaticDetailsRequest.language.inForeignLanguages[strings.alpha2] : AutomaticDetailsRequest.language.name
+        })
+    }, [automatic, strings])
+
     return <div className={"flex items-center justify-center w-screen h-screen top-0 left-0 fixed z-10 bg-white bg-opacity-80 animate-enter-modal"} onClick={() => { setShowModal(false); }}>
         <div className="flex flex-col rounded md:w-1/2 w-3/4 2xl:w-1/3" onClick={el => { el.stopPropagation() }}>
             <input autoFocus value={query} onKeyUp={(ev) => {
@@ -38,6 +49,15 @@ export const LanguagePicker = ({ text, setShowModal, setLanguage, ...props }: { 
                     setShowModal(false)
                 }
             }} onChange={ev => setQuery(ev.target.value)} placeholder="Type a language..." type="text" className="w-full h-10 p-3 outline-none rounded border-[1px] shadow-lg" />
+
+            {
+                automatic
+                    ? <div className="w-full rounded h-full mt-3 overflow-hidden shadow-lg border-[1px]">
+                        <LanguageElement language={autoResult} onClick={() => { setLanguage(autoResult.language); setShowModal(false); }} />
+                    </div>
+                    : ""
+            }
+
             <div className="w-full rounded h-full mt-3 overflow-hidden shadow-lg border-[1px]">
                 {
                     results.map((language, key) => {
@@ -46,5 +66,5 @@ export const LanguagePicker = ({ text, setShowModal, setLanguage, ...props }: { 
                 }
             </div>
         </div>
-    </div>
+    </div >
 }

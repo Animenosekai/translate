@@ -42,7 +42,7 @@ const Translate: NextPage = () => {
             console.log("Connecting to stream...", currentID, streamID);
             console.log(`Translate: ${currentTranslation.text} from ${currentTranslation.source} to ${currentTranslation.dest}`);
             const stream = new EventSource(`${Configuration.request.host}/stream?text=${encodeURIComponent(currentTranslation.text)}&dest=${currentTranslation.dest}&source=${currentTranslation.source}`)
-            setResults([DefaultTranslateRequest])
+            setResults([{...DefaultTranslateRequest, loading: true, data: {...DefaultTranslateRequest.data, source: currentTranslation.text}}])
             setToLoad(Object.keys(services).length);
             stream.onmessage = (event) => {
                 if (!event) {
@@ -54,8 +54,12 @@ const Translate: NextPage = () => {
                     const success = results.filter((val) => val.success)
                     const failed = results.filter((val) => !val.success)
 
+                    if (success.length === 0) {
+                        data.data.source = currentTranslation.text
+                    }
+
                     if (results.length > 0) {
-                        if (results[0] === DefaultTranslateRequest) {
+                        if (results[0].loading) {
                             return [data]
                         } else if (!results[0].success) {
                             return [data, ...results]

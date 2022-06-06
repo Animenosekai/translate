@@ -129,3 +129,5 @@ dmypy.json
 # translatepy translate service session files
 .bing_translatepy
 .microsoft_translatepy
+
+.vscode/*
