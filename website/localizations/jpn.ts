@@ -24,6 +24,9 @@ class JapaneseLocalization extends EnglishLocalization {
         documentation: "ドキュメンテーション",
         stats: "統計"
     }
+    notifications: { copied: string; } = {
+        copied: "クリップボードにコピーしました"
+    }
 }
 
 export default JapaneseLocalization

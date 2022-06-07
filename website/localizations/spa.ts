@@ -24,6 +24,9 @@ class SpanishLocalization extends EnglishLocalization {
         documentation: "Documentación",
         stats: "Estadística"
     }
+    notifications: { copied: string; } = {
+        copied: "Copiado al portapapeles"
+    }
 }
 
 export default SpanishLocalization

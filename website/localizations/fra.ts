@@ -24,6 +24,9 @@ class FrenchLocalization extends EnglishLocalization {
         documentation: "Documentation",
         stats: "Statistiques"
     }
+    notifications: { copied: string; } = {
+        copied: "Copié dans le presse-papier"
+    }
 }
 
 export default FrenchLocalization
