@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import ContentLoader from "react-content-loader";
 import { CopyIcon } from "components/icons/copy";
+import { CopyNotification } from "../notifications/copy";
 import { EditIcon } from "components/icons/edit";
 import { LanguageDetailsResult } from "types/languageDetails";
 import { LanguagePicker } from "../modals/languagePicker";
@@ -34,7 +35,7 @@ export const MainResultLoader = (props) => {
         </Card>
     </div>
 }
-export const MainResultCard = ({ text, language, service, loading, onNewTranslation, ...props }: { text: string, language: LanguageDetailsResult, service?: Service, loading?: boolean, onNewTranslation?: (text: string, language: LanguageDetailsResult) => any }) => {
+export const MainResultCard = ({ text, language, service, loading, onNewTranslation, onCopyNotification, ...props }: { text: string, language: LanguageDetailsResult, service?: Service, loading?: boolean, onNewTranslation?: (text: string, language: LanguageDetailsResult) => any, onCopyNotification?: () => any }) => {
     const { strings } = useLanguage();
     const [currentText, setCurrentText] = useState<string>(text);
     const [currentLanguage, setCurrentLanguage] = useState<LanguageDetailsResult>(language);
@@ -138,7 +139,7 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
                 <TTSButton text={currentText} sourceLang={language} />
                 {
                     service
-                        ? <CopyIcon onClick={() => { navigator.clipboard.writeText(currentText) }} className="opacity-70 hover:opacity-100 transition active:scale-95 cursor-pointer" />
+                        ? <CopyIcon onClick={() => { navigator.clipboard.writeText(currentText); onCopyNotification() }} className="opacity-70 hover:opacity-100 transition active:scale-95 cursor-pointer" />
                         : ""
                 }
             </div>
@@ -146,12 +147,13 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
     </Card>
 }
 
-export const MainResult = ({ result, onNewTranslation, ...props }: {
+export const MainResult = ({ result, onNewTranslation, onCopyNotification, ...props }: {
     result: TranslateRequest, onNewTranslation?: (translation: {
         text: string,
         dest: string,
         source: string
-    }) => any
+    }) => any,
+    onCopyNotification?: () => any
 }) => {
 
     const [loading, setLoading] = useState(result.loading);
@@ -159,9 +161,11 @@ export const MainResult = ({ result, onNewTranslation, ...props }: {
         setLoading(result.loading);
     }, [result])
 
+
+
     const service = new Service(result.data.service)
     return <div className="flex lg:flex-row flex-col lg:space-x-10 lg:space-y-0 space-y-5 mb-10">
-        <MainResultCard text={result.data.source} language={result.data.sourceLanguage} onNewTranslation={(text, lang) => {
+        <MainResultCard onCopyNotification={onCopyNotification} text={result.data.source} language={result.data.sourceLanguage} onNewTranslation={(text, lang) => {
             if (!onNewTranslation) {
                 return console.log("source", text, lang)
             }
@@ -172,7 +176,7 @@ export const MainResult = ({ result, onNewTranslation, ...props }: {
                 dest: result.data.destinationLanguage.id,
             })
         }} />
-        <MainResultCard loading={loading} text={result.data.result} language={result.data.destinationLanguage} service={service} onNewTranslation={(text, lang) => {
+        <MainResultCard onCopyNotification={onCopyNotification} loading={loading} text={result.data.result} language={result.data.destinationLanguage} service={service} onNewTranslation={(text, lang) => {
             if (!onNewTranslation) {
                 return console.log("dest", text, lang)
             }

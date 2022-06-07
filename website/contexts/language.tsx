@@ -1,3 +1,5 @@
+import * as languages from "../localizations";
+
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 import EnglishLocalization from "../localizations/eng";
@@ -24,22 +26,14 @@ export const LanguageContextProvider = ({ children }: LanguageContextProps) => {
 
     const setLanguage = (language: string) => {
         window.localStorage.setItem("ui-language", language);
-        switch (language) {
-            case "eng":
-                setLanguageData(new EnglishLocalization());
-                break;
-            case "fra":
-                setLanguageData(new FrenchLocalization());
-                break;
-            case "jpn":
-                setLanguageData(new JapaneseLocalization());
-                break;
-            case "spa":
-                setLanguageData(new SpanishLocalization());
-                break;
-            default:
-                setLanguageData(new EnglishLocalization());
+
+        for (const lang in languages) {
+            const newLang = new languages[lang]()
+            if (language === newLang.language) {
+                return setLanguageData(newLang);
+            }
         }
+        return setLanguageData(new EnglishLocalization());
     }
 
     useEffect(() => {

@@ -23,6 +23,9 @@ class EnglishLocalization {
         documentation: "Documentation",
         stats: "Stats"
     }
+    notifications = {
+        copied: "Copied to clipboard"
+    }
 }
 
 export default EnglishLocalization

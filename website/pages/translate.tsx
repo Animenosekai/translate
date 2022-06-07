@@ -3,6 +3,7 @@ import { SubResult, SubResultLoader } from 'components/ui/cards/subResult'
 import { useEffect, useState } from 'react'
 
 import Configuration from 'config'
+import { CopyNotification } from 'components/ui/notifications/copy'
 import Head from 'next/head'
 import { MainResult } from 'components/ui/cards/mainResult'
 import type { NextPage } from 'next'
@@ -42,7 +43,7 @@ const Translate: NextPage = () => {
             console.log("Connecting to stream...", currentID, streamID);
             console.log(`Translate: ${currentTranslation.text} from ${currentTranslation.source} to ${currentTranslation.dest}`);
             const stream = new EventSource(`${Configuration.request.host}/stream?text=${encodeURIComponent(currentTranslation.text)}&dest=${currentTranslation.dest}&source=${currentTranslation.source}`)
-            setResults([{...DefaultTranslateRequest, loading: true, data: {...DefaultTranslateRequest.data, source: currentTranslation.text}}])
+            setResults([{ ...DefaultTranslateRequest, loading: true, data: { ...DefaultTranslateRequest.data, source: currentTranslation.text } }])
             setToLoad(Object.keys(services).length);
             stream.onmessage = (event) => {
                 if (!event) {
@@ -85,27 +86,49 @@ const Translate: NextPage = () => {
         setStreamID(currentID);
     }, [currentTranslation])
 
+
+    const [showCopyNotification, setShowCopyNotification] = useState(false);
+    const [notificationTimeout, setNotificationTimeout] = useState(null);
+
+    const copyNotificationDuration = 3000
+    
+    useEffect(() => {
+        if (showCopyNotification) {
+            clearTimeout(notificationTimeout);
+            setNotificationTimeout(setTimeout(() => {
+                setShowCopyNotification(false);
+            }, copyNotificationDuration))
+        }
+    }, [showCopyNotification])
+
+    const showCopyNotificationHandler = () => {
+        setShowCopyNotification(true);
+    }
+
     return <div className='h-full'>
         <Head>
             <title>translate — Use multiple services to translate your texts!</title>
             <meta name="description" content="Use multiple services to translate your texts!" />
             <link rel="icon" href="/favicon.ico" />
         </Head>
+        {
+            showCopyNotification && <CopyNotification duration={copyNotificationDuration} />
+        }
         <div className="sm:p-16 p-5">
             {
                 (results.length > 0 && results[0].success)
-                    ? <MainResult onNewTranslation={setCurrentTranslation} result={results[0]} />
-                    : <MainResult onNewTranslation={setCurrentTranslation} result={
+                    ? <MainResult onCopyNotification={showCopyNotificationHandler} onNewTranslation={setCurrentTranslation} result={results[0]} />
+                    : <MainResult onCopyNotification={showCopyNotificationHandler} onNewTranslation={setCurrentTranslation} result={
                         {
                             ...DefaultTranslateRequest,
-                            data: {...DefaultTranslateRequest.data, source: currentTranslation.text}
+                            data: { ...DefaultTranslateRequest.data, source: currentTranslation.text }
                         }
                     } />
             }
             <div className="mx-3 mt-16">
                 <h2 className="font-semibold text-xl mb-5">{strings.heading.otherTranslations}</h2>
                 <div className='flex flex-row flex-wrap w-full justify-center md:justify-start'>
-                    {results.slice(1).map((result, index) => <SubResult key={index} result={result} />)}
+                    {results.slice(1).map((result, index) => <SubResult onCopyNotification={showCopyNotificationHandler} key={index} result={result} />)}
                     {
                         toLoad > 0
                             ? Array(toLoad).fill(0).map((_, i) => <SubResultLoader key={i} />)

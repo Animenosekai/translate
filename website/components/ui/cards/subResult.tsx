@@ -26,7 +26,7 @@ export const SubResultLoader = (props) => {
     </div>
 }
 
-export const SubResult = ({ result, ...props }: { result: TranslateRequest }) => {
+export const SubResult = ({ result, onCopyNotification, ...props }: { result: TranslateRequest, onCopyNotification?: () => any }) => {
     const { strings } = useLanguage();
     const [expanded, setExpanded] = useState<boolean>(false);
     const service = new Service(result.data.service)
@@ -41,7 +41,7 @@ export const SubResult = ({ result, ...props }: { result: TranslateRequest }) =>
                     result.success
                         ? <div className="ml-auto flex flex-row space-x-2">
                             <TTSButton text={result.data.result} sourceLang={result.data.destinationLanguage} />
-                            <CopyIcon onClick={(ev) => { navigator.clipboard.writeText(result.data.result); ev.stopPropagation(); }} className="opacity-70 hover:opacity-100 transition active:scale-95 cursor-pointer" />
+                            <CopyIcon onClick={(ev) => { navigator.clipboard.writeText(result.data.result); onCopyNotification(); ev.stopPropagation(); }} className="opacity-70 hover:opacity-100 transition active:scale-95 cursor-pointer" />
                         </div>
                         : ""
                 }

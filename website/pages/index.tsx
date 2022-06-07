@@ -1,4 +1,5 @@
 import { Button } from '@nextui-org/react'
+import { CopyNotification } from 'components/ui/notifications/copy'
 // import { Button } from 'components/ui/buttons/button'
 import Head from 'next/head'
 import { LanguageIcon } from 'components/icons/language'
@@ -37,7 +38,6 @@ const Home: NextPage = () => {
                 <Button onClick={translate} type="submit" hidden={text ? false : true} disabled={text ? false : true} auto flat>{strings.buttons.translate}</Button>
             </div>
         </div>
-
     </div>
 }
 
