@@ -1,4 +1,5 @@
 import { Card, Loading, Tooltip } from "@nextui-org/react";
+import { SpellcheckRequest, SpellcheckResult } from "types/spellcheck";
 import { TransliterateRequest, TransliterateResult } from "types/transliterate";
 import { useEffect, useState } from "react";
 
@@ -42,25 +43,46 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
     const [showModal, setShowModal] = useState<boolean>(false);
     const [currentTimeout, setCurrentTimeout] = useState(null);
     const [transliteration, setTransliteration] = useState<TransliterateResult>(null);
+    const [spellchecked, setSpellechked] = useState<SpellcheckResult>(null);
 
     useEffect(() => {
-        if (!service) { return }
-        request<TransliterateRequest>("/transliterate", {
-            params: {
-                text: currentText,
-                dest: language.id
-            }
-        })
-            .then(value => {
-                if (value.success && value.data.result != currentText) {
-                    setTransliteration(value.data);
-                } else {
-                    setTransliteration(null);
+        if (!service) { // spellcheck
+            request<SpellcheckRequest>("/spellcheck", {
+                params: {
+                    text: currentText,
+                    source: language.id
                 }
             })
-            .catch(_ => {
-                setTransliteration(null);
+                .then(value => {
+                    if (value.success && value.data.result != currentText) {
+                        setSpellechked(value.data);
+                    } else {
+                        setSpellechked(null);
+                    }
+                })
+                .catch(_ => {
+                    setSpellechked(null);
+                })
+            return
+        } else { // transliterate
+            request<TransliterateRequest>("/transliterate", {
+                params: {
+                    text: currentText,
+                    dest: language.id
+                }
             })
+                .then(value => {
+                    if (value.success && value.data.result != currentText) {
+                        setTransliteration(value.data);
+                    } else {
+                        setTransliteration(null);
+                    }
+                })
+                .catch(_ => {
+                    setTransliteration(null);
+                })
+        }
+
     }, [currentText])
 
     useEffect(() => {
@@ -121,6 +143,21 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
         <Card.Footer>
             <div className="w-10/12 flex flex-row">
                 <ServiceElement service={service} />
+                {
+                    spellchecked && <div className="opacity-70 flex flex-row">
+                        {"・"}
+                        <div className="h-5">
+                            <Tooltip content={strings.labels.spellcheckBy.format({ service: spellchecked.service })} rounded hideArrow placement="right" style={{
+                                color: "white",
+                                width: "100%"
+                            }} contentColor="primary">
+                                <span onClick={() => {
+                                    setCurrentText(spellchecked.result);
+                                }} className="italic w-full text-black">{spellchecked.result}</span>
+                            </Tooltip>
+                        </div>
+                    </div>
+                }
                 {
                     transliteration && <div className="opacity-70 flex flex-row">
                         {"・"}

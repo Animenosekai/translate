@@ -17,6 +17,7 @@ class SpanishLocalization extends EnglishLocalization {
     labels = {
         source: "Fuente",
         transliterationBy: new TemplateString("Transliteración de {service}"),
+        spellcheckBy: new TemplateString("Corrección de {service}"),
         translationFailure: "Error",
     }
     pages = {

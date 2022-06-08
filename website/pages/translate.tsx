@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 
 import Configuration from 'config'
 import { CopyNotification } from 'components/ui/notifications/copy'
-import Head from 'next/head'
 import { MainResult } from 'components/ui/cards/mainResult'
 import type { NextPage } from 'next'
 import { SEO } from 'components/common/seo'

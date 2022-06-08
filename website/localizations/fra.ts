@@ -17,6 +17,7 @@ class FrenchLocalization extends EnglishLocalization {
     labels = {
         source: "Source",
         transliterationBy: new TemplateString("Translitération de {service}"),
+        spellcheckBy: new TemplateString("Correction par {service}"),
         translationFailure: "Erreur",
     }
     pages = {

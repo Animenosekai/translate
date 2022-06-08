@@ -16,6 +16,7 @@ class EnglishLocalization {
     labels = {
         source: "Source",
         transliterationBy: new TemplateString("Transliteration by {service}"),
+        spellcheckBy: new TemplateString("Spellchecked by {service}"),
         translationFailure: "Failed",
     }
     pages = {

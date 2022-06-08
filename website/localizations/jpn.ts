@@ -17,6 +17,7 @@ class JapaneseLocalization extends EnglishLocalization {
     labels = {
         source: "Source",
         transliterationBy: new TemplateString("{service} からの音訳"),
+        spellcheckBy: new TemplateString("{service} からのスペルチェック"),
         translationFailure: "エラー",
     }
     pages = {
