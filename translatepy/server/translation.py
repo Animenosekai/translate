@@ -88,7 +88,7 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
             error="UNKNOWN_LANGUAGE",
             code=400
         )
-    return 200, result.as_dict(True, foreign=foreign)
+    return Response(result.as_dict(camelCase=True, foreign=foreign))
 
 
 @app.route("/stream", Endpoint(
@@ -253,13 +253,13 @@ def translate(code: str, dest: str, source: str = "auto", parser: str = "html.pa
 
     result = current_translator.translate_html(html=code, destination_language=destination, source_language=source, parser=parser, __internal_replacement_function__=_translate)
 
-    return 200, {
+    return Response({
         "services": [element for element, _ in Counter(services).most_common()],
         "source": code,
         "sourceLanguage": [element for element, _ in Counter(languages).most_common()],
         "destinationLanguage": destination.as_dict(foreign=foreign),
         "result": result
-    }
+    })
 
 
 @app.route("/transliterate", Endpoint(
@@ -309,7 +309,7 @@ def transliterate(text: str, dest: str = "English", source: str = "auto", transl
             error="UNKNOWN_LANGUAGE",
             code=400
         )
-    return 200, result.as_dict(True, foreign=foreign)
+    return Response(result.as_dict(camelCase=True, foreign=foreign))
 
 
 @app.route("/spellcheck", Endpoint(
@@ -357,7 +357,7 @@ def spellcheck(text: str, source: str = "auto", translators: List[str] = None, f
             error="UNKNOWN_LANGUAGE",
             code=400
         )
-    return 200, result.as_dict(True, foreign=foreign)
+    return Response(result.as_dict(camelCase=True, foreign=foreign))
 
 
 @app.route("/language", Endpoint(
@@ -393,7 +393,7 @@ def language(text: str, translators: List[str] = None, foreign: bool = True):
 
     result = current_translator.language(text=text)
 
-    return 200, result.as_dict(True, foreign=foreign)
+    return Response(result.as_dict(camelCase=True, foreign=foreign))
 
 
 @app.route("/tts", Endpoint(

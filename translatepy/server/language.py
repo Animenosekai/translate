@@ -126,7 +126,7 @@ def language_details(lang: str, threshold: float = 93, foreign: bool = True):
             error="UNKNOWN_LANGUAGE",
             code=400
         )
-    return 200, result.as_dict(camelCase=True, foreign=foreign)
+    return Response(result.as_dict(camelCase=True, foreign=foreign))
 
 
 @app.route("/language/search", Endpoint(
@@ -164,7 +164,7 @@ def language_search(lang: str, foreign: bool = True, limit: int = 10):
 
     results = sorted(results_dict.items(), key=lambda x: x[1], reverse=True)[:limit]
 
-    return 200, {
+    return Response({
         "languages": [
             {
                 "string": str(vector.string),
@@ -173,7 +173,7 @@ def language_search(lang: str, foreign: bool = True, limit: int = 10):
             }
             for vector, similarity in results
         ]
-    }
+    })
 
 
 @app.route("/language/details/<language>", Endpoint(
@@ -194,4 +194,4 @@ def language_details_dynamic(language: str, threshold: float = 93, foreign: bool
             error="UNKNOWN_LANGUAGE",
             code=400
         )
-    return 200, result.as_dict(camelCase=True, foreign=foreign)
+    return Response(result.as_dict(camelCase=True, foreign=foreign))
