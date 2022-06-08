@@ -7,6 +7,7 @@ import { CopyNotification } from 'components/ui/notifications/copy'
 import Head from 'next/head'
 import { MainResult } from 'components/ui/cards/mainResult'
 import type { NextPage } from 'next'
+import { SEO } from 'components/common/seo'
 import { generateRandomID } from 'utils/random'
 import { services } from 'lib/services'
 import { useLanguage } from 'contexts/language'
@@ -17,7 +18,6 @@ const Translate: NextPage = () => {
     const router = useRouter();
     const [toLoad, setToLoad] = useState(Object.keys(services).length);
     const [results, setResults] = useState<TranslateRequest[]>([DefaultTranslateRequest]);
-    const [mainResult, setMainResult] = useState<TranslateRequest>(DefaultTranslateRequest)
 
     let URLParams: URLSearchParams
     if (typeof window !== "undefined") {
@@ -106,11 +106,7 @@ const Translate: NextPage = () => {
     }
 
     return <div className='h-full'>
-        <Head>
-            <title>translate — Use multiple services to translate your texts!</title>
-            <meta name="description" content="Use multiple services to translate your texts!" />
-            <link rel="icon" href="/favicon.ico" />
-        </Head>
+        <SEO title={`translation from ${currentTranslation.source} to ${currentTranslation.dest}`} description='Use multiple services to translate your texts!' />
         {
             showCopyNotification && <CopyNotification duration={copyNotificationDuration} />
         }

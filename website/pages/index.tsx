@@ -1,9 +1,7 @@
 import { Button } from '@nextui-org/react'
-import { CopyNotification } from 'components/ui/notifications/copy'
-// import { Button } from 'components/ui/buttons/button'
-import Head from 'next/head'
 import { LanguageIcon } from 'components/icons/language'
 import type { NextPage } from 'next'
+import { SEO } from 'components/common/seo'
 import { TranslationTextArea } from 'components/ui/textareas/translation'
 import { useLanguage } from 'contexts/language'
 import { useRouter } from 'next/router'
@@ -19,11 +17,7 @@ const Home: NextPage = () => {
     }
 
     return <div className='h-full'>
-        <Head>
-            <title>translate — Use multiple services to translate your texts!</title>
-            <meta name="description" content="Use multiple services to translate your texts!" />
-            <link rel="icon" href="/favicon.ico" />
-        </Head>
+        <SEO description='Use multiple services to translate your texts!' />
 
         <div className="flex items-center flex-col md:w-1/2 w-3/4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -mt-10">
             <LanguageIcon size={100} />
