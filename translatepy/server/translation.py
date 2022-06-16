@@ -6,7 +6,8 @@ from typing import List
 from bs4 import NavigableString
 from flask import Response as FlaskResponse
 from nasse import Response
-from nasse.models import Endpoint, Error, Login, Param, Return
+from nasse.models import Endpoint, Error, Login, Param, Return, Header
+import translatepy
 from translatepy import Translator
 from translatepy.exceptions import NoResult, UnknownLanguage, UnknownTranslator
 from translatepy.language import Language
@@ -29,7 +30,8 @@ base = Endpoint(
         Error("UNKNOWN_LANGUAGE", "When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.", code=400),
         Error("UNKNOWN_TRANSLATOR", "When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.", code=400)
     ],
-    login=Login(no_login=True)
+    login=Login(no_login=True),
+    headers=Header("X-TRANSLATEPY-VERSION", "Used translatepy's version")
 )
 
 
@@ -73,7 +75,9 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
                 },
                 message="translatepy could not find the given translator",
                 error="UNKNOWN_TRANSLATOR",
-                code=400
+                code=400, headers={
+                    "X-TRANSLATEPY-VERSION": translatepy.__version__
+                }
             )
 
     try:
@@ -86,9 +90,13 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
             },
             message=str(err),
             error="UNKNOWN_LANGUAGE",
-            code=400
+            code=400, headers={
+                "X-TRANSLATEPY-VERSION": translatepy.__version__
+            }
         )
-    return Response(result.as_dict(camelCase=True, foreign=foreign))
+    return Response(result.as_dict(camelCase=True, foreign=foreign), headers={
+        "X-TRANSLATEPY-VERSION": translatepy.__version__
+    })
 
 
 @app.route("/stream", Endpoint(
@@ -110,7 +118,7 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
         Return("result", "こんにちは世界", "The translated text")
     ]
 ))
-def translate(text: str, dest: str, source: str = "auto", translators: List[str] = None, foreign: bool = True):
+def stream(text: str, dest: str, source: str = "auto", translators: List[str] = None, foreign: bool = True):
     current_translator = t
     if translators is not None:
         try:
@@ -123,7 +131,9 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
                 },
                 message="translatepy could not find the given translator",
                 error="UNKNOWN_TRANSLATOR",
-                code=400
+                code=400, headers={
+                    "X-TRANSLATEPY-VERSION": translatepy.__version__
+                }
             )
 
     try:
@@ -138,7 +148,9 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
             },
             message=str(err),
             error="UNKNOWN_LANGUAGE",
-            code=400
+            code=400, headers={
+                "X-TRANSLATEPY-VERSION": translatepy.__version__
+            }
         )
 
     def _translate(translator: BaseTranslator):
@@ -187,7 +199,9 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
 
             yield "data: {result}\n\n".format(result=json.dumps(result, ensure_ascii=False))
 
-    return FlaskResponse(handler(), mimetype="text/event-stream")
+    return FlaskResponse(handler(), mimetype="text/event-stream", headers={
+        "X-TRANSLATEPY-VERSION": translatepy.__version__
+    })
 
 
 @app.route("/html", Endpoint(
@@ -210,7 +224,7 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
         Return("result", "<div><p>こんにちは、今日はお元気ですか</p><p>大丈夫</p></div>", "The translated text")
     ]
 ))
-def translate(code: str, dest: str, source: str = "auto", parser: str = "html.parser", translators: List[str] = None, foreign: bool = True):
+def html(code: str, dest: str, source: str = "auto", parser: str = "html.parser", translators: List[str] = None, foreign: bool = True):
     current_translator = t
     if translators is not None:
         try:
@@ -223,7 +237,9 @@ def translate(code: str, dest: str, source: str = "auto", parser: str = "html.pa
                 },
                 message="translatepy could not find the given translator",
                 error="UNKNOWN_TRANSLATOR",
-                code=400
+                code=400, headers={
+                    "X-TRANSLATEPY-VERSION": translatepy.__version__
+                }
             )
 
     try:
@@ -237,7 +253,9 @@ def translate(code: str, dest: str, source: str = "auto", parser: str = "html.pa
             },
             message=str(err),
             error="UNKNOWN_LANGUAGE",
-            code=400
+            code=400, headers={
+                "X-TRANSLATEPY-VERSION": translatepy.__version__
+            }
         )
     services = []
     languages = []
@@ -259,6 +277,8 @@ def translate(code: str, dest: str, source: str = "auto", parser: str = "html.pa
         "sourceLanguage": [element for element, _ in Counter(languages).most_common()],
         "destinationLanguage": destination.as_dict(foreign=foreign),
         "result": result
+    }, headers={
+        "X-TRANSLATEPY-VERSION": translatepy.__version__
     })
 
 
@@ -294,7 +314,9 @@ def transliterate(text: str, dest: str = "English", source: str = "auto", transl
                 },
                 message="translatepy could not find the given translator",
                 error="UNKNOWN_TRANSLATOR",
-                code=400
+                code=400, headers={
+                    "X-TRANSLATEPY-VERSION": translatepy.__version__
+                }
             )
 
     try:
@@ -307,9 +329,13 @@ def transliterate(text: str, dest: str = "English", source: str = "auto", transl
             },
             message=str(err),
             error="UNKNOWN_LANGUAGE",
-            code=400
+            code=400, headers={
+                "X-TRANSLATEPY-VERSION": translatepy.__version__
+            }
         )
-    return Response(result.as_dict(camelCase=True, foreign=foreign))
+    return Response(result.as_dict(camelCase=True, foreign=foreign), headers={
+        "X-TRANSLATEPY-VERSION": translatepy.__version__
+    })
 
 
 @app.route("/spellcheck", Endpoint(
@@ -342,7 +368,9 @@ def spellcheck(text: str, source: str = "auto", translators: List[str] = None, f
                 },
                 message="translatepy could not find the given translator",
                 error="UNKNOWN_TRANSLATOR",
-                code=400
+                code=400, headers={
+                    "X-TRANSLATEPY-VERSION": translatepy.__version__
+                }
             )
 
     try:
@@ -355,9 +383,13 @@ def spellcheck(text: str, source: str = "auto", translators: List[str] = None, f
             },
             message=str(err),
             error="UNKNOWN_LANGUAGE",
-            code=400
+            code=400, headers={
+                "X-TRANSLATEPY-VERSION": translatepy.__version__
+            }
         )
-    return Response(result.as_dict(camelCase=True, foreign=foreign))
+    return Response(result.as_dict(camelCase=True, foreign=foreign), headers={
+        "X-TRANSLATEPY-VERSION": translatepy.__version__
+    })
 
 
 @app.route("/language", Endpoint(
@@ -388,12 +420,16 @@ def language(text: str, translators: List[str] = None, foreign: bool = True):
                 },
                 message="translatepy could not find the given translator",
                 error="UNKNOWN_TRANSLATOR",
-                code=400
+                code=400, headers={
+                    "X-TRANSLATEPY-VERSION": translatepy.__version__
+                }
             )
 
     result = current_translator.language(text=text)
 
-    return Response(result.as_dict(camelCase=True, foreign=foreign))
+    return Response(result.as_dict(camelCase=True, foreign=foreign), headers={
+        "X-TRANSLATEPY-VERSION": translatepy.__version__
+    })
 
 
 @app.route("/tts", Endpoint(
@@ -421,9 +457,13 @@ def tts(text: str, speed: int = 100, gender: str = "female", source: str = "auto
                 },
                 message="translatepy could not find the given translator",
                 error="UNKNOWN_TRANSLATOR",
-                code=400
+                code=400, headers={
+                    "X-TRANSLATEPY-VERSION": translatepy.__version__
+                }
             )
 
     result = current_translator.text_to_speech(text=text, speed=speed, gender=gender, source_language=source)
 
-    return Response(result.result, content_type="audio/mpeg")
+    return Response(result.result, content_type="audio/mpeg", headers={
+        "X-TRANSLATEPY-VERSION": translatepy.__version__
+    })

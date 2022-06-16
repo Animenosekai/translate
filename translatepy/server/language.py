@@ -1,6 +1,7 @@
 from nasse import Response
-from nasse.models import Dynamic, Endpoint, Error, Login, Param, Return
+from nasse.models import Dynamic, Endpoint, Error, Login, Param, Return, Header
 from nasse.utils.boolean import to_bool
+import translatepy
 from translatepy.exceptions import UnknownLanguage
 from translatepy.language import (LANGUAGE_CLEANUP_REGEX, LOADED_VECTORS,
                                   VECTORS, Language)
@@ -14,7 +15,8 @@ base = Endpoint(
         Error("TRANSLATEPY_EXCEPTION", "Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy."),
         Error("UNKNOWN_LANGUAGE", "When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.", code=400)
     ],
-    login=Login(no_login=True)
+    login=Login(no_login=True),
+    headers=Header("X-TRANSLATEPY-VERSION", "Used translatepy's version")
 )
 
 EXAMPLE_ENGLISH = {
@@ -126,7 +128,9 @@ def language_details(lang: str, threshold: float = 93, foreign: bool = True):
             error="UNKNOWN_LANGUAGE",
             code=400
         )
-    return Response(result.as_dict(camelCase=True, foreign=foreign))
+    return Response(result.as_dict(camelCase=True, foreign=foreign), headers={
+        "X-TRANSLATEPY-VERSION": translatepy.__version__
+    })
 
 
 @app.route("/language/search", Endpoint(
@@ -173,6 +177,8 @@ def language_search(lang: str, foreign: bool = True, limit: int = 10):
             }
             for vector, similarity in results
         ]
+    }, headers={
+        "X-TRANSLATEPY-VERSION": translatepy.__version__
     })
 
 
@@ -194,4 +200,6 @@ def language_details_dynamic(language: str, threshold: float = 93, foreign: bool
             error="UNKNOWN_LANGUAGE",
             code=400
         )
-    return Response(result.as_dict(camelCase=True, foreign=foreign))
+    return Response(result.as_dict(camelCase=True, foreign=foreign), headers={
+        "X-TRANSLATEPY-VERSION": translatepy.__version__
+    })

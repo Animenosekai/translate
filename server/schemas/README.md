@@ -1,3 +1,3 @@
-# website/server/schemas
+# server/schemas
 
 Contains the database `yuno` schemas.
