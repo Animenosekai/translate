@@ -30,8 +30,7 @@ base = Endpoint(
         Error("UNKNOWN_LANGUAGE", "When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.", code=400),
         Error("UNKNOWN_TRANSLATOR", "When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.", code=400)
     ],
-    login=Login(no_login=True),
-    headers=Header("X-TRANSLATEPY-VERSION", "Used translatepy's version")
+    login=Login(no_login=True)
 )
 
 

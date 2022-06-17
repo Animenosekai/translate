@@ -15,8 +15,7 @@ base = Endpoint(
         Error("TRANSLATEPY_EXCEPTION", "Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy."),
         Error("UNKNOWN_LANGUAGE", "When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.", code=400)
     ],
-    login=Login(no_login=True),
-    headers=Header("X-TRANSLATEPY-VERSION", "Used translatepy's version")
+    login=Login(no_login=True)
 )
 
 EXAMPLE_ENGLISH = {

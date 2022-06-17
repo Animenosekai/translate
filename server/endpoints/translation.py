@@ -1,8 +1,10 @@
 from datetime import datetime
+from os import environ
 
 from bson import ObjectId
 from nasse.timer import Timer
-from server.db import client
+from db import client
+from nasse.utils.boolean import to_bool
 import translatepy
 from translatepy.server.translation import (BaseTranslator, FlaskResponse,
                                             Language, List, NoResult, Queue,
@@ -10,15 +12,17 @@ from translatepy.server.translation import (BaseTranslator, FlaskResponse,
                                             UnknownLanguage, UnknownTranslator,
                                             json, t)
 
-timings = client.translatepy.timings
-
 
 def log_time(service: BaseTranslator, time: float, storage: dict):
     print("{service} took {time} seconds".format(service=service, time=time))
-    storage[str(service)] = time
+    storage[str(service).replace(".", "*dot*")] = time
 
 
-errors = client.translatepy.errors
+if not to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
+    timings = client.translatepy.timings
+    errors = client.translatepy.errors
+else:
+    timings, errors = {}, {}
 
 
 def log_error(service: str, error: str):
@@ -45,7 +49,9 @@ def stream_fix(text: str, dest: str, source: str = "auto", translators: List[str
                 },
                 message="translatepy could not find the given translator",
                 error="UNKNOWN_TRANSLATOR",
-                code=400
+                code=400, headers={
+                    "X-TRANSLATEPY-VERSION": translatepy.__version__
+                }
             )
 
     try:
@@ -60,7 +66,9 @@ def stream_fix(text: str, dest: str, source: str = "auto", translators: List[str
             },
             message=str(err),
             error="UNKNOWN_LANGUAGE",
-            code=400
+            code=400, headers={
+                "X-TRANSLATEPY-VERSION": translatepy.__version__
+            }
         )
 
     def _translate(translator: BaseTranslator):
@@ -76,7 +84,7 @@ def stream_fix(text: str, dest: str, source: str = "auto", translators: List[str
             with Timer() as timer:
                 translator = current_translator._instantiate_translator(translator, current_translator.services, index)
                 result = _translate(translator)
-            log_time(translator, timer.time, timing_storage)
+            Thread(target=log_time, args=(translator, timer.time, timing_storage)).start()
             queue.put({
                 "success": True,
                 "error": None,
@@ -86,7 +94,7 @@ def stream_fix(text: str, dest: str, source: str = "auto", translators: List[str
         except Exception as err:
             service = str(translator) if isinstance(translator, BaseTranslator) else translator.__name__
             error = str(err.__class__.__name__)
-            log_error(service, error)
+            Thread(target=log_error, args=(service, error)).start()
             queue.put({
                 "success": False,
                 "error": error,
@@ -98,13 +106,19 @@ def stream_fix(text: str, dest: str, source: str = "auto", translators: List[str
 
     _queue = Queue()
     threads = []
+
+    # New translation document
     new_id = ObjectId()
-    timings[new_id] = {
-        "_id": new_id,
-        "timings": {},
-        "timestamp": datetime.utcnow(),
-    }
-    new_timing_storage = timings[new_id]["timings"]
+    if not to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
+        timings[new_id] = {
+            "_id": new_id,
+            "timings": {},
+            "timestamp": datetime.utcnow(),
+        }
+        new_timing_storage = timings[new_id]["timings"]
+    else:
+        new_timing_storage = {}
+
     for index, service in enumerate(current_translator.services):
         thread = Thread(target=_fast_translate, args=(_queue, service, index, new_timing_storage))
         thread.start()

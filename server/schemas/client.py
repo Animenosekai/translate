@@ -1,7 +1,7 @@
 from yuno import YunoClient, YunoDatabase
 
-from server.schemas.errors import ErrorsCollection
-from server.schemas.timings import TimingsCollection
+from schemas.errors import ErrorsCollection
+from schemas.timings import TimingsCollection
 
 
 class TranslatepyDatabase(YunoDatabase):
