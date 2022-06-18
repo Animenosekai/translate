@@ -87,8 +87,8 @@ print(r.json()["data"])
         "name": "English",
         "inForeignLanguages": {},
         "extra": {
-            "type": "Living",
-            "scope": "Individual"
+            "scope": "Individual",
+            "type": "Living"
         }
     }
 }
@@ -326,8 +326,8 @@ print(r.json()["data"])
         "name": "English",
         "inForeignLanguages": {},
         "extra": {
-            "type": "Living",
-            "scope": "Individual"
+            "scope": "Individual",
+            "type": "Living"
         }
     }
 }

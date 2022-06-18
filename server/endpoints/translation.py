@@ -117,7 +117,7 @@ def stream_fix(request, text: str, dest: str, source: str = "auto", translators:
                     },
                     upsert=True
                 )
-                starred = len(stars.find({"_id": translation_id, "users": current_ip_hash})) > 0
+                starred = len(stars.find({"_id": translation_id, "users.{hash}".format(hash=current_ip_hash): {"$exists": True}}, include=["_id"], limit=1)) > 0
 
                 data["token"] = token
                 data["translationID"] = translation_id

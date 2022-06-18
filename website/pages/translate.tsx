@@ -7,7 +7,9 @@ import { CopyNotification } from 'components/ui/notifications/copy'
 import { MainResult } from 'components/ui/cards/mainResult'
 import type { NextPage } from 'next'
 import { SEO } from 'components/common/seo'
+import { StarRequest } from 'types/stars'
 import { generateRandomID } from 'utils/random'
+import { request } from 'lib/request'
 import { services } from 'lib/services'
 import { useLanguage } from 'contexts/language'
 import { useRouter } from 'next/router'
@@ -17,6 +19,7 @@ const Translate: NextPage = () => {
     const router = useRouter();
     const [toLoad, setToLoad] = useState(Object.keys(services).length);
     const [results, setResults] = useState<TranslateRequest[]>([DefaultTranslateRequest]);
+    const [starred, setStarred] = useState<string[]>([]);
 
     let URLParams: URLSearchParams
     if (typeof window !== "undefined") {
@@ -50,6 +53,11 @@ const Translate: NextPage = () => {
                     return
                 }
                 const data = JSON.parse(event.data)
+
+                if (data?.data?.starred) {
+                    setStarred(starred => [...starred.filter(val => val !== data.data.translationID), data.data.translationID])
+                }
+                
                 setResults(results => {
                     const success = results.filter((val) => val.success)
                     const failed = results.filter((val) => !val.success)
@@ -90,7 +98,7 @@ const Translate: NextPage = () => {
     const [notificationTimeout, setNotificationTimeout] = useState(null);
 
     const copyNotificationDuration = 3000
-    
+
     useEffect(() => {
         if (showCopyNotification) {
             clearTimeout(notificationTimeout);
@@ -104,6 +112,31 @@ const Translate: NextPage = () => {
         setShowCopyNotification(true);
     }
 
+    const onStarChange = (translation: TranslateRequest, star: boolean) => {
+        setStarred(starred => {
+            return star ? [...starred.filter(val => val !== translation.data.translationID), translation.data.translationID] : starred.filter(val => val !== translation.data.translationID)
+        })
+
+        request<StarRequest>("/stars/" + translation.data.translationID, {
+            method: star ? "POST" : "DELETE",
+            params: star ? {
+                token:  translation.data.token
+            } : {}
+        })
+            .then(response => {
+                if (!response.success) {
+                    setStarred(starred => {
+                        return star ? [...starred.filter(val => val !== translation.data.translationID), translation.data.translationID] : starred.filter(val => val !== translation.data.translationID)
+                    })
+                }
+            })
+            .catch(error => {
+                setStarred(starred => {
+                    return star ? [...starred.filter(val => val !== translation.data.translationID), translation.data.translationID] : starred.filter(val => val !== translation.data.translationID)
+                })
+                console.error("Error starring translation", error)
+            })
+    }
     return <div className='h-full'>
         <SEO title={`translation from ${currentTranslation.source} to ${currentTranslation.dest}`} description='Use multiple services to translate your texts!' />
         {
@@ -112,18 +145,36 @@ const Translate: NextPage = () => {
         <div className="sm:p-16 p-5">
             {
                 (results.length > 0 && results[0].success)
-                    ? <MainResult onCopyNotification={showCopyNotificationHandler} onNewTranslation={setCurrentTranslation} result={results[0]} />
-                    : <MainResult onCopyNotification={showCopyNotificationHandler} onNewTranslation={setCurrentTranslation} result={
-                        {
-                            ...DefaultTranslateRequest,
-                            data: { ...DefaultTranslateRequest.data, source: currentTranslation.text }
-                        }
-                    } />
+                    ? <MainResult
+                        onCopyNotification={showCopyNotificationHandler}
+                        onNewTranslation={setCurrentTranslation}
+                        starred={starred.includes(results[0].data.translationID)}
+                        onStarChange={onStarChange}
+                        result={results[0]} />
+                    : <MainResult
+                        onCopyNotification={showCopyNotificationHandler}
+                        onNewTranslation={setCurrentTranslation}
+                        result={
+                            {
+                                ...DefaultTranslateRequest,
+                                data: { ...DefaultTranslateRequest.data, source: currentTranslation.text }
+                            }
+                        } />
             }
             <div className="mx-3 mt-16">
                 <h2 className="font-semibold text-xl mb-5">{strings.heading.otherTranslations}</h2>
                 <div className='flex flex-row flex-wrap w-full justify-center md:justify-start'>
-                    {results.slice(1).map((result, index) => <SubResult onCopyNotification={showCopyNotificationHandler} key={index} result={result} />)}
+                    {
+                        results.slice(1).map((result, index) => {
+                            return <SubResult
+                                starred={starred.includes(result.data.translationID)}
+                                onStarChange={onStarChange}
+                                onCopyNotification={showCopyNotificationHandler}
+                                key={index}
+                                result={result}
+                            />
+                        })
+                    }
                     {
                         toLoad > 0
                             ? Array(toLoad).fill(0).map((_, i) => <SubResultLoader key={i} />)

@@ -3,6 +3,7 @@ import ContentLoader from "react-content-loader";
 import { CopyIcon } from "components/icons/copy";
 import { Service } from "lib/services"
 import { ServiceElement } from "components/common/service"
+import { StarIcon } from "components/icons/star";
 import { TTSButton } from "../buttons/tts";
 import { TranslateRequest } from "types/translate"
 import { useLanguage } from "contexts/language";
@@ -26,7 +27,12 @@ export const SubResultLoader = (props) => {
     </div>
 }
 
-export const SubResult = ({ result, onCopyNotification, ...props }: { result: TranslateRequest, onCopyNotification?: () => any }) => {
+export const SubResult = ({ result, onCopyNotification, starred, onStarChange, ...props }: {
+    result: TranslateRequest,
+    onCopyNotification?: () => any,
+    starred?: boolean,
+    onStarChange?: (translation: TranslateRequest, status: boolean) => any
+}) => {
     const { strings } = useLanguage();
     const [expanded, setExpanded] = useState<boolean>(false);
     const service = new Service(result.data.service)
@@ -42,6 +48,11 @@ export const SubResult = ({ result, onCopyNotification, ...props }: { result: Tr
                         ? <div className="ml-auto flex flex-row space-x-2">
                             <TTSButton text={result.data.result} sourceLang={result.data.destinationLanguage} />
                             <CopyIcon onClick={(ev) => { navigator.clipboard.writeText(result.data.result); onCopyNotification(); ev.stopPropagation(); }} className="opacity-70 hover:opacity-100 transition active:scale-95 cursor-pointer" />
+                            {
+                                (onStarChange)
+                                    ? <StarIcon active={starred} onClick={() => { onStarChange(result, !starred) }} className="opacity-80 hover:opacity-100 transition active:scale-95 cursor-pointer" />
+                                    : ""
+                            }
                         </div>
                         : ""
                 }

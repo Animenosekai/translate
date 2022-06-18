@@ -1,6 +1,6 @@
 import Configuration from "../config"
 
-type HTTPMethods = "GET"
+type HTTPMethods = "GET" | "POST" | "DELETE"
 
 interface RequestOptions {
     method?: HTTPMethods

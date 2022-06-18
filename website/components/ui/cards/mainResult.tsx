@@ -5,13 +5,14 @@ import { useEffect, useState } from "react";
 
 import ContentLoader from "react-content-loader";
 import { CopyIcon } from "components/icons/copy";
-import { CopyNotification } from "../notifications/copy";
+// import { CopyNotification } from "../notifications/copy";
 import { EditIcon } from "components/icons/edit";
 import { LanguageDetailsResult } from "types/languageDetails";
 import { LanguagePicker } from "../modals/languagePicker";
 import { Service } from "lib/services";
 import { ServiceElement } from "components/common/service";
 import { SourceTextArea } from "../textareas/source";
+import { StarIcon } from "components/icons/star";
 import { TTSButton } from "../buttons/tts";
 import { TranslateRequest } from "types/translate";
 import { request } from "lib/request";
@@ -36,7 +37,16 @@ export const MainResultLoader = (props) => {
         </Card>
     </div>
 }
-export const MainResultCard = ({ text, language, service, loading, onNewTranslation, onCopyNotification, ...props }: { text: string, language: LanguageDetailsResult, service?: Service, loading?: boolean, onNewTranslation?: (text: string, language: LanguageDetailsResult) => any, onCopyNotification?: () => any }) => {
+export const MainResultCard = ({ text, language, service, loading, onNewTranslation, onCopyNotification, starred, onStarChange, ...props }: {
+    text: string,
+    language: LanguageDetailsResult,
+    service?: Service,
+    loading?: boolean,
+    onNewTranslation?: (text: string, language: LanguageDetailsResult) => any,
+    onCopyNotification?: () => any,
+    starred?: boolean,
+    onStarChange?: (status: boolean) => any
+}) => {
     const { strings } = useLanguage();
     const [currentText, setCurrentText] = useState<string>(text);
     const [currentLanguage, setCurrentLanguage] = useState<LanguageDetailsResult>(language);
@@ -179,18 +189,25 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
                         ? <CopyIcon onClick={() => { navigator.clipboard.writeText(currentText); onCopyNotification() }} className="opacity-70 hover:opacity-100 transition active:scale-95 cursor-pointer" />
                         : ""
                 }
+                {
+                    (onStarChange)
+                        ? <StarIcon active={starred} onClick={() => { onStarChange(!starred) }} className="opacity-80 hover:opacity-100 transition active:scale-95 cursor-pointer" />
+                        : ""
+                }
             </div>
         </Card.Footer>
     </Card>
 }
 
-export const MainResult = ({ result, onNewTranslation, onCopyNotification, ...props }: {
+export const MainResult = ({ result, starred, onNewTranslation, onCopyNotification, onStarChange, ...props }: {
     result: TranslateRequest, onNewTranslation?: (translation: {
         text: string,
         dest: string,
         source: string
     }) => any,
     onCopyNotification?: () => any
+    starred?: boolean,
+    onStarChange?: (translation: TranslateRequest, status: boolean) => any
 }) => {
 
     const [loading, setLoading] = useState(result.loading);
@@ -223,6 +240,10 @@ export const MainResult = ({ result, onNewTranslation, onCopyNotification, ...pr
                 source: result.data.sourceLanguage.id,
                 dest: lang.id,
             })
-        }} />
+        }}
+            starred={starred}
+            onStarChange={(status) => {
+                onStarChange && onStarChange(result, status);
+            }} />
     </div>
 }

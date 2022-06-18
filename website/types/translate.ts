@@ -12,6 +12,11 @@ export interface TranslateResult {
     sourceLanguage: LanguageDetailsResult
     destinationLanguage: LanguageDetailsResult
     result: string
+
+    // only exists for db enabled servers
+    starred?: boolean
+    token?: string
+    translationID?: string
 }
 
 

@@ -122,27 +122,33 @@ def stars__translation_id__(request: Request, method: str, translation_id: str, 
     try:
         translation = stars[translation_id]
     except KeyError as err:
-        raise NotFound("We couldn't find the given translation") from err
+        raise NotFound("We couldn't find the given translation")
 
     if method == "POST":
         # token body
         # {
         #     "sub": "user hash",
-        #     "translationID": "translation ID",
-        #     "source": "source text",
-        #     "result": "result text",
-        #     "language": {
-        #         "source": "source language",
-        #         "dest": "destination language"
+        #     "data": {
+        #         "translationID": "translation ID",
+        #         "source": "source text",
+        #         "result": "result text",
+        #         "language": {
+        #             "source": "source language",
+        #             "dest": "destination language"
+        #         }
         #     }
         # }
         if current_ip_hash != token["sub"]:
             raise Forbidden("You are not allowed to star this translation")
 
+        token_data = token["data"]
+
         if len(translation.users) <= 0:
-            translation.source = token["source"]
-            translation.result = token["result"]
-            translation.language = token["language"]
+            translation.update({
+                "source": token_data["source"],
+                "result": token_data["result"],
+                "language": token_data["language"],
+            })
 
         translation.users[current_ip_hash] = datetime.utcnow()
 
