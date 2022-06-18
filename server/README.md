@@ -20,3 +20,6 @@ A translation ID is a hash created using the following information :
 | `TRANSLATEPY_DB_DISABLED` | To disable any DB interaction                                          | `False`     |
 | `TRANSLATEPY_MONGO_URI`   | The MongoDB URI to connect to. If none, a `mongod` process will be ran | `None`      |
 | `TRANSLATEPY_IP_SALT`     | The salt to create IP hashes                                           | ``          |
+| `TRANSLATEPY_AES_KEY`     | The key to AES encrypt                                                 | ``          |
+| `TRANSLATEPY_JWT_KEY`     | The key to JWT sign                                                    | ``          |
+| `TRANSLATEPY_JWT_SIGN`    | translatepy JWTs signature                                             | ``          |

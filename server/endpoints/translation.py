@@ -5,7 +5,7 @@ from bson import ObjectId
 from nasse.timer import Timer
 from db import client
 from nasse.utils.boolean import to_bool
-from server.exceptions import DatabaseDisabled
+from exceptions import DatabaseDisabled
 import translatepy
 from translatepy.server.translation import (BaseTranslator, FlaskResponse,
                                             Language, List, NoResult, Queue,
@@ -13,11 +13,11 @@ from translatepy.server.translation import (BaseTranslator, FlaskResponse,
                                             UnknownLanguage, UnknownTranslator,
                                             json, t)
 
+from endpoints.stars import token_manager, aes, hasher, stars, generate_ip_hash
+
 
 def log_time(service: BaseTranslator, time: float, storage: dict):
     # print("{service} took {time} seconds".format(service=service, time=time))
-    if to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
-        raise DatabaseDisabled
     storage[str(service).replace(".", "*dot*")] = time
 
 
@@ -41,7 +41,7 @@ def log_error(service: str, error: str):
     }
 
 
-def stream_fix(text: str, dest: str, source: str = "auto", translators: List[str] = None, foreign: bool = True):
+def stream_fix(request, text: str, dest: str, source: str = "auto", translators: List[str] = None, foreign: bool = True):
     current_translator = t
     if translators is not None:
         try:
@@ -84,22 +84,56 @@ def stream_fix(text: str, dest: str, source: str = "auto", translators: List[str
             raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
         return result
 
-    def _fast_translate(queue: Queue, translator, index: int, timing_storage: dict):
+    def _fast_translate(queue: Queue, translator, index: int, timing_storage: dict, ip: str):
         try:
             with Timer() as timer:
                 translator = current_translator._instantiate_translator(translator, current_translator.services, index)
                 result = _translate(translator)
-            Thread(target=log_time, args=(translator, timer.time, timing_storage)).start()
+
+            data = result.as_dict(camelCase=True, foreign=foreign)
+
+            if not to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
+                Thread(target=log_time, args=(translator, timer.time, timing_storage)).start()
+                translation_id = hasher.hash_string("$translatepy$".join(
+                    [str(t) for t in [result.source_language, result.destination_language, result.source, result.result]]
+                ))
+                current_ip_hash = generate_ip_hash(ip)
+                token = token_manager.generate(sub=current_ip_hash, encryption=aes, extra={
+                    "translationID": translation_id,
+                    "source": result.source,
+                    "result": result.result,
+                    "language": {
+                        "source": str(result.source_language),
+                        "dest": str(result.destination_language)
+                    }
+                })
+
+                stars.update(
+                    {"_id": translation_id},
+                    {
+                        "$addToSet": {
+                            "services": str(translator)
+                        }
+                    },
+                    upsert=True
+                )
+                starred = len(stars.find({"_id": translation_id, "users": current_ip_hash})) > 0
+
+                data["token"] = token
+                data["translationID"] = translation_id
+                data["starred"] = starred
+
             queue.put({
                 "success": True,
                 "error": None,
                 "message": None,
-                "data": result.as_dict(camelCase=True, foreign=foreign)
+                "data": data
             })
         except Exception as err:
             service = str(translator) if isinstance(translator, BaseTranslator) else translator.__name__
             error = str(err.__class__.__name__)
-            Thread(target=log_error, args=(service, error)).start()
+            if not to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
+                Thread(target=log_error, args=(service, error)).start()
             queue.put({
                 "success": False,
                 "error": error,
@@ -125,7 +159,8 @@ def stream_fix(text: str, dest: str, source: str = "auto", translators: List[str
         new_timing_storage = {}
 
     for index, service in enumerate(current_translator.services):
-        thread = Thread(target=_fast_translate, args=(_queue, service, index, new_timing_storage))
+        current_ip = request.client_ip
+        thread = Thread(target=_fast_translate, args=(_queue, service, index, new_timing_storage, current_ip))
         thread.start()
         threads.append(thread)
 

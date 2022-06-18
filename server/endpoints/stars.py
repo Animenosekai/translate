@@ -13,9 +13,12 @@ from yuno.security.hash import Hasher
 from yuno.security.token import TokenManager
 from yuno.security.encrypt import AES
 
-hasher = Hasher()
-aes = AES(client, prefix="translatepy")
-token_manager = TokenManager(key=client, sign=client)
+if not to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
+    hasher = Hasher()
+    aes = AES(bytes.fromhex(environ["TRANSLATEPY_AES_KEY"]), prefix="translatepy")
+    token_manager = TokenManager(key=bytes.fromhex(environ["TRANSLATEPY_JWT_KEY"]), sign=bytes.fromhex(environ["TRANSLATEPY_JWT_SIGN"]))
+else:
+    hasher, aes, token_manager = None, None, None
 
 base = Endpoint(
     section="Stars",
@@ -30,20 +33,25 @@ else:
     stars = {}
 
 
-@app.route("/stars", description="Get all starred translations")
+def generate_ip_hash(ip: str):
+    return hasher.hash_string(
+        "{ip}{salt}".format(
+            ip=ip,
+            salt=environ.get("TRANSLATEPY_IP_SALT", "")
+        )
+    )
+
+
+@app.route("/stars", endpoint=Endpoint(
+    endpoint=base,
+    description="Get all starred translations"
+))
 def stars_handler(request: Request):
     if to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
         raise DatabaseDisabled
 
     query = stars.find({
-        "users.{hash}".format(
-            hash=hasher.hash_string(
-                "{ip}{salt}".format(
-                    ip=request.client_ip,
-                    salt=environ.get("TRANSLATEPY_SALT", "")
-                )
-            )
-        ): {
+        "users.{hash}".format(hash=generate_ip_hash(request.client_ip)): {
             "$exists": True
         }
     })
@@ -65,6 +73,8 @@ def TranslationToken(value: str):
 
 
 @app.route("/stars/<translation_id>", Endpoint(
+    name="Translation Star",
+    endpoint=base,
     methods=["GET", "POST", "DELETE"],
     description={
         "GET": "Get the stars for a translation",
@@ -83,7 +93,7 @@ def TranslationToken(value: str):
         Error(name="FORBIDDEN", description="You are not allowed to star this translation", code=403),
         Error(name="NOT_FOUND", description="The translation could not be found", code=404)
     ] + base.errors,
-    returns=[
+    returning=[
         Return(name="source", description="The source text", methods=["GET", "POST"]),
         Return(name="result", description="The result text", methods=["GET", "POST"]),
         Return(name="language", description="The translation languages", children=[
@@ -97,12 +107,7 @@ def stars__translation_id__(request: Request, method: str, translation_id: str, 
     if to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
         raise DatabaseDisabled
 
-    current_ip_hash = hasher.hash_string(
-        "{ip}{salt}".format(
-            ip=request.client_ip,
-            salt=environ.get("TRANSLATEPY_SALT", "")
-        )
-    )
+    current_ip_hash = generate_ip_hash(request.client_ip)
 
     if method == "DELETE":
         stars.update({
@@ -123,6 +128,7 @@ def stars__translation_id__(request: Request, method: str, translation_id: str, 
         # token body
         # {
         #     "sub": "user hash",
+        #     "translationID": "translation ID",
         #     "source": "source text",
         #     "result": "result text",
         #     "language": {

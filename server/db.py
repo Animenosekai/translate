@@ -16,4 +16,4 @@ if not to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
 
     client = TranslatepyClient(MONGO_URI, connect=False)
 else:
-    client = TranslatepyClient()
+    client = {}
