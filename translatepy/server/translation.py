@@ -6,7 +6,7 @@ from typing import List
 from bs4 import NavigableString
 from flask import Response as FlaskResponse
 from nasse import Response
-from nasse.models import Endpoint, Error, Login, Param, Return, Header
+from nasse.models import Endpoint, Error, Login, Param, Return
 import translatepy
 from translatepy import Translator
 from translatepy.exceptions import NoResult, UnknownLanguage, UnknownTranslator

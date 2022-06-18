@@ -1,4 +1,4 @@
-from datetime import datetime
+from schemas.types import Datetime
 from yuno import YunoDict, YunoCollection
 
 
@@ -8,7 +8,7 @@ class Error(YunoDict):
     """
     service: str
     error: str
-    timestamp: datetime
+    timestamp: Datetime
 
 
 class ErrorsCollection(YunoCollection):

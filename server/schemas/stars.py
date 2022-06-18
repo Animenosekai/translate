@@ -1,13 +1,21 @@
-from datetime import datetime
+from schemas.types import Datetime
 from yuno import YunoDict, YunoCollection
+
+
+class StarredTranslationLanguage(YunoDict):
+    """Starred translation language"""
+    source: str
+    dest: str
 
 
 class StarredTranslation(YunoDict):
     """User starred translations"""
     _id: str  # translation ID
-    timestamp: datetime
-    services: list[str]
-    users: list[str]
+    language: StarredTranslationLanguage = {}
+    source: str = ""  # source text
+    result: str = ""  # translated text
+    services: list[str] = []
+    users: dict[str, Datetime]
 
 
 class StarsCollection(YunoCollection):

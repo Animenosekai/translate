@@ -5,6 +5,7 @@ from bson import ObjectId
 from nasse.timer import Timer
 from db import client
 from nasse.utils.boolean import to_bool
+from server.exceptions import DatabaseDisabled
 import translatepy
 from translatepy.server.translation import (BaseTranslator, FlaskResponse,
                                             Language, List, NoResult, Queue,
@@ -14,7 +15,9 @@ from translatepy.server.translation import (BaseTranslator, FlaskResponse,
 
 
 def log_time(service: BaseTranslator, time: float, storage: dict):
-    print("{service} took {time} seconds".format(service=service, time=time))
+    # print("{service} took {time} seconds".format(service=service, time=time))
+    if to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
+        raise DatabaseDisabled
     storage[str(service).replace(".", "*dot*")] = time
 
 
@@ -26,7 +29,9 @@ else:
 
 
 def log_error(service: str, error: str):
-    print("{service} failed: {error}".format(service=service, error=error))
+    # print("{service} failed: {error}".format(service=service, error=error))
+    if to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
+        raise DatabaseDisabled
     new_id = ObjectId()
     errors[new_id] = {
         "_id": new_id,

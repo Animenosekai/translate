@@ -1,5 +1,5 @@
 from nasse import Response
-from nasse.models import Dynamic, Endpoint, Error, Login, Param, Return, Header
+from nasse.models import Dynamic, Endpoint, Error, Login, Param, Return
 from nasse.utils.boolean import to_bool
 import translatepy
 from translatepy.exceptions import UnknownLanguage
