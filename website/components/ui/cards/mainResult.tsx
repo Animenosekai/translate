@@ -37,13 +37,14 @@ export const MainResultLoader = (props) => {
         </Card>
     </div>
 }
-export const MainResultCard = ({ text, language, service, loading, onNewTranslation, onCopyNotification, starred, onStarChange, ...props }: {
+export const MainResultCard = ({ text, language, service, loading, onNewTranslation, onCopyNotification, starred, onStarChange, spellchecked, ...props }: {
     text: string,
     language: LanguageDetailsResult,
     service?: Service,
     loading?: boolean,
     onNewTranslation?: (text: string, language: LanguageDetailsResult) => any,
     onCopyNotification?: () => any,
+    spellchecked?: SpellcheckResult,
     starred?: boolean,
     onStarChange?: (status: boolean) => any
 }) => {
@@ -53,28 +54,9 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
     const [showModal, setShowModal] = useState<boolean>(false);
     const [currentTimeout, setCurrentTimeout] = useState(null);
     const [transliteration, setTransliteration] = useState<TransliterateResult>(null);
-    const [spellchecked, setSpellechked] = useState<SpellcheckResult>(null);
 
     useEffect(() => {
-        if (!service) { // spellcheck
-            request<SpellcheckRequest>("/spellcheck", {
-                params: {
-                    text: currentText,
-                    source: language.id
-                }
-            })
-                .then(value => {
-                    if (value.success && value.data.result != currentText) {
-                        setSpellechked(value.data);
-                    } else {
-                        setSpellechked(null);
-                    }
-                })
-                .catch(_ => {
-                    setSpellechked(null);
-                })
-            return
-        } else { // transliterate
+        if (service) { // transliterate
             request<TransliterateRequest>("/transliterate", {
                 params: {
                     text: currentText,
@@ -209,8 +191,8 @@ export const MainResult = ({ result, starred, onNewTranslation, onCopyNotificati
     starred?: boolean,
     onStarChange?: (translation: TranslateRequest, status: boolean) => any
 }) => {
-
     const [loading, setLoading] = useState(result.loading);
+    const [spellchecked, setSpellchecked] = useState<SpellcheckResult>(null);
     useEffect(() => {
         setLoading(result.loading);
     }, [result])
@@ -219,11 +201,27 @@ export const MainResult = ({ result, starred, onNewTranslation, onCopyNotificati
 
     const service = new Service(result.data.service)
     return <div className="flex lg:flex-row flex-col lg:space-x-10 lg:space-y-0 space-y-5 mb-10">
-        <MainResultCard onCopyNotification={onCopyNotification} text={result.data.source} language={result.data.sourceLanguage} onNewTranslation={(text, lang) => {
+        <MainResultCard spellchecked={spellchecked} onCopyNotification={onCopyNotification} text={result.data.source} language={result.data.sourceLanguage} onNewTranslation={(text, lang) => {
             if (!onNewTranslation) {
                 return console.log("source", text, lang)
             }
             setLoading(true);
+            request<SpellcheckRequest>("/spellcheck", {
+                params: {
+                    text: text,
+                    source: lang.id
+                }
+            })
+                .then(value => {
+                    if (value.success && value.data.result != text) {
+                        setSpellchecked(value.data);
+                    } else {
+                        setSpellchecked(null);
+                    }
+                })
+                .catch(_ => {
+                    setSpellchecked(null);
+                })
             return onNewTranslation({
                 text,
                 source: lang.id,

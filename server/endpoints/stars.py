@@ -14,10 +14,12 @@ from yuno.security.hash import Hasher
 from yuno.security.token import TokenManager
 from yuno.security.encrypt import AES
 
-hasher = Hasher()
-aes = AES(bytes.fromhex(environ["TRANSLATEPY_AES_KEY"]), prefix="translatepy")
-token_manager = TokenManager(key=bytes.fromhex(environ["TRANSLATEPY_JWT_KEY"]), sign=bytes.fromhex(environ["TRANSLATEPY_JWT_SIGN"]))
-
+if not to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
+    hasher = Hasher()
+    aes = AES(bytes.fromhex(environ["TRANSLATEPY_AES_KEY"]), prefix="translatepy")
+    token_manager = TokenManager(key=bytes.fromhex(environ["TRANSLATEPY_JWT_KEY"]), sign=bytes.fromhex(environ["TRANSLATEPY_JWT_SIGN"]))
+else:
+    hasher, aes, token_manager = None, None, None
 
 base = Endpoint(
     section="Stars",
