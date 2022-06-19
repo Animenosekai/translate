@@ -1,4 +1,5 @@
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, Label, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { ChartDataContextProvider, useChartData } from "contexts/chartData";
 import React, { useEffect, useState } from "react";
 import { generateColorID, generateColorURL } from "utils/color";
 
@@ -19,7 +20,8 @@ const granularities: Array<Granularity> = [
 ]
 
 export const Chart = ({ endpoint }: { endpoint: string }) => {
-    const [granularity, setGranularity] = useState<Granularity>(granularities[0]);
+    const { granularity, setGranularity, yLabel } = useChartData();
+    // const [granularity, setGranularity] = useState<Granularity>(granularities[0]);
     const [data, setData] = useState<{ services: string[], results: { __timestamp__: number, [key: string]: any }[] }>(null);
     const [resizeCounter, setResizeCounter] = useState<number>(0);
     const { servicesColor, addColor } = useServicesColor();
@@ -92,7 +94,9 @@ export const Chart = ({ endpoint }: { endpoint: string }) => {
                     const newDate = new Date(value * 1000)
                     return getDateWithGranularity(newDate, granularity, strings.labels.months)
                 }} />
-                <YAxis />
+                <YAxis>
+                    <Label value={yLabel} angle={-90} position="insideLeft" />
+                </YAxis>
                 <CartesianGrid strokeDasharray="3 3" />
                 <Tooltip content={CustomTooltip} />
                 {
