@@ -1,5 +1,6 @@
 from datetime import datetime
 from os import environ
+import typing
 
 from bson import ObjectId
 from nasse.timer import Timer
@@ -26,6 +27,10 @@ if not to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
     errors = client.translatepy.errors
 else:
     timings, errors = {}, {}
+
+if typing.TYPE_CHECKING:
+    timings = client.translatepy.timings
+    errors = client.translatepy.errors
 
 
 def log_error(service: str, error: str):
@@ -113,6 +118,9 @@ def stream_fix(request, text: str, dest: str, source: str = "auto", translators:
                     {
                         "$addToSet": {
                             "services": str(translator)
+                        },
+                        "$set": {
+                            "timestamp": datetime.utcnow()
                         }
                     },
                     upsert=True

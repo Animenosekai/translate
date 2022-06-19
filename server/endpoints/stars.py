@@ -1,4 +1,5 @@
 from os import environ
+import typing
 
 from db import client
 from exceptions import DatabaseDisabled, Forbidden, NotFound
@@ -13,12 +14,10 @@ from yuno.security.hash import Hasher
 from yuno.security.token import TokenManager
 from yuno.security.encrypt import AES
 
-if not to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
-    hasher = Hasher()
-    aes = AES(bytes.fromhex(environ["TRANSLATEPY_AES_KEY"]), prefix="translatepy")
-    token_manager = TokenManager(key=bytes.fromhex(environ["TRANSLATEPY_JWT_KEY"]), sign=bytes.fromhex(environ["TRANSLATEPY_JWT_SIGN"]))
-else:
-    hasher, aes, token_manager = None, None, None
+hasher = Hasher()
+aes = AES(bytes.fromhex(environ["TRANSLATEPY_AES_KEY"]), prefix="translatepy")
+token_manager = TokenManager(key=bytes.fromhex(environ["TRANSLATEPY_JWT_KEY"]), sign=bytes.fromhex(environ["TRANSLATEPY_JWT_SIGN"]))
+
 
 base = Endpoint(
     section="Stars",
@@ -31,6 +30,9 @@ if not to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
     stars = client.translatepy.stars
 else:
     stars = {}
+
+if typing.TYPE_CHECKING:
+    stars = client.translatepy.stars
 
 
 def generate_ip_hash(ip: str):
@@ -58,7 +60,9 @@ def stars_handler(request: Request):
     results = []
     for document in query:
         result = document.copy()
-        result["users"] = len(result["users"])
+        result["services"] = document["services"].copy()
+        result["language"] = document["language"].copy()
+        result["users"] = len(document["users"].keys())
         results.append(result)
     return Response(
         data={
@@ -142,6 +146,8 @@ def stars__translation_id__(request: Request, method: str, translation_id: str, 
             raise Forbidden("You are not allowed to star this translation")
 
         token_data = token["data"]
+        if translation_id != token_data["translationID"]:
+            raise Forbidden("You are not allowed to star this translation")
 
         if len(translation.users) <= 0:
             translation.update({
@@ -153,5 +159,7 @@ def stars__translation_id__(request: Request, method: str, translation_id: str, 
         translation.users[current_ip_hash] = datetime.utcnow()
 
     result = translation.copy()
-    result["users"] = len(result["users"])
+    result["services"] = translation.services.copy()
+    result["language"] = translation.language.copy()
+    result["users"] = len(translation["users"].keys())
     return Response(result)

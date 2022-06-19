@@ -16,6 +16,7 @@ class StarredTranslation(YunoDict):
     result: str = ""  # translated text
     services: list[str] = []
     users: dict[str, Datetime] = {}
+    timestamp: Datetime
 
 
 class StarsCollection(YunoCollection):

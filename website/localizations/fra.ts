@@ -13,12 +13,16 @@ class FrenchLocalization extends EnglishLocalization {
     }
     heading = {
         otherTranslations: "Autres traductions",
+        timeTakenForTranslation: "Temps pris à traduire",
+        errorsCount: "Nombre d'erreurs",
     }
     labels = {
         source: "Source",
         transliterationBy: new TemplateString("Translitération de {service}"),
         spellcheckBy: new TemplateString("Correction par {service}"),
         translationFailure: "Erreur",
+        months: ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"],
+        granularities: ["Heure", "Jour", "Mois", "Année"]
     }
     pages = {
         translate: "Traduction",

@@ -1,4 +1,5 @@
 from os import environ
+import typing
 
 from nasse.logging import LogLevels, log
 from nasse.utils.boolean import to_bool
@@ -17,3 +18,6 @@ if not to_bool(environ.get("TRANSLATEPY_DB_DISABLED", False)):
     client = TranslatepyClient(MONGO_URI, connect=False)
 else:
     client = {}
+
+if typing.TYPE_CHECKING:
+    client = TranslatepyClient("")

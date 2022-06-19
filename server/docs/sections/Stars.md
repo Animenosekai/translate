@@ -11,7 +11,7 @@ Get all starred translations
 GET /stars
 ```
 
-> [server/endpoints/stars.py](../../server/endpoints/stars.py#L45)
+> [server/endpoints/stars.py](../../server/endpoints/stars.py#L47)
 
 ### Authentication
 
@@ -73,7 +73,7 @@ Get the stars for a translation
 GET /stars/<translation_id>
 ```
 
-> [server/endpoints/stars.py](../../server/endpoints/stars.py#L75)
+> [server/endpoints/stars.py](../../server/endpoints/stars.py#L79)
 
 #### Authentication
 
@@ -130,7 +130,7 @@ Star a translation
 POST /stars/<translation_id>
 ```
 
-> [server/endpoints/stars.py](../../server/endpoints/stars.py#L75)
+> [server/endpoints/stars.py](../../server/endpoints/stars.py#L79)
 
 #### Authentication
 
@@ -193,7 +193,7 @@ Unstar a translation
 DELETE /stars/<translation_id>
 ```
 
-> [server/endpoints/stars.py](../../server/endpoints/stars.py#L75)
+> [server/endpoints/stars.py](../../server/endpoints/stars.py#L79)
 
 #### Authentication
 
