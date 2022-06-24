@@ -503,7 +503,7 @@ class BaseTranslator(ABC):
             raise ParameterValueError("Gender {gender} not supported. Supported genders: male, female".format(gender=gender))
 
         if not isinstance(speed, int):
-            raise ParameterTypeError("Parameter 'speed' must be a string, {} was given".format(type(speed).__name__))
+            raise ParameterTypeError("Parameter 'speed' must be an integer, {} was given".format(type(speed).__name__))
 
         # Build cache key
         _cache_key = str({"t": text, "sp": speed, "s": source_code, "g": gender})
