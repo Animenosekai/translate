@@ -72,13 +72,18 @@ class BingSessionManager():
             self._parse_authorization_data()
 
     def _parse_authorization_data(self):
-        _request = self.session.get("https://www.bing.com/translator")
-        _page = _request.text
-        _parsed_IG = re.findall('IG:"(.*?)"', _page)
-        _parsed_IID = re.findall('data-iid="(.*?)"', _page)
-        _parsed_helper_info = re.findall("params_RichTranslateHelper = (.*?);", _page)
+        for _ in range(3):
+            _request = self.session.get("https://www.bing.com/translator")
+            _page = _request.text
+            _parsed_IG = re.findall('IG:"(.*?)"', _page)
+            _parsed_IID = re.findall('data-iid="(.*?)"', _page)
+            _parsed_helper_info = re.findall("params_RichTranslateHelper = (.*?);", _page)
 
-        if not _parsed_helper_info:
+            if not _parsed_helper_info:
+                continue
+
+            break
+        else:
             raise BingTranslateException(message="Can't parse the authorization data, try again later or use MicrosoftTranslate")
 
         _normalized_key = json.loads(_parsed_helper_info[0])[0]
