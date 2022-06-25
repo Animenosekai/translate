@@ -23,6 +23,12 @@ export const Heading3 = ({ node, level, children, key, ...props }) => {
 
 export const Heading4 = ({ node, level, children, key, ...props }) => {
     return <section id={headingLink(children.toString())}>
-        <h4 className="text-base font-normal mt-3 mb-1">{children}</h4>
+        <h4 className="text-base font-medium mt-3 mb-1">{children}</h4>
+    </section>
+}
+
+export const Heading5 = ({ node, level, children, key, ...props }) => {
+    return <section id={headingLink(children.toString())}>
+        <h5 className="text-base font-normal mt-3 mb-1">{children}</h5>
     </section>
 }

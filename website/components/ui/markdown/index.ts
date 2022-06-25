@@ -1,5 +1,6 @@
-import { Heading1, Heading2, Heading3, Heading4 } from "./headings";
+import { Heading1, Heading2, Heading3, Heading4, Heading5 } from "./headings";
 import { ListItem, OrderedList, UnorderedList } from "./lists";
+import { Table, TableD, TableH, TableHead, TableR } from "./table";
 
 import { CodeBlock } from "./code";
 
@@ -9,7 +10,13 @@ export const MarkdownComponent = {
     h2: Heading2,
     h3: Heading3,
     h4: Heading4,
+    h5: Heading5,
     li: ListItem,
     ol: OrderedList,
-    ul: UnorderedList
+    ul: UnorderedList,
+    table: Table,
+    thead: TableHead,
+    tr: TableR,
+    th: TableH,
+    td: TableD
 }

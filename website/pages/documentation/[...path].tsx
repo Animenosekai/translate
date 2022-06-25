@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import Configuration from 'config'
 import Link from 'next/link'
 import { MarkdownComponent } from 'components/ui/markdown'
 import type { NextPage } from 'next'
@@ -40,7 +41,7 @@ const Documentation: NextPage = () => {
         if (!resultPath.endsWith(".md")) {
             resultPath += "/README.md"
         }
-        fetch(`https://cdn.jsdelivr.net/gh/Animenosekai/translate@website/docs/${encodeURIComponent(strings.name)}${resultPath}`)
+        fetch(`https://cdn.jsdelivr.net/gh/Animenosekai/translate@${encodeURIComponent(Configuration.repo.branch)}/docs/${encodeURIComponent(strings.name)}${resultPath}`)
             .then(response => response.text())
             .then(text => {
                 if (path.join("|") === __path__) {
