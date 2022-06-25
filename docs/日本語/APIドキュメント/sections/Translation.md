@@ -48,6 +48,8 @@ curl -X GET \
     "/translate"
 ```
 
+</details>
+
 
 <details>
     <summary>JavaScript Example</summary>
@@ -69,6 +71,8 @@ fetch(`/translate?text=${encodeURIComponent("text")}&dest=${encodeURIComponent("
 })
 ```
 
+</details>
+
 
 <details>
     <summary>Python Example</summary>
@@ -87,7 +91,9 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /translate")
 print(r.json()["data"])
 ```
-<!-- tabs:end --> </details>
+
+</details>
+<!-- tabs:end -->
 
 ### Response
 
@@ -102,30 +108,30 @@ print(r.json()["data"])
         "service": "Google",
         "source": "Hello world",
         "sourceLanguage": {
+            "name": "English",
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
             "id": "eng",
             "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "inForeignLanguages": {},
-            "extra": {
-                "type": "Living",
-                "scope": "Individual"
-            }
+            "alpha3": "eng"
         },
         "destinationLanguage": {
+            "name": "English",
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
             "id": "eng",
             "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "inForeignLanguages": {},
-            "extra": {
-                "type": "Living",
-                "scope": "Individual"
-            }
+            "alpha3": "eng"
         },
         "result": "こんにちは世界"
     }
@@ -202,6 +208,8 @@ curl -X GET \
     "/stream"
 ```
 
+</details>
+
 
 <details>
     <summary>JavaScript Example</summary>
@@ -223,6 +231,8 @@ fetch(`/stream?text=${encodeURIComponent("text")}&dest=${encodeURIComponent("des
 })
 ```
 
+</details>
+
 
 <details>
     <summary>Python Example</summary>
@@ -241,7 +251,9 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /stream")
 print(r.json()["data"])
 ```
-<!-- tabs:end --> </details>
+
+</details>
+<!-- tabs:end -->
 
 ### Response
 
@@ -256,30 +268,30 @@ print(r.json()["data"])
         "service": "Google",
         "source": "Hello world",
         "sourceLanguage": {
+            "name": "English",
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
             "id": "eng",
             "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "inForeignLanguages": {},
-            "extra": {
-                "type": "Living",
-                "scope": "Individual"
-            }
+            "alpha3": "eng"
         },
         "destinationLanguage": {
+            "name": "English",
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
             "id": "eng",
             "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "inForeignLanguages": {},
-            "extra": {
-                "type": "Living",
-                "scope": "Individual"
-            }
+            "alpha3": "eng"
         },
         "result": "こんにちは世界"
     }
@@ -390,6 +402,8 @@ curl -X GET \
     "/html"
 ```
 
+</details>
+
 
 <details>
     <summary>JavaScript Example</summary>
@@ -411,6 +425,8 @@ fetch(`/html?code=${encodeURIComponent("code")}&dest=${encodeURIComponent("dest"
 })
 ```
 
+</details>
+
 
 <details>
     <summary>Python Example</summary>
@@ -429,7 +445,9 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /html")
 print(r.json()["data"])
 ```
-<!-- tabs:end --> </details>
+
+</details>
+<!-- tabs:end -->
 
 ### Response
 
@@ -451,17 +469,17 @@ print(r.json()["data"])
             "eng"
         ],
         "destinationLanguage": {
+            "name": "English",
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
             "id": "eng",
             "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "inForeignLanguages": {},
-            "extra": {
-                "type": "Living",
-                "scope": "Individual"
-            }
+            "alpha3": "eng"
         },
         "result": "<div><p>こんにちは、今日はお元気ですか</p><p>大丈夫</p></div>"
     }
@@ -537,6 +555,8 @@ curl -X GET \
     "/transliterate"
 ```
 
+</details>
+
 
 <details>
     <summary>JavaScript Example</summary>
@@ -558,6 +578,8 @@ fetch(`/transliterate?text=${encodeURIComponent("text")}`, {
 })
 ```
 
+</details>
+
 
 <details>
     <summary>Python Example</summary>
@@ -575,7 +597,9 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /transliterate")
 print(r.json()["data"])
 ```
-<!-- tabs:end --> </details>
+
+</details>
+<!-- tabs:end -->
 
 ### Response
 
@@ -590,30 +614,30 @@ print(r.json()["data"])
         "service": "Google",
         "source": "おはよう",
         "sourceLanguage": {
+            "name": "English",
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
             "id": "eng",
             "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "inForeignLanguages": {},
-            "extra": {
-                "type": "Living",
-                "scope": "Individual"
-            }
+            "alpha3": "eng"
         },
         "destinationLanguage": {
+            "name": "English",
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
             "id": "eng",
             "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "inForeignLanguages": {},
-            "extra": {
-                "type": "Living",
-                "scope": "Individual"
-            }
+            "alpha3": "eng"
         },
         "result": "Ohayou"
     }
@@ -688,6 +712,8 @@ curl -X GET \
     "/spellcheck"
 ```
 
+</details>
+
 
 <details>
     <summary>JavaScript Example</summary>
@@ -709,6 +735,8 @@ fetch(`/spellcheck?text=${encodeURIComponent("text")}`, {
 })
 ```
 
+</details>
+
 
 <details>
     <summary>Python Example</summary>
@@ -726,7 +754,9 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /spellcheck")
 print(r.json()["data"])
 ```
-<!-- tabs:end --> </details>
+
+</details>
+<!-- tabs:end -->
 
 ### Response
 
@@ -741,17 +771,17 @@ print(r.json()["data"])
         "service": "Google",
         "source": "God morning",
         "sourceLang": {
+            "name": "English",
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
             "id": "eng",
             "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "inForeignLanguages": {},
-            "extra": {
-                "type": "Living",
-                "scope": "Individual"
-            }
+            "alpha3": "eng"
         },
         "result": "Good morning"
     }
@@ -824,6 +854,8 @@ curl -X GET \
     "/language"
 ```
 
+</details>
+
 
 <details>
     <summary>JavaScript Example</summary>
@@ -845,6 +877,8 @@ fetch(`/language?text=${encodeURIComponent("text")}`, {
 })
 ```
 
+</details>
+
 
 <details>
     <summary>Python Example</summary>
@@ -862,7 +896,9 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /language")
 print(r.json()["data"])
 ```
-<!-- tabs:end --> </details>
+
+</details>
+<!-- tabs:end -->
 
 ### Response
 
@@ -877,17 +913,17 @@ print(r.json()["data"])
         "service": "Google",
         "source": "Hello world",
         "result": {
+            "name": "English",
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
             "id": "eng",
             "alpha2": "en",
             "alpha3b": "eng",
             "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "inForeignLanguages": {},
-            "extra": {
-                "type": "Living",
-                "scope": "Individual"
-            }
+            "alpha3": "eng"
         }
     }
 }
@@ -979,6 +1015,8 @@ curl -X GET \
     "/tts"
 ```
 
+</details>
+
 
 <details>
     <summary>JavaScript Example</summary>
@@ -1000,6 +1038,8 @@ fetch(`/tts?text=${encodeURIComponent("text")}`, {
 })
 ```
 
+</details>
+
 
 <details>
     <summary>Python Example</summary>
@@ -1017,7 +1057,9 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /tts")
 print(r.json()["data"])
 ```
-<!-- tabs:end --> </details>
+
+</details>
+<!-- tabs:end -->
 
 #### Possible Errors
 

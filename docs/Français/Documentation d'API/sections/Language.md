@@ -41,6 +41,8 @@ curl -X GET \
     "/language/details"
 ```
 
+</details>
+
 
 <details>
     <summary>JavaScript Exemple</summary>
@@ -62,6 +64,8 @@ fetch(`/language/details?lang=${encodeURIComponent("lang")}`, {
 })
 ```
 
+</details>
+
 
 <details>
     <summary>Python Exemple</summary>
@@ -79,7 +83,9 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /language/details")
 print(r.json()["data"])
 ```
-<!-- tabs:end --> </details>
+
+</details>
+<!-- tabs:end -->
 
 ### Réponse
 
@@ -99,8 +105,8 @@ print(r.json()["data"])
         "name": "English",
         "inForeignLanguages": {},
         "extra": {
-            "type": "Living",
-            "scope": "Individual"
+            "scope": "Individual",
+            "type": "Living"
         }
     }
 }
@@ -166,6 +172,8 @@ curl -X GET \
     "/language/search"
 ```
 
+</details>
+
 
 <details>
     <summary>JavaScript Exemple</summary>
@@ -187,6 +195,8 @@ fetch(`/language/search?lang=${encodeURIComponent("lang")}`, {
 })
 ```
 
+</details>
+
 
 <details>
     <summary>Python Exemple</summary>
@@ -204,7 +214,9 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /language/search")
 print(r.json()["data"])
 ```
-<!-- tabs:end --> </details>
+
+</details>
+<!-- tabs:end -->
 
 ### Réponse
 
@@ -307,6 +319,8 @@ Il n'est **pas** nécessaire d'être authentifié
 curl -X GET "/language/details/<language>"
 ```
 
+</details>
+
 
 <details>
     <summary>JavaScript Exemple</summary>
@@ -328,6 +342,8 @@ fetch("/language/details/<language>", {
 })
 ```
 
+</details>
+
 
 <details>
     <summary>Python Exemple</summary>
@@ -342,7 +358,9 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /language/details/<language>")
 print(r.json()["data"])
 ```
-<!-- tabs:end --> </details>
+
+</details>
+<!-- tabs:end -->
 
 ### Réponse
 
@@ -362,8 +380,8 @@ print(r.json()["data"])
         "name": "English",
         "inForeignLanguages": {},
         "extra": {
-            "type": "Living",
-            "scope": "Individual"
+            "scope": "Individual",
+            "type": "Living"
         }
     }
 }
