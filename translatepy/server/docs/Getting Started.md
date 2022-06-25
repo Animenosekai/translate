@@ -1,70 +1,70 @@
 
-# translatepy API Reference
+# Référence d'API pour translatepy
 
-Welcome to the translatepy API Reference.
+Bienvenue sur la référence d'API pour translatepy.
 
-## Globals
+## Globalité
 
-### Response Format
+### Format de réponse
 
-Globally, JSON responses should be formatted as follows (even when critical errors occur)
+Généralement, les réponses JSON seront formattez comme suit (même lorsque des erreurs critiques sont encontrées)
 
 ```json
 {
     "success": true,
-    "message": "We successfully did this!",
+    "message": "Ça marche!",
     "error": null,
     "data": {}
 }
 ```
 
-| Field        | Description                                      | Nullable         |
+| Champ        | Description                                      | Peut être `null` |
 | ------------ | ------------------------------------------------ | ---------------- |
-| `success`    | Wether the request was a success or not          | False            |
-| `message`    | A message describing what happened               | True             |
-| `error`      | The exception name if an error occured           | True             |
-| `data`       | The extra data, information asked in the request | False            |
+| `success`    | Si la requête est un succès ou pas               | False            |
+| `message`    | Un message qui décrit ce qu'il s'est passé       | True             |
+| `error`      | Le nom de l'erreur si il y en a une              | True             |
+| `data`       | Des données supplémentaires, les informations demandées | False            |
 
-### Errors
+### Erreurs
 
-Multiple Errors can occur, server side or request side.
+De multiples erreurs peuvent survenir, que ce soit du côté client (au niveau de la requête) ou du côté du serveur.
 
-Specific errors are documented in each endpoint but these are the general errors that can occur on any endpoint:
+Les erreurs spécifiques sont documentés dans chaque *Endpoint* mais celles-ci sont celles qui peuvent survenir sur n'importe quel endpoint :
 
-| Exception                   | Description                                                                                                     | Code  |
+| Erreur                      | Description                                                                                                     | Code  |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------- | ----- |
-| `SERVER_ERROR`              | When an error occurs on translatepy while processing a request                                                       | 500   |
-| `MISSING_CONTEXT`           | When you are trying to access something which is only available in a Nasse context, and you aren't in one       | 500   |
-| `INTERNAL_SERVER_ERROR`     | When a critical error occurs on the system                                                                      | 500   |
-| `METHOD_NOT_ALLOWED`        | When you made a request with the wrong method                                                                   | 405   |
-| `CLIENT_ERROR`              | When something is missing or is wrong with the request                                                          | 400   |
-| `MISSING_VALUE`             | When a value is missing from the request                                                                        | 400   |
-| `MISSING_PARAM`             | When a parameter is missing from the request                                                                    | 400   |
-| `MISSING_DYNAMIC`           | When a dynamic routing value is missing from the requested URL                                                  | 400   |
-| `MISSING_HEADER`            | When a header is missing from the request                                                                       | 400   |
-| `MISSING_COOKIE`            | When a cookie is missing from the request                                                                       | 400   |
-| `AUTH_ERROR`                | When an error occured while authenticating the request                                                          | 403   |
+| `SERVER_ERROR`              | Quand une erreur survient sur translatepy en traitant la requête.                                                    | 500   |
+| `MISSING_CONTEXT`           | Quand dans le code vous essayez d'accéder à une ressource seulement disponible dans un contexte Nasse (pendant une requête) mais que vous n'êtes pas dans un contexte Nasse.       | 500   |
+| `INTERNAL_SERVER_ERROR`     | Quand une erreur critique survient sur le système                                                               | 500   |
+| `METHOD_NOT_ALLOWED`        | Quand vous faites une requête avec le mauvaise méthode HTTP                                                     | 405   |
+| `CLIENT_ERROR`              | Quand quelque chose manque où n'est pas bon avec la requête                                                     | 400   |
+| `MISSING_VALUE`             | Quand quelque chose manque à la requête                                                                         | 400   |
+| `MISSING_PARAM`             | Quand un paramètre manque à la requête                                                                          | 400   |
+| `MISSING_DYNAMIC`           | Quand une valeur dynamique de l'URL manque                                                                      | 400   |
+| `MISSING_HEADER`            | Quand un en-tête manque à la requête                                                                            | 400   |
+| `MISSING_COOKIE`            | Quand un cookie manque à la requête                                                                             | 400   |
+| `AUTH_ERROR`                | Quand une erreur d'authentification survient                                                                    | 403   |
 
-### Authenticated Requests
+### Requêtes authentifiées
 
-When a user needs to be logged in, the "Authorization" header needs to be set to the login token provided when logging in.
+Quand un utilisateur doit être connecter, l'en-tête "Authorization" doit être définie avec le token de connexion communiqué lorsqu'il s'est connecté.
 
-Alternatively, the "translatepy_token" parameter and "__translatepy_token" cookie can be used but these won't be prioritized.
+Vous pouvez aussi utiliser le paramètre "translatepy_token" ou le cookie "__translatepy_token" mais ceux-ci ne vont pas être priorisé.
 
-If the endpoint is flagged for a "verified only" login, the account won't be fetched from any database but the token will be checked.
+Si la règle d'authentification de l'*endpoint* est défini comme "seulement vérifié", le compte ne doit pas être cherché dans la base de donnée mais la forme du token ou des informations comprises à l'intérieur peuvent être vérifiées.
 
-### Debug Mode
+### Mode de développement
 
-On debug mode (`-d` or `--debug`), multiple information are passed in the `debug` section of the response and the `DEBUG` log level is selected on the server.
+Lorsque le mode de développement est activé (`-d` ou `--debug`), de multiples informations sont renvoyées dans la section `debug` des réponses et le niveau `DEBUG` de logging est sélectioné sur le serveurr.
 
-The 'debug' section is available on every type of error, except the ones issued by Flask such as `INTERNAL_SERVER_ERROR`, `METHOD_NOT_ALLOWED`, etc. (they need to do the bare minimum to not raise an exception and therefore breaking the server)
+La section 'debug' est disponible sur tous type d'erreur, sauf celles qui sont renvoyées par Flask de manière interne (comme `INTERNAL_SERVER_ERROR`, `METHOD_NOT_ALLOWED`, etc.). En effet, celles-ci doivent modifier le moins possible la requête pour ne pas se retrouver avec une autre erreur qui pourrait survenir)
 
-The "call_stack" attribute is enabled only when an error occurs or the `call_stack` parameter is passed with the request.
+Le champ "call_stack" est activé seulement quand il y a le paramètre `call_stack` qui est envoyé avec la requête.
 
 ```json
 {
     "success": true,
-    "message": "We couldn't fullfil your request",
+    "message": "Nous n'avons pas pu satisfaire la requête",
     "error": null,
     "data": {
         "username": "Animenosekai"

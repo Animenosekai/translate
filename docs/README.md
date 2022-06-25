@@ -1,16 +1,9 @@
-# translatepy (originally: translate)
+# docs
 
-> An aggregation of multiple translation APIs
-
-**Welcome to the translatepy documentation page.**
-
-translatepy is mainly a module grouping multiple translation APIs
-
-You will learn to use it through the following pages.
+Here you will find the documentation for translatepy in multiple languages.
 
 ## Index
 
-- [Python Documentation](./Python%20Documentation/README.md)
-- [CLI Usage](./CLI%20Usage/README.md)
-- [Website Usage](./Website%20Usage/README.md)
-- [API Documentation](./API%20Documentation/README.md)
+- [English Documentation](./English)
+- [Documentation en Français](./Fran%C3%A7ais)
+- [日本語版ドキュメンテーション](./%E6%97%A5%E6%9C%AC%E8%AA%9E)
