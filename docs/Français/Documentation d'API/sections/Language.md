@@ -1,7 +1,7 @@
 
-# Language Section API Reference
+# Référence de la section Language
 
-This file lists and explains the different endpoints available in the Language section.
+Ce fichier liste et explique les différents *endpoints* disponible sous la section Language
 
 # Language Details
 
@@ -13,25 +13,25 @@ GET /language/details
 
 > [translatepy/server/language.py](../../translatepy/server/language.py#L113)
 
-### Authentication
+### Authentification
 
-Login is **not** required
+Il n'est **pas** nécessaire d'être authentifié
 
-### Parameters
+### Paramètres
 
-| Name         | Description                      | Required         | Type             |
+| Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `lang` | The language to lookup  | True            | str            |
 | `threshold` | The similarity threshold to use when searching for similar languages  | False            | float            |
 | `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
 
-### Example
+### Exemple
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Example</summary>
+    <summary>cURL Exemple</summary>
 
 #### **cURL**
 
@@ -43,7 +43,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Example</summary>
+    <summary>JavaScript Exemple</summary>
 
 #### **JavaScript**
 
@@ -64,7 +64,7 @@ fetch(`/language/details?lang=${encodeURIComponent("lang")}`, {
 
 
 <details>
-    <summary>Python Example</summary>
+    <summary>Python Exemple</summary>
 
 #### **Python**
 
@@ -81,9 +81,9 @@ print(r.json()["data"])
 ```
 <!-- tabs:end --> </details>
 
-### Response
+### Réponse
 
-#### Example response
+#### Exemple de réponse
 
 ```json
 {
@@ -107,9 +107,9 @@ print(r.json()["data"])
 
 ```
 
-#### Returns
+#### Retourne
 
-| Field        | Description                      | Type   | Nullable  |
+| Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
 | `id` | The language id  | str      | False      |
 | `alpha2` | The language alpha2 code  | str      | False      |
@@ -120,13 +120,13 @@ print(r.json()["data"])
 | `inForeignLanguages` | The language in foreign languages  | object      | False      |
 | `extra` | The language extra data  | object      | False      |
 
-#### Possible Errors
+#### Erreurs possibles
 
-| Exception         | Description                      | Code   |
+| Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Return to the Index](../Getting%20Started.md#index)
+[Retourner à l'Index](../Getting%20Started.md#index)
 
 # Language Search
 
@@ -138,25 +138,25 @@ GET /language/search
 
 > [translatepy/server/language.py](../../translatepy/server/language.py#L135)
 
-### Authentication
+### Authentification
 
-Login is **not** required
+Il n'est **pas** nécessaire d'être authentifié
 
-### Parameters
+### Paramètres
 
-| Name         | Description                      | Required         | Type             |
+| Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `lang` | The language to lookup  | True            | str            |
 | `limit` | The limit of languages to return. (max: 100, default: 10)  | False            | int            |
 | `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
 
-### Example
+### Exemple
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Example</summary>
+    <summary>cURL Exemple</summary>
 
 #### **cURL**
 
@@ -168,7 +168,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Example</summary>
+    <summary>JavaScript Exemple</summary>
 
 #### **JavaScript**
 
@@ -189,7 +189,7 @@ fetch(`/language/search?lang=${encodeURIComponent("lang")}`, {
 
 
 <details>
-    <summary>Python Example</summary>
+    <summary>Python Exemple</summary>
 
 #### **Python**
 
@@ -206,9 +206,9 @@ print(r.json()["data"])
 ```
 <!-- tabs:end --> </details>
 
-### Response
+### Réponse
 
-#### Example response
+#### Exemple de réponse
 
 ```json
 {
@@ -252,19 +252,19 @@ print(r.json()["data"])
 
 ```
 
-#### Returns
+#### Retourne
 
-| Field        | Description                      | Type   | Nullable  |
+| Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
 | `languages` | The languages found  | array      | False      |
 
-#### Possible Errors
+#### Erreurs possibles
 
-| Exception         | Description                      | Code   |
+| Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Return to the Index](../Getting%20Started.md#index)
+[Retourner à l'Index](../Getting%20Started.md#index)
 
 # Language Details (dynamic)
 
@@ -276,30 +276,30 @@ GET /language/details/<language>
 
 > [translatepy/server/language.py](../../translatepy/server/language.py#L184)
 
-### Authentication
+### Authentification
 
-Login is **not** required
+Il n'est **pas** nécessaire d'être authentifié
 
-### Parameters
+### Paramètres
 
-| Name         | Description                      | Required         | Type             |
+| Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `threshold` | The similarity threshold to use when searching for similar languages  | False            | float            |
 | `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
 
-### Dynamic URL
+### URL Dynamique
 
-| Name         | Description                      | Required         | Type             |
+| Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `language` | The language to lookup  | True            | str            |
 
-### Example
+### Exemple
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Example</summary>
+    <summary>cURL Exemple</summary>
 
 #### **cURL**
 
@@ -309,7 +309,7 @@ curl -X GET "/language/details/<language>"
 
 
 <details>
-    <summary>JavaScript Example</summary>
+    <summary>JavaScript Exemple</summary>
 
 #### **JavaScript**
 
@@ -330,7 +330,7 @@ fetch("/language/details/<language>", {
 
 
 <details>
-    <summary>Python Example</summary>
+    <summary>Python Exemple</summary>
 
 #### **Python**
 
@@ -344,9 +344,9 @@ print(r.json()["data"])
 ```
 <!-- tabs:end --> </details>
 
-### Response
+### Réponse
 
-#### Example response
+#### Exemple de réponse
 
 ```json
 {
@@ -370,9 +370,9 @@ print(r.json()["data"])
 
 ```
 
-#### Returns
+#### Retourne
 
-| Field        | Description                      | Type   | Nullable  |
+| Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
 | `id` | The language id  | str      | False      |
 | `alpha2` | The language alpha2 code  | str      | False      |
@@ -383,10 +383,10 @@ print(r.json()["data"])
 | `inForeignLanguages` | The language in foreign languages  | object      | False      |
 | `extra` | The language extra data  | object      | False      |
 
-#### Possible Errors
+#### Erreurs possibles
 
-| Exception         | Description                      | Code   |
+| Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Return to the Index](../Getting%20Started.md#index)
+[Retourner à l'Index](../Getting%20Started.md#index)

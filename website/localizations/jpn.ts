@@ -26,7 +26,7 @@ class JapaneseLocalization extends EnglishLocalization {
     }
     pages = {
         translate: "翻訳",
-        documentation: "ドキュメンテーション",
+        documentation: "ドキュメント",
         stats: "統計"
     }
     notifications: { copied: string; } = {

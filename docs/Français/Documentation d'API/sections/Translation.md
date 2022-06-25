@@ -1,7 +1,7 @@
 
-# Translation Section API Reference
+# Référence de la section Translation
 
-This file lists and explains the different endpoints available in the Translation section.
+Ce fichier liste et explique les différents *endpoints* disponible sous la section Translation
 
 # Translate
 
@@ -17,13 +17,13 @@ GET /translate
 
 > [translatepy/server/translation.py](../../translatepy/server/translation.py#L45)
 
-### Authentication
+### Authentification
 
-Login is **not** required
+Il n'est **pas** nécessaire d'être authentifié
 
-### Parameters
+### Paramètres
 
-| Name         | Description                      | Required         | Type             |
+| Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `text` | The text to translate  | True            | str            |
 | `dest` | The destination language  | True            | str            |
@@ -31,13 +31,13 @@ Login is **not** required
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
 | `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
 
-### Example
+### Exemple
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Example</summary>
+    <summary>cURL Exemple</summary>
 
 #### **cURL**
 
@@ -50,7 +50,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Example</summary>
+    <summary>JavaScript Exemple</summary>
 
 #### **JavaScript**
 
@@ -71,7 +71,7 @@ fetch(`/translate?text=${encodeURIComponent("text")}&dest=${encodeURIComponent("
 
 
 <details>
-    <summary>Python Example</summary>
+    <summary>Python Exemple</summary>
 
 #### **Python**
 
@@ -89,9 +89,9 @@ print(r.json()["data"])
 ```
 <!-- tabs:end --> </details>
 
-### Response
+### Réponse
 
-#### Example response
+#### Exemple de réponse
 
 ```json
 {
@@ -133,9 +133,9 @@ print(r.json()["data"])
 
 ```
 
-#### Returns
+#### Retourne
 
-| Field        | Description                      | Type   | Nullable  |
+| Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
 | `service` | The translator used  | str      | False      |
 | `source` | The source text  | str      | False      |
@@ -143,9 +143,9 @@ print(r.json()["data"])
 | `destinationLanguage` | The destination language  | object      | False      |
 | `result` | The translated text  | str      | False      |
 
-#### Possible Errors
+#### Erreurs possibles
 
-| Exception         | Description                      | Code   |
+| Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
@@ -155,7 +155,7 @@ print(r.json()["data"])
 | `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Return to the Index](../Getting%20Started.md#index)
+[Retourner à l'Index](../Getting%20Started.md#index)
 
 # Translation Stream
 
@@ -171,13 +171,13 @@ GET /stream
 
 > [translatepy/server/translation.py](../../translatepy/server/translation.py#L101)
 
-### Authentication
+### Authentification
 
-Login is **not** required
+Il n'est **pas** nécessaire d'être authentifié
 
-### Parameters
+### Paramètres
 
-| Name         | Description                      | Required         | Type             |
+| Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `text` | The text to translate  | True            | str            |
 | `dest` | The destination language  | True            | str            |
@@ -185,13 +185,13 @@ Login is **not** required
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
 | `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
 
-### Example
+### Exemple
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Example</summary>
+    <summary>cURL Exemple</summary>
 
 #### **cURL**
 
@@ -204,7 +204,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Example</summary>
+    <summary>JavaScript Exemple</summary>
 
 #### **JavaScript**
 
@@ -225,7 +225,7 @@ fetch(`/stream?text=${encodeURIComponent("text")}&dest=${encodeURIComponent("des
 
 
 <details>
-    <summary>Python Example</summary>
+    <summary>Python Exemple</summary>
 
 #### **Python**
 
@@ -243,9 +243,9 @@ print(r.json()["data"])
 ```
 <!-- tabs:end --> </details>
 
-### Response
+### Réponse
 
-#### Example response
+#### Exemple de réponse
 
 ```json
 {
@@ -287,9 +287,9 @@ print(r.json()["data"])
 
 ```
 
-#### Returns
+#### Retourne
 
-| Field        | Description                      | Type   | Nullable  |
+| Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
 | `service` | The translator used  | str      | False      |
 | `source` | The source text  | str      | False      |
@@ -297,9 +297,9 @@ print(r.json()["data"])
 | `destinationLanguage` | The destination language  | object      | False      |
 | `result` | The translated text  | str      | False      |
 
-#### Possible Errors
+#### Erreurs possibles
 
-| Exception         | Description                      | Code   |
+| Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
@@ -309,7 +309,7 @@ print(r.json()["data"])
 | `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Return to the Index](../Getting%20Started.md#index)
+[Retourner à l'Index](../Getting%20Started.md#index)
 
 # Translate HTML
 
@@ -358,13 +358,13 @@ GET /html
 
 > [translatepy/server/translation.py](../../translatepy/server/translation.py#L206)
 
-### Authentication
+### Authentification
 
-Login is **not** required
+Il n'est **pas** nécessaire d'être authentifié
 
-### Parameters
+### Paramètres
 
-| Name         | Description                      | Required         | Type             |
+| Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `code` | The HTML snippet to translate  | True            | str            |
 | `dest` | The destination language  | True            | str            |
@@ -373,13 +373,13 @@ Login is **not** required
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
 | `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
 
-### Example
+### Exemple
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Example</summary>
+    <summary>cURL Exemple</summary>
 
 #### **cURL**
 
@@ -392,7 +392,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Example</summary>
+    <summary>JavaScript Exemple</summary>
 
 #### **JavaScript**
 
@@ -413,7 +413,7 @@ fetch(`/html?code=${encodeURIComponent("code")}&dest=${encodeURIComponent("dest"
 
 
 <details>
-    <summary>Python Example</summary>
+    <summary>Python Exemple</summary>
 
 #### **Python**
 
@@ -431,9 +431,9 @@ print(r.json()["data"])
 ```
 <!-- tabs:end --> </details>
 
-### Response
+### Réponse
 
-#### Example response
+#### Exemple de réponse
 
 ```json
 {
@@ -469,9 +469,9 @@ print(r.json()["data"])
 
 ```
 
-#### Returns
+#### Retourne
 
-| Field        | Description                      | Type   | Nullable  |
+| Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
 | `services` | The translators used  | array      | False      |
 | `source` | The source text  | str      | False      |
@@ -479,9 +479,9 @@ print(r.json()["data"])
 | `destinationLanguage` | The destination language  | object      | False      |
 | `result` | The translated text  | str      | False      |
 
-#### Possible Errors
+#### Erreurs possibles
 
-| Exception         | Description                      | Code   |
+| Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
@@ -491,7 +491,7 @@ print(r.json()["data"])
 | `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Return to the Index](../Getting%20Started.md#index)
+[Retourner à l'Index](../Getting%20Started.md#index)
 
 # Transliterate
 
@@ -507,13 +507,13 @@ GET /transliterate
 
 > [translatepy/server/translation.py](../../translatepy/server/translation.py#L284)
 
-### Authentication
+### Authentification
 
-Login is **not** required
+Il n'est **pas** nécessaire d'être authentifié
 
-### Parameters
+### Paramètres
 
-| Name         | Description                      | Required         | Type             |
+| Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `text` | The text to transliterate  | True            | str            |
 | `dest` | The destination language  | False            | str            |
@@ -521,13 +521,13 @@ Login is **not** required
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
 | `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
 
-### Example
+### Exemple
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Example</summary>
+    <summary>cURL Exemple</summary>
 
 #### **cURL**
 
@@ -539,7 +539,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Example</summary>
+    <summary>JavaScript Exemple</summary>
 
 #### **JavaScript**
 
@@ -560,7 +560,7 @@ fetch(`/transliterate?text=${encodeURIComponent("text")}`, {
 
 
 <details>
-    <summary>Python Example</summary>
+    <summary>Python Exemple</summary>
 
 #### **Python**
 
@@ -577,9 +577,9 @@ print(r.json()["data"])
 ```
 <!-- tabs:end --> </details>
 
-### Response
+### Réponse
 
-#### Example response
+#### Exemple de réponse
 
 ```json
 {
@@ -621,9 +621,9 @@ print(r.json()["data"])
 
 ```
 
-#### Returns
+#### Retourne
 
-| Field        | Description                      | Type   | Nullable  |
+| Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
 | `service` | The translator used  | str      | False      |
 | `source` | The source text  | str      | False      |
@@ -631,9 +631,9 @@ print(r.json()["data"])
 | `destinationLanguage` | The destination language  | object      | False      |
 | `result` | The transliteration  | str      | False      |
 
-#### Possible Errors
+#### Erreurs possibles
 
-| Exception         | Description                      | Code   |
+| Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
@@ -643,7 +643,7 @@ print(r.json()["data"])
 | `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Return to the Index](../Getting%20Started.md#index)
+[Retourner à l'Index](../Getting%20Started.md#index)
 
 # Spellcheck
 
@@ -659,26 +659,26 @@ GET /spellcheck
 
 > [translatepy/server/translation.py](../../translatepy/server/translation.py#L340)
 
-### Authentication
+### Authentification
 
-Login is **not** required
+Il n'est **pas** nécessaire d'être authentifié
 
-### Parameters
+### Paramètres
 
-| Name         | Description                      | Required         | Type             |
+| Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `text` | The text to spellcheck  | True            | str            |
 | `source` | The source language  | False            | str            |
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
 | `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
 
-### Example
+### Exemple
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Example</summary>
+    <summary>cURL Exemple</summary>
 
 #### **cURL**
 
@@ -690,7 +690,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Example</summary>
+    <summary>JavaScript Exemple</summary>
 
 #### **JavaScript**
 
@@ -711,7 +711,7 @@ fetch(`/spellcheck?text=${encodeURIComponent("text")}`, {
 
 
 <details>
-    <summary>Python Example</summary>
+    <summary>Python Exemple</summary>
 
 #### **Python**
 
@@ -728,9 +728,9 @@ print(r.json()["data"])
 ```
 <!-- tabs:end --> </details>
 
-### Response
+### Réponse
 
-#### Example response
+#### Exemple de réponse
 
 ```json
 {
@@ -759,18 +759,18 @@ print(r.json()["data"])
 
 ```
 
-#### Returns
+#### Retourne
 
-| Field        | Description                      | Type   | Nullable  |
+| Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
 | `service` | The translator used  | str      | False      |
 | `source` | The source text  | str      | False      |
 | `sourceLang` | The source language  | object      | False      |
 | `result` | The spellchecked text  | str      | False      |
 
-#### Possible Errors
+#### Erreurs possibles
 
-| Exception         | Description                      | Code   |
+| Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
@@ -780,7 +780,7 @@ print(r.json()["data"])
 | `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Return to the Index](../Getting%20Started.md#index)
+[Retourner à l'Index](../Getting%20Started.md#index)
 
 # Language
 
@@ -796,25 +796,25 @@ GET /language
 
 > [translatepy/server/translation.py](../../translatepy/server/translation.py#L394)
 
-### Authentication
+### Authentification
 
-Login is **not** required
+Il n'est **pas** nécessaire d'être authentifié
 
-### Parameters
+### Paramètres
 
-| Name         | Description                      | Required         | Type             |
+| Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `text` | The text to get the language of  | True            | str            |
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
 | `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
 
-### Example
+### Exemple
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Example</summary>
+    <summary>cURL Exemple</summary>
 
 #### **cURL**
 
@@ -826,7 +826,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Example</summary>
+    <summary>JavaScript Exemple</summary>
 
 #### **JavaScript**
 
@@ -847,7 +847,7 @@ fetch(`/language?text=${encodeURIComponent("text")}`, {
 
 
 <details>
-    <summary>Python Example</summary>
+    <summary>Python Exemple</summary>
 
 #### **Python**
 
@@ -864,9 +864,9 @@ print(r.json()["data"])
 ```
 <!-- tabs:end --> </details>
 
-### Response
+### Réponse
 
-#### Example response
+#### Exemple de réponse
 
 ```json
 {
@@ -894,17 +894,17 @@ print(r.json()["data"])
 
 ```
 
-#### Returns
+#### Retourne
 
-| Field        | Description                      | Type   | Nullable  |
+| Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
 | `service` | The translator used  | str      | False      |
 | `source` | The source text  | str      | False      |
 | `result` | The resulting language alpha-3 code  | object      | False      |
 
-#### Possible Errors
+#### Erreurs possibles
 
-| Exception         | Description                      | Code   |
+| Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
@@ -914,7 +914,7 @@ print(r.json()["data"])
 | `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Return to the Index](../Getting%20Started.md#index)
+[Retourner à l'Index](../Getting%20Started.md#index)
 
 # Text to Speech
 
@@ -949,13 +949,13 @@ GET /tts
 
 > [translatepy/server/translation.py](../../translatepy/server/translation.py#L434)
 
-### Authentication
+### Authentification
 
-Login is **not** required
+Il n'est **pas** nécessaire d'être authentifié
 
-### Parameters
+### Paramètres
 
-| Name         | Description                      | Required         | Type             |
+| Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `text` | The text to convert to speech  | True            | str            |
 | `source` | The source language  | False            | str            |
@@ -963,13 +963,13 @@ Login is **not** required
 | `gender` | The gender of the speech  | False            | str            |
 | `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
 
-### Example
+### Exemple
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Example</summary>
+    <summary>cURL Exemple</summary>
 
 #### **cURL**
 
@@ -981,7 +981,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Example</summary>
+    <summary>JavaScript Exemple</summary>
 
 #### **JavaScript**
 
@@ -1002,7 +1002,7 @@ fetch(`/tts?text=${encodeURIComponent("text")}`, {
 
 
 <details>
-    <summary>Python Example</summary>
+    <summary>Python Exemple</summary>
 
 #### **Python**
 
@@ -1019,9 +1019,9 @@ print(r.json()["data"])
 ```
 <!-- tabs:end --> </details>
 
-#### Possible Errors
+#### Erreurs possibles
 
-| Exception         | Description                      | Code   |
+| Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
@@ -1031,4 +1031,4 @@ print(r.json()["data"])
 | `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Return to the Index](../Getting%20Started.md#index)
+[Retourner à l'Index](../Getting%20Started.md#index)
