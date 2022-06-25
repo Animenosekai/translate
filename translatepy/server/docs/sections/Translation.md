@@ -15,7 +15,7 @@ This file lists and explains the different endpoints available in the Translatio
 GET /translate
 ```
 
-> [translatepy/server/translation.py](../../translation.py#L44)
+> [translation.py](../../translation.py#L45)
 
 ### Authentication
 
@@ -90,30 +90,30 @@ print(r.json()["data"])
         "service": "Google",
         "source": "Hello world",
         "sourceLanguage": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "foreign": {},
             "extra": {
                 "type": "Living",
                 "scope": "Individual"
             },
+            "alpha3b": "eng",
             "id": "eng",
-            "alpha2": "en"
+            "alpha3t": "eng",
+            "alpha2": "en",
+            "alpha3": "eng",
+            "name": "English",
+            "inForeignLanguages": {}
         },
         "destinationLanguage": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "foreign": {},
             "extra": {
                 "type": "Living",
                 "scope": "Individual"
             },
+            "alpha3b": "eng",
             "id": "eng",
-            "alpha2": "en"
+            "alpha3t": "eng",
+            "alpha2": "en",
+            "alpha3": "eng",
+            "name": "English",
+            "inForeignLanguages": {}
         },
         "result": "こんにちは世界"
     }
@@ -157,7 +157,7 @@ print(r.json()["data"])
 GET /stream
 ```
 
-> [translatepy/server/translation.py](../../translation.py#L94)
+> [translation.py](../../translation.py#L101)
 
 ### Authentication
 
@@ -232,30 +232,30 @@ print(r.json()["data"])
         "service": "Google",
         "source": "Hello world",
         "sourceLanguage": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "foreign": {},
             "extra": {
                 "type": "Living",
                 "scope": "Individual"
             },
+            "alpha3b": "eng",
             "id": "eng",
-            "alpha2": "en"
+            "alpha3t": "eng",
+            "alpha2": "en",
+            "alpha3": "eng",
+            "name": "English",
+            "inForeignLanguages": {}
         },
         "destinationLanguage": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "foreign": {},
             "extra": {
                 "type": "Living",
                 "scope": "Individual"
             },
+            "alpha3b": "eng",
             "id": "eng",
-            "alpha2": "en"
+            "alpha3t": "eng",
+            "alpha2": "en",
+            "alpha3": "eng",
+            "name": "English",
+            "inForeignLanguages": {}
         },
         "result": "こんにちは世界"
     }
@@ -332,7 +332,7 @@ print(r.json()["data"])
 GET /html
 ```
 
-> [translatepy/server/translation.py](../../translation.py#L193)
+> [translation.py](../../translation.py#L206)
 
 ### Authentication
 
@@ -415,17 +415,17 @@ print(r.json()["data"])
             "eng"
         ],
         "destinationLanguage": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "foreign": {},
             "extra": {
                 "type": "Living",
                 "scope": "Individual"
             },
+            "alpha3b": "eng",
             "id": "eng",
-            "alpha2": "en"
+            "alpha3t": "eng",
+            "alpha2": "en",
+            "alpha3": "eng",
+            "name": "English",
+            "inForeignLanguages": {}
         },
         "result": "<div><p>こんにちは、今日はお元気ですか</p><p>大丈夫</p></div>"
     }
@@ -469,7 +469,7 @@ print(r.json()["data"])
 GET /transliterate
 ```
 
-> [translatepy/server/translation.py](../../translation.py#L265)
+> [translation.py](../../translation.py#L284)
 
 ### Authentication
 
@@ -542,30 +542,30 @@ print(r.json()["data"])
         "service": "Google",
         "source": "おはよう",
         "sourceLanguage": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "foreign": {},
             "extra": {
                 "type": "Living",
                 "scope": "Individual"
             },
+            "alpha3b": "eng",
             "id": "eng",
-            "alpha2": "en"
+            "alpha3t": "eng",
+            "alpha2": "en",
+            "alpha3": "eng",
+            "name": "English",
+            "inForeignLanguages": {}
         },
         "destinationLanguage": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "foreign": {},
             "extra": {
                 "type": "Living",
                 "scope": "Individual"
             },
+            "alpha3b": "eng",
             "id": "eng",
-            "alpha2": "en"
+            "alpha3t": "eng",
+            "alpha2": "en",
+            "alpha3": "eng",
+            "name": "English",
+            "inForeignLanguages": {}
         },
         "result": "Ohayou"
     }
@@ -609,7 +609,7 @@ print(r.json()["data"])
 GET /spellcheck
 ```
 
-> [translatepy/server/translation.py](../../translation.py#L315)
+> [translation.py](../../translation.py#L340)
 
 ### Authentication
 
@@ -681,17 +681,17 @@ print(r.json()["data"])
         "service": "Google",
         "source": "God morning",
         "sourceLang": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "foreign": {},
             "extra": {
                 "type": "Living",
                 "scope": "Individual"
             },
+            "alpha3b": "eng",
             "id": "eng",
-            "alpha2": "en"
+            "alpha3t": "eng",
+            "alpha2": "en",
+            "alpha3": "eng",
+            "name": "English",
+            "inForeignLanguages": {}
         },
         "result": "Good morning"
     }
@@ -734,7 +734,7 @@ print(r.json()["data"])
 GET /language
 ```
 
-> [translatepy/server/translation.py](../../translation.py#L363)
+> [translation.py](../../translation.py#L394)
 
 ### Authentication
 
@@ -805,17 +805,17 @@ print(r.json()["data"])
         "service": "Google",
         "source": "Hello world",
         "result": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
-            "foreign": {},
             "extra": {
                 "type": "Living",
                 "scope": "Individual"
             },
+            "alpha3b": "eng",
             "id": "eng",
-            "alpha2": "en"
+            "alpha3t": "eng",
+            "alpha2": "en",
+            "alpha3": "eng",
+            "name": "English",
+            "inForeignLanguages": {}
         }
     }
 }
@@ -875,7 +875,7 @@ print(r.json()["data"])
 GET /tts
 ```
 
-> [translatepy/server/translation.py](../../translation.py#L399)
+> [translation.py](../../translation.py#L434)
 
 ### Authentication
 

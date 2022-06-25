@@ -11,7 +11,7 @@ Retrieving details about the given language
 GET /language/details
 ```
 
-> [translatepy/server/language.py](../../language.py#L110)
+> [language.py](../../language.py#L113)
 
 ### Authentication
 
@@ -85,7 +85,7 @@ print(r.json()["data"])
         "alpha3t": "eng",
         "alpha3": "eng",
         "name": "English",
-        "foreign": {},
+        "inForeignLanguages": {},
         "extra": {
             "type": "Living",
             "scope": "Individual"
@@ -105,7 +105,7 @@ print(r.json()["data"])
 | `alpha3t` | The language alpha3t code  | str      | False      |
 | `alpha3` | The language alpha3 code  | str      | False      |
 | `name` | The language name  | str      | False      |
-| `foreign` | The language in foreign languages  | object      | False      |
+| `inForeignLanguages` | The language in foreign languages  | object      | False      |
 | `extra` | The language extra data  | object      | False      |
 
 #### Possible Errors
@@ -124,7 +124,7 @@ Searching for a language
 GET /language/search
 ```
 
-> [translatepy/server/language.py](../../language.py#L143)
+> [language.py](../../language.py#L135)
 
 ### Authentication
 
@@ -198,6 +198,7 @@ print(r.json()["data"])
                 "similarity": 100,
                 "language": {
                     "id": "eng",
+                    "similarity": 100,
                     "alpha2": "en",
                     "alpha3b": "eng",
                     "alpha3t": "eng",
@@ -249,7 +250,7 @@ Retrieving details about the given language
 GET /language/details/<language>
 ```
 
-> [translatepy/server/language.py](../../language.py#L190)
+> [language.py](../../language.py#L184)
 
 ### Authentication
 
@@ -323,7 +324,7 @@ print(r.json()["data"])
         "alpha3t": "eng",
         "alpha3": "eng",
         "name": "English",
-        "foreign": {},
+        "inForeignLanguages": {},
         "extra": {
             "type": "Living",
             "scope": "Individual"
@@ -343,7 +344,7 @@ print(r.json()["data"])
 | `alpha3t` | The language alpha3t code  | str      | False      |
 | `alpha3` | The language alpha3 code  | str      | False      |
 | `name` | The language name  | str      | False      |
-| `foreign` | The language in foreign languages  | object      | False      |
+| `inForeignLanguages` | The language in foreign languages  | object      | False      |
 | `extra` | The language extra data  | object      | False      |
 
 #### Possible Errors

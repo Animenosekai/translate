@@ -25,4 +25,4 @@ optional arguments:
 
 ## Documentation
 
-Look at the [Getting Started](./Server%20Documentation/Getting%20Started.md) file to get started using the server.
+Look at the [Getting Started](https://github.com/Animenosekai/translate/blob/main/translatepy/server/docs/Getting%20Started.md) file to get started using the server.
