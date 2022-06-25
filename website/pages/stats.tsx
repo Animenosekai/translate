@@ -5,7 +5,7 @@ import { SEO } from 'components/common/seo'
 import { ServicesColorContextProvider } from 'contexts/servicesColor'
 import { useLanguage } from 'contexts/language'
 
-const Home: NextPage = () => {
+const Stats: NextPage = () => {
     const { strings } = useLanguage();
 
     return <ServicesColorContextProvider>
@@ -30,4 +30,4 @@ const Home: NextPage = () => {
     </ServicesColorContextProvider>
 }
 
-export default Home
+export default Stats

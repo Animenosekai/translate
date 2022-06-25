@@ -34,7 +34,7 @@ If not provided, it will be set as `auto` and will try to detect the input langu
 
 ## Action menu
 
-![translatepy shell — Action menu](./assets/screenshot-action-menu.png)
+![translatepy shell — Action menu](https://cdn.jsdelivr.net/gh/Animenosekai/translate@website/docs/assets/screenshot-action-menu.png)
 
 Here you can choose what you want to do with translatepy.
 

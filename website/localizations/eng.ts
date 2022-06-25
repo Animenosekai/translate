@@ -1,5 +1,10 @@
 import { TemplateString } from "utils/string";
 
+export interface DocumentationElement {
+    name: string
+    children?: DocumentationElement[]
+}
+
 class EnglishLocalization {
     language: string = "eng";
     alpha2: string = "en";
@@ -31,6 +36,48 @@ class EnglishLocalization {
     notifications = {
         copied: "Copied to clipboard"
     }
+
+
+    documentation: DocumentationElement[] = [
+        { name: "README" },
+        {
+            name: "Python Documentation",
+            children: [
+                { name: "README" },
+                { name: "Installation" },
+                { name: "References" },
+                { name: "Plugins" }
+            ]
+        },
+        {
+            name: "CLI Usage",
+            children: [
+                { name: "README" },
+                { name: "JSON" },
+                { name: "Shell" },
+                { name: "Server" }
+            ]
+        },
+        {
+            name: "Website Usage"
+        },
+        {
+            name: "API Documentation",
+            children: [
+                { name: "README" },
+                { name: "Getting Started" },
+                { name: "Objects" },
+                { name: "Rate Limits" },
+                {
+                    name: "sections",
+                    children: [
+                        { name: "Language" },
+                        { name: "Translation" },
+                    ]
+                }
+            ]
+        }
+    ]
 }
 
 export default EnglishLocalization
