@@ -9,7 +9,6 @@ import uuid
 from translatepy.exceptions import UnsupportedMethod
 from translatepy.language import Language
 from translatepy.translators.base import BaseTranslateException, BaseTranslator
-from translatepy.utils.lru_cacher import timed_lru_cache
 from translatepy.utils.request import Request
 
 
@@ -36,47 +35,53 @@ class YandexTranslate(BaseTranslator):
     Yandex Translation Implementation
     """
 
-    _api_url = "https://translate.yandex.net/api/v1/tr.json/{endpoint}"
+    _api_url = "http://translate.yandex.net/api/v1/tr.json/{endpoint}"
     _supported_languages = {'auto', 'af', 'sq', 'am', 'ar', 'hy', 'az', 'ba', 'eu', 'be', 'bn', 'bs', 'bg', 'my', 'ca', 'ca', 'ceb', 'zh', 'cv', 'cs', 'da', 'nl', 'nl', 'en', 'eo', 'et', 'fi', 'fr', 'ka', 'de', 'gd', 'gd', 'ga', 'gl', 'el', 'gu', 'ht', 'ht', 'he', 'hi', 'hr', 'hu', 'is', 'id', 'it', 'jv', 'ja', 'kn', 'kk', 'km', 'ky', 'ky', 'ko', 'lo', 'la', 'lv', 'lt', 'lb', 'lb', 'mk', 'ml', 'mi', 'mr', 'ms', 'mg', 'mt', 'mn', 'mrj', 'mhr', 'ne', 'no', 'pa', 'pa', 'pap', 'fa', 'pl', 'pt', 'ro', 'ro', 'ro', 'ru', 'sah', 'si', 'si', 'sk', 'sl', 'es', 'es', 'sr', 'sjn', 'su', 'sw', 'sv', 'ta', 'tt', 'te', 'tg', 'tl', 'th', 'tr', 'udm', 'uk', 'ur', 'uz', 'vi', 'cy', 'xh', 'yi', 'zu', 'kazlat', 'uzbcyr', 'emj'}
-    # _language_aliases = {"zho": "zh"}  # TODO: Feat: instead of declaring the _language_normalize and _language_denormalize methods every time in each class, we can simply put the value of the language codes aliases used by service to the _language_aliases class attribute. Syntax: {official_iso639_lang_code: service used_code}
 
     def __init__(self, request: Request = Request()):
         self.session = request
-        self.session.header = {"User-Agent": "ru.yandex.translate/3.20.2024"}
+        self.session.header = {"User-Agent": "ru.yandex.translate/22.11.8.22364114 (samsung SM-A505GM; Android 12)"}  # TODO: generate random telephone model
 
-    @timed_lru_cache(360)  # Store UUID value within 360 seconds
-    def _ucid(self) -> str:
+        uuid_v4 = str(uuid.uuid4())
+        self.session_ucid = uuid_v4.replace("-", "")
+        self.session_request_id = 0
+
+    def _ucid(self, session_state: bool = False) -> str:
         """
-        Generates UUID (UCID) for Yandex Translate API requests (USID analogue)
+        Generates UUID (UCID / (U)SID) for Yandex Translate API requests
 
         Args:
 
         Returns:
-            str --> new generated UUID value
+            str --> Yandex UUID value
         """
-        # Yandex Translate generally generates UUID V5, but API can accepts UUID V4 (bug or feature !?)
-        _uuid = str(uuid.uuid4())
-        _ucid = _uuid.replace("-", "")
-        return _ucid
+
+        if session_state:
+            request_id = self.session_request_id
+            self.session_request_id += 1
+            return "{ucid}-{request_id}-0".format(ucid=self.session_ucid, request_id=request_id)
+
+        return self.session_ucid
 
     def _translate(self, text: str, destination_language: str, source_language: str) -> str:
         if source_language == "auto":
             source_language = self._language(text)
 
         url = self._api_url.format(endpoint="translate")
-        params = {"ucid": self._ucid(), "srv": "android", "format": "text"}
+        params = {"sid": self._ucid(session_state=True), "srv": "android", "format": "text"}
         data = {"text": text, "lang": source_language + "-" + destination_language}
         request = self.session.post(url, params=params, data=data)
         response = request.json()
 
-        if request.status_code < 400 and response["code"] == 200:
-            try:
-                _detected_language = str(data["lang"]).split("-")[0]
-            except Exception:
-                _detected_language = source_language
-            return _detected_language, response["text"][0]
-        else:
+        if request.status_code != 200 and response["code"] != 200:
             raise YandexTranslateException(response["code"])
+
+        try:
+            _detected_language = str(data["lang"]).split("-")[0]
+        except Exception:
+            _detected_language = source_language
+
+        return _detected_language, response["text"][0]
 
     def _transliterate(self, text: str, destination_language: str, source_language: str) -> str:
         if source_language == "auto":
@@ -86,109 +91,84 @@ class YandexTranslate(BaseTranslator):
         data = {'text': text, 'lang': source_language + "-" + destination_language}
         request = self.session.post(url, data=data)
 
-        if request.status_code < 400:
-            return source_language, request.text[1:-1]
-        else:
+        if request.status_code != 200:
             raise YandexTranslateException(request.status_code, request.text)
+
+        return source_language, request.text[1:-1]
 
     def _spellcheck(self, text: str, source_language: str) -> str:
         if source_language == "auto":
             source_language = self._language(text)
 
         url = "https://speller.yandex.net/services/spellservice.json/checkText"
-        params = {"ucid": self._ucid(), "srv": "android"}
+        params = {"sid": self._ucid(), "srv": "android"}
         data = {"text": text, "lang": source_language, "options": 8 + 4}
         request = self.session.post(url, params=params, data=data)
         response = request.json()
 
-        if request.status_code < 400:
-            for correction in response:
-                if correction["s"]:
-                    word = correction['word']
-                    suggestion = correction['s'][0]
-                    text = text.replace(word, suggestion)
-            return source_language, text
-        else:
+        if request.status_code != 200:
             raise YandexTranslateException(request.status_code, request.text)
+        for correction in response:
+            if correction["s"]:
+                word = correction['word']
+                suggestion = correction['s'][0]
+                text = text.replace(word, suggestion)
+            return source_language, text
 
     def _language(self, text: str):
         url = self._api_url.format(endpoint="detect")
-        params = {"ucid": self._ucid(), "srv": "android"}
+        params = {"sid": self._ucid(), "srv": "android"}
         data = {'text': text, 'hint': "en"}
         request = self.session.get(url, params=params, data=data)
         response = request.json()
 
-        if request.status_code < 400 and response["code"] == 200:
-            return response["lang"]
-        else:
+        if request.status_code != 200 and response["code"] != 200:
             raise YandexTranslateException(response["code"])
+
+        return response["lang"]
 
     def _example(self, text: str, destination_language: str, source_language: str):
         if source_language == "auto":
             source_language = self._language(text)
 
         url = "https://dictionary.yandex.net/dicservice.json/queryCorpus"
-        params = {"ucid": self._ucid(), "srv": "android", "src": text, "ui": "en", "lang": source_language + "-" + destination_language, "flags": 7}
+        params = {"sid": self._ucid(), "srv": "android", "src": text, "ui": "en", "lang": source_language + "-" + destination_language, "flags": 7}
         request = self.session.get(url, params=params)
 
-        if request.status_code < 400:
-            response = request.json()
-
-            _result = []
-            for examples_group in response["result"]:
-                for sentense in examples_group["examples"]:
-                    _sentense_result = sentense["dst"]
-                    _sentense_result = _sentense_result.replace("<", "").replace(">", "")
-                    _result.append(_sentense_result)
-            return source_language, _result
-        else:
+        if request.status_code != 200:
             raise YandexTranslateException(request.status_code, request.text)
+
+        response = request.json()
+
+        _result = []
+
+        for examples_group in response["result"]:
+            for sentense in examples_group["examples"]:
+                _sentense_result = sentense["dst"]
+                _sentense_result = _sentense_result.replace("<", "").replace(">", "")
+                _result.append(_sentense_result)
+
+        return source_language, _result
 
     def _dictionary(self, text: str, destination_language: str, source_language: str):
         if source_language == "auto":
             source_language = self._language(text)
 
         url = "https://dictionary.yandex.net/dicservice.json/lookupMultiple"
-        params = {"ucid": self._ucid(), "srv": "android", "text": text, "ui": "en", "dict": source_language + "-" + destination_language, "flags": 7, "dict_type": "regular"}
+        params = {"sid": self._ucid(), "srv": "android", "text": text, "ui": "en", "dict": source_language + "-" + destination_language, "flags": 7, "dict_type": "regular"}
         request = self.session.get(url, params=params)
 
-        if request.status_code < 400:
-            response = request.json()
-
-            _result = []
-
-            for word in response["{}-{}".format(source_language, destination_language)]["regular"]:
-                _word_result = word["tr"][0]["text"]
-                _result.append(_word_result)
-
-            return source_language, _result
-        else:
+        if request.status_code != 200:
             raise YandexTranslateException(request.status_code, request.text)
+        response = request.json()
 
-    def _text_to_speech(self, text: str, speed: int, gender: str, source_language: str):
-        # TODO: Use Yandex Alice text to speech (Premium voices)
+        _result = []
 
-        if source_language == "auto":
-            source_language = self._language(text)
+        for word in response["{}-{}".format(source_language, destination_language)]["regular"]:
+            _word_result = word["tr"][0]["text"]
+            _result.append(_word_result)
 
-        speech_lang_voices = {
-            "male": {"ru": ["ru_RU", "filipp"], "tr": ["tr_TR", "erkanyavas"], "en": ["en_US", "nick"]},
-            "female": {"ru": ["ru_RU", "alena"], "tr": ["tr_TR", "silaerkan"], "en": ["en_US", "alyss"]}
-        }
-
-        lang = speech_lang_voices[gender].get(source_language)
-
-        if lang is None:
-            raise UnsupportedMethod("Yandex SpeechKit doesn't support {source_lang} language".format(source_lang=source_language))
-
-        url = "https://tts.voicetech.yandex.net/tts"
-        params = {"format": "mp3", "quality": "hi", "chunked": 0, "platform": "web", "mock-ranges": 1, "application": "translate", "lang": lang[0], "text": text, "voice": lang[1], "speed": speed / 100}
-        response = self.session.get(url, params=params, headers={"Content-Type": None})
-
-        if response.status_code < 400:
-            return source_language, response.content
-        else:
-            raise YandexTranslateException(response.status_code, response.text)
+        return source_language, _result
 
     def _language_normalize(self, language):
         if language.id == "zho":
@@ -203,19 +183,6 @@ class YandexTranslate(BaseTranslator):
         elif str(language_code).lower() == "sjn":
             return Language("srd")
         return Language(language_code)
-
-    """
-    def _language_normalize(self, language):
-        return self._language_aliases.get(language.id, language.alpha2)
-        # return language.alpha2
-
-    def _language_denormalize(self, language_code):
-        for _language_code, _service_code in self._language_aliases.items():
-            if _service_code.lower() == language_code.lower():
-                language_code = _language_code
-                break
-        return Language(language_code)
-    """
 
     def __str__(self) -> str:
         return "Yandex"

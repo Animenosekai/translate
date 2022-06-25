@@ -4,9 +4,3 @@ beautifulsoup4
 typing; python_version<"3.5" # for backward compatibility
 pyuseragents
 inquirer>=2.8.0
-
-
-# server
-git+https://github.com/Animenosekai/nasse # the latest 'main' branch version
-jinja2<3.1.0
-itsdangerous==2.0.1
