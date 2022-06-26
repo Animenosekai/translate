@@ -2,6 +2,7 @@ import { Heading1, Heading2, Heading3, Heading4, Heading5 } from "./headings";
 import { ListItem, OrderedList, UnorderedList } from "./lists";
 import { Table, TableD, TableH, TableHead, TableR } from "./table";
 
+import { AnchorLink } from "./link";
 import { CodeBlock } from "./code";
 
 export const MarkdownComponent = {
@@ -18,5 +19,6 @@ export const MarkdownComponent = {
     thead: TableHead,
     tr: TableR,
     th: TableH,
-    td: TableD
+    td: TableD,
+    a: AnchorLink
 }

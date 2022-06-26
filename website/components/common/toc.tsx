@@ -15,13 +15,15 @@ export const TableOfContent = ({ data, level, query, path }: TableOfContentProps
     }
     let finalPath = (path ? path : "/documentation") + "/" + data.name
     return <div className="my-2">
-        <Link href={finalPath}>
-            <span className={classNames("cursor-pointer", {
-                "text-blue-500": query && (query[0] === data.name),
-                "font-medium": level === 1,
-                "font-normal": level === 2,
-                "font-light": level > 2
-            })}>{data.name}</span>
+        <Link passHref={true} href={finalPath}>
+            <a>
+                <span className={classNames("cursor-pointer", {
+                    "text-blue-500": query && (query[0] === data.name),
+                    "font-medium": level === 1,
+                    "font-normal": level === 2,
+                    "font-light": level > 2
+                })}>{data.name}</span>
+            </a>
         </Link>
         {
             data.children

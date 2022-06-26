@@ -6,10 +6,12 @@ import classNames from "classnames";
 import { useLanguage } from "contexts/language";
 
 export const HamburgerMenuElement = ({ href, name, ...props }: any) => {
-    return <Link href={href}>
-        <div className="w-full h-16 p-5 text-xl items-center flex cursor-pointer hover:bg-slate-100 transition" {...props}>
-            {name}
-        </div>
+    return <Link passHref={true} href={href}>
+        <a>
+            <div className="w-full h-16 p-5 text-xl items-center flex cursor-pointer hover:bg-slate-100 transition" {...props}>
+                {name}
+            </div>
+        </a>
     </Link>
 }
 

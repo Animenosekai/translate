@@ -54,8 +54,10 @@ const Documentation: NextPage = () => {
         <SEO title='translatepy — Documentation' description='Learn how to use translatepy!' />
         <div className='flex gap-2 w-screen'>
             <div className="p-5 ml-3 overflow-y-auto h-1/2 w-max flex flex-col -mt-5 gap-2 sticky top-0">
-                <Link href="/documentation">
-                    <span className='mx-auto self-center text-xl font-semibold m-5 cursor-pointer'>translatepy docs</span>
+                <Link passHref={true} href="/documentation">
+                    <a>
+                        <span className='mx-auto self-center text-xl font-semibold m-5 cursor-pointer'>translatepy docs</span>
+                    </a>
                 </Link>
                 {
                     strings.documentation

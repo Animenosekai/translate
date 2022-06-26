@@ -10,8 +10,8 @@ export const Header = () => {
 
     return <nav className="flex flex-row w-screen h-max mt-5 mb-16">
         <div className="left-10 absolute my-auto cursor-pointer">
-            <Link href="/">
-                <TranslateIcon />
+            <Link passHref={true} href="/">
+                <a><TranslateIcon /></a>
             </Link>
         </div>
         <HamburgerIcon onClick={() => {

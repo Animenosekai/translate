@@ -1,13 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    reactStrictMode: true,
-    async redirects() {
-        return [{
-            source: '/documentation',
-            destination: '/documentation/translatepy',
-            permanent: false,
-        }, ]
-    },
+    reactStrictMode: true
 }
 
 module.exports = nextConfig

@@ -8,8 +8,8 @@ export interface NavbarProps {
 
 const NavbarLink = ({ href, name }: { href: string, name: string }) => {
     return <li className="mx-4 opacity-60 hover:opacity-100 transition">
-        <Link href={href}>
-            {name}
+        <Link passHref={true} href={href}>
+            <a>{name}</a>
         </Link>
     </li>
 }
