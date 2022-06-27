@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 
 import { CloseIcon } from "components/icons/close";
 import Link from "next/link";
+import { TOC } from "pages/documentation/[...path]";
 import classNames from "classnames";
 import { useLanguage } from "contexts/language";
+import { useRouter } from "next/router";
 
 export const HamburgerMenuElement = ({ href, name, ...props }: any) => {
     return <Link passHref={true} href={href}>
@@ -18,6 +20,16 @@ export const HamburgerMenuElement = ({ href, name, ...props }: any) => {
 export const HamburgerModal = ({ onClose, ...props }) => {
     const { strings } = useLanguage();
     const [exit, setExit] = useState(true);
+    const { pathname } = useRouter();
+    const [showTOC, setShowTOC] = useState(false);
+
+    useEffect(() => {
+        if (["/documentation", "/documentation/[...path]"].includes(pathname)) {
+            setShowTOC(true);
+        } else {
+            setShowTOC(false);
+        }
+    }, [pathname])
 
     useEffect(() => {
         setExit(false);
@@ -45,11 +57,14 @@ export const HamburgerModal = ({ onClose, ...props }) => {
             <CloseIcon className="absolute top-0 right-0 mx-10 my-5 cursor-pointer opacity-60 hover:opacity-100 transition" onClick={clickHandler} />
             {/* <span className="text-xl justify-center">Menu</span> */}
             <div className="h-12"></div>
-            <div className="w-full">
+            <div className="w-full overflow-y-auto">
                 <hr />
                 <HamburgerMenuElement onClick={clickHandler} href="/translate" name={strings.pages.translate} />
                 <hr />
                 <HamburgerMenuElement onClick={clickHandler} href="/documentation" name={strings.pages.documentation} />
+                {
+                    showTOC && <TOC onClick={clickHandler} className="ml-6" />
+                }
                 <hr />
                 <HamburgerMenuElement onClick={clickHandler} href="/stats" name={strings.pages.stats} />
                 <hr />

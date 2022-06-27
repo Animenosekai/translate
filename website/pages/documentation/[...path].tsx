@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { HTMLAttributes, useEffect, useState } from 'react'
 
 import { Colorful } from 'components/common/colorful'
 import Configuration from 'config'
@@ -13,6 +13,26 @@ import rehypeRaw from 'rehype-raw'
 import remarkGfm from 'remark-gfm'
 import { useLanguage } from 'contexts/language'
 import { useRouter } from 'next/router'
+
+export const TOC = ({ ...props }: HTMLAttributes<HTMLDivElement>) => {
+    const { strings } = useLanguage();
+    const { query } = useRouter();
+    const [path, setPath] = useState<string[]>((query.path as string[]) || []);
+
+    useEffect(() => {
+        setPath((query.path as string[]) || [])
+    }, [query])
+
+    return <div {...props}>
+        {
+            strings.documentation
+                ? strings.documentation.map((value, i) => {
+                    return <TableOfContent data={value} key={i} level={1} query={path} />
+                })
+                : ""
+        }
+    </div>
+}
 
 const Documentation: NextPage = () => {
     const { strings } = useLanguage();
@@ -54,21 +74,15 @@ const Documentation: NextPage = () => {
     return <div className='h-full'>
         <SEO title='translatepy — Documentation' description='Learn how to use translatepy!' />
         <div className='flex gap-2 w-screen'>
-            <div className="p-5 ml-3 overflow-y-auto h-1/2 w-max flex flex-col -mt-5 gap-2 sticky top-0">
+            <div className="p-5 ml-3 overflow-y-auto h-1/2 w-max flex-col -mt-5 gap-2 sticky top-0 sm:flex hidden">
                 <Link passHref={true} href="/documentation">
                     <a>
                         <span className='mx-auto self-center text-xl font-semibold m-5 cursor-pointer'>translatepy {<Colorful value='docs' />}</span>
                     </a>
                 </Link>
-                {
-                    strings.documentation
-                        ? strings.documentation.map((value, i) => {
-                            return <TableOfContent data={value} key={i} level={1} query={path} />
-                        })
-                        : ""
-                }
+                <TOC />
             </div>
-            <div className='w-3/4 mb-5'>
+            <div className='sm:w-3/4 sm:mx-0 mb-5 w-full mx-5'>
                 <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={MarkdownComponent}>{content}</ReactMarkdown>
             </div>
         </div>

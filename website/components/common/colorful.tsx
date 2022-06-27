@@ -35,10 +35,7 @@ export const Colorful = ({ value, interval, backward, colors, ...props }: Colorf
     return <div {...props}>
         {
             range(value.length).map((position, i) => {
-                let currentPosition = position
-                if (backward) {
-                    currentPosition = (value.length - position)
-                }
+                const currentPosition = backward ? (value.length - position) : position
                 let currentIteration = iteration - currentPosition
                 if (currentIteration < 0) {
                     currentIteration = 0
