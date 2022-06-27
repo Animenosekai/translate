@@ -1,5 +1,5 @@
 export const Table = ({ node, children, key, ...props }) => {
-    return <table className="w-max max-w-full overflow-auto block">{children}</table>
+    return <table className="w-max max-w-full overflow-auto block my-2">{children}</table>
 }
 
 export const TableHead = ({ node, children, key, ...props }) => {

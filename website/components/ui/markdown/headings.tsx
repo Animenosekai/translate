@@ -1,11 +1,14 @@
 import { headingLink } from "utils/heading"
 
 export const Heading1 = ({ node, level, children, key, ...props }) => {
-    return <section id={headingLink(children.toString())}>
-        <div className="flex flex-col gap-2 mt-8 mb-6">
-            <h1 className="text-2xl font-bold">{children}</h1>
-            <hr />
-        </div>
+    const id = headingLink(children.toString())
+    return <section id={id}>
+        <a href={`#${id}`}>
+            <div className="flex flex-col gap-2 mt-8 mb-6 hover:opacity-90 opacity-100 cursor-pointer">
+                <h1 className="text-2xl font-bold">{children}</h1>
+                <hr />
+            </div>
+        </a>
     </section>
 }
 

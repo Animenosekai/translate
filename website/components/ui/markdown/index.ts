@@ -3,6 +3,7 @@ import { ListItem, OrderedList, UnorderedList } from "./lists";
 import { Table, TableD, TableH, TableHead, TableR } from "./table";
 
 import { AnchorLink } from "./link";
+import { BlockQuote } from "./quote";
 import { CodeBlock } from "./code";
 
 export const MarkdownComponent = {
@@ -20,5 +21,6 @@ export const MarkdownComponent = {
     tr: TableR,
     th: TableH,
     td: TableD,
-    a: AnchorLink
+    a: AnchorLink,
+    blockquote: BlockQuote
 }
