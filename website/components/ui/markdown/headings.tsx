@@ -1,7 +1,10 @@
 import { headingLink } from "utils/heading"
+import { useHeadings } from "contexts/headings"
 
 export const Heading1 = ({ node, level, children, key, ...props }) => {
-    const id = headingLink(children.toString())
+    const { headings, setHeadings } = useHeadings();
+    const id = headingLink(children.toString(), headings)
+    setHeadings(headings)
     return <section id={id}>
         <a href={`#${id}`}>
             <div className="flex flex-col gap-2 mt-8 mb-6 hover:opacity-90 opacity-100 cursor-pointer">
@@ -13,25 +16,45 @@ export const Heading1 = ({ node, level, children, key, ...props }) => {
 }
 
 export const Heading2 = ({ node, level, children, key, ...props }) => {
-    return <section id={headingLink(children.toString())}>
-        <h2 className="text-xl font-semibold mt-6 mb-4">{children}</h2>
+    const { headings, setHeadings } = useHeadings();
+    const id = headingLink(children.toString(), headings)
+    setHeadings(headings)
+    return <section id={id}>
+        <a href={`#${id}`}>
+            <h2 className="text-xl font-semibold mt-6 mb-4">{children}</h2>
+        </a>
     </section>
 }
 
 export const Heading3 = ({ node, level, children, key, ...props }) => {
-    return <section id={headingLink(children.toString())}>
-        <h3 className="text-lg font-medium mt-4 mb-2">{children}</h3>
+    const { headings, setHeadings } = useHeadings();
+    const id = headingLink(children.toString(), headings)
+    setHeadings(headings)
+    return <section id={id}>
+        <a href={`#${id}`}>
+            <h3 className="text-lg font-medium mt-4 mb-2">{children}</h3>
+        </a>
     </section>
 }
 
 export const Heading4 = ({ node, level, children, key, ...props }) => {
-    return <section id={headingLink(children.toString())}>
-        <h4 className="text-base font-medium mt-3 mb-1">{children}</h4>
+    const { headings, setHeadings } = useHeadings();
+    const id = headingLink(children.toString(), headings)
+    setHeadings(headings)
+    return <section id={id}>
+        <a href={`#${id}`}>
+            <h4 className="text-base font-medium mt-3 mb-1">{children}</h4>
+        </a>
     </section>
 }
 
 export const Heading5 = ({ node, level, children, key, ...props }) => {
-    return <section id={headingLink(children.toString())}>
-        <h5 className="text-base font-normal mt-3 mb-1">{children}</h5>
+    const { headings, setHeadings } = useHeadings();
+    const id = headingLink(children.toString(), headings)
+    setHeadings(headings)
+    return <section id={id}>
+        <a href={`#${id}`}>
+            <h5 className="text-base font-normal mt-3 mb-1">{children}</h5>
+        </a>
     </section>
 }

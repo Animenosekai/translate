@@ -12,6 +12,7 @@ import classNames from 'classnames'
 import rehypeRaw from 'rehype-raw'
 // import rehypeSanitize from 'rehype-sanitize'
 import remarkGfm from 'remark-gfm'
+import { useHeadings } from 'contexts/headings'
 import { useLanguage } from 'contexts/language'
 import { useRouter } from 'next/router'
 
@@ -42,9 +43,15 @@ const Documentation: NextPage = () => {
 
     const [content, setContent] = useState<string>();
 
+    const { setHeadings } = useHeadings();
+
     useEffect(() => {
         setPath((router.query.path as string[]) || [])
     }, [router.query])
+
+    useEffect(() => {
+        setHeadings([])
+    }, [content])
 
     useEffect(() => {
         const __path__ = path.join("|")

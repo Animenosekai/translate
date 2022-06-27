@@ -22,6 +22,6 @@ export const AnchorLink = ({ node, href, title, children, key, ...props }) => {
         result = href
     }
     return <Link passHref={true} title={title} href={result}>
-        <a>{children}</a>
+        <a className="opacity-100 hover:opacity-50 transition">{children}</a>
     </Link>
 }
