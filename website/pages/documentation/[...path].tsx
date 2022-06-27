@@ -8,13 +8,14 @@ import type { NextPage } from 'next'
 import ReactMarkdown from 'react-markdown'
 import { SEO } from 'components/common/seo'
 import { TableOfContent } from 'components/common/toc'
+import classNames from 'classnames'
 import rehypeRaw from 'rehype-raw'
 // import rehypeSanitize from 'rehype-sanitize'
 import remarkGfm from 'remark-gfm'
 import { useLanguage } from 'contexts/language'
 import { useRouter } from 'next/router'
 
-export const TOC = ({ ...props }: HTMLAttributes<HTMLDivElement>) => {
+export const TOC = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => {
     const { strings } = useLanguage();
     const { query } = useRouter();
     const [path, setPath] = useState<string[]>((query.path as string[]) || []);
@@ -23,7 +24,7 @@ export const TOC = ({ ...props }: HTMLAttributes<HTMLDivElement>) => {
         setPath((query.path as string[]) || [])
     }, [query])
 
-    return <div {...props}>
+    return <div className={classNames("flex flex-col", className)} {...props}>
         {
             strings.documentation
                 ? strings.documentation.map((value, i) => {
@@ -74,13 +75,16 @@ const Documentation: NextPage = () => {
     return <div className='h-full'>
         <SEO title='translatepy — Documentation' description='Learn how to use translatepy!' />
         <div className='flex gap-2 w-screen'>
-            <div className="p-5 ml-3 overflow-y-auto h-1/2 w-max flex-col -mt-5 gap-2 sticky top-0 sm:flex hidden">
+            <div className="p-5 ml-3 overflow-y-auto h-1/2 w-max flex-col gap-2 sticky top-0 sm:flex hidden">
                 <Link passHref={true} href="/documentation">
                     <a>
                         <span className='mx-auto self-center text-xl font-semibold m-5 cursor-pointer'>translatepy {<Colorful value='docs' />}</span>
                     </a>
                 </Link>
-                <TOC />
+                <div className='flex flex-row'>
+                    <TOC />
+                    {/* <div className="border-l-[1px] border-l-slate-300 opacity-50 ml-5 h-[70vh]" /> */}
+                </div>
             </div>
             <div className='sm:w-3/4 sm:mx-0 mb-5 w-full mx-5'>
                 <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={MarkdownComponent}>{content}</ReactMarkdown>
