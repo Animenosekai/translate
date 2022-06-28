@@ -21,9 +21,9 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `lang` | The language to lookup  | True            | str            |
-| `threshold` | The similarity threshold to use when searching for similar languages  | False            | float            |
-| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
+| `lang` | The language to lookup  | Yes            | str            |
+| `threshold` | The similarity threshold to use when searching for similar languages  | No            | float            |
+| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
 
 ### Example
 
@@ -117,14 +117,14 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `id` | The language id  | str      | False      |
-| `alpha2` | The language alpha2 code  | str      | False      |
-| `alpha3b` | The language alpha3b code  | str      | False      |
-| `alpha3t` | The language alpha3t code  | str      | False      |
-| `alpha3` | The language alpha3 code  | str      | False      |
-| `name` | The language name  | str      | False      |
-| `inForeignLanguages` | The language in foreign languages  | object      | False      |
-| `extra` | The language extra data  | object      | False      |
+| `id` | The language id  | str      | No      |
+| `alpha2` | The language alpha2 code  | str      | No      |
+| `alpha3b` | The language alpha3b code  | str      | No      |
+| `alpha3t` | The language alpha3t code  | str      | No      |
+| `alpha3` | The language alpha3 code  | str      | No      |
+| `name` | The language name  | str      | No      |
+| `inForeignLanguages` | The language in foreign languages  | object      | No      |
+| `extra` | The language extra data  | object      | No      |
 
 #### Possible Errors
 
@@ -152,9 +152,9 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `lang` | The language to lookup  | True            | str            |
-| `limit` | The limit of languages to return. (max: 100, default: 10)  | False            | int            |
-| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
+| `lang` | The language to lookup  | Yes            | str            |
+| `limit` | The limit of languages to return. (max: 100, default: 10)  | No            | int            |
+| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
 
 ### Example
 
@@ -268,7 +268,7 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `languages` | The languages found  | array      | False      |
+| `languages` | The languages found  | array      | No      |
 
 #### Possible Errors
 
@@ -296,14 +296,14 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `threshold` | The similarity threshold to use when searching for similar languages  | False            | float            |
-| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
+| `threshold` | The similarity threshold to use when searching for similar languages  | No            | float            |
+| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
 
 ### Dynamic URL
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `language` | The language to lookup  | True            | str            |
+| `language` | The language to lookup  | Yes            | str            |
 
 ### Example
 
@@ -392,14 +392,14 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `id` | The language id  | str      | False      |
-| `alpha2` | The language alpha2 code  | str      | False      |
-| `alpha3b` | The language alpha3b code  | str      | False      |
-| `alpha3t` | The language alpha3t code  | str      | False      |
-| `alpha3` | The language alpha3 code  | str      | False      |
-| `name` | The language name  | str      | False      |
-| `inForeignLanguages` | The language in foreign languages  | object      | False      |
-| `extra` | The language extra data  | object      | False      |
+| `id` | The language id  | str      | No      |
+| `alpha2` | The language alpha2 code  | str      | No      |
+| `alpha3b` | The language alpha3b code  | str      | No      |
+| `alpha3t` | The language alpha3t code  | str      | No      |
+| `alpha3` | The language alpha3 code  | str      | No      |
+| `name` | The language name  | str      | No      |
+| `inForeignLanguages` | The language in foreign languages  | object      | No      |
+| `extra` | The language extra data  | object      | No      |
 
 #### Possible Errors
 

@@ -25,11 +25,11 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to translate  | True            | str            |
-| `dest` | The destination language  | True            | str            |
-| `source` | The source language  | False            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
-| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
+| `text` | The text to translate  | Yes            | str            |
+| `dest` | The destination language  | Yes            | str            |
+| `source` | The source language  | No            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | No            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
 
 ### Example
 
@@ -108,6 +108,9 @@ print(r.json()["data"])
         "service": "Google",
         "source": "Hello world",
         "sourceLanguage": {
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
             "name": "English",
             "inForeignLanguages": {},
             "extra": {
@@ -115,12 +118,12 @@ print(r.json()["data"])
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en",
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng"
+            "alpha2": "en"
         },
         "destinationLanguage": {
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
             "name": "English",
             "inForeignLanguages": {},
             "extra": {
@@ -128,10 +131,7 @@ print(r.json()["data"])
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en",
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng"
+            "alpha2": "en"
         },
         "result": "こんにちは世界"
     }
@@ -143,11 +143,11 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | False      |
-| `source` | The source text  | str      | False      |
-| `sourceLanguage` | The source language  | object      | False      |
-| `destinationLanguage` | The destination language  | object      | False      |
-| `result` | The translated text  | str      | False      |
+| `service` | The translator used  | str      | No      |
+| `source` | The source text  | str      | No      |
+| `sourceLanguage` | The source language  | object      | No      |
+| `destinationLanguage` | The destination language  | object      | No      |
+| `result` | The translated text  | str      | No      |
 
 #### Possible Errors
 
@@ -175,7 +175,7 @@ print(r.json()["data"])
 GET /stream
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L101)
+> [server/endpoints/translation.py](../../server/endpoints/translation.py#L49)
 
 ### Authentication
 
@@ -185,11 +185,11 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to translate  | True            | str            |
-| `dest` | The destination language  | True            | str            |
-| `source` | The source language  | False            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
-| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
+| `text` | The text to translate  | Yes            | str            |
+| `dest` | The destination language  | Yes            | str            |
+| `source` | The source language  | No            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | No            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
 
 ### Example
 
@@ -268,6 +268,9 @@ print(r.json()["data"])
         "service": "Google",
         "source": "Hello world",
         "sourceLanguage": {
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
             "name": "English",
             "inForeignLanguages": {},
             "extra": {
@@ -275,12 +278,12 @@ print(r.json()["data"])
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en",
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng"
+            "alpha2": "en"
         },
         "destinationLanguage": {
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
             "name": "English",
             "inForeignLanguages": {},
             "extra": {
@@ -288,10 +291,7 @@ print(r.json()["data"])
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en",
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng"
+            "alpha2": "en"
         },
         "result": "こんにちは世界"
     }
@@ -303,11 +303,11 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | False      |
-| `source` | The source text  | str      | False      |
-| `sourceLanguage` | The source language  | object      | False      |
-| `destinationLanguage` | The destination language  | object      | False      |
-| `result` | The translated text  | str      | False      |
+| `service` | The translator used  | str      | No      |
+| `source` | The source text  | str      | No      |
+| `sourceLanguage` | The source language  | object      | No      |
+| `destinationLanguage` | The destination language  | object      | No      |
+| `result` | The translated text  | str      | No      |
 
 #### Possible Errors
 
@@ -378,12 +378,12 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `code` | The HTML snippet to translate  | True            | str            |
-| `dest` | The destination language  | True            | str            |
-| `source` | The source language  | False            | str            |
-| `parser` | The HTML parser to use  | False            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
-| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
+| `code` | The HTML snippet to translate  | Yes            | str            |
+| `dest` | The destination language  | Yes            | str            |
+| `source` | The source language  | No            | str            |
+| `parser` | The HTML parser to use  | No            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | No            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
 
 ### Example
 
@@ -469,6 +469,9 @@ print(r.json()["data"])
             "eng"
         ],
         "destinationLanguage": {
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
             "name": "English",
             "inForeignLanguages": {},
             "extra": {
@@ -476,10 +479,7 @@ print(r.json()["data"])
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en",
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng"
+            "alpha2": "en"
         },
         "result": "<div><p>こんにちは、今日はお元気ですか</p><p>大丈夫</p></div>"
     }
@@ -491,11 +491,11 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `services` | The translators used  | array      | False      |
-| `source` | The source text  | str      | False      |
-| `sourceLanguage` | The source languages  | array      | False      |
-| `destinationLanguage` | The destination language  | object      | False      |
-| `result` | The translated text  | str      | False      |
+| `services` | The translators used  | array      | No      |
+| `source` | The source text  | str      | No      |
+| `sourceLanguage` | The source languages  | array      | No      |
+| `destinationLanguage` | The destination language  | object      | No      |
+| `result` | The translated text  | str      | No      |
 
 #### Possible Errors
 
@@ -533,11 +533,11 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to transliterate  | True            | str            |
-| `dest` | The destination language  | False            | str            |
-| `source` | The source language  | False            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
-| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
+| `text` | The text to transliterate  | Yes            | str            |
+| `dest` | The destination language  | No            | str            |
+| `source` | The source language  | No            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | No            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
 
 ### Example
 
@@ -614,6 +614,9 @@ print(r.json()["data"])
         "service": "Google",
         "source": "おはよう",
         "sourceLanguage": {
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
             "name": "English",
             "inForeignLanguages": {},
             "extra": {
@@ -621,12 +624,12 @@ print(r.json()["data"])
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en",
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng"
+            "alpha2": "en"
         },
         "destinationLanguage": {
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
             "name": "English",
             "inForeignLanguages": {},
             "extra": {
@@ -634,10 +637,7 @@ print(r.json()["data"])
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en",
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng"
+            "alpha2": "en"
         },
         "result": "Ohayou"
     }
@@ -649,11 +649,11 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | False      |
-| `source` | The source text  | str      | False      |
-| `sourceLanguage` | The source language  | object      | False      |
-| `destinationLanguage` | The destination language  | object      | False      |
-| `result` | The transliteration  | str      | False      |
+| `service` | The translator used  | str      | No      |
+| `source` | The source text  | str      | No      |
+| `sourceLanguage` | The source language  | object      | No      |
+| `destinationLanguage` | The destination language  | object      | No      |
+| `result` | The transliteration  | str      | No      |
 
 #### Possible Errors
 
@@ -691,10 +691,10 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to spellcheck  | True            | str            |
-| `source` | The source language  | False            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
-| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
+| `text` | The text to spellcheck  | Yes            | str            |
+| `source` | The source language  | No            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | No            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
 
 ### Example
 
@@ -771,6 +771,9 @@ print(r.json()["data"])
         "service": "Google",
         "source": "God morning",
         "sourceLang": {
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
             "name": "English",
             "inForeignLanguages": {},
             "extra": {
@@ -778,10 +781,7 @@ print(r.json()["data"])
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en",
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng"
+            "alpha2": "en"
         },
         "result": "Good morning"
     }
@@ -793,10 +793,10 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | False      |
-| `source` | The source text  | str      | False      |
-| `sourceLang` | The source language  | object      | False      |
-| `result` | The spellchecked text  | str      | False      |
+| `service` | The translator used  | str      | No      |
+| `source` | The source text  | str      | No      |
+| `sourceLang` | The source language  | object      | No      |
+| `result` | The spellchecked text  | str      | No      |
 
 #### Possible Errors
 
@@ -834,9 +834,9 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to get the language of  | True            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
-| `foreign` | Whether to include the language in foreign languages  | False            | Bool            |
+| `text` | The text to get the language of  | Yes            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | No            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
 
 ### Example
 
@@ -913,6 +913,9 @@ print(r.json()["data"])
         "service": "Google",
         "source": "Hello world",
         "result": {
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
             "name": "English",
             "inForeignLanguages": {},
             "extra": {
@@ -920,10 +923,7 @@ print(r.json()["data"])
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en",
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng"
+            "alpha2": "en"
         }
     }
 }
@@ -934,9 +934,9 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | False      |
-| `source` | The source text  | str      | False      |
-| `result` | The resulting language alpha-3 code  | object      | False      |
+| `service` | The translator used  | str      | No      |
+| `source` | The source text  | str      | No      |
+| `result` | The resulting language alpha-3 code  | object      | No      |
 
 #### Possible Errors
 
@@ -993,11 +993,11 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to convert to speech  | True            | str            |
-| `source` | The source language  | False            | str            |
-| `speed` | The speed of the speech  | False            | int            |
-| `gender` | The gender of the speech  | False            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+| `text` | The text to convert to speech  | Yes            | str            |
+| `source` | The source language  | No            | str            |
+| `speed` | The speed of the speech  | No            | int            |
+| `gender` | The gender of the speech  | No            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | No            | TranslatorList            |
 
 ### Example
 

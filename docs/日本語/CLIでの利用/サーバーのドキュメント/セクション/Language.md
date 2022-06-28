@@ -1,7 +1,7 @@
 
-# Language Section API Reference
+# Language セクションのAPIリファレンス
 
-This file lists and explains the different endpoints available in the Language section.
+このファイルは「Language」セクションの全てのエンドポイントを説明します。
 
 # Language Details
 
@@ -13,25 +13,25 @@ GET /language/details
 
 > [translatepy/server/language.py](../../translatepy/server/language.py#L113)
 
-### Authentication
+### 認証
 
-Login is **not** required
+ログインは**不要**です
 
-### Parameters
+### パラメーター
 
-| Name         | Description                      | Required         | Type             |
+| 名前         | 詳細                      | 必要         | タイプ             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `lang` | The language to lookup  | Yes            | str            |
-| `threshold` | The similarity threshold to use when searching for similar languages  | No            | float            |
-| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
+| `lang` | The language to lookup  | はい            | str            |
+| `threshold` | The similarity threshold to use when searching for similar languages  | いいえ            | float            |
+| `foreign` | Whether to include the language in foreign languages  | いいえ            | Bool            |
 
-### Example
+### 例
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Example</summary>
+    <summary>cURL 例</summary>
 
 #### **cURL**
 
@@ -45,7 +45,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Example</summary>
+    <summary>JavaScript 例</summary>
 
 #### **JavaScript**
 
@@ -68,7 +68,7 @@ fetch(`/language/details?lang=${encodeURIComponent("lang")}`, {
 
 
 <details>
-    <summary>Python Example</summary>
+    <summary>Python 例</summary>
 
 #### **Python**
 
@@ -87,9 +87,9 @@ print(r.json()["data"])
 </details>
 <!-- tabs:end -->
 
-### Response
+### レスポンス
 
-#### Example response
+#### レスポンスの例
 
 ```json
 {
@@ -113,26 +113,26 @@ print(r.json()["data"])
 
 ```
 
-#### Returns
+#### 返したフィールド
 
-| Field        | Description                      | Type   | Nullable  |
+| フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `id` | The language id  | str      | No      |
-| `alpha2` | The language alpha2 code  | str      | No      |
-| `alpha3b` | The language alpha3b code  | str      | No      |
-| `alpha3t` | The language alpha3t code  | str      | No      |
-| `alpha3` | The language alpha3 code  | str      | No      |
-| `name` | The language name  | str      | No      |
-| `inForeignLanguages` | The language in foreign languages  | object      | No      |
-| `extra` | The language extra data  | object      | No      |
+| `id` | The language id  | str      | いいえ      |
+| `alpha2` | The language alpha2 code  | str      | いいえ      |
+| `alpha3b` | The language alpha3b code  | str      | いいえ      |
+| `alpha3t` | The language alpha3t code  | str      | いいえ      |
+| `alpha3` | The language alpha3 code  | str      | いいえ      |
+| `name` | The language name  | str      | いいえ      |
+| `inForeignLanguages` | The language in foreign languages  | object      | いいえ      |
+| `extra` | The language extra data  | object      | いいえ      |
 
-#### Possible Errors
+#### 起こりうるエラー
 
-| Exception         | Description                      | Code   |
+| エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Return to the Index](../Getting%20Started.md#index)
+[インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # Language Search
 
@@ -144,25 +144,25 @@ GET /language/search
 
 > [translatepy/server/language.py](../../translatepy/server/language.py#L135)
 
-### Authentication
+### 認証
 
-Login is **not** required
+ログインは**不要**です
 
-### Parameters
+### パラメーター
 
-| Name         | Description                      | Required         | Type             |
+| 名前         | 詳細                      | 必要         | タイプ             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `lang` | The language to lookup  | Yes            | str            |
-| `limit` | The limit of languages to return. (max: 100, default: 10)  | No            | int            |
-| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
+| `lang` | The language to lookup  | はい            | str            |
+| `limit` | The limit of languages to return. (max: 100, default: 10)  | いいえ            | int            |
+| `foreign` | Whether to include the language in foreign languages  | いいえ            | Bool            |
 
-### Example
+### 例
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Example</summary>
+    <summary>cURL 例</summary>
 
 #### **cURL**
 
@@ -176,7 +176,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Example</summary>
+    <summary>JavaScript 例</summary>
 
 #### **JavaScript**
 
@@ -199,7 +199,7 @@ fetch(`/language/search?lang=${encodeURIComponent("lang")}`, {
 
 
 <details>
-    <summary>Python Example</summary>
+    <summary>Python 例</summary>
 
 #### **Python**
 
@@ -218,9 +218,9 @@ print(r.json()["data"])
 </details>
 <!-- tabs:end -->
 
-### Response
+### レスポンス
 
-#### Example response
+#### レスポンスの例
 
 ```json
 {
@@ -264,19 +264,19 @@ print(r.json()["data"])
 
 ```
 
-#### Returns
+#### 返したフィールド
 
-| Field        | Description                      | Type   | Nullable  |
+| フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `languages` | The languages found  | array      | No      |
+| `languages` | The languages found  | array      | いいえ      |
 
-#### Possible Errors
+#### 起こりうるエラー
 
-| Exception         | Description                      | Code   |
+| エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Return to the Index](../Getting%20Started.md#index)
+[インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # Language Details (dynamic)
 
@@ -288,30 +288,30 @@ GET /language/details/<language>
 
 > [translatepy/server/language.py](../../translatepy/server/language.py#L184)
 
-### Authentication
+### 認証
 
-Login is **not** required
+ログインは**不要**です
 
-### Parameters
+### パラメーター
 
-| Name         | Description                      | Required         | Type             |
+| 名前         | 詳細                      | 必要         | タイプ             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `threshold` | The similarity threshold to use when searching for similar languages  | No            | float            |
-| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
+| `threshold` | The similarity threshold to use when searching for similar languages  | いいえ            | float            |
+| `foreign` | Whether to include the language in foreign languages  | いいえ            | Bool            |
 
-### Dynamic URL
+### ダイナミックURL
 
-| Name         | Description                      | Required         | Type             |
+| 名前         | 詳細                      | 必要         | タイプ             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `language` | The language to lookup  | Yes            | str            |
+| `language` | The language to lookup  | はい            | str            |
 
-### Example
+### 例
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Example</summary>
+    <summary>cURL 例</summary>
 
 #### **cURL**
 
@@ -323,7 +323,7 @@ curl -X GET "/language/details/<language>"
 
 
 <details>
-    <summary>JavaScript Example</summary>
+    <summary>JavaScript 例</summary>
 
 #### **JavaScript**
 
@@ -346,7 +346,7 @@ fetch("/language/details/<language>", {
 
 
 <details>
-    <summary>Python Example</summary>
+    <summary>Python 例</summary>
 
 #### **Python**
 
@@ -362,9 +362,9 @@ print(r.json()["data"])
 </details>
 <!-- tabs:end -->
 
-### Response
+### レスポンス
 
-#### Example response
+#### レスポンスの例
 
 ```json
 {
@@ -388,23 +388,23 @@ print(r.json()["data"])
 
 ```
 
-#### Returns
+#### 返したフィールド
 
-| Field        | Description                      | Type   | Nullable  |
+| フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `id` | The language id  | str      | No      |
-| `alpha2` | The language alpha2 code  | str      | No      |
-| `alpha3b` | The language alpha3b code  | str      | No      |
-| `alpha3t` | The language alpha3t code  | str      | No      |
-| `alpha3` | The language alpha3 code  | str      | No      |
-| `name` | The language name  | str      | No      |
-| `inForeignLanguages` | The language in foreign languages  | object      | No      |
-| `extra` | The language extra data  | object      | No      |
+| `id` | The language id  | str      | いいえ      |
+| `alpha2` | The language alpha2 code  | str      | いいえ      |
+| `alpha3b` | The language alpha3b code  | str      | いいえ      |
+| `alpha3t` | The language alpha3t code  | str      | いいえ      |
+| `alpha3` | The language alpha3 code  | str      | いいえ      |
+| `name` | The language name  | str      | いいえ      |
+| `inForeignLanguages` | The language in foreign languages  | object      | いいえ      |
+| `extra` | The language extra data  | object      | いいえ      |
 
-#### Possible Errors
+#### 起こりうるエラー
 
-| Exception         | Description                      | Code   |
+| エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Return to the Index](../Getting%20Started.md#index)
+[インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)

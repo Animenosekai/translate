@@ -48,6 +48,7 @@ def generate_ip_hash(ip: str):
 
 @app.route("/stars", endpoint=Endpoint(
     endpoint=base,
+    name="Stars",
     description="Get all starred translations"
 ))
 def stars_handler(request: Request):

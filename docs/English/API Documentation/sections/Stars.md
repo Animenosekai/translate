@@ -17,6 +17,63 @@ GET /stars
 
 Login is **not** required
 
+### Example
+
+<!-- tabs:start -->
+
+
+<details>
+    <summary>cURL Example</summary>
+
+#### **cURL**
+
+```bash
+curl -X GET "/stars"
+```
+
+</details>
+
+
+<details>
+    <summary>JavaScript Example</summary>
+
+#### **JavaScript**
+
+```javascript
+fetch("/stars", {
+    method: "GET"
+})
+.then((response) => {response.json()})
+.then((response) => {
+    if (response.success) {
+        console.info("Successfully requested for /stars")
+        console.log(response.data)
+    } else {
+        console.error("An error occured while requesting for /stars, error: " + response.error)
+    }
+})
+```
+
+</details>
+
+
+<details>
+    <summary>Python Example</summary>
+
+#### **Python**
+
+```python
+import requests
+r = requests.request("GET", "/stars")
+if r.status_code >= 400 or not r.json()["success"]:
+    raise ValueError("An error occured while requesting for /stars, error: " + r.json()["error"])
+print("Successfully requested for /stars")
+print(r.json()["data"])
+```
+
+</details>
+<!-- tabs:end -->
+
 #### Possible Errors
 
 | Exception         | Description                      | Code   |
@@ -45,6 +102,63 @@ Login is **not** required
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `translation_id` | The ID of the translation to get  | Yes            | str            |
+
+#### Example
+
+<!-- tabs:start -->
+
+
+<details>
+    <summary>cURL Example</summary>
+
+##### **cURL**
+
+```bash
+curl -X GET "/stars/<translation_id>"
+```
+
+</details>
+
+
+<details>
+    <summary>JavaScript Example</summary>
+
+##### **JavaScript**
+
+```javascript
+fetch("/stars/<translation_id>", {
+    method: "GET"
+})
+.then((response) => {response.json()})
+.then((response) => {
+    if (response.success) {
+        console.info("Successfully requested for /stars/<translation_id>")
+        console.log(response.data)
+    } else {
+        console.error("An error occured while requesting for /stars/<translation_id>, error: " + response.error)
+    }
+})
+```
+
+</details>
+
+
+<details>
+    <summary>Python Example</summary>
+
+##### **Python**
+
+```python
+import requests
+r = requests.request("GET", "/stars/<translation_id>")
+if r.status_code >= 400 or not r.json()["success"]:
+    raise ValueError("An error occured while requesting for /stars/<translation_id>, error: " + r.json()["error"])
+print("Successfully requested for /stars/<translation_id>")
+print(r.json()["data"])
+```
+
+</details>
+<!-- tabs:end -->
 
 #### Response
 
@@ -109,6 +223,68 @@ Login is **not** required
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `translation_id` | The ID of the translation to star  | Yes            | str            |
 
+#### Example
+
+<!-- tabs:start -->
+
+
+<details>
+    <summary>cURL Example</summary>
+
+##### **cURL**
+
+```bash
+curl -X POST \
+    --data-urlencode "token=<The token to authenticate the translation>" \
+    "/stars/<translation_id>"
+```
+
+</details>
+
+
+<details>
+    <summary>JavaScript Example</summary>
+
+##### **JavaScript**
+
+```javascript
+fetch(`/stars/<translation_id>?token=${encodeURIComponent("token")}`, {
+    method: "POST"
+})
+.then((response) => {response.json()})
+.then((response) => {
+    if (response.success) {
+        console.info("Successfully requested for /stars/<translation_id>")
+        console.log(response.data)
+    } else {
+        console.error("An error occured while requesting for /stars/<translation_id>, error: " + response.error)
+    }
+})
+```
+
+</details>
+
+
+<details>
+    <summary>Python Example</summary>
+
+##### **Python**
+
+```python
+import requests
+r = requests.request("POST", "/stars/<translation_id>",
+        params = {
+            "token": "The token to authenticate the translation"
+        })
+if r.status_code >= 400 or not r.json()["success"]:
+    raise ValueError("An error occured while requesting for /stars/<translation_id>, error: " + r.json()["error"])
+print("Successfully requested for /stars/<translation_id>")
+print(r.json()["data"])
+```
+
+</details>
+<!-- tabs:end -->
+
 #### Response
 
 ##### Example response
@@ -165,6 +341,63 @@ Login is **not** required
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `translation_id` | The ID of the translation to unstar  | Yes            | str            |
+
+#### Example
+
+<!-- tabs:start -->
+
+
+<details>
+    <summary>cURL Example</summary>
+
+##### **cURL**
+
+```bash
+curl -X DELETE "/stars/<translation_id>"
+```
+
+</details>
+
+
+<details>
+    <summary>JavaScript Example</summary>
+
+##### **JavaScript**
+
+```javascript
+fetch("/stars/<translation_id>", {
+    method: "DELETE"
+})
+.then((response) => {response.json()})
+.then((response) => {
+    if (response.success) {
+        console.info("Successfully requested for /stars/<translation_id>")
+        console.log(response.data)
+    } else {
+        console.error("An error occured while requesting for /stars/<translation_id>, error: " + response.error)
+    }
+})
+```
+
+</details>
+
+
+<details>
+    <summary>Python Example</summary>
+
+##### **Python**
+
+```python
+import requests
+r = requests.request("DELETE", "/stars/<translation_id>")
+if r.status_code >= 400 or not r.json()["success"]:
+    raise ValueError("An error occured while requesting for /stars/<translation_id>, error: " + r.json()["error"])
+print("Successfully requested for /stars/<translation_id>")
+print(r.json()["data"])
+```
+
+</details>
+<!-- tabs:end -->
 
 ##### Possible Errors
 

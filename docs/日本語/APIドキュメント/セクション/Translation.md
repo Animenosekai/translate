@@ -1,7 +1,7 @@
 
-# Référence de la section Translation
+# Translation セクションのAPIリファレンス
 
-Ce fichier liste et explique les différents *endpoints* disponible sous la section Translation
+このファイルは「Translation」セクションの全てのエンドポイントを説明します。
 
 # Translate
 
@@ -17,27 +17,27 @@ GET /translate
 
 > [translatepy/server/translation.py](../../translatepy/server/translation.py#L45)
 
-### Authentification
+### 認証
 
-Il n'est **pas** nécessaire d'être authentifié
+ログインは**不要**です
 
-### Paramètres
+### パラメーター
 
-| Nom         | Description                      | Obligatoire         | Type             |
+| 名前         | 詳細                      | 必要         | タイプ             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to translate  | Oui            | str            |
-| `dest` | The destination language  | Oui            | str            |
-| `source` | The source language  | Non            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | Non            | TranslatorList            |
-| `foreign` | Whether to include the language in foreign languages  | Non            | Bool            |
+| `text` | The text to translate  | はい            | str            |
+| `dest` | The destination language  | はい            | str            |
+| `source` | The source language  | いいえ            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | いいえ            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | いいえ            | Bool            |
 
-### Exemple
+### 例
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Exemple</summary>
+    <summary>cURL 例</summary>
 
 #### **cURL**
 
@@ -52,7 +52,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Exemple</summary>
+    <summary>JavaScript 例</summary>
 
 #### **JavaScript**
 
@@ -75,7 +75,7 @@ fetch(`/translate?text=${encodeURIComponent("text")}&dest=${encodeURIComponent("
 
 
 <details>
-    <summary>Python Exemple</summary>
+    <summary>Python 例</summary>
 
 #### **Python**
 
@@ -95,9 +95,9 @@ print(r.json()["data"])
 </details>
 <!-- tabs:end -->
 
-### Réponse
+### レスポンス
 
-#### Exemple de réponse
+#### レスポンスの例
 
 ```json
 {
@@ -139,19 +139,19 @@ print(r.json()["data"])
 
 ```
 
-#### Retourne
+#### 返したフィールド
 
-| Champ        | Description                      | Type   | Peut être `null`  |
+| フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | Non      |
-| `source` | The source text  | str      | Non      |
-| `sourceLanguage` | The source language  | object      | Non      |
-| `destinationLanguage` | The destination language  | object      | Non      |
-| `result` | The translated text  | str      | Non      |
+| `service` | The translator used  | str      | いいえ      |
+| `source` | The source text  | str      | いいえ      |
+| `sourceLanguage` | The source language  | object      | いいえ      |
+| `destinationLanguage` | The destination language  | object      | いいえ      |
+| `result` | The translated text  | str      | いいえ      |
 
-#### Erreurs possibles
+#### 起こりうるエラー
 
-| Erreur         | Description                      | Code   |
+| エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
@@ -161,7 +161,7 @@ print(r.json()["data"])
 | `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Retourner à l'Index](../Pour%20commencer.md#index)
+[インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # Translation Stream
 
@@ -177,27 +177,27 @@ GET /stream
 
 > [server/endpoints/translation.py](../../server/endpoints/translation.py#L49)
 
-### Authentification
+### 認証
 
-Il n'est **pas** nécessaire d'être authentifié
+ログインは**不要**です
 
-### Paramètres
+### パラメーター
 
-| Nom         | Description                      | Obligatoire         | Type             |
+| 名前         | 詳細                      | 必要         | タイプ             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to translate  | Oui            | str            |
-| `dest` | The destination language  | Oui            | str            |
-| `source` | The source language  | Non            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | Non            | TranslatorList            |
-| `foreign` | Whether to include the language in foreign languages  | Non            | Bool            |
+| `text` | The text to translate  | はい            | str            |
+| `dest` | The destination language  | はい            | str            |
+| `source` | The source language  | いいえ            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | いいえ            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | いいえ            | Bool            |
 
-### Exemple
+### 例
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Exemple</summary>
+    <summary>cURL 例</summary>
 
 #### **cURL**
 
@@ -212,7 +212,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Exemple</summary>
+    <summary>JavaScript 例</summary>
 
 #### **JavaScript**
 
@@ -235,7 +235,7 @@ fetch(`/stream?text=${encodeURIComponent("text")}&dest=${encodeURIComponent("des
 
 
 <details>
-    <summary>Python Exemple</summary>
+    <summary>Python 例</summary>
 
 #### **Python**
 
@@ -255,9 +255,9 @@ print(r.json()["data"])
 </details>
 <!-- tabs:end -->
 
-### Réponse
+### レスポンス
 
-#### Exemple de réponse
+#### レスポンスの例
 
 ```json
 {
@@ -299,19 +299,19 @@ print(r.json()["data"])
 
 ```
 
-#### Retourne
+#### 返したフィールド
 
-| Champ        | Description                      | Type   | Peut être `null`  |
+| フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | Non      |
-| `source` | The source text  | str      | Non      |
-| `sourceLanguage` | The source language  | object      | Non      |
-| `destinationLanguage` | The destination language  | object      | Non      |
-| `result` | The translated text  | str      | Non      |
+| `service` | The translator used  | str      | いいえ      |
+| `source` | The source text  | str      | いいえ      |
+| `sourceLanguage` | The source language  | object      | いいえ      |
+| `destinationLanguage` | The destination language  | object      | いいえ      |
+| `result` | The translated text  | str      | いいえ      |
 
-#### Erreurs possibles
+#### 起こりうるエラー
 
-| Erreur         | Description                      | Code   |
+| エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
@@ -321,7 +321,7 @@ print(r.json()["data"])
 | `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Retourner à l'Index](../Pour%20commencer.md#index)
+[インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # Translate HTML
 
@@ -370,28 +370,28 @@ GET /html
 
 > [translatepy/server/translation.py](../../translatepy/server/translation.py#L206)
 
-### Authentification
+### 認証
 
-Il n'est **pas** nécessaire d'être authentifié
+ログインは**不要**です
 
-### Paramètres
+### パラメーター
 
-| Nom         | Description                      | Obligatoire         | Type             |
+| 名前         | 詳細                      | 必要         | タイプ             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `code` | The HTML snippet to translate  | Oui            | str            |
-| `dest` | The destination language  | Oui            | str            |
-| `source` | The source language  | Non            | str            |
-| `parser` | The HTML parser to use  | Non            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | Non            | TranslatorList            |
-| `foreign` | Whether to include the language in foreign languages  | Non            | Bool            |
+| `code` | The HTML snippet to translate  | はい            | str            |
+| `dest` | The destination language  | はい            | str            |
+| `source` | The source language  | いいえ            | str            |
+| `parser` | The HTML parser to use  | いいえ            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | いいえ            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | いいえ            | Bool            |
 
-### Exemple
+### 例
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Exemple</summary>
+    <summary>cURL 例</summary>
 
 #### **cURL**
 
@@ -406,7 +406,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Exemple</summary>
+    <summary>JavaScript 例</summary>
 
 #### **JavaScript**
 
@@ -429,7 +429,7 @@ fetch(`/html?code=${encodeURIComponent("code")}&dest=${encodeURIComponent("dest"
 
 
 <details>
-    <summary>Python Exemple</summary>
+    <summary>Python 例</summary>
 
 #### **Python**
 
@@ -449,9 +449,9 @@ print(r.json()["data"])
 </details>
 <!-- tabs:end -->
 
-### Réponse
+### レスポンス
 
-#### Exemple de réponse
+#### レスポンスの例
 
 ```json
 {
@@ -487,19 +487,19 @@ print(r.json()["data"])
 
 ```
 
-#### Retourne
+#### 返したフィールド
 
-| Champ        | Description                      | Type   | Peut être `null`  |
+| フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `services` | The translators used  | array      | Non      |
-| `source` | The source text  | str      | Non      |
-| `sourceLanguage` | The source languages  | array      | Non      |
-| `destinationLanguage` | The destination language  | object      | Non      |
-| `result` | The translated text  | str      | Non      |
+| `services` | The translators used  | array      | いいえ      |
+| `source` | The source text  | str      | いいえ      |
+| `sourceLanguage` | The source languages  | array      | いいえ      |
+| `destinationLanguage` | The destination language  | object      | いいえ      |
+| `result` | The translated text  | str      | いいえ      |
 
-#### Erreurs possibles
+#### 起こりうるエラー
 
-| Erreur         | Description                      | Code   |
+| エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
@@ -509,7 +509,7 @@ print(r.json()["data"])
 | `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Retourner à l'Index](../Pour%20commencer.md#index)
+[インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # Transliterate
 
@@ -525,27 +525,27 @@ GET /transliterate
 
 > [translatepy/server/translation.py](../../translatepy/server/translation.py#L284)
 
-### Authentification
+### 認証
 
-Il n'est **pas** nécessaire d'être authentifié
+ログインは**不要**です
 
-### Paramètres
+### パラメーター
 
-| Nom         | Description                      | Obligatoire         | Type             |
+| 名前         | 詳細                      | 必要         | タイプ             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to transliterate  | Oui            | str            |
-| `dest` | The destination language  | Non            | str            |
-| `source` | The source language  | Non            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | Non            | TranslatorList            |
-| `foreign` | Whether to include the language in foreign languages  | Non            | Bool            |
+| `text` | The text to transliterate  | はい            | str            |
+| `dest` | The destination language  | いいえ            | str            |
+| `source` | The source language  | いいえ            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | いいえ            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | いいえ            | Bool            |
 
-### Exemple
+### 例
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Exemple</summary>
+    <summary>cURL 例</summary>
 
 #### **cURL**
 
@@ -559,7 +559,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Exemple</summary>
+    <summary>JavaScript 例</summary>
 
 #### **JavaScript**
 
@@ -582,7 +582,7 @@ fetch(`/transliterate?text=${encodeURIComponent("text")}`, {
 
 
 <details>
-    <summary>Python Exemple</summary>
+    <summary>Python 例</summary>
 
 #### **Python**
 
@@ -601,9 +601,9 @@ print(r.json()["data"])
 </details>
 <!-- tabs:end -->
 
-### Réponse
+### レスポンス
 
-#### Exemple de réponse
+#### レスポンスの例
 
 ```json
 {
@@ -645,19 +645,19 @@ print(r.json()["data"])
 
 ```
 
-#### Retourne
+#### 返したフィールド
 
-| Champ        | Description                      | Type   | Peut être `null`  |
+| フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | Non      |
-| `source` | The source text  | str      | Non      |
-| `sourceLanguage` | The source language  | object      | Non      |
-| `destinationLanguage` | The destination language  | object      | Non      |
-| `result` | The transliteration  | str      | Non      |
+| `service` | The translator used  | str      | いいえ      |
+| `source` | The source text  | str      | いいえ      |
+| `sourceLanguage` | The source language  | object      | いいえ      |
+| `destinationLanguage` | The destination language  | object      | いいえ      |
+| `result` | The transliteration  | str      | いいえ      |
 
-#### Erreurs possibles
+#### 起こりうるエラー
 
-| Erreur         | Description                      | Code   |
+| エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
@@ -667,7 +667,7 @@ print(r.json()["data"])
 | `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Retourner à l'Index](../Pour%20commencer.md#index)
+[インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # Spellcheck
 
@@ -683,26 +683,26 @@ GET /spellcheck
 
 > [translatepy/server/translation.py](../../translatepy/server/translation.py#L340)
 
-### Authentification
+### 認証
 
-Il n'est **pas** nécessaire d'être authentifié
+ログインは**不要**です
 
-### Paramètres
+### パラメーター
 
-| Nom         | Description                      | Obligatoire         | Type             |
+| 名前         | 詳細                      | 必要         | タイプ             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to spellcheck  | Oui            | str            |
-| `source` | The source language  | Non            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | Non            | TranslatorList            |
-| `foreign` | Whether to include the language in foreign languages  | Non            | Bool            |
+| `text` | The text to spellcheck  | はい            | str            |
+| `source` | The source language  | いいえ            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | いいえ            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | いいえ            | Bool            |
 
-### Exemple
+### 例
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Exemple</summary>
+    <summary>cURL 例</summary>
 
 #### **cURL**
 
@@ -716,7 +716,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Exemple</summary>
+    <summary>JavaScript 例</summary>
 
 #### **JavaScript**
 
@@ -739,7 +739,7 @@ fetch(`/spellcheck?text=${encodeURIComponent("text")}`, {
 
 
 <details>
-    <summary>Python Exemple</summary>
+    <summary>Python 例</summary>
 
 #### **Python**
 
@@ -758,9 +758,9 @@ print(r.json()["data"])
 </details>
 <!-- tabs:end -->
 
-### Réponse
+### レスポンス
 
-#### Exemple de réponse
+#### レスポンスの例
 
 ```json
 {
@@ -789,18 +789,18 @@ print(r.json()["data"])
 
 ```
 
-#### Retourne
+#### 返したフィールド
 
-| Champ        | Description                      | Type   | Peut être `null`  |
+| フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | Non      |
-| `source` | The source text  | str      | Non      |
-| `sourceLang` | The source language  | object      | Non      |
-| `result` | The spellchecked text  | str      | Non      |
+| `service` | The translator used  | str      | いいえ      |
+| `source` | The source text  | str      | いいえ      |
+| `sourceLang` | The source language  | object      | いいえ      |
+| `result` | The spellchecked text  | str      | いいえ      |
 
-#### Erreurs possibles
+#### 起こりうるエラー
 
-| Erreur         | Description                      | Code   |
+| エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
@@ -810,7 +810,7 @@ print(r.json()["data"])
 | `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Retourner à l'Index](../Pour%20commencer.md#index)
+[インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # Language
 
@@ -826,25 +826,25 @@ GET /language
 
 > [translatepy/server/translation.py](../../translatepy/server/translation.py#L394)
 
-### Authentification
+### 認証
 
-Il n'est **pas** nécessaire d'être authentifié
+ログインは**不要**です
 
-### Paramètres
+### パラメーター
 
-| Nom         | Description                      | Obligatoire         | Type             |
+| 名前         | 詳細                      | 必要         | タイプ             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to get the language of  | Oui            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | Non            | TranslatorList            |
-| `foreign` | Whether to include the language in foreign languages  | Non            | Bool            |
+| `text` | The text to get the language of  | はい            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | いいえ            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | いいえ            | Bool            |
 
-### Exemple
+### 例
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Exemple</summary>
+    <summary>cURL 例</summary>
 
 #### **cURL**
 
@@ -858,7 +858,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Exemple</summary>
+    <summary>JavaScript 例</summary>
 
 #### **JavaScript**
 
@@ -881,7 +881,7 @@ fetch(`/language?text=${encodeURIComponent("text")}`, {
 
 
 <details>
-    <summary>Python Exemple</summary>
+    <summary>Python 例</summary>
 
 #### **Python**
 
@@ -900,9 +900,9 @@ print(r.json()["data"])
 </details>
 <!-- tabs:end -->
 
-### Réponse
+### レスポンス
 
-#### Exemple de réponse
+#### レスポンスの例
 
 ```json
 {
@@ -930,17 +930,17 @@ print(r.json()["data"])
 
 ```
 
-#### Retourne
+#### 返したフィールド
 
-| Champ        | Description                      | Type   | Peut être `null`  |
+| フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | Non      |
-| `source` | The source text  | str      | Non      |
-| `result` | The resulting language alpha-3 code  | object      | Non      |
+| `service` | The translator used  | str      | いいえ      |
+| `source` | The source text  | str      | いいえ      |
+| `result` | The resulting language alpha-3 code  | object      | いいえ      |
 
-#### Erreurs possibles
+#### 起こりうるエラー
 
-| Erreur         | Description                      | Code   |
+| エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
@@ -950,7 +950,7 @@ print(r.json()["data"])
 | `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Retourner à l'Index](../Pour%20commencer.md#index)
+[インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # Text to Speech
 
@@ -985,27 +985,27 @@ GET /tts
 
 > [translatepy/server/translation.py](../../translatepy/server/translation.py#L434)
 
-### Authentification
+### 認証
 
-Il n'est **pas** nécessaire d'être authentifié
+ログインは**不要**です
 
-### Paramètres
+### パラメーター
 
-| Nom         | Description                      | Obligatoire         | Type             |
+| 名前         | 詳細                      | 必要         | タイプ             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to convert to speech  | Oui            | str            |
-| `source` | The source language  | Non            | str            |
-| `speed` | The speed of the speech  | Non            | int            |
-| `gender` | The gender of the speech  | Non            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | Non            | TranslatorList            |
+| `text` | The text to convert to speech  | はい            | str            |
+| `source` | The source language  | いいえ            | str            |
+| `speed` | The speed of the speech  | いいえ            | int            |
+| `gender` | The gender of the speech  | いいえ            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | いいえ            | TranslatorList            |
 
-### Exemple
+### 例
 
 <!-- tabs:start -->
 
 
 <details>
-    <summary>cURL Exemple</summary>
+    <summary>cURL 例</summary>
 
 #### **cURL**
 
@@ -1019,7 +1019,7 @@ curl -X GET \
 
 
 <details>
-    <summary>JavaScript Exemple</summary>
+    <summary>JavaScript 例</summary>
 
 #### **JavaScript**
 
@@ -1042,7 +1042,7 @@ fetch(`/tts?text=${encodeURIComponent("text")}`, {
 
 
 <details>
-    <summary>Python Exemple</summary>
+    <summary>Python 例</summary>
 
 #### **Python**
 
@@ -1061,9 +1061,9 @@ print(r.json()["data"])
 </details>
 <!-- tabs:end -->
 
-#### Erreurs possibles
+#### 起こりうるエラー
 
-| Erreur         | Description                      | Code   |
+| エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy. This is the base class for the other exceptions raised by translatepy.  | 500  |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
@@ -1073,4 +1073,4 @@ print(r.json()["data"])
 | `TRANSLATION_ERROR` | When a translation error occurs  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-[Retourner à l'Index](../Pour%20commencer.md#index)
+[インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
