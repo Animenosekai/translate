@@ -40,26 +40,25 @@ class EnglishLocalization {
 
 
     documentation: DocumentationElement[] = [
-        { name: "README" },
         {
             name: "Python Documentation",
             children: [
-                { name: "README" },
                 { name: "Installation" },
                 { name: "References" },
+                { name: "Models" },
                 { name: "Plugins" }
             ]
         },
         {
             name: "CLI Usage",
             children: [
-                { name: "README" },
                 { name: "JSON" },
                 { name: "Shell" },
                 { name: "Server" },
                 {
                     name: "Server Documentation",
                     children: [
+                        { name: "Running" },
                         { name: "Getting Started" },
                         {
                             name: "Sections",
@@ -67,18 +66,25 @@ class EnglishLocalization {
                                 { name: "Language" },
                                 { name: "Translation" }
                             ]
-                        }
+                        },
+                        { name: "Objects" }
                     ]
                 }
             ]
         },
         {
-            name: "Website Usage"
+            name: "Website Usage",
+            children: [
+                { name: "Home" },
+                { name: "Translation" },
+                { name: "Stats" },
+                { name: "Settings" },
+                { name: "Privacy Policy" }
+            ]
         },
         {
             name: "API Documentation",
             children: [
-                { name: "README" },
                 { name: "Getting Started" },
                 { name: "Objects" },
                 { name: "Rate Limits" },

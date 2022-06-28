@@ -6,4 +6,5 @@ translatepy is mainly a Python module : it lets you translate anything in any la
 
 - [Installation](./Installation.md)
 - [References](./References.md)
+- [Models](./Models.md)
 - [Plugins](./Plugins.md)
