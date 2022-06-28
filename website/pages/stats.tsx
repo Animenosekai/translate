@@ -10,7 +10,7 @@ const Stats: NextPage = () => {
 
     return <ServicesColorContextProvider>
         <div>
-            <SEO title='translatepy — Statistics' description="Look at translatpy's stats to determine which translation service is the best!" />
+            <SEO title='Statistics' description="Look at translatpy's stats to determine which translation service is the best!" />
 
             <div className="flex items-center flex-col p-3 gap-5 w-screen">
                 <div className='p-5 w-full'>

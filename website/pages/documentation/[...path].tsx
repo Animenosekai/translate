@@ -80,9 +80,9 @@ const Documentation: NextPage = () => {
     }, [path, strings])
 
     return <div className='h-full'>
-        <SEO title='translatepy — Documentation' description='Learn how to use translatepy!' />
+        <SEO title='Documentation' description='Learn how to use translatepy!' />
         <div className='flex gap-2 w-screen'>
-            <div className="p-5 ml-3 overflow-y-auto h-1/2 w-max flex-col gap-2 sticky top-0 sm:flex hidden">
+            <div className="p-5 ml-3 overflow-y-auto h-screen w-max flex-col gap-2 sticky top-0 sm:flex hidden">
                 <Link passHref={true} href="/documentation">
                     <a>
                         <span className='mx-auto self-center text-xl font-semibold m-5 cursor-pointer'>translatepy {<Colorful value='docs' />}</span>
