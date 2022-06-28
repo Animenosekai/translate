@@ -1,10 +1,12 @@
-import EnglishLocalization from "./eng";
+import EnglishLocalization, { DocumentationElement } from "./eng";
+
 import { TemplateString } from "utils/string";
 
 class JapaneseLocalization extends EnglishLocalization {
     language: string = "jpn";
     alpha2: string = "ja";
     name: string = "日本語";
+    docsTranslated: boolean = true
     placeholders = {
         translationTextArea: '翻訳する文章を入力してください...',
     }
@@ -32,6 +34,62 @@ class JapaneseLocalization extends EnglishLocalization {
     notifications: { copied: string; } = {
         copied: "クリップボードにコピーしました"
     }
+
+    documentation: DocumentationElement[] = [
+        { name: "README" },
+        {
+            name: "Pythonドキュメント",
+            children: [
+                { name: "README" },
+                { name: "Installation" },
+                { name: "References" },
+                { name: "Plugins" }
+            ]
+        },
+        {
+            name: "CLIでの利用",
+            children: [
+                { name: "README" },
+                { name: "JSON" },
+                { name: "Shell" },
+                { name: "Server" },
+                {
+                    name: "サーバーのドキュメント",
+                    children: [
+                        { name: "はじめに" },
+                        {
+                            name: "セクション",
+                            children: [
+                                { name: "Language" },
+                                { name: "Translation" }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            name: "サイトでの利用"
+        },
+        {
+            name: "APIドキュメント",
+            children: [
+                { name: "README" },
+                { name: "はじめに" },
+                { name: "Objects" },
+                { name: "Rate Limits" },
+                {
+                    name: "セクション",
+                    children: [
+                        { name: "Language" },
+                        { name: "Translation" },
+                        { name: "Stars" },
+                        { name: "Stats" }
+                    ]
+                }
+            ]
+        }
+    ]
 }
 
 export default JapaneseLocalization

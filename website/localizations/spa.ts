@@ -5,6 +5,7 @@ class SpanishLocalization extends EnglishLocalization {
     language: string = "spa";
     alpha2: string = "es";
     name: string = "Español";
+    docsTranslated: boolean = true
     placeholders = {
         translationTextArea: 'Introduce el texto a traducir...',
     }

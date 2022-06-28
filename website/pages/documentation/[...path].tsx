@@ -70,7 +70,7 @@ const Documentation: NextPage = () => {
         if (!resultPath.endsWith(".md")) {
             resultPath += "/README.md"
         }
-        fetch(`https://cdn.jsdelivr.net/gh/Animenosekai/translate@${encodeURIComponent(Configuration.repo.branch)}/docs/${encodeURIComponent(strings.name)}${resultPath}`)
+        fetch(`https://cdn.jsdelivr.net/gh/Animenosekai/translate@${encodeURIComponent(Configuration.repo.branch)}/docs/${encodeURIComponent(strings.docsTranslated ? strings.name : "English")}${resultPath}`)
             .then(response => response.text())
             .then(text => {
                 if (path.join("|") === __path__) {
