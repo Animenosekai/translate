@@ -87,7 +87,7 @@ print(r.json()["data"])
 | `DATABASE_DISABLED` | When the server disabled any database interaction  | 501  |
 [Retourner à l'Index](../Pour%20commencer.md#index)
 
-# Erros Stats
+# Errors Stats
 
 Get all errors count for each service
 

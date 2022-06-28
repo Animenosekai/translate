@@ -20,16 +20,16 @@ Globally, JSON responses should be formatted as follows (even when critical erro
 
 | Field        | Description                                      | Nullable         |
 | ------------ | ------------------------------------------------ | ---------------- |
-| `success`    | Wether the request was a success or not          | False            |
+| `success`    | Whether the request was a success or not          | False            |
 | `message`    | A message describing what happened               | True             |
-| `error`      | The exception name if an error occured           | True             |
+| `error`      | The exception name if an error occurred           | True             |
 | `data`       | The extra data, information asked in the request | False            |
 
 ### Errors
 
 Multiple Errors can occur, server side or request side.
 
-Specific errors are documented in each endpoint but these are the general errors that can occur on any endpoint:
+Specific errors are documented in each endpoint, but these are the general errors that can occur on any endpoint:
 
 | Exception                   | Description                                                                                                     | Code  |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------- | ----- |
@@ -43,15 +43,15 @@ Specific errors are documented in each endpoint but these are the general errors
 | `MISSING_DYNAMIC`           | When a dynamic routing value is missing from the requested URL                                                  | 400   |
 | `MISSING_HEADER`            | When a header is missing from the request                                                                       | 400   |
 | `MISSING_COOKIE`            | When a cookie is missing from the request                                                                       | 400   |
-| `AUTH_ERROR`                | When an error occured while authenticating the request                                                          | 403   |
+| `AUTH_ERROR`                | When an error occurred while authenticating the request                                                          | 403   |
 
 ### Authenticated Requests
 
 When a user needs to be logged in, the "Authorization" header needs to be set to the login token provided when logging in.
 
-Alternatively, the "translatepy_token" parameter and "__translatepy_token" cookie can be used but these won't be prioritized.
+Alternatively, the "translatepy_token" parameter and "__translatepy_token" cookie can be used, but these won't be prioritized.
 
-If the endpoint is flagged for a "verified only" login, the account won't be fetched from any database but the token will be checked.
+If the endpoint is flagged for a "verified only" login, the account won't be fetched from any database, but the token will be checked.
 
 ### Debug Mode
 
@@ -110,7 +110,7 @@ The "call_stack" attribute is enabled only when an error occurs or the `call_sta
   - [Translation Star](./Sections/Stars.md#translation-star)
 - [Stats](./Sections/Stats.md#stats)
   - [Timings Stats](./Sections/Stats.md#timings-stats)
-  - [Erros Stats](./Sections/Stats.md#erros-stats)
+  - [Errors Stats](./Sections/Stats.md#errors-stats)
 - [Translation](./Sections/Translation.md#translation)
   - [Translate](./Sections/Translation.md#translate)
   - [Translation Stream](./Sections/Translation.md#translation-stream)

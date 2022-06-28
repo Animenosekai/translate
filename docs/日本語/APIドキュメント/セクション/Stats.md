@@ -87,7 +87,7 @@ print(r.json()["data"])
 | `DATABASE_DISABLED` | When the server disabled any database interaction  | 501  |
 [インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
-# Erros Stats
+# Errors Stats
 
 Get all errors count for each service
 

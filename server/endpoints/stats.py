@@ -28,7 +28,7 @@ def timings_handler(granularity: Granularity = "hour"):
 @app.route("/stats/errors", endpoint=Endpoint(
     endpoint=base,
     description="Get all errors count for each service",
-    name="Erros Stats"
+    name="Errors Stats"
 ))
 def timings_handler(granularity: Granularity = "hour"):
     return Response(

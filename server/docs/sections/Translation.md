@@ -44,30 +44,30 @@ Login is **not** required
         "service": "Google",
         "source": "Hello world",
         "sourceLanguage": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
             "inForeignLanguages": {},
             "extra": {
                 "scope": "Individual",
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en"
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
         },
         "destinationLanguage": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
             "inForeignLanguages": {},
             "extra": {
                 "scope": "Individual",
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en"
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
         },
         "result": "こんにちは世界"
     }
@@ -140,30 +140,30 @@ Login is **not** required
         "service": "Google",
         "source": "Hello world",
         "sourceLanguage": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
             "inForeignLanguages": {},
             "extra": {
                 "scope": "Individual",
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en"
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
         },
         "destinationLanguage": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
             "inForeignLanguages": {},
             "extra": {
                 "scope": "Individual",
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en"
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
         },
         "result": "こんにちは世界"
     }
@@ -277,17 +277,17 @@ Login is **not** required
             "eng"
         ],
         "destinationLanguage": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
             "inForeignLanguages": {},
             "extra": {
                 "scope": "Individual",
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en"
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
         },
         "result": "<div><p>こんにちは、今日はお元気ですか</p><p>大丈夫</p></div>"
     }
@@ -360,30 +360,30 @@ Login is **not** required
         "service": "Google",
         "source": "おはよう",
         "sourceLanguage": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
             "inForeignLanguages": {},
             "extra": {
                 "scope": "Individual",
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en"
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
         },
         "destinationLanguage": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
             "inForeignLanguages": {},
             "extra": {
                 "scope": "Individual",
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en"
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
         },
         "result": "Ohayou"
     }
@@ -455,17 +455,17 @@ Login is **not** required
         "service": "Google",
         "source": "God morning",
         "sourceLang": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
             "inForeignLanguages": {},
             "extra": {
                 "scope": "Individual",
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en"
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
         },
         "result": "Good morning"
     }
@@ -535,17 +535,17 @@ Login is **not** required
         "service": "Google",
         "source": "Hello world",
         "result": {
-            "alpha3b": "eng",
-            "alpha3t": "eng",
-            "alpha3": "eng",
-            "name": "English",
             "inForeignLanguages": {},
             "extra": {
                 "scope": "Individual",
                 "type": "Living"
             },
             "id": "eng",
-            "alpha2": "en"
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
         }
     }
 }

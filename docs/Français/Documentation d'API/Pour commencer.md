@@ -110,7 +110,7 @@ Le champ "call_stack" est activé seulement quand il y a le paramètre `call_sta
   - [Translation Star](./Sections/Stars.md#translation-star)
 - [Stats](./Sections/Stats.md#stats)
   - [Timings Stats](./Sections/Stats.md#timings-stats)
-  - [Erros Stats](./Sections/Stats.md#erros-stats)
+  - [Errors Stats](./Sections/Stats.md#errors-stats)
 - [Translation](./Sections/Translation.md#translation)
   - [Translate](./Sections/Translation.md#translate)
   - [Translation Stream](./Sections/Translation.md#translation-stream)
