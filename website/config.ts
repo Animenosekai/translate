@@ -4,7 +4,7 @@ const Configuration = {
     },
     repo: {
         // branch: "website"
-        branch: "f1c9a3db0ea71c6f727e37919d0c6cd8f8d15429"
+        branch: "c0ab2599d6d67847a9dd71a1b809609fb6e6d9b5"
     }
 }
 
