@@ -129,13 +129,15 @@ class Translate():
                 raise NoResult("No service has returned a valid result")
             return result
 
+        exception = None
         for index, service in enumerate(self.services):
             try:
                 return _translate(translator=service, index=index)
-            except Exception:
+            except Exception as ex:
+                exception = ex
                 continue
         else:
-            raise NoResult("No service has returned a valid result")
+            raise NoResult("No service has returned a valid result") from exception
 
     def translate_html(self, html: Union[str, PageElement, Tag, BeautifulSoup], destination_language: str, source_language: str = "auto", parser: str = "html.parser", threads_limit: int = 100, __internal_replacement_function__ = None) -> Union[str, PageElement, Tag, BeautifulSoup]:
         """
@@ -234,13 +236,15 @@ class Translate():
                 raise NoResult("No service has returned a valid result")
             return result
 
+        exception = None
         for index, service in enumerate(self.services):
             try:
                 return _transliterate(translator=service, index=index)
-            except Exception:
+            except Exception as ex:
+                exception = ex
                 continue
         else:
-            raise NoResult("No service has returned a valid result")
+            raise NoResult("No service has returned a valid result") from exception
 
     def spellcheck(self, text: str, source_language: str = "auto") -> SpellcheckResult:
         """
@@ -277,13 +281,15 @@ class Translate():
                 raise NoResult("No service has returned a valid result")
             return result
 
+        exception = None
         for index, service in enumerate(self.services):
             try:
                 return _spellcheck(translator=service, index=index)
-            except Exception:
+            except Exception as ex:
+                exception = ex
                 continue
         else:
-            raise NoResult("No service has returned a valid result")
+            raise NoResult("No service has returned a valid result") from exception
 
     def language(self, text: str) -> LanguageResult:
         """
@@ -318,13 +324,15 @@ class Translate():
                 raise NoResult("No service has returned a valid result")
             return result
 
+        exception = None
         for index, service in enumerate(self.services):
             try:
                 return _language(translator=service, index=index)
-            except Exception:
+            except Exception as ex:
+                exception = ex
                 continue
         else:
-            raise NoResult("No service has returned a valid result")
+            raise NoResult("No service has returned a valid result") from exception
 
     def example(self, text: str, destination_language: str, source_language: str = "auto") -> ExampleResult:
         """
@@ -362,13 +370,15 @@ class Translate():
                 raise NoResult("No service has returned a valid result")
             return result
 
+        exception = None
         for index, service in enumerate(self.services):
             try:
                 return _example(translator=service, index=index)
-            except Exception:
+            except Exception as ex:
+                exception = ex
                 continue
         else:
-            raise NoResult("No service has returned a valid result")
+            raise NoResult("No service has returned a valid result") from exception
 
     def dictionary(self, text: str, destination_language: str, source_language="auto") -> DictionaryResult:
         """
@@ -406,13 +416,15 @@ class Translate():
                 raise NoResult("No service has returned a valid result")
             return result
 
+        exception = None
         for index, service in enumerate(self.services):
             try:
                 return _dictionary(translator=service, index=index)
-            except Exception:
+            except Exception as ex:
+                exception = ex
                 continue
         else:
-            raise NoResult("No service has returned a valid result")
+            raise NoResult("No service has returned a valid result") from exception
 
     def text_to_speech(self, text: str, speed: int = 100, gender: str = "female", source_language: str = "auto") -> TextToSpechResult:
         """
@@ -468,13 +480,15 @@ class Translate():
                 raise NoResult("No service has returned a valid result")
             return result
 
+        exception = None
         for index, service in enumerate(self.services):
             try:
                 return _text_to_speech(translator=service, index=index)
-            except Exception:
+            except Exception as ex:
+                exception = ex
                 continue
         else:
-            raise NoResult("No service has returned a valid result")
+            raise NoResult("No service has returned a valid result") from exception
 
     def clean_cache(self) -> None:
         """
