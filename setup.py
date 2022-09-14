@@ -36,7 +36,7 @@ setup(
         "language",
     ],
     install_requires=read_requirements("requirements.txt"),
-    extras_require={"server": read_requirements("requirements-server.txt")},
+    extras_require={"server": read_requirements("requirements-server.txt"), "dev": read_requirements("requirements-dev.txt")},
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
