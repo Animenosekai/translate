@@ -1,4 +1,5 @@
 from translatepy.exceptions import UnsupportedMethod
+from translatepy.translators.base import (BaseTranslator, BaseTranslateException)
 from translatepy.translators.bing import (BingTranslate, BingTranslateException)
 from translatepy.translators.deepl import (DeeplTranslate, DeeplTranslateException)
 from translatepy.translators.google import GoogleTranslateV1, GoogleTranslateV2
@@ -13,17 +14,28 @@ IGNORED_EXCEPTIONS = (UnsupportedMethod, DeeplTranslateException, BingTranslateE
 
 class TestAllTranslators:
     def setup(self):
-        self.services_list = [
-            GoogleTranslateV1(),
-            GoogleTranslateV2(),
-            BingTranslate(),
-            ReversoTranslate(),
-            YandexTranslate(),
-            DeeplTranslate(),
-            TranslateComTranslate(),
-            MyMemoryTranslate(),
-            MicrosoftTranslate()
+        all_services_list = [
+            GoogleTranslateV1,
+            GoogleTranslateV2,
+            BingTranslate,
+            ReversoTranslate,
+            YandexTranslate,
+            DeeplTranslate,
+            TranslateComTranslate,
+            MyMemoryTranslate,
+            MicrosoftTranslate
         ]
+
+        self.services_list = []
+
+        for service in all_services_list:
+            if not isinstance(service, BaseTranslator):
+                try:
+                    self.services_list.append(service())
+                except IGNORED_EXCEPTIONS:
+                    pass
+            else:
+                self.services_list.append(service)
 
     def test_service_translate(self):
         translation_args_list = [("Hello, how are you?", "ja")]
