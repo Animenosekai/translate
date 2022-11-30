@@ -6,10 +6,10 @@ from translatepy.translators.google import GoogleTranslateV1, GoogleTranslateV2
 from translatepy.translators.mymemory import (MyMemoryTranslate, MyMemoryException)
 from translatepy.translators.reverso import ReversoTranslate
 from translatepy.translators.translatecom import TranslateComTranslate
-from translatepy.translators.yandex import YandexTranslate
+from translatepy.translators.yandex import (YandexTranslate, YandexTranslateException)
 from translatepy.translators.microsoft import MicrosoftTranslate
 
-IGNORED_EXCEPTIONS = (UnsupportedMethod, DeeplTranslateException, BingTranslateException, MyMemoryException)  # DeepL's and Bing's rate limit is way too sensitive
+IGNORED_EXCEPTIONS = (UnsupportedMethod, DeeplTranslateException, BingTranslateException, MyMemoryException, YandexTranslateException)  # DeepL's and Bing's rate limit is way too sensitive
 
 
 class TestAllTranslators:
@@ -32,10 +32,13 @@ class TestAllTranslators:
             if not isinstance(service, BaseTranslator):
                 try:
                     self.services_list.append(service())
-                except IGNORED_EXCEPTIONS:
-                    pass
+                except IGNORED_EXCEPTIONS as ex:
+                    self._print_exception_info(ex)
             else:
                 self.services_list.append(service)
+
+    def _print_exception_info(self, exception: Exception):
+        print("During test, '{exception_name}({exception_info})' exception was catched. Ignoring...".format(exception_name=ex.__class__.__name__, exception_info=str(ex)))
 
     def test_service_translate(self):
         translation_args_list = [("Hello, how are you?", "ja")]
@@ -45,7 +48,8 @@ class TestAllTranslators:
                 try:
                     result = service.translate(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self._print_exception_info(ex)
                     continue
 
     def test_service_transliterate(self):
@@ -56,7 +60,8 @@ class TestAllTranslators:
                 try:
                     result = service.transliterate(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self._print_exception_info(ex)
                     continue
 
     def test_service_spellcheck(self):
@@ -67,7 +72,8 @@ class TestAllTranslators:
                 try:
                     result = service.spellcheck(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self._print_exception_info(ex)
                     continue
 
     def test_service_example(self):
@@ -78,7 +84,8 @@ class TestAllTranslators:
                 try:
                     result = service.example(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self._print_exception_info(ex)
                     continue
 
     def test_service_dictionary(self):
@@ -89,7 +96,8 @@ class TestAllTranslators:
                 try:
                     result = service.dictionary(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self._print_exception_info(ex)
                     continue
 
     def test_service_language(self):
@@ -100,7 +108,8 @@ class TestAllTranslators:
                 try:
                     result = service.language(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self._print_exception_info(ex)
                     continue
 
     def test_service_text_to_speech(self):
@@ -111,7 +120,8 @@ class TestAllTranslators:
                 try:
                     result = service.text_to_speech(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self._print_exception_info(ex)
                     continue
 
     def test_service_translate_html(self):
@@ -122,5 +132,6 @@ class TestAllTranslators:
                 try:
                     result = service.translate_html(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self._print_exception_info(ex)
                     continue

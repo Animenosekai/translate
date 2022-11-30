@@ -92,7 +92,7 @@ class YandexTranslate(BaseTranslator):
         request = self.session.post(url, data=data)
 
         if request.status_code != 200:
-            raise YandexTranslateException(request.status_code, request.text)
+            raise YandexTranslateException(request.status_code)
 
         return source_language, request.text[1:-1]
 
@@ -107,7 +107,8 @@ class YandexTranslate(BaseTranslator):
         response = request.json()
 
         if request.status_code != 200:
-            raise YandexTranslateException(request.status_code, request.text)
+            raise YandexTranslateException(request.status_code)
+
         for correction in response:
             if correction["s"]:
                 word = correction['word']
@@ -136,7 +137,7 @@ class YandexTranslate(BaseTranslator):
         request = self.session.get(url, params=params)
 
         if request.status_code != 200:
-            raise YandexTranslateException(request.status_code, request.text)
+            raise YandexTranslateException(request.status_code)
 
         response = request.json()
 
@@ -159,7 +160,7 @@ class YandexTranslate(BaseTranslator):
         request = self.session.get(url, params=params)
 
         if request.status_code != 200:
-            raise YandexTranslateException(request.status_code, request.text)
+            raise YandexTranslateException(request.status_code)
         response = request.json()
 
         _result = []
