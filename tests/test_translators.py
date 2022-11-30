@@ -1,5 +1,5 @@
 from translatepy.exceptions import UnsupportedMethod
-from translatepy.translators.base import (BaseTranslator, BaseTranslateException)
+from translatepy.translators.base import BaseTranslator
 from translatepy.translators.bing import (BingTranslate, BingTranslateException)
 from translatepy.translators.deepl import (DeeplTranslate, DeeplTranslateException)
 from translatepy.translators.google import GoogleTranslateV1, GoogleTranslateV2
@@ -38,7 +38,7 @@ class TestAllTranslators:
                 self.services_list.append(service)
 
     def _print_exception_info(self, exception: Exception):
-        print("During test, '{exception_name}({exception_info})' exception was catched. Ignoring...".format(exception_name=ex.__class__.__name__, exception_info=str(ex)))
+        print("During test, '{exception_name}({exception_info})' exception was catched. Ignoring...".format(exception_name=exception.__class__.__name__, exception_info=str(exception)))
 
     def test_service_translate(self):
         translation_args_list = [("Hello, how are you?", "ja")]
