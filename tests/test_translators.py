@@ -38,7 +38,8 @@ class TestAllTranslators:
                 self.services_list.append(service)
 
     def report_exception(self, test: str, service: str, exception: Exception):
-        print("::warning::During the test, in function '{test}', while testing '{service}', '{exception_name}({exception_info})' exception was catched. Ignoring...".format(test=test, service=service, exception_name=exception.__class__.__name__, exception_info=str(exception)))
+        print("\n")
+        print("::warning::During the test, in function '{test}', while testing '{service}', '{exception_name}({exception_info})' exception was caught. Ignoring...".format(test=test, service=str(service), exception_name=exception.__class__.__name__, exception_info=str(exception)))
 
     def test_service_translate(self):
         translation_args_list = [("Hello, how are you?", "ja")]
