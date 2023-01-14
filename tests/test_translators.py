@@ -33,12 +33,12 @@ class TestAllTranslators:
                 try:
                     self.services_list.append(service())
                 except IGNORED_EXCEPTIONS as ex:
-                    self._print_exception_info(ex)
+                    self.report_exception("setup", service, ex)
             else:
                 self.services_list.append(service)
 
-    def _print_exception_info(self, exception: Exception):
-        print("During test, '{exception_name}({exception_info})' exception was catched. Ignoring...".format(exception_name=exception.__class__.__name__, exception_info=str(exception)))
+    def report_exception(self, test: str, service: str, exception: Exception):
+        print("::warning::During the test, in function '{test}', while testing '{service}', '{exception_name}({exception_info})' exception was catched. Ignoring...".format(test=test, service=service, exception_name=exception.__class__.__name__, exception_info=str(exception)))
 
     def test_service_translate(self):
         translation_args_list = [("Hello, how are you?", "ja")]
@@ -49,7 +49,7 @@ class TestAllTranslators:
                     result = service.translate(*args)
                     assert result
                 except IGNORED_EXCEPTIONS as ex:
-                    self._print_exception_info(ex)
+                    self.report_exception("translate", service, ex)
                     continue
 
     def test_service_transliterate(self):
@@ -61,7 +61,7 @@ class TestAllTranslators:
                     result = service.transliterate(*args)
                     assert result
                 except IGNORED_EXCEPTIONS as ex:
-                    self._print_exception_info(ex)
+                    self.report_exception("transliterate", service, ex)
                     continue
 
     def test_service_spellcheck(self):
@@ -73,7 +73,7 @@ class TestAllTranslators:
                     result = service.spellcheck(*args)
                     assert result
                 except IGNORED_EXCEPTIONS as ex:
-                    self._print_exception_info(ex)
+                    self.report_exception("spellcheck", service, ex)
                     continue
 
     def test_service_example(self):
@@ -85,7 +85,7 @@ class TestAllTranslators:
                     result = service.example(*args)
                     assert result
                 except IGNORED_EXCEPTIONS as ex:
-                    self._print_exception_info(ex)
+                    self.report_exception("example", service, ex)
                     continue
 
     def test_service_dictionary(self):
@@ -97,7 +97,7 @@ class TestAllTranslators:
                     result = service.dictionary(*args)
                     assert result
                 except IGNORED_EXCEPTIONS as ex:
-                    self._print_exception_info(ex)
+                    self.report_exception("dictionary", service, ex)
                     continue
 
     def test_service_language(self):
@@ -109,7 +109,7 @@ class TestAllTranslators:
                     result = service.language(*args)
                     assert result
                 except IGNORED_EXCEPTIONS as ex:
-                    self._print_exception_info(ex)
+                    self.report_exception("language", service, ex)
                     continue
 
     def test_service_text_to_speech(self):
@@ -121,7 +121,7 @@ class TestAllTranslators:
                     result = service.text_to_speech(*args)
                     assert result
                 except IGNORED_EXCEPTIONS as ex:
-                    self._print_exception_info(ex)
+                    self.report_exception("text_to_speech", service, ex)
                     continue
 
     def test_service_translate_html(self):
@@ -133,5 +133,5 @@ class TestAllTranslators:
                     result = service.translate_html(*args)
                     assert result
                 except IGNORED_EXCEPTIONS as ex:
-                    self._print_exception_info(ex)
+                    self.report_exception("translate_html", service, ex)
                     continue
