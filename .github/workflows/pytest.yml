@@ -27,7 +27,7 @@ jobs:
           python3 setup.py install
       - name: Test with pytest
         run: |
-          pytest --cov-config=.coveragerc --cov-report xml:coverage.xml --cov=translatepy -vv tests/
+          pytest --cov-config=.coveragerc --cov-report xml:coverage.xml --cov=translatepy -vvs tests/
       - name: Upload Coverage report
         uses: codecov/codecov-action@v2
         with:
@@ -50,7 +50,7 @@ jobs:
           python3 setup.py install
       - name: Test with pytest
         run: |
-          pytest -vv
+          pytest -vvs
 
   test-py39:
     runs-on: ubuntu-20.04
@@ -69,7 +69,7 @@ jobs:
           python3 setup.py install
       - name: Test with pytest
         run: |
-          pytest -vv
+          pytest -vvs
 
   test-py310:
     runs-on: ubuntu-20.04
@@ -88,4 +88,4 @@ jobs:
           python3 setup.py install
       - name: Test with pytest
         run: |
-          pytest -vv tests/
+          pytest -vvs tests/
