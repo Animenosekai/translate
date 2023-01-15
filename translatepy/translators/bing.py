@@ -77,7 +77,7 @@ class BingSessionManager():
             _page = _request.text
             _parsed_IG = re.findall('IG:"(.*?)"', _page)
             _parsed_IID = re.findall('data-iid="(.*?)"', _page)
-            _parsed_helper_info = re.findall("params_RichTranslateHelper = (.*?);", _page)
+            _parsed_helper_info = re.findall("params_AbusePreventionHelper = (.*?);", _page)
 
             if not _parsed_helper_info:
                 continue

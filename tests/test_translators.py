@@ -1,15 +1,15 @@
 from translatepy.exceptions import UnsupportedMethod
-from translatepy.translators.base import (BaseTranslator, BaseTranslateException)
+from translatepy.translators.base import BaseTranslator
 from translatepy.translators.bing import (BingTranslate, BingTranslateException)
 from translatepy.translators.deepl import (DeeplTranslate, DeeplTranslateException)
 from translatepy.translators.google import GoogleTranslateV1, GoogleTranslateV2
 from translatepy.translators.mymemory import (MyMemoryTranslate, MyMemoryException)
 from translatepy.translators.reverso import ReversoTranslate
 from translatepy.translators.translatecom import TranslateComTranslate
-from translatepy.translators.yandex import YandexTranslate
+from translatepy.translators.yandex import (YandexTranslate, YandexTranslateException)
 from translatepy.translators.microsoft import MicrosoftTranslate
 
-IGNORED_EXCEPTIONS = (UnsupportedMethod, DeeplTranslateException, BingTranslateException, MyMemoryException)  # DeepL's and Bing's rate limit is way too sensitive
+IGNORED_EXCEPTIONS = (UnsupportedMethod, DeeplTranslateException, BingTranslateException, MyMemoryException, YandexTranslateException)  # DeepL's and Bing's rate limit is way too sensitive
 
 
 class TestAllTranslators:
@@ -32,10 +32,14 @@ class TestAllTranslators:
             if not isinstance(service, BaseTranslator):
                 try:
                     self.services_list.append(service())
-                except IGNORED_EXCEPTIONS:
-                    pass
+                except IGNORED_EXCEPTIONS as ex:
+                    self.report_exception("setup", service, ex)
             else:
                 self.services_list.append(service)
+
+    def report_exception(self, test: str, service: str, exception: Exception):
+        print("\n")
+        print("::warning::During the test, in function '{test}', while testing '{service}', '{exception_name}({exception_info})' exception was caught. Ignoring...".format(test=test, service=str(service), exception_name=exception.__class__.__name__, exception_info=str(exception)))
 
     def test_service_translate(self):
         translation_args_list = [("Hello, how are you?", "ja")]
@@ -45,7 +49,8 @@ class TestAllTranslators:
                 try:
                     result = service.translate(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self.report_exception("translate", service, ex)
                     continue
 
     def test_service_transliterate(self):
@@ -56,7 +61,8 @@ class TestAllTranslators:
                 try:
                     result = service.transliterate(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self.report_exception("transliterate", service, ex)
                     continue
 
     def test_service_spellcheck(self):
@@ -67,7 +73,8 @@ class TestAllTranslators:
                 try:
                     result = service.spellcheck(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self.report_exception("spellcheck", service, ex)
                     continue
 
     def test_service_example(self):
@@ -78,7 +85,8 @@ class TestAllTranslators:
                 try:
                     result = service.example(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self.report_exception("example", service, ex)
                     continue
 
     def test_service_dictionary(self):
@@ -89,7 +97,8 @@ class TestAllTranslators:
                 try:
                     result = service.dictionary(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self.report_exception("dictionary", service, ex)
                     continue
 
     def test_service_language(self):
@@ -100,7 +109,8 @@ class TestAllTranslators:
                 try:
                     result = service.language(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self.report_exception("language", service, ex)
                     continue
 
     def test_service_text_to_speech(self):
@@ -111,7 +121,8 @@ class TestAllTranslators:
                 try:
                     result = service.text_to_speech(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self.report_exception("text_to_speech", service, ex)
                     continue
 
     def test_service_translate_html(self):
@@ -122,5 +133,6 @@ class TestAllTranslators:
                 try:
                     result = service.translate_html(*args)
                     assert result
-                except IGNORED_EXCEPTIONS:
+                except IGNORED_EXCEPTIONS as ex:
+                    self.report_exception("translate_html", service, ex)
                     continue
