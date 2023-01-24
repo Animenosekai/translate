@@ -7,7 +7,7 @@ import pyuseragents
 import requests
 from requests.models import CaseInsensitiveDict
 from translatepy.exceptions import RequestStatusError
-from translatepy.utils.lru_cacher import LRUDictCache
+from translatepy.utils.lru import LRUDictCache
 
 
 class Response():

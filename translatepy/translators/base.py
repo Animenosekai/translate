@@ -11,7 +11,7 @@ from translatepy.models import (DictionaryResult, ExampleResult,
                                 TextToSpechResult, TranslationResult,
                                 TransliterationResult)
 from translatepy.utils.annotations import List
-from translatepy.utils.lru_cacher import LRUDictCache
+from translatepy.utils.lru import SizeLimitedLRUCache
 from translatepy.utils.sanitize import remove_spaces
 
 
@@ -53,15 +53,16 @@ class BaseTranslator(ABC):
     Base abstract class for a translate service
     """
 
-    _translations_cache = LRUDictCache()
-    _transliterations_cache = LRUDictCache()
-    _languages_cache = LRUDictCache()
-    _spellchecks_cache = LRUDictCache()
-    _examples_cache = LRUDictCache()
-    _dictionaries_cache = LRUDictCache()
-    _text_to_speeches_cache = LRUDictCache(8)
+    def __base_init__(self):
+        self._translations_cache = SizeLimitedLRUCache()
+        self._transliterations_cache = SizeLimitedLRUCache()
+        self._languages_cache = SizeLimitedLRUCache()
+        self._spellchecks_cache = SizeLimitedLRUCache()
+        self._examples_cache = SizeLimitedLRUCache()
+        self._dictionaries_cache = SizeLimitedLRUCache()
+        self._text_to_speeches_cache = SizeLimitedLRUCache()
 
-    _supported_languages = {}
+        self._supported_languages = {}
 
     def translate(self, text: str, destination_language: str, source_language: str = "auto") -> TranslationResult:
         """
@@ -601,6 +602,11 @@ class BaseTranslator(ABC):
         self._languages_cache.clear()
         self._examples_cache.clear()
         self._dictionaries_cache.clear()
+
+    def __new__(cls, *args, **kwargs):
+        new_cls = object.__new__(cls)
+        new_cls.__base_init__()
+        return new_cls
 
     def __str__(self) -> str:
         """
