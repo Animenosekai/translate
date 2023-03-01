@@ -1,0 +1,16 @@
+Original Text
+-------------
+Hello world, how are aaaaaaaaa oyu doin ?
+           ~        ~~~~~~~~~~ ~~~ ~~~~
+           ╰─> (1) UnneededComma│   ╰─> (4) EndingError
+                        ╰─> (2) Meaningless
+                                ╰─> (3) TypoError
+
+(1): Is a comma really needed here ?
+(2): Meaningless repeated `a`.
+(3): `oyu` might be a typo. Did you mean `you` ?
+(4): A `g` is missing at the end of the verb
+
+Corrected Text
+--------------
+Hello world how are you doing ?

@@ -1,23 +1,34 @@
-from abc import ABCMeta, abstractmethod
-from multiprocessing.pool import ThreadPool
-from typing import Union
+"""
+translators/base.py
 
-from bs4 import BeautifulSoup
-from bs4.element import NavigableString, PageElement, PreformattedString, Tag
-from translatepy.exceptions import ParameterTypeError, ParameterValueError, TranslatepyException, UnsupportedMethod, UnsupportedLanguage
+Implements the Base Translator class
+"""
+
+# This shouldn't be a problem if we are targetting sub-3.6 python versions
+# pylint: disable=consider-using-f-string
+
+import abc
+import typing
+from multiprocessing.pool import ThreadPool
+
+import bs4
+
+from translatepy.exceptions import (ParameterTypeError, ParameterValueError,
+                                    TranslatepyException, UnsupportedLanguage,
+                                    UnsupportedMethod)
 from translatepy.language import Language
 from translatepy.models import (DictionaryResult, ExampleResult,
                                 LanguageResult, SpellcheckResult,
                                 TextToSpechResult, TranslationResult,
                                 TransliterationResult)
-from translatepy.utils.annotations import List
 from translatepy.utils.lru_cacher import LRUDictCache
 from translatepy.utils.sanitize import remove_spaces
 
 
 # copied from abc.ABC (Python 3.9.5)
-class ABC(metaclass=ABCMeta):
-    """Helper class that provides a standard way to create an ABC using
+class ABC(metaclass=abc.ABCMeta):
+    """
+    Helper class that provides a standard way to create an ABC using
     inheritance.
 
     Added in the ABC module in Python 3.4
@@ -26,11 +37,20 @@ class ABC(metaclass=ABCMeta):
 
 
 class BaseTranslateException(TranslatepyException):
+    """
+    A translator exception, indicating a problem which occured during translation
+    """
     error_codes = {}
 
-    def __init__(self, status_code: int = -1, message=None):
-        unknown_status_code_msg = "Unknown error. Error code: {}".format(status_code)
+    def __init__(self, status_code: int = -1, message: typing.Optional[str] = None):
+        """
+        Parameters
+        ----------
+        status_code: int, default = -1
+        message: typing.Optional[str], default = None
+        """
         if message is None:
+            unknown_status_code_msg = "Unknown error. Error code: {}".format(status_code)
             self.message = self.error_codes.get(status_code, unknown_status_code_msg)
         else:
             self.message = message
@@ -40,6 +60,8 @@ class BaseTranslateException(TranslatepyException):
         super().__init__(self.message)
 
     def __str__(self):
+        """
+        """
         return "{} | {}".format(self.status_code, self.message)
 
 
@@ -67,23 +89,22 @@ class BaseTranslator(ABC):
         """
         Translates text from a given language to another specific language.
 
-        Parameters:
+        Parameters
         ----------
-            text : str
-                The text to be translated.
-            destination_language : str
-                If str it expects the language code that the `text` should be translated to.
-                to check the list of languages that a `Translator` supports, and use `.get_language` to
-                search for a language of the `Translator`, and find it's code.
-            source_language : str
-                If str it expects the code of the language that the `text` is written in. When using the default value (`auto`),
-                the `Translator` will try to find the language automatically.
+        text: str
+            The text to be translated.
+        destination_language: str
+            If str it expects the language code that the `text` should be translated to.
+            to check the list of languages that a `Translator` supports, and use `.get_language` to
+            search for a language of the `Translator`, and find it's code.
+        source_language: str, default = "auto"
+            If str it expects the code of the language that the `text` is written in. When using the default value (`auto`),
+            the `Translator` will try to find the language automatically.
 
-        Returns:
-        --------
-            TranslationResult:
-                Translation result.
-
+        Returns
+        -------
+        TranslationResult
+            Translation result.
         """
 
         # Validate the text
@@ -126,12 +147,22 @@ class BaseTranslator(ABC):
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations. Receives the validated and normalized parameters and must
         return a translation (str).
+
+        Parameters
+        ----------
+        text: str
+        destination_language: str
+        source_language: str
+
+        Returns
+        -------
+        str
         """
         raise UnsupportedMethod()
 
-    def translate_html(self, html: Union[str, PageElement, Tag, BeautifulSoup], destination_language: str, source_language: str = "auto", parser: str = "html.parser", threads_limit: int = 100) -> Union[str, PageElement, Tag, BeautifulSoup]:
+    def translate_html(self, html: typing.Union[str, bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup], destination_language: str, source_language: str = "auto", parser: str = "html.parser", threads_limit: int = 100) -> typing.Union[str, bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup]:
         """
-        Translates the given HTML string or BeautifulSoup object to the given language
+        Translates the given HTML string or bs4.BeautifulSoup object to the given language
 
         i.e
          English: `<div class="hello"><h1>Hello</h1> everyone and <a href="/welcome">welcome</a> to <span class="w-full">my website</span></div>`
@@ -140,65 +171,76 @@ class BaseTranslator(ABC):
         Note: This method is not perfect since it is not tag/context aware. Example: `<span>Hello <strong>everyone</strong></span>` will not be understood as
         "Hello everyone" with "everyone" in bold but rather "Hello" and "everyone" separately.
 
-        Warning: If you give a `bs4.BeautifulSoup`, `bs4.element.PageElement` or `bs4.element.Tag` input (which are mutable), they will be modified.
+        Warning: If you give a `bs4.bs4.BeautifulSoup`, `bs4.element.bs4.element.PageElement` or `bs4.element.bs4.element.Tag` input (which are mutable), they will be modified.
         If you don't want this behavior, please make sure to pass the string version of the element:
         >>> result = BaseTranslator().translate_html(str(page_element), "French")
 
-        Parameters:
+        Parameters
         ----------
-            html : str | bs4.element.PageElement | bs4.element.Tag | bs4.BeautifulSoup
-                The HTML string to be translated. This can also be an instance of BeautifulSoup's `BeautifulSoup` element, `PageElement` or `Tag` element.
-            destination_language : str
-                The language the HTML string needs to be translated in.
-            source_language : str, default = "auto"
-                The language of the HTML string.
-            parser : str, default = "html.parser"
-                The parser that BeautifulSoup will use to parse the HTML string.
-            threads_limit : int, default = 100
-                The maximum number of threads that will be spawned by translate_html
+        html: bs4.element.bs4.element.PageElement | bs4.bs4.BeautifulSoup | bs4.element.bs4.element.Tag | str | typing.Union[str, bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup]
+            The HTML string to be translated. This can also be an instance of bs4.BeautifulSoup's `bs4.BeautifulSoup` element, `bs4.element.PageElement` or `bs4.element.Tag` element.
+        destination_language: str
+            The language the HTML string needs to be translated in.
+        source_language: str, default = "auto"
+            The language of the HTML string.
+        parser: str, default = "html.parser"
+            The parser that bs4.BeautifulSoup will use to parse the HTML string.
+        threads_limit: int, default = 100
+            The maximum number of threads that will be spawned by translate_html
 
-        Returns:
-        --------
-            BeautifulSoup:
-                The result will be the same element as the input `html` parameter with the values modified if the given
-                input is of bs4.BeautifulSoup, bs4.element.PageElement or bs4.element.Tag instance.
-            str:
-                The result will be a string in any other case.
-
+        Returns
+        -------
+        bs4.BeautifulSoup
+            The result will be the same element as the input `html` parameter with the values modified if the given
+            input is of bs4.bs4.BeautifulSoup, bs4.element.bs4.element.PageElement or bs4.element.bs4.element.Tag instance.
+        str
+            The result will be a string in any other case.
+        typing.Union[str, bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup]
         """
         dest_lang = Language(destination_language)
         source_lang = Language(source_language)
 
-        def _translate(node: NavigableString):
+        def _translate(node: bs4.element.NavigableString):
+            """
+            Parameters
+            ----------
+            node: bs4.element.NavigableString
+            """
             try:
                 node.replace_with(self.translate(str(node), destination_language=dest_lang, source_language=source_lang).result)
             except Exception:  # ignore if it couldn't find any result or an error occured
                 pass
 
-        if not isinstance(html, (PageElement, Tag, BeautifulSoup)):
-            page = BeautifulSoup(str(html), str(parser))
+        if not isinstance(html, (bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup)):
+            page = bs4.BeautifulSoup(str(html), str(parser))
         else:
             page = html
-        # nodes = [tag.text for tag in page.find_all(text=True, recursive=True, attrs=lambda class_name: "notranslate" not in str(class_name).split()) if not isinstance(tag, (PreformattedString)) and remove_spaces(tag) != ""]
-        nodes = [tag for tag in page.find_all(text=True, recursive=True) if not isinstance(tag, (PreformattedString)) and remove_spaces(tag) != ""]
+        # nodes = [tag.text for tag in page.find_all(text=True, recursive=True, attrs=lambda class_name: "notranslate" not in str(class_name).split()) if not isinstance(tag, (bs4.element.PreformattedString)) and remove_spaces(tag) != ""]
+        nodes = [tag for tag in page.find_all(text=True, recursive=True) if not isinstance(tag, (bs4.element.PreformattedString)) and remove_spaces(tag) != ""]
         with ThreadPool(threads_limit) as pool:
             pool.map(_translate, nodes)
-        return page if isinstance(html, (PageElement, Tag, BeautifulSoup)) else str(page)
+        return page if isinstance(html, (bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup)) else str(page)
 
     def transliterate(self, text: str, destination_language: str, source_language: str = "auto") -> TransliterationResult:
         """
         Transliterates text from a given language to another specific language.
 
-        Args:
-            text: The text to be transliterated.
-            destination_language: If str it expects the language code that the `text` should be translated to.
-                to check the list of languages that a `Translator` supports, and use `.get_language` to
-                search for a language of the `Translator`, and find it's code. Default value = English
-            source_language: If str it expects the code of the language that the `text` is written in. When using the default value (`auto`),
-                the `Translator` will try to find the language automatically.
-
-        Returns:
+        Returns
+        TransliterationResult
             A `TransliterationResult` object with the results of the translation.
+
+        Parameters
+        ----------
+        text: str | The text to be transliterated.
+        destination_language: If str it expects the language code that the `text` should be translated to. | str
+            to check the list of languages that a `Translator` supports, and use `.get_language` to
+            search for a language of the `Translator`, and find it's code. Default value = English
+        source_language: If str it expects the code of the language that the `text` is written in. When using the default value (`auto`) | str, default = "auto"
+            the `Translator` will try to find the language automatically.
+
+        Returns
+        -------
+        TransliterationResult
         """
 
         # Validate the text
@@ -241,6 +283,16 @@ class BaseTranslator(ABC):
         Private method that concrete Translators must implement to hold the concrete
         logic for the transliteration. Receives the validated and normalized parameters and must
         return a transliteration (str).
+
+        Parameters
+        ----------
+        text: str
+        destination_language
+        source_language: str
+
+        Returns
+        -------
+        str
         """
         raise UnsupportedMethod()
 
@@ -248,14 +300,16 @@ class BaseTranslator(ABC):
         """
         Checks text spelling in a given language.
 
-        Args:
-            text: The text to be checks.
-            source_language: If str it expects the code of the language that the `text` is written in. When using the default value (`auto`),
-                the `Translator` will try to find the language automatically.
+        Parameters
+        ----------
+        text: The text to be checks. | str
+        source_language: If str it expects the code of the language that the `text` is written in. When using the default value (`auto`) | str, default = "auto"
+            the `Translator` will try to find the language automatically.
 
-        Returns:
+        Returns
+        -------
+        SpellcheckResult
             A `SpellcheckResult` object with the results of the corrected text.
-
         """
 
         # Validate the text
@@ -294,6 +348,15 @@ class BaseTranslator(ABC):
         Private method that concrete Translators must implement to hold the concrete
         logic for the spellcheck. Receives the validated and normalized parameters and must
         return a spellchecked text (str).
+
+        Parameters
+        ----------
+        text: str
+        source_language: str
+
+        Returns
+        -------
+        str
         """
         raise UnsupportedMethod()
 
@@ -301,12 +364,15 @@ class BaseTranslator(ABC):
         """
         Detect the language of the text
 
-        Args:
-            text: The text to be detect the language
+        Parameters
+        ----------
+        text: str
+            The text to be detect the language
 
-        Returns:
+        Returns
+        -------
+        LanguageResult
             A `LanguageResult` object with the results of the detected language.
-
         """
 
         # Validate the text
@@ -339,6 +405,14 @@ class BaseTranslator(ABC):
         Private method that concrete Translators must implement to hold the concrete
         logic for the language. Receives the validated and normalized parameters and must
         return a language code (str).
+
+        Parameters
+        ----------
+        text: str
+
+        Returns
+        -------
+        str
         """
         raise UnsupportedMethod()
 
@@ -346,23 +420,22 @@ class BaseTranslator(ABC):
         """
         Returns a set of examples
 
-        Parameters:
+        Parameters
         ----------
-            text : str
-                The text to be translated.
-            destination_language : str
-                If str it expects the language code that the `text` should be translated to.
-                to check the list of languages that a `Translator` supports, and use `.get_language` to
-                search for a language of the `Translator`, and find it's code.
-            source_language : str
-                If str it expects the code of the language that the `text` is written in. When using the default value (`auto`),
-                the `Translator` will try to find the language automatically.
+        text: str
+            The text to be translated.
+        destination_language: str
+            If str it expects the language code that the `text` should be translated to.
+            to check the list of languages that a `Translator` supports, and use `.get_language` to
+            search for a language of the `Translator`, and find it's code.
+        source_language: str, default = "auto"
+            If str it expects the code of the language that the `text` is written in. When using the default value (`auto`),
+            the `Translator` will try to find the language automatically.
 
-        Returns:
-        --------
-            ExampleResult:
-                Examples result.
-
+        Returns
+        -------
+        ExampleResult
+            Examples result.
         """
 
         # Validate the text
@@ -400,11 +473,21 @@ class BaseTranslator(ABC):
             result=example,
         )
 
-    def _example(self, text: str, destination_language: str, source_language: str) -> List:
+    def _example(self, text: str, destination_language: str, source_language: str) -> typing.List:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations. Receives the validated and normalized parameters and must
-        return a examples list (List).
+        return a examples list (typing.List).
+
+        Parameters
+        ----------
+        text: str
+        destination_language: str
+        source_language: str
+
+        Returns
+        -------
+        typing.List
         """
         raise UnsupportedMethod()
 
@@ -412,23 +495,21 @@ class BaseTranslator(ABC):
         """
         Returns a list of dictionary results.
 
-        Parameters:
+        Parameters
         ----------
-            text : str
-                The text to be translated.
-            destination_language : str
-                If str it expects the language code that the `text` should be translated to.
-                to check the list of languages that a `Translator` supports, and use `.get_language` to
-                search for a language of the `Translator`, and find it's code.
-            source_language : str
-                If str it expects the code of the language that the `text` is written in. When using the default value (`auto`),
-                the `Translator` will try to find the language automatically.
+        text: str
+            The text to be translated.
+        destination_language: str
+            If str it expects the language code that the `text` should be translated to.
+            to check the list of languages that a `Translator` supports, and use `.get_language` to
+            search for a language of the `Translator`, and find it's code.
+        source_language: str, default = "auto"
+            If str it expects the code of the language that the `text` is written in. When using the default value (`auto`),
+            the `Translator` will try to find the language automatically.
 
-        Returns:
-        --------
-            DictionaryResult:
-                Dictionary result.
-
+        Returns
+        -------
+        DictionaryResult
         """
 
         # Validate the text
@@ -466,11 +547,21 @@ class BaseTranslator(ABC):
             result=dictionary,
         )
 
-    def _dictionary(self, text: str, destination_language: str, source_language: str) -> List:
+    def _dictionary(self, text: str, destination_language: str, source_language: str) -> typing.List:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations. Receives the validated and normalized parameters and must
-        return a dictionary result list (List).
+        return a dictionary result list (typing.List).
+
+        Parameters
+        ----------
+        text: str
+        destination_language: str
+        source_language: str
+
+        Returns
+        -------
+        typing.List
         """
         raise UnsupportedMethod()
 
@@ -478,13 +569,19 @@ class BaseTranslator(ABC):
         """
         Gives back the text to speech result for the given text
 
-        Args:
-            text: text for voice-over
-            speed: text speed
+        Parameters
+        ----------
+        text: str
+            text for voice-over
+        speed: int, default = 100
+            text speed
+        gender: str, default = "female"
+        source_language: str, default = "auto"
 
-        Returns:
+        Returns
+        -------
+        TextToSpechResult
             A `TextToSpechResult` object
-
         """
 
         # Validate the text
@@ -532,28 +629,63 @@ class BaseTranslator(ABC):
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations.
+
+        Parameters
+        ----------
+        text: str
+        speed: int
+        gender: str
+        source_language: str
+
+        Returns
+        -------
+        bytes
         """
         raise UnsupportedMethod()
 
-    @abstractmethod
+    @abc.abstractmethod
     def _language_normalize(self, language) -> str:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations. Receives the Language instance and must
         return a normalized code language specific of translator (str).
+
+        Parameters
+        ----------
+        language
+
+        Returns
+        -------
+        str
         """
 
-    @abstractmethod
+    @abc.abstractmethod
     def _language_denormalize(self, language_code) -> str:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations. Receives the language code specific of translator and must
         return a Language instance.
+
+        Parameters
+        ----------
+        language_code
+
+        Returns
+        -------
+        str
         """
 
     def _detect_and_validate_lang(self, language: str) -> str:
         """
         Validates the language code, and converts the language code into a single format.
+
+        Parameters
+        ----------
+        language: str
+
+        Returns
+        -------
+        str
         """
         if isinstance(language, Language):
             result = language
@@ -574,6 +706,14 @@ class BaseTranslator(ABC):
         """
         Performs text validation. Checks the text for the correct type,
         and if it is not empty
+
+        Parameters
+        ----------
+        text: str
+
+        Returns
+        -------
+        None
         """
         if not isinstance(text, str):
             raise ParameterTypeError("Parameter 'text' must be a string, {} was given".format(type(text).__name__))
@@ -584,6 +724,11 @@ class BaseTranslator(ABC):
     def _validate_language_pair(self, source_language, destination_language):
         """
         Performs language pair validation
+
+        Parameters
+        ----------
+        source_language
+        destination_language
         """
         if source_language == destination_language:
             raise ParameterValueError("Parameter source_language cannot be equal to the destination_language parameter")
@@ -592,8 +737,9 @@ class BaseTranslator(ABC):
         """
         Cleans caches
 
-        Returns:
-            None
+        Returns
+        -------
+        None
         """
         self._translations_cache.clear()
         self._transliterations_cache.clear()
@@ -605,10 +751,19 @@ class BaseTranslator(ABC):
     def __str__(self) -> str:
         """
         String representation of a translator.
+
+        Returns
+        -------
+        str
         """
         class_name = self.__class__.__name__
         class_name = class_name[:class_name.rfind("Translate")]
         return "Unknown" if class_name == "" else class_name
 
     def __repr__(self) -> str:
+        """
+        Returns
+        -------
+        str
+        """
         return "Translator({translator})".format(translator=self.__str__())
