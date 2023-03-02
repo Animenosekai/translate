@@ -166,7 +166,7 @@ class Result(typing.Generic[T]):
             params=", ".join("{key}={val}".format(key=attr,
                                                   val=repr(getattr(self, attr)))
                              for attr in (attrs or dir(self))
-                             if not str(attr).startswith("__") and not callable(getattr(self, attr)) and attr != "raw")
+                             if not str(attr).startswith("_") and not callable(getattr(self, attr)) and attr != "raw")
         )
 
     def __pretty__(self, cli: bool = False) -> str:
