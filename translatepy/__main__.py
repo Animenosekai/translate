@@ -72,7 +72,7 @@ def main():
 
     if args.action == 'translate':
         try:
-            result = dl.translate(text=args.text, destination_language=args.dest_lang, source_language=args.source_lang)
+            result = dl.translate(text=args.text, dest_lang=args.dest_lang, source_lang=args.source_lang)
             print(result.as_json(indent=4, ensure_ascii=False))
         except UnknownLanguage as err:
             print(dumps({
@@ -166,12 +166,12 @@ def main():
 
     # INTERACTIVE VERSION
     if args.action == 'shell':
-        destination_language = args.dest_lang
-        # source_language = args.source_lang
+        dest_lang = args.dest_lang
+        # source_lang = args.source_lang
         try:
-            destination_language = translatepy.Language(destination_language)
+            dest_lang = translatepy.Language(dest_lang)
         except Exception:
-            destination_language = None
+            dest_lang = None
         while True:
             answers = inquirer.prompt(actions)
             action = answers["action"]
@@ -181,26 +181,26 @@ def main():
                 def _prompt_for_destination_language():
                     answers = inquirer.prompt([
                         inquirer.Text(
-                            name='destination_language',
+                            name='dest_lang',
                             message=INPUT_PREFIX.format(action="Select Lang.")
                         )
                     ])
                     try:
-                        destination_language = translatepy.Language(answers["destination_language"])
-                        print("The selected language is " + destination_language.name)
-                        return destination_language
+                        dest_lang = translatepy.Language(answers["dest_lang"])
+                        print("The selected language is " + dest_lang.name)
+                        return dest_lang
                     except Exception:
                         print("\033[93mThe given input doesn't seem to be a valid language\033[0m")
                         return _prompt_for_destination_language()
 
-                if destination_language is None:
+                if dest_lang is None:
                     if action == "Translate":
                         print("In what language do you want to translate in?")
                     elif action == "Example":
                         print("What language do you want to use for the example checking?")
                     else:
                         print("What language do you want to use for the dictionary checking?")
-                    destination_language = _prompt_for_destination_language()
+                    dest_lang = _prompt_for_destination_language()
 
             print("")
             if action == "Translate":
@@ -210,8 +210,8 @@ def main():
                     if input_text == ".quit":
                         break
                     try:
-                        result = dl.translate(input_text, destination_language, args.source_lang)
-                        print("Result \033[90m({source} → {dest})\033[0m: {result}".format(source=result.source_language, dest=result.destination_language, result=result.result))
+                        result = dl.translate(input_text, dest_lang, args.source_lang)
+                        print("Result \033[90m({source} → {dest})\033[0m: {result}".format(source=result.source_lang, dest=result.dest_lang, result=result.result))
                     except Exception:
                         print_exc()
                         print("We are sorry but an error occured or no result got returned...")
@@ -223,8 +223,8 @@ def main():
                     if input_text == ".quit":
                         break
                     try:
-                        result = dl.transliterate(text=input_text, destination_language=destination_language, source_language=args.source_lang)
-                        print("Result ({lang}): {result}".format(lang=result.source_language, result=result.result))
+                        result = dl.transliterate(text=input_text, dest_lang=dest_lang, source_lang=args.source_lang)
+                        print("Result ({lang}): {result}".format(lang=result.source_lang, result=result.result))
                     except Exception:
                         print_exc()
                         print("We are sorry but an error occured or no result got returned...")
@@ -237,7 +237,7 @@ def main():
                         break
                     try:
                         result = dl.spellcheck(input_text, args.source_lang)
-                        print("Result ({lang}): {result}".format(lang=result.source_language, result=result.result))
+                        print("Result ({lang}): {result}".format(lang=result.source_lang, result=result.result))
                     except Exception:
                         print_exc()
                         print("We are sorry but an error occured or no result got returned...")
@@ -266,7 +266,7 @@ def main():
                     if input_text == ".quit":
                         break
                     try:
-                        result = dl.example(input_text, destination_language, args.source_lang)
+                        result = dl.example(input_text, dest_lang, args.source_lang)
                         results = []
                         if isinstance(result.result, list):
                             try:

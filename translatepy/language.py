@@ -1,6 +1,6 @@
-from re import compile
+import re
 from translatepy.utils.sanitize import remove_spaces
-from typing import Union
+import typing
 
 from translatepy.exceptions import UnknownLanguage
 from translatepy.utils._language_data import CODES, LANGUAGE_DATA, VECTORS
@@ -10,7 +10,10 @@ from translatepy.utils.similarity import StringVector, fuzzy_search
 # preparing the vectors
 LOADED_VECTORS = [StringVector(language, data=data) for language, data in VECTORS.items()]
 
-LANGUAGE_CLEANUP_REGEX = compile(r"\(.+\)")
+LANGUAGE_CLEANUP_REGEX = re.compile(r"\(.+\)")
+
+# Type alias
+Number = typing.Union[int, float]
 
 
 class Scopes():
@@ -83,6 +86,10 @@ class Language():
     """
 
     class LanguageExtra():
+        """
+        Provides extra information on the language (limited to some languages)
+        """
+
         def __init__(self, data: dict) -> None:
             self.type = Types().get(data.get("t", None))
             self.scope = Scopes().get(data.get("s", None))
@@ -96,13 +103,13 @@ class Language():
                 "scope": self.scope.name if self.scope is not None else None
             }
 
-    def __init__(self, language: str, threshold: Union[int, float] = 93) -> None:
-        if language is None or remove_spaces(language) == "":
-            raise UnknownLanguage("N/A", 0, "You need to pass in a language")
+    def __init__(self, language: typing.Union[str, "Language"], threshold: Number = 93) -> None:
         if isinstance(language, Language):
             self.id = language.id
             self.similarity = language.similarity
         else:
+            if language is None or remove_spaces(language) == "":
+                raise UnknownLanguage("N/A", 0, "You need to pass in a language")
             language = str(language)
             normalized_language = remove_spaces(LANGUAGE_CLEANUP_REGEX.sub("", language.lower()))
 
@@ -136,15 +143,24 @@ class Language():
         self.in_foreign_languages["en"] = self.name
 
     def clean_cache(self) -> None:
+        """
+        Cleans the language tokens similarity caches
+        """
         _languages_cache.clear()
 
     def __repr__(self) -> str:
         return "Language({language})".format(language=self.id)
 
     def __str__(self) -> str:
+        """
+        Returns the identifier for this language
+        """
         return str(self.id)
 
     def as_dict(self, foreign: bool = True) -> dict:
+        """
+        Returns a dictionary representation of the `Language` object
+        """
         return {
             "id": self.id,
             "alpha2": self.alpha2,

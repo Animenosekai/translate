@@ -109,12 +109,12 @@ class DeeplTranslate(BaseTranslator):
         self.jsonrpc = JSONRPCRequest(request)
         self.user_preferred_langs = preferred_langs
 
-    def _split_into_sentences(self, text: str, destination_language: str, source_language: str) -> Tuple[List[str], str]:
+    def _split_into_sentences(self, text: str, dest_lang: str, source_lang: str) -> Tuple[List[str], str]:
         """
         Split a string into sentences using the DeepL API.\n
         Fallbacks to a simple Regex splitting if an error occurs or no result is found
 
-        Returned tuple: (Result, Computed Language (None if same as source_language))
+        Returned tuple: (Result, Computed Language (None if same as source_lang))
         """
         REGEX_SPLIT = True
 
@@ -124,20 +124,20 @@ class DeeplTranslate(BaseTranslator):
         params = {
             "texts": [text.strip()],  # What for need strip there?
             "lang": {
-                "lang_user_selected": source_language,
-                "user_preferred_langs": list(set(self.user_preferred_langs + [destination_language]))
+                "lang_user_selected": source_lang,
+                "user_preferred_langs": list(set(self.user_preferred_langs + [dest_lang]))
             }
         }
         resp = self.jsonrpc.send_jsonrpc("LMT_split_into_sentences", params)
 
         return resp["splitted_texts"][0], resp["lang"]
 
-    def _translate(self, text: str, destination_language: str, source_language: str) -> str:
+    def _translate(self, text: str, dest_lang: str, source_lang: str) -> str:
         priority = 1
         quality = ""
 
         # splitting the text into sentences
-        sentences, computed_lang = self._split_into_sentences(text, destination_language, source_language)
+        sentences, computed_lang = self._split_into_sentences(text, dest_lang, source_lang)
 
         # building the a job per sentence
         jobs = self._build_jobs(sentences, quality)
@@ -152,25 +152,25 @@ class DeeplTranslate(BaseTranslator):
         params = {
             "jobs": jobs,
             "lang": {
-                "target_lang": destination_language,
-                "user_preferred_langs": [destination_language]
+                "target_lang": dest_lang,
+                "user_preferred_langs": [dest_lang]
             },
             "priority": priority,
             "timestamp": ts + (i_count - ts % i_count)
         }
 
-        if source_language == "auto":
+        if source_lang == "auto":
             params["lang"]["source_lang_computed"] = computed_lang
             params["lang"]["user_preferred_langs"].append(computed_lang)
         else:
-            params["lang"]["source_lang_user_selected"] = source_language
+            params["lang"]["source_lang_user_selected"] = source_lang
 
         results = self.jsonrpc.send_jsonrpc("LMT_handle_jobs", params)
 
         try:
             _detected_language = results["source_lang"]
         except:
-            _detected_language = source_language
+            _detected_language = source_lang
 
         if results is not None:
             translations = results["translations"]
@@ -214,14 +214,14 @@ class DeeplTranslate(BaseTranslator):
         if results is not None:
             return results["source_lang"]
 
-    def _dictionary(self, text: str, destination_language: str, source_language: str) -> str:
-        if source_language == "AUTO":
-            source_language = self._language(text)
+    def _dictionary(self, text: str, dest_lang: str, source_lang: str) -> str:
+        if source_lang == "AUTO":
+            source_lang = self._language(text)
 
-        destination_language = Language(destination_language).name.lower()
-        source_language = Language(source_language).name.lower()
+        dest_lang = Language(dest_lang).name.lower()
+        source_lang = Language(source_lang).name.lower()
 
-        request = self.session.post("https://dict.deepl.com/" + source_language + "-" + destination_language + "/search?ajax=1&source=" + source_language + "&onlyDictEntries=1&translator=dnsof7h3k2lgh3gda&delay=800&jsStatus=0&kind=full&eventkind=keyup&forleftside=true", data={"query": text})
+        request = self.session.post("https://dict.deepl.com/" + source_lang + "-" + dest_lang + "/search?ajax=1&source=" + source_lang + "&onlyDictEntries=1&translator=dnsof7h3k2lgh3gda&delay=800&jsStatus=0&kind=full&eventkind=keyup&forleftside=true", data={"query": text})
         if request.status_code < 400:
             response = BeautifulSoup(request.text, "html.parser")
             _result = []
@@ -233,7 +233,7 @@ class DeeplTranslate(BaseTranslator):
                         #     results["featured"].append(element.text.replace("\n", ""))
                         # else:
                         #     results["less_common"].append(element.text.replace("\n", ""))
-            return source_language, _result
+            return source_lang, _result
 
     def _build_jobs(self, sentences, quality=""):
         """

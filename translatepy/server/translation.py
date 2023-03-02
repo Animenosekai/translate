@@ -72,7 +72,7 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
             )
 
     try:
-        result = current_translator.translate(text=text, destination_language=dest, source_language=source)
+        result = current_translator.translate(text=text, dest_lang=dest, source_lang=source)
     except UnknownLanguage as err:
         return Response(
             data={
@@ -86,8 +86,8 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
     return 200, {
         "service": str(result.service),
         "source": result.source,
-        "sourceLang": result.source_language,
-        "destLang": result.destination_language,
+        "sourceLang": result.source_lang,
+        "destLang": result.dest_lang,
         "result": result.result
     }
 
@@ -129,7 +129,7 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
     try:
         dest = Language(dest)
         source = Language(source)
-        # result = current_translator.translate(text=text, destination_language=dest, source_language=source)
+        # result = current_translator.translate(text=text, dest_lang=dest, source_lang=source)
     except UnknownLanguage as err:
         return Response(
             data={
@@ -143,7 +143,7 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
 
     def _translate(translator):
         result = translator.translate(
-            text=text, destination_language=dest, source_language=source
+            text=text, dest_lang=dest, source_lang=source
         )
         if result is None:
             raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
@@ -160,8 +160,8 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
                 "data": {
                     "service": str(result.service),
                     "source": str(result.source),
-                    "sourceLang": str(result.source_language),
-                    "destLang": str(result.destination_language),
+                    "sourceLang": str(result.source_lang),
+                    "destLang": str(result.dest_lang),
                     "result": str(result.result)
                 }
             })
@@ -249,14 +249,14 @@ def translate(code: str, dest: str, source: str = "auto", parser: str = "html.pa
 
     def _translate(node: NavigableString):
         try:
-            result = current_translator.translate(str(node), destination_language=dest, source_language=source)
+            result = current_translator.translate(str(node), dest_lang=dest, source_lang=source)
             services.append(str(result.service))
-            languages.append(str(result.source_language))
+            languages.append(str(result.source_lang))
             node.replace_with(result.result)
         except Exception:  # ignore if it couldn't find any result or an error occured
             pass
 
-    result = current_translator.translate_html(html=code, destination_language=dest, source_language=source, parser=parser, __internal_replacement_function__=_translate)
+    result = current_translator.translate_html(html=code, dest_lang=dest, source_lang=source, parser=parser, __internal_replacement_function__=_translate)
 
     return 200, {
         "services": [element for element, _ in Counter(services).most_common()],
@@ -302,7 +302,7 @@ def transliterate(text: str, dest: str = "English", source: str = "auto", transl
             )
 
     try:
-        result = current_translator.transliterate(text=text, destination_language=dest, source_language=source)
+        result = current_translator.transliterate(text=text, dest_lang=dest, source_lang=source)
     except UnknownLanguage as err:
         return Response(
             data={
@@ -316,8 +316,8 @@ def transliterate(text: str, dest: str = "English", source: str = "auto", transl
     return 200, {
         "service": str(result.service),
         "source": result.source,
-        "sourceLang": result.source_language,
-        "destLang": result.destination_language,
+        "sourceLang": result.source_lang,
+        "destLang": result.dest_lang,
         "result": result.result
     }
 
@@ -355,7 +355,7 @@ def spellcheck(text: str, source: str = "auto", translators: List[str] = None):
             )
 
     try:
-        result = current_translator.spellcheck(text=text, source_language=source)
+        result = current_translator.spellcheck(text=text, source_lang=source)
     except UnknownLanguage as err:
         return Response(
             data={
@@ -369,7 +369,7 @@ def spellcheck(text: str, source: str = "auto", translators: List[str] = None):
     return 200, {
         "service": str(result.service),
         "source": result.source,
-        "sourceLang": result.source_language,
+        "sourceLang": result.source_lang,
         "result": result.result
     }
 
@@ -448,6 +448,6 @@ def tts(text: str, speed: int = 100, gender: str = "female", source: str = "auto
                 code=400
             )
 
-    result = current_translator.text_to_speech(text=text, speed=speed, gender=gender, source_language=source)
+    result = current_translator.text_to_speech(text=text, speed=speed, gender=gender, source_lang=source)
 
     return Response(result.result, content_type="audio/mpeg")

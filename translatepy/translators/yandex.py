@@ -63,13 +63,13 @@ class YandexTranslate(BaseTranslator):
 
         return self.session_ucid
 
-    def _translate(self, text: str, destination_language: str, source_language: str) -> str:
-        if source_language == "auto":
-            source_language = self._language(text)
+    def _translate(self, text: str, dest_lang: str, source_lang: str) -> str:
+        if source_lang == "auto":
+            source_lang = self._language(text)
 
         url = self._api_url.format(endpoint="translate")
         params = {"sid": self._ucid(session_state=True), "srv": "android", "format": "text"}
-        data = {"text": text, "lang": source_language + "-" + destination_language}
+        data = {"text": text, "lang": source_lang + "-" + dest_lang}
         request = self.session.post(url, params=params, data=data)
         response = request.json()
 
@@ -79,30 +79,30 @@ class YandexTranslate(BaseTranslator):
         try:
             _detected_language = str(data["lang"]).split("-")[0]
         except Exception:
-            _detected_language = source_language
+            _detected_language = source_lang
 
         return _detected_language, response["text"][0]
 
-    def _transliterate(self, text: str, destination_language: str, source_language: str) -> str:
-        if source_language == "auto":
-            source_language = self._language(text)
+    def _transliterate(self, text: str, dest_lang: str, source_lang: str) -> str:
+        if source_lang == "auto":
+            source_lang = self._language(text)
 
         url = "https://translate.yandex.net/translit/translit"
-        data = {'text': text, 'lang': source_language + "-" + destination_language}
+        data = {'text': text, 'lang': source_lang + "-" + dest_lang}
         request = self.session.post(url, data=data)
 
         if request.status_code != 200:
             raise YandexTranslateException(request.status_code)
 
-        return source_language, request.text[1:-1]
+        return source_lang, request.text[1:-1]
 
-    def _spellcheck(self, text: str, source_language: str) -> str:
-        if source_language == "auto":
-            source_language = self._language(text)
+    def _spellcheck(self, text: str, source_lang: str) -> str:
+        if source_lang == "auto":
+            source_lang = self._language(text)
 
         url = "https://speller.yandex.net/services/spellservice.json/checkText"
         params = {"sid": self._ucid(), "srv": "android"}
-        data = {"text": text, "lang": source_language, "options": 8 + 4}
+        data = {"text": text, "lang": source_lang, "options": 8 + 4}
         request = self.session.post(url, params=params, data=data)
         response = request.json()
 
@@ -114,7 +114,7 @@ class YandexTranslate(BaseTranslator):
                 word = correction['word']
                 suggestion = correction['s'][0]
                 text = text.replace(word, suggestion)
-            return source_language, text
+            return source_lang, text
 
     def _language(self, text: str):
         url = self._api_url.format(endpoint="detect")
@@ -128,12 +128,12 @@ class YandexTranslate(BaseTranslator):
 
         return response["lang"]
 
-    def _example(self, text: str, destination_language: str, source_language: str):
-        if source_language == "auto":
-            source_language = self._language(text)
+    def _example(self, text: str, dest_lang: str, source_lang: str):
+        if source_lang == "auto":
+            source_lang = self._language(text)
 
         url = "https://dictionary.yandex.net/dicservice.json/queryCorpus"
-        params = {"sid": self._ucid(), "srv": "android", "src": text, "ui": "en", "lang": source_language + "-" + destination_language, "flags": 7}
+        params = {"sid": self._ucid(), "srv": "android", "src": text, "ui": "en", "lang": source_lang + "-" + dest_lang, "flags": 7}
         request = self.session.get(url, params=params)
 
         if request.status_code != 200:
@@ -149,14 +149,14 @@ class YandexTranslate(BaseTranslator):
                 _sentense_result = _sentense_result.replace("<", "").replace(">", "")
                 _result.append(_sentense_result)
 
-        return source_language, _result
+        return source_lang, _result
 
-    def _dictionary(self, text: str, destination_language: str, source_language: str):
-        if source_language == "auto":
-            source_language = self._language(text)
+    def _dictionary(self, text: str, dest_lang: str, source_lang: str):
+        if source_lang == "auto":
+            source_lang = self._language(text)
 
         url = "https://dictionary.yandex.net/dicservice.json/lookupMultiple"
-        params = {"sid": self._ucid(), "srv": "android", "text": text, "ui": "en", "dict": source_language + "-" + destination_language, "flags": 7, "dict_type": "regular"}
+        params = {"sid": self._ucid(), "srv": "android", "text": text, "ui": "en", "dict": source_lang + "-" + dest_lang, "flags": 7, "dict_type": "regular"}
         request = self.session.get(url, params=params)
 
         if request.status_code != 200:
@@ -165,11 +165,11 @@ class YandexTranslate(BaseTranslator):
 
         _result = []
 
-        for word in response["{}-{}".format(source_language, destination_language)]["regular"]:
+        for word in response["{}-{}".format(source_lang, dest_lang)]["regular"]:
             _word_result = word["tr"][0]["text"]
             _result.append(_word_result)
 
-        return source_language, _result
+        return source_lang, _result
 
     def _language_normalize(self, language):
         if language.id == "zho":

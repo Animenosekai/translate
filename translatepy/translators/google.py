@@ -74,22 +74,22 @@ class GoogleTranslate(BaseTranslator):
 
         self.services = [google_v1, google_v2]
 
-    def _translate(self, text, destination_language, source_language):
+    def _translate(self, text, dest_lang, source_lang):
         exception = None
         for service in self.services:
             try:
-                return service._translate(text, destination_language, source_language)
+                return service._translate(text, dest_lang, source_lang)
             except Exception as ex:
                 exception = ex
                 continue
         else:
             raise exception
 
-    def _transliterate(self, text, destination_language, source_language):
+    def _transliterate(self, text, dest_lang, source_lang):
         exception = None
         for service in self.services:
             try:
-                return service._transliterate(text, destination_language, source_language)
+                return service._transliterate(text, dest_lang, source_lang)
             except Exception as ex:
                 exception = ex
                 continue
@@ -121,15 +121,15 @@ class GoogleTranslate(BaseTranslator):
             return Language("och")
         return Language(language_code)
 
-    def _spellcheck(self, text, source_language):
+    def _spellcheck(self, text, source_lang):
         # TODO: Implement
         raise UnsupportedMethod()
 
-    def _text_to_speech(self, text, speed, gender, source_language):
+    def _text_to_speech(self, text, speed, gender, source_lang):
         exception = None
         for service in self.services:
             try:
-                return service._text_to_speech(text, speed, gender, source_language)
+                return service._text_to_speech(text, speed, gender, source_lang)
             except Exception as ex:
                 exception = ex
                 continue
@@ -212,38 +212,38 @@ class GoogleTranslateV1(BaseTranslator):
 
         return loads(loads(resp)[0][2])
 
-    def _translate(self, text: str, destination_language: str, source_language: str) -> str:
+    def _translate(self, text: str, dest_lang: str, source_lang: str) -> str:
         """
         Translates the given text to the destination language with the new batchexecute API
 
         Heavily inspired by ssut/googletrans and https://kovatch.medium.com/deciphering-google-batchexecute-74991e4e446c
         """
-        request = self._request(text, destination_language, source_language)
+        request = self._request(text, dest_lang, source_lang)
         parsed = self._parse_response(request)
         translated = (' ' if parsed[1][0][0][3] else '').join([part[0] for part in parsed[1][0][0][5]])
 
-        if source_language == 'auto' or source_language is None:
+        if source_lang == 'auto' or source_lang is None:
             try:
-                source_language = parsed[2]
+                source_lang = parsed[2]
             except Exception:
                 pass
 
-        if source_language == 'auto':
+        if source_lang == 'auto':
             try:
-                source_language = parsed[0][2]
+                source_lang = parsed[0][2]
             except Exception:
                 pass
 
-        if source_language == 'auto' or source_language is None:
+        if source_lang == 'auto' or source_lang is None:
             try:
-                source_language = parsed[0][1][1][0]
+                source_lang = parsed[0][1][1][0]
             except Exception:
                 pass
 
-        return source_language, translated
+        return source_lang, translated
 
-    def _transliterate(self, text: str, destination_language: str, source_language: str) -> str:
-        request = self._request(text, destination_language, source_language)
+    def _transliterate(self, text: str, dest_lang: str, source_lang: str) -> str:
+        request = self._request(text, dest_lang, source_lang)
         parsed = self._parse_response(request)
 
         try:
@@ -253,25 +253,25 @@ class GoogleTranslateV1(BaseTranslator):
         except Exception:
             origin_pronunciation = text
 
-        if source_language == 'auto' or source_language is None:
+        if source_lang == 'auto' or source_lang is None:
             try:
-                source_language = parsed[2]
+                source_lang = parsed[2]
             except Exception:
                 pass
 
-        if source_language == 'auto':
+        if source_lang == 'auto':
             try:
-                source_language = parsed[0][2]
+                source_lang = parsed[0][2]
             except Exception:
                 pass
 
-        if source_language == 'auto' or source_language is None:
+        if source_lang == 'auto' or source_lang is None:
             try:
-                source_language = parsed[0][1][1][0]
+                source_lang = parsed[0][1][1][0]
             except Exception:
                 pass
 
-        return source_language, origin_pronunciation
+        return source_lang, origin_pronunciation
 
     def _language(self, text):
         """
@@ -283,23 +283,23 @@ class GoogleTranslateV1(BaseTranslator):
         parsed = self._parse_response(request)
 
         try:
-            source_language = parsed[2]
+            source_lang = parsed[2]
         except Exception:
-            source_language = None
+            source_lang = None
 
-        if source_language == 'auto' or source_language is None:
+        if source_lang == 'auto' or source_lang is None:
             try:
-                source_language = parsed[0][2]
+                source_lang = parsed[0][2]
             except Exception:
                 pass
 
-        if source_language == 'auto' or source_language is None:
+        if source_lang == 'auto' or source_lang is None:
             try:
-                source_language = parsed[0][1][1][0]
+                source_lang = parsed[0][1][1][0]
             except Exception:
                 pass
 
-        return source_language
+        return source_lang
 
     def _language_normalize(self, language: Language):
         if language.id == "zho":
@@ -331,18 +331,18 @@ class GoogleTranslateV2(BaseTranslator):
         self.service_url = service_url
         self.token_acquirer = TokenAcquirer(service_url)
 
-    def _translate(self, text: str, destination_language: str, source_language: str) -> str:
-        params = {"client": "gtx", "dt": "t", "sl": source_language, "tl": destination_language, "q": text}
+    def _translate(self, text: str, dest_lang: str, source_lang: str) -> str:
+        params = {"client": "gtx", "dt": "t", "sl": source_lang, "tl": dest_lang, "q": text}
         request = self.session.get("https://translate.googleapis.com/translate_a/single", params=params)
         response = request.json()
         if request.status_code < 400:
             try:
                 _detected_language = response[2]
             except Exception:
-                _detected_language = source_language
+                _detected_language = source_lang
             return _detected_language, "".join([sentence[0] for sentence in response[0]])
 
-        params = {"client": "dict-chrome-ex", "sl": source_language, "tl": destination_language, "q": text}
+        params = {"client": "dict-chrome-ex", "sl": source_lang, "tl": dest_lang, "q": text}
         request = self.session.get("https://clients5.google.com/translate_a/t", params=params)
         response = request.json()
         if request.status_code < 400:
@@ -350,19 +350,19 @@ class GoogleTranslateV2(BaseTranslator):
                 try:
                     _detected_language = response['ld_result']["srclangs"][0]
                 except Exception:
-                    _detected_language = source_language
+                    _detected_language = source_lang
                 return "".join((sentence["trans"] if "trans" in sentence else "") for sentence in response["sentences"])
             except Exception:
                 try:
                     try:
                         _detected_language = response[0][0][2]
                     except Exception:
-                        _detected_language = source_language
+                        _detected_language = source_lang
                     return "".join(sentence for sentence in response[0][0][0][0])
                 except Exception:  # if it fails, continue with the other endpoints
                     pass
 
-        params = {"dt": ["t", "bd", "ex", "ld", "md", "qca", "rw", "rm", "ss", "t", "at"], "client": "gtx", "q": text, "hl": destination_language, "sl": source_language, "tl": destination_language, "dj": "1", "source": "bubble"}
+        params = {"dt": ["t", "bd", "ex", "ld", "md", "qca", "rw", "rm", "ss", "t", "at"], "client": "gtx", "q": text, "hl": dest_lang, "sl": source_lang, "tl": dest_lang, "dj": "1", "source": "bubble"}
         request = self.session.get("https://translate.googleapis.com/translate_a/single", params=params)
         response = request.json()
         if request.status_code < 400:
@@ -373,21 +373,21 @@ class GoogleTranslateV2(BaseTranslator):
                     if _detected_language is None:
                         _detected_language = response.get("ld_result", {}).get("extended_srclangs", [None])[0]
             except Exception:
-                _detected_language = source_language
+                _detected_language = source_lang
             return _detected_language, " ".join([sentence["trans"] for sentence in response["sentences"] if "trans" in sentence])
 
-        params = {"client": "gtx", "dt": ["t", "bd"], "dj": "1", "source": "input", "q": text, "sl": source_language, "tl": destination_language}
+        params = {"client": "gtx", "dt": ["t", "bd"], "dj": "1", "source": "input", "q": text, "sl": source_lang, "tl": dest_lang}
         request = self.session.get("https://translate.googleapis.com/translate_a/single", params=params)
         response = request.json()
         if request.status_code < 400:
             try:
                 _detected_language = response["src"]
             except Exception:
-                _detected_language = source_language
+                _detected_language = source_lang
             return _detected_language, "".join([sentence["trans"] for sentence in response["sentences"] if "trans" in sentence])
 
-    def _transliterate(self, text: str, destination_language: str, source_language: str) -> str:
-        params = {"dt": ["t", "bd", "ex", "ld", "md", "qca", "rw", "rm", "ss", "t", "at"], "client": "gtx", "q": text, "hl": destination_language, "sl": source_language, "tl": destination_language, "dj": "1", "source": "bubble"}
+    def _transliterate(self, text: str, dest_lang: str, source_lang: str) -> str:
+        params = {"dt": ["t", "bd", "ex", "ld", "md", "qca", "rw", "rm", "ss", "t", "at"], "client": "gtx", "q": text, "hl": dest_lang, "sl": source_lang, "tl": dest_lang, "dj": "1", "source": "bubble"}
         request = self.session.get("https://translate.googleapis.com/translate_a/single", params=params)
         response = request.json()
         if request.status_code < 400:
@@ -398,7 +398,7 @@ class GoogleTranslateV2(BaseTranslator):
                     if _detected_language is None:
                         _detected_language = response.get("ld_result", {}).get("extended_srclangs", [None])[0]
             except Exception:
-                _detected_language = source_language
+                _detected_language = source_lang
             result = " ".join([sentence["src_translit"] for sentence in response["sentences"] if "src_translit" in sentence])
             return _detected_language, (result if (result is not None and result != "") else text)
 
@@ -406,26 +406,26 @@ class GoogleTranslateV2(BaseTranslator):
     #     """Returns the definition of the given word"""
     #     raise NotImplementedError
 
-    def _text_to_speech(self, text: str, speed: int, gender: str, source_language: str) -> bytes:
-        if source_language == "auto":
-            source_language = self._language(text)
+    def _text_to_speech(self, text: str, speed: int, gender: str, source_lang: str) -> bytes:
+        if source_lang == "auto":
+            source_lang = self._language(text)
 
-        params = {"client": "gtx", "ie": "UTF-8", "tl": source_language, "q": text}
+        params = {"client": "gtx", "ie": "UTF-8", "tl": source_lang, "q": text}
         request = self.session.get("https://translate.googleapis.com/translate_tts", params=params)
         if request.status_code == 200:
-            return source_language, request.content
+            return source_lang, request.content
 
-        params = {"client": "tw-ob", "q": text, "tl": source_language}
+        params = {"client": "tw-ob", "q": text, "tl": source_lang}
         request = self.session.get("https://translate.google.com/translate_tts", params=params)
         if request.status_code == 200:
-            return source_language, request.content
+            return source_lang, request.content
 
         textlen = len(text)
         token = self.token_acquirer.do(text)
-        params = {"ie": "UTF-8", "q": text, "tl": source_language, "total": "1", "idx": "0", "textlen": textlen, "tk": token, "client": "webapp", "prev": "input", "ttsspeed": convert_to_float(speed)}
+        params = {"ie": "UTF-8", "q": text, "tl": source_lang, "total": "1", "idx": "0", "textlen": textlen, "tk": token, "client": "webapp", "prev": "input", "ttsspeed": convert_to_float(speed)}
         request = self.session.get("https://translate.google.com/translate_tts", params=params)
         if request.status_code < 400:
-            return source_language, request.content
+            return source_lang, request.content
 
     def _language(self, text: str) -> str:
         params = {"client": "gtx", "dt": "t", "sl": "auto", "tl": "ja", "q": text}

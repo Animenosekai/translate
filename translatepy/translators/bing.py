@@ -157,60 +157,60 @@ class BingTranslate(BaseTranslator):
         self.session_manager = BingSessionManager(request)
         self.session = request
 
-    def _translate(self, text: str, destination_language: str, source_language: str) -> str:
-        response = self.session_manager.send("https://www.bing.com/ttranslatev3", data={'text': text, 'fromLang': source_language, 'to': destination_language})
+    def _translate(self, text: str, dest_lang: str, source_lang: str) -> str:
+        response = self.session_manager.send("https://www.bing.com/ttranslatev3", data={'text': text, 'fromLang': source_lang, 'to': dest_lang})
         try:
             _detected_language = response[0]["detectedLanguage"]["language"]
         except Exception:
-            _detected_language = source_language
+            _detected_language = source_lang
         return _detected_language, response[0]["translations"][0]["text"]
 
-    def _example(self, text, destination_language, source_language) -> str:
-        if source_language == "auto-detect":
-            source_language = self._language(text)
+    def _example(self, text, dest_lang, source_lang) -> str:
+        if source_lang == "auto-detect":
+            source_lang = self._language(text)
 
-        _detected_language, translation = self._translate(text, destination_language, source_language)
+        _detected_language, translation = self._translate(text, dest_lang, source_lang)
 
-        response = self.session_manager.send("https://www.bing.com/texamplev3", data={'text': text.lower(), 'from': source_language, 'to': destination_language, 'translation': translation.lower()})
+        response = self.session_manager.send("https://www.bing.com/texamplev3", data={'text': text.lower(), 'from': source_lang, 'to': dest_lang, 'translation': translation.lower()})
         return _detected_language, [BingExampleResult(example) for example in response[0]["examples"]]
 
-    def _spellcheck(self, text: str, source_language: str) -> str:
-        if source_language == "auto-detect":
-            source_language = self._language(text)
+    def _spellcheck(self, text: str, source_lang: str) -> str:
+        if source_lang == "auto-detect":
+            source_lang = self._language(text)
 
-        response = self.session_manager.send("https://www.bing.com/tspellcheckv3", data={'text': text, 'fromLang': source_language})
+        response = self.session_manager.send("https://www.bing.com/tspellcheckv3", data={'text': text, 'fromLang': source_lang})
         result = response["correctedText"]
         if result == "":
-            return source_language, text
-        return source_language, result
+            return source_lang, text
+        return source_lang, result
 
     def _language(self, text: str) -> str:
         response = self.session_manager.send("https://www.bing.com/ttranslatev3", data={'text': text, 'fromLang': "auto-detect", 'to': "en"})
         return response[0]["detectedLanguage"]["language"]
 
-    def _transliterate(self, text: str, destination_language: str, source_language: str):
-        response = self.session_manager.send("https://www.bing.com/ttranslatev3", data={'text': text, 'fromLang': source_language, 'to': destination_language})
+    def _transliterate(self, text: str, dest_lang: str, source_lang: str):
+        response = self.session_manager.send("https://www.bing.com/ttranslatev3", data={'text': text, 'fromLang': source_lang, 'to': dest_lang})
         # XXX: Not a predictable response from Bing Translate
         try:
-            return source_language, response[1]["inputTransliteration"]
+            return source_lang, response[1]["inputTransliteration"]
         except IndexError:
             try:
-                return source_language, response[0]["translations"][0]["transliteration"]["text"]
+                return source_lang, response[0]["translations"][0]["transliteration"]["text"]
             except Exception:
-                return source_language, text
+                return source_lang, text
 
-    def _dictionary(self, text: str, destination_language: str, source_language: str):
-        if source_language == "auto-detect":
-            source_language = self._language(text)
+    def _dictionary(self, text: str, dest_lang: str, source_lang: str):
+        if source_lang == "auto-detect":
+            source_lang = self._language(text)
 
-        response = self.session_manager.send("https://www.bing.com/tlookupv3", data={'text': text, 'from': source_language, 'to': destination_language})
+        response = self.session_manager.send("https://www.bing.com/tlookupv3", data={'text': text, 'from': source_lang, 'to': dest_lang})
         _result = []
         for _dictionary in response[0]["translations"]:
             _dictionary_result = _dictionary["displayTarget"]
             _result.append(_dictionary_result)
-        return source_language, _result
+        return source_lang, _result
 
-    def _text_to_speech(self, text: str, speed: int, gender: str, source_language: str):
+    def _text_to_speech(self, text: str, speed: int, gender: str, source_lang: str):
         raise BingTranslateException(status_code=719, message="DEPRECATED! Use Microsoft Translate's text to spech method")
 
     def _language_normalize(self, language):

@@ -35,35 +35,35 @@ class TranslatorName(BaseTranslator):
     def __init__(self, request: Request = Request()):
         self.session = request
 
-    def _translate(self, text: str, destination_language: str, source_language: str) -> str:
+    def _translate(self, text: str, dest_lang: str, source_lang: str) -> str:
         """
         This is the translating endpoint
 
         Must return a tuple with (detected_language, result)
         """
         # You could use `self.session` to make a request to the endpoint, with all of the parameters
-        # Then extract the detected language (or use the "source_language" parameter but what if the user pass in "auto")
+        # Then extract the detected language (or use the "source_lang" parameter but what if the user pass in "auto")
         return detected_language, result
 
-    def _transliterate(self, text: str, destination_language, source_language: str) -> str:
+    def _transliterate(self, text: str, dest_lang, source_lang: str) -> str:
         """
         This is the transliterating endpoint
 
         Must return a tuple with (detected_language, result)
         """
         # You could use `self.session` to make a request to the endpoint, with all of the parameters
-        # Then extract the detected language (or use the "source_language" parameter but what if the user pass in "auto")
+        # Then extract the detected language (or use the "source_lang" parameter but what if the user pass in "auto")
         return detected_language, result
 
 
-    def _spellcheck(self, text: str, source_language: str) -> str:
+    def _spellcheck(self, text: str, source_lang: str) -> str:
         """
         This is the spellcheking endpoint
 
         Must return a tuple with (detected_language, result)
         """
         # You could use `self.session` to make a request to the endpoint, with all of the parameters
-        # Then extract the detected language (or use the "source_language" parameter but what if the user pass in "auto")
+        # Then extract the detected language (or use the "source_lang" parameter but what if the user pass in "auto")
         # result should be the original text if no correction is made or the corrected text if found
         return detected_language, result
 
@@ -76,25 +76,25 @@ class TranslatorName(BaseTranslator):
         # You could use `self.session` to make a request to the endpoint, with all of the parameters
         return result
 
-    def _example(self, text: str, destination_language: str, source_language: str) -> Tuple[str, List]:
+    def _example(self, text: str, dest_lang: str, source_lang: str) -> Tuple[str, List]:
         """
         This is the examples endpoint
 
         Must return a tuple with (detected_language, result)
         """
         # You could use `self.session` to make a request to the endpoint, with all of the parameters
-        # Then extract the detected language (or use the "source_language" parameter but what if the user pass in "auto")
+        # Then extract the detected language (or use the "source_lang" parameter but what if the user pass in "auto")
         # the result should be a list of use examples
         return detected_language, result
 
-    def _dictionary(self, text: str, destination_language: str, source_language: str) -> Tuple[str, List]:
+    def _dictionary(self, text: str, dest_lang: str, source_lang: str) -> Tuple[str, List]:
         """
         This is the dictionary endpoint
 
         Must return a tuple with (detected_language, result)
         """
         # You could use `self.session` to make a request to the endpoint, with all of the parameters
-        # Then extract the detected language (or use the "source_language" parameter but what if the user pass in "auto")
+        # Then extract the detected language (or use the "source_lang" parameter but what if the user pass in "auto")
         # the result should be
         return detected_language, result
 

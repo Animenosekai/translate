@@ -257,9 +257,9 @@ print(r.json()["data"])
         ----------
             html : str | bs4.element.PageElement | bs4.element.Tag | bs4.BeautifulSoup
                 The HTML string to be translated. This can also be an instance of BeautifulSoup's `BeautifulSoup` element, `PageElement` or `Tag` element.
-            destination_language : str
+            dest_lang : str
                 The language the HTML string needs to be translated in.
-            source_language : str, default = "auto"
+            source_lang : str, default = "auto"
                 The language of the HTML string.
             parser : str, default = "html.parser"
                 The parser that BeautifulSoup will use to parse the HTML string.
@@ -737,7 +737,7 @@ print(r.json()["data"])
 
         Args:
           text: the given text
-          source_language: the source language
+          source_lang: the source language
 
         Returns:
             the mp3 file as bytes

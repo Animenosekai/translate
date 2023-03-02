@@ -151,7 +151,7 @@ When something goes wrong or nothing got found, an exception **will** be raised.
 >>> from translatepy import Translator
 >>> translator = Translator()
 >>> translator.translate("Hello", "French")
-TranslationResult(service=Yandex, source=Hello, source_language=auto, destination_language=French, result=Bonjour)
+TranslationResult(service=Yandex, source=Hello, source_lang=auto, dest_lang=French, result=Bonjour)
 >>> translator.language("こんにちは")
 LanguageResult(service=Yandex, source=こんにちは, result=Language(jpn))
 ```
@@ -164,7 +164,7 @@ You can use each translators separately by using them the same way as you would 
 >>> from translatepy.translators.google import GoogleTranslate
 >>> gtranslate = GoogleTranslate()
 >>> gtranslate.translate("Hello World", "Japanese")
-TranslationResult(service=Google, source=Hello World, source_language=eng, destination_language=jpn, result=こんにちは世界)
+TranslationResult(service=Google, source=Hello World, source_lang=eng, dest_lang=jpn, result=こんにちは世界)
 ```
 
 And some translators have their own parameters:
@@ -172,13 +172,13 @@ And some translators have their own parameters:
 ```python
 >>> gtranslate_china = GoogleTranslate(service_url="translate.google.cn")
 >>> gtranslate_china.translate("Hello World", "Japanese")
-TranslationResult(service=Google, source=Hello World, source_language=eng, destination_language=jpn, result=こんにちは世界)
+TranslationResult(service=Google, source=Hello World, source_lang=eng, dest_lang=jpn, result=こんにちは世界)
 
 # it can even be used by translatepy.Translator
 >>> from translatepy import Translator
 >>> t = Translator([gtranslate_china])
 >>> t.translate("Hello World", "Japanese")
-TranslationResult(service=Google, source=Hello World, source_language=eng, destination_language=jpn, result=こんにちは世界)
+TranslationResult(service=Google, source=Hello World, source_lang=eng, dest_lang=jpn, result=こんにちは世界)
 ```
 
 #### The Language Class
@@ -306,7 +306,7 @@ All of the `translatepy` errors are inherited from `translatepy.exceptions.Trans
 >>> t = Translator()
 >>> def translate(text, dest):
 ...     try:
-...         result = t.translate(text, destination_language=dest)
+...         result = t.translate(text, dest_lang=dest)
         except UnknownLanguage as err:
             print("An error occured while searching for the language you passed in")
             print("Similarity:", round(err.similarity), "%")

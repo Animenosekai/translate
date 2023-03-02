@@ -104,24 +104,27 @@ class WordClass(enum.Enum):
     """
 
 
+T = typing.TypeVar("T")
+
+
 @dataclasses.dataclass(kw_only=True, slots=True)
-class Result:
+class Result(typing.Generic[T]):
     """
     The base result model
     """
-    service: "BaseTranslator"
+    service: T = None
     """The service which returned the result"""
 
-    source: str
+    source: str = None
     """The source text"""
-    # source_language: Language
+    # source_lang: Language
     # """The source text's language"""
 
     # We can't define `result` here because they vary accross the different models
     # result: typing.Any
     # """The result"""
 
-    # destination_language: Language
+    # dest_lang: Language
     # """The result's language"""
 
     raw: typing.Optional[typing.Any] = None
@@ -131,6 +134,27 @@ class Result:
     
     Refer to the service documentation to learn how to use this object.
     """
+
+    def __iter__(self):
+        """
+        Turns the `Result` object into an iterable object.
+
+        This is mostly used to allow looping over the object even the returned value is not a list.
+
+        Example
+        -------
+        >>> t = Translate()
+        >>> result = t.translate("Hello world", "Japanese")
+        >>> type(result)
+        TranslationResult
+        >>> for element in result:
+        ...     print(element)
+        ...     # prints `result`
+        >>> for element in t.translate("How are you ?", "Japanese"):
+        ...     # can be used like this even if "How are you ?" is not a list.
+        ...     print(element)
+        """
+        yield self
 
     # def __str__(self) -> str:
     #     return str(self.result)
@@ -169,14 +193,14 @@ class Result:
 
 
 @dataclasses.dataclass(kw_only=True, slots=True)
-class TranslationResult(Result):
+class TranslationResult(Result[T]):
     """
     Holds the result of a regular translation
     """
-    source_language: Language
+    source_lang: Language
     """The source text's language"""
 
-    destination_language: Language
+    dest_lang: Language
     """The result's language"""
 
     translation: str
@@ -206,17 +230,17 @@ Result {grey}({dest_lang}){normal}
            blue="\033[94m" if cli else "",
            cyan="\033[96m" if cli else "",
            green="\033[92m" if cli else "",
-           source_lang=self.source_language,
+           source_lang=self.source_lang,
            source=self.source,
-           dest_lang=self.destination_language,
+           dest_lang=self.dest_lang,
            result=self.translation)
 
 
 TRANSLATION_TEST = TranslationResult(
     service=None,
     source="Hello, how are you ?",
-    source_language=Language("english"),
-    destination_language=Language("japanese"),
+    source_lang=Language("english"),
+    dest_lang=Language("japanese"),
     translation="こんにちは、お元気ですか？"
 )
 
@@ -224,17 +248,17 @@ TRANSLATION_TEST = TranslationResult(
 
 
 @dataclasses.dataclass(kw_only=True, slots=True)
-class TransliterationResult(Result):
+class TransliterationResult(Result[T]):
     """
     Holds the result of a transliteration
     """
     transliteration: str
     """The transliteration result"""
 
-    source_language: Language
+    source_lang: Language
     """The source text's language"""
 
-    destination_language: Language
+    dest_lang: Language
     """The result's language"""
 
     def __pretty__(self, cli: bool = False) -> str:
@@ -251,27 +275,27 @@ Result {grey}({dest_lang}){normal}
            blue="\033[94m" if cli else "",
            cyan="\033[96m" if cli else "",
            green="\033[92m" if cli else "",
-           source_lang=self.source_language,
+           source_lang=self.source_lang,
            source=self.source,
-           dest_lang=self.destination_language,
+           dest_lang=self.dest_lang,
            result=self.transliteration)
 
 
 TRANSLITERATION_TEST = TransliterationResult(
     service=None,
     source="こんにちは",
-    source_language=Language("japanese"),
+    source_lang=Language("japanese"),
     transliteration="Konnichiwa",
-    destination_language=Language("English")
+    dest_lang=Language("English")
 )
 
 
 @dataclasses.dataclass(kw_only=True, slots=True)
-class SpellcheckResult(Result):
+class SpellcheckResult(Result[T]):
     """
     Holds a spellchecking result
     """
-    source_language: Language
+    source_lang: Language
     """The source text's language"""
     corrected: str
     """The corrected text"""
@@ -288,7 +312,7 @@ class SpellcheckResult(Result):
 """.format(grey="\033[90m" if cli else "",
            normal="\033[0m" if cli else "",
            blue="\033[94m" if cli else "",
-           source_lang=self.source_language,
+           source_lang=self.source_lang,
            source=self.source,
            result=self.corrected)
 
@@ -296,7 +320,7 @@ class SpellcheckResult(Result):
 SPELLCHECK_TEST = SpellcheckResult(
     service=None,
     source="Hello hw are you ?",
-    source_language=Language("english"),
+    source_lang=Language("english"),
     corrected="Hello how are you ?"
 )
 
@@ -321,11 +345,11 @@ class SpellcheckMistake:
 
 
 @dataclasses.dataclass(kw_only=True, slots=True)
-class RichSpellcheckResult(Result):
+class RichSpellcheckResult(Result[T]):
     """
     Holds a rich spellchecking result
     """
-    source_language: Language
+    source_lang: Language
     """The source text's language"""
     mistakes: typing.List[SpellcheckMistake] = dataclasses.field(default_factory=list)
     """The different mistakes made"""
@@ -483,7 +507,7 @@ class RichSpellcheckResult(Result):
 RICH_SPELLCHECK_TEST = RichSpellcheckResult(
     service=None,
     source="Hello world, how are aaaaaaaaa oyu doin ?",
-    source_language=Language("English"),
+    source_lang=Language("English"),
     mistakes=[
         SpellcheckMistake(start=11, end=11, corrected="", message="Is a comma really needed here ?", rule="UnneededComma"),
         SpellcheckMistake(start=20, end=29, corrected="", message="Meaningless repeated `a`.", rule="Meaningless"),
@@ -494,7 +518,7 @@ RICH_SPELLCHECK_TEST = RichSpellcheckResult(
 
 
 @dataclasses.dataclass(kw_only=True, slots=True)
-class LanguageResult(Result):
+class LanguageResult(Result[T]):
     """
     Holds the language of the given text
     """
@@ -503,17 +527,23 @@ class LanguageResult(Result):
 
     def __pretty__(self, cli: bool = False) -> str:
         return "The detected language is {colored}{lang}{normal}".format(
-            lang=self.language,
+            lang=self.language.name,
             colored="\033[1;96m" if cli else "",
             normal="\033[0m" if cli else ""
         )
 
 
+LANGUAGE_TEST = LanguageResult(service=None, source="Hello world", language=Language("English"))
+
+
 @dataclasses.dataclass(kw_only=True, slots=True)
-class ExampleResult(Result):
+class ExampleResult(Result[T]):
     """
     Holds an example sentence where the given word is used.
     """
+    source_lang: Language
+    """The source text's language"""
+
     example: str
     """The example"""
 
@@ -538,10 +568,11 @@ class ExampleResult(Result):
         searching = False
         current_letter = 0
         searching_length = len(self.source)
+        lower_source = str(self.source).lower()
 
         positions = []
-        for index, letter in enumerate(self.example, start=1):
-            same_letter = letter == self.source[current_letter]
+        for index, letter in enumerate(str(self.example).lower(), start=1):
+            same_letter = letter == lower_source[current_letter]
 
             if same_letter and current_letter == 0 and not searching:
                 searching = True
@@ -567,7 +598,7 @@ class ExampleResult(Result):
                 result = "{before}{bold}{source}{normal}{after}".format(
                     before=result[:pos],
                     bold="\033[1m",
-                    source=self.source,
+                    source=result[pos:source_length],
                     normal="\033[0m",
                     after=result[pos + source_length:]
                 )
@@ -585,25 +616,30 @@ class ExampleResult(Result):
             indicators += "\033[0m"
 
         return """\
+{blue}Example{normal}
+{blue}-------{normal}
 {result}
 {indicators}\
-""".format(result=result,
+""".format(blue="\033[94m" if cli else "",
+           normal="\033[0m" if cli else "",
+           result=result,
            indicators=indicators)
 
 
 EXAMPLE_TEST = ExampleResult(
     service=None,
-    source="how",
+    source="hello",
+    source_lang=Language("English"),
     example="Hello everyone, how are you ?"
 )
 
 
 @dataclasses.dataclass(kw_only=True, slots=True)
-class DictionaryResult(Result):
+class DictionaryResult(Result[T]):
     """
     Holds the meaning of the given text
     """
-    source_language: Language
+    source_lang: Language
     """The source text's language"""
 
     meaning: str
@@ -614,6 +650,14 @@ class DictionaryResult(Result):
                                                            normal="\033[0m",
                                                            text=self.source,
                                                            meaning=self.meaning)
+
+
+DICTIONARY_TEST = DictionaryResult(
+    service=None,
+    source="hello",
+    source_lang=Language("english"),
+    meaning="Used as a greeting or to begin a phone conversation."
+)
 
 
 @dataclasses.dataclass
@@ -648,7 +692,7 @@ class EtymologicalNode:
 
 
 @dataclasses.dataclass(kw_only=True, slots=True)
-class RichDictionaryResult(DictionaryResult):
+class RichDictionaryResult(DictionaryResult[T]):
     """
     Holds more (optional) information than the regular `DictionaryResult`
     """
@@ -693,7 +737,7 @@ class RichDictionaryResult(DictionaryResult):
     #             result = super().__getattribute__(__name)
     #             if result is None:  # there is no result: time to try get one!
     #                 # transliteration is kind of like pronunciation isn't it ?
-    #                 result = self.service.transliterate(text=result, destination_language=self.source_language)
+    #                 result = self.service.transliterate(text=result, dest_lang=self.source_lang)
     #                 self.pronunciation = result  # saving it for later uses
     #         except Exception:
     #             pass
@@ -760,7 +804,7 @@ class RichDictionaryResult(DictionaryResult):
 RICH_DICTIONARY_TEST = RichDictionaryResult(
     service=None,
     source="hello",
-    source_language=Language("english"),
+    source_lang=Language("english"),
     pronunciation="/həˈləʊ,hɛˈləʊ/",
     type=WordClass.INTERJECTION,
     gender=Gender.GENDERLESS,
@@ -772,11 +816,11 @@ RICH_DICTIONARY_TEST = RichDictionaryResult(
 
 
 @dataclasses.dataclass(kw_only=True, slots=True)
-class TextToSpechResult(Result):
+class TextToSpechResult(Result[T]):
     """
     Holds the text to speech results
     """
-    source_language: Language
+    source_lang: Language
     """The source text's language"""
 
     result: bytes

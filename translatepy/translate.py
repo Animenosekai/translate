@@ -93,19 +93,19 @@ class Translate():
             services_list[index] = service
         return service
 
-    def translate(self, text: str, destination_language: str, source_language: str = "auto") -> TranslationResult:
+    def translate(self, text: str, dest_lang: str, source_lang: str = "auto") -> TranslationResult:
         """
         Translates the given text to the given language
 
         i.e Good morning (en) --> おはようございます (ja)
         """
-        dest_lang = Language(destination_language)
-        source_lang = Language(source_language)
+        dest_lang = Language(dest_lang)
+        source_lang = Language(source_lang)
 
         def _translate(translator: BaseTranslator, index: int):
             translator = self._instantiate_translator(translator, self.services, index)
             result = translator.translate(
-                text=text, destination_language=dest_lang, source_language=source_lang
+                text=text, dest_lang=dest_lang, source_lang=source_lang
             )
             if result is None:
                 raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
@@ -139,7 +139,7 @@ class Translate():
         else:
             raise NoResult("No service has returned a valid result") from exception
 
-    def translate_html(self, html: Union[str, PageElement, Tag, BeautifulSoup], destination_language: str, source_language: str = "auto", parser: str = "html.parser", threads_limit: int = 100, __internal_replacement_function__ = None) -> Union[str, PageElement, Tag, BeautifulSoup]:
+    def translate_html(self, html: Union[str, PageElement, Tag, BeautifulSoup], dest_lang: str, source_lang: str = "auto", parser: str = "html.parser", threads_limit: int = 100, __internal_replacement_function__ = None) -> Union[str, PageElement, Tag, BeautifulSoup]:
         """
         Translates the given HTML string or BeautifulSoup object to the given language
 
@@ -158,9 +158,9 @@ class Translate():
         ----------
             html : str | bs4.element.PageElement | bs4.element.Tag | bs4.BeautifulSoup
                 The HTML string to be translated. This can also be an instance of BeautifulSoup's `BeautifulSoup` element, `PageElement` or `Tag` element.
-            destination_language : str
+            dest_lang : str
                 The language the HTML string needs to be translated in.
-            source_language : str, default = "auto"
+            source_lang : str, default = "auto"
                 The language of the HTML string.
             parser : str, default = "html.parser"
                 The parser that BeautifulSoup will use to parse the HTML string.
@@ -178,12 +178,12 @@ class Translate():
                 The result will be a string in any other case.
 
         """
-        dest_lang = Language(destination_language)
-        source_lang = Language(source_language)
+        dest_lang = Language(dest_lang)
+        source_lang = Language(source_lang)
 
         def _translate(node: NavigableString):
             try:
-                node.replace_with(self.translate(str(node), destination_language=dest_lang, source_language=source_lang).result)
+                node.replace_with(self.translate(str(node), dest_lang=dest_lang, source_lang=source_lang).result)
             except Exception:  # ignore if it couldn't find any result or an error occured
                 pass
 
@@ -200,19 +200,19 @@ class Translate():
             pool.map(_translate, nodes)
         return page if isinstance(html, (PageElement, Tag, BeautifulSoup)) else str(page)
 
-    def transliterate(self, text: str, destination_language: str = "en", source_language: str = "auto") -> TransliterationResult:
+    def transliterate(self, text: str, dest_lang: str = "en", source_lang: str = "auto") -> TransliterationResult:
         """
         Transliterates the given text, get its pronunciation
 
         i.e おはよう --> Ohayou
         """
-        dest_lang = Language(destination_language)
-        source_lang = Language(source_language)
+        dest_lang = Language(dest_lang)
+        source_lang = Language(source_lang)
 
         def _transliterate(translator: BaseTranslator, index: int):
             translator = self._instantiate_translator(translator, self.services, index)
             result = translator.transliterate(
-                text=text, destination_language=dest_lang, source_language=source_lang
+                text=text, dest_lang=dest_lang, source_lang=source_lang
             )
             if result is None:
                 raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
@@ -246,18 +246,18 @@ class Translate():
         else:
             raise NoResult("No service has returned a valid result") from exception
 
-    def spellcheck(self, text: str, source_language: str = "auto") -> SpellcheckResult:
+    def spellcheck(self, text: str, source_lang: str = "auto") -> SpellcheckResult:
         """
         Checks the spelling of a given text
 
         i.e God morning --> Good morning
         """
-        source_lang = Language(source_language)
+        source_lang = Language(source_lang)
 
         def _spellcheck(translator: BaseTranslator, index: int):
             translator = self._instantiate_translator(translator, self.services, index)
             result = translator.spellcheck(
-                text=text, source_language=source_lang
+                text=text, source_lang=source_lang
             )
             if result is None:
                 raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
@@ -334,19 +334,19 @@ class Translate():
         else:
             raise NoResult("No service has returned a valid result") from exception
 
-    def example(self, text: str, destination_language: str, source_language: str = "auto") -> ExampleResult:
+    def example(self, text: str, dest_lang: str, source_lang: str = "auto") -> ExampleResult:
         """
         Returns a set of examples / use cases for the given word
 
         i.e Hello --> ['Hello friends how are you?', 'Hello im back again.']
         """
-        dest_lang = Language(destination_language)
-        source_lang = Language(source_language)
+        dest_lang = Language(dest_lang)
+        source_lang = Language(source_lang)
 
         def _example(translator: BaseTranslator, index: int):
             translator = self._instantiate_translator(translator, self.services, index)
             result = translator.example(
-                text=text, destination_language=dest_lang, source_language=source_lang
+                text=text, dest_lang=dest_lang, source_lang=source_lang
             )
             if result is None:
                 raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
@@ -380,19 +380,19 @@ class Translate():
         else:
             raise NoResult("No service has returned a valid result") from exception
 
-    def dictionary(self, text: str, destination_language: str, source_language="auto") -> DictionaryResult:
+    def dictionary(self, text: str, dest_lang: str, source_lang="auto") -> DictionaryResult:
         """
         Returns a list of translations that are classified between two categories: featured and less common
 
         i.e Hello --> {'featured': ['ハロー', 'こんにちは'], 'less_common': ['hello', '今日は', 'どうも', 'こんにちわ', 'こにちは', 'ほいほい', 'おーい', 'アンニョンハセヨ', 'アニョハセヨ'}
         """
-        dest_lang = Language(destination_language)
-        source_lang = Language(source_language)
+        dest_lang = Language(dest_lang)
+        source_lang = Language(source_lang)
 
         def _dictionary(translator: BaseTranslator, index: int):
             translator = self._instantiate_translator(translator, self.services, index)
             result = translator.dictionary(
-                text=text, destination_language=dest_lang, source_language=source_lang
+                text=text, dest_lang=dest_lang, source_lang=source_lang
             )
             if result is None:
                 raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
@@ -426,13 +426,13 @@ class Translate():
         else:
             raise NoResult("No service has returned a valid result") from exception
 
-    def text_to_speech(self, text: str, speed: int = 100, gender: str = "female", source_language: str = "auto") -> TextToSpechResult:
+    def text_to_speech(self, text: str, speed: int = 100, gender: str = "female", source_lang: str = "auto") -> TextToSpechResult:
         """
         Gives back the text to speech result for the given text
 
         Args:
           text: the given text
-          source_language: the source language
+          source_lang: the source language
 
         Returns:
             the mp3 file as bytes
@@ -451,12 +451,12 @@ class Translate():
 
             # the result is an MP3 file with the text to speech output
         """
-        source_lang = Language(source_language)
+        source_lang = Language(source_lang)
 
         def _text_to_speech(translator: BaseTranslator, index: int):
             translator = self._instantiate_translator(translator, self.services, index)
             result = translator.text_to_speech(
-                text=text, speed=speed, gender=gender, source_language=source_lang
+                text=text, speed=speed, gender=gender, source_lang=source_lang
             )
             if result is None:
                 raise NoResult("{service} did not return any value".format(service=translator.__repr__()))

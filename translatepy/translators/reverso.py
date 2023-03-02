@@ -16,16 +16,16 @@ class ReversoTranslate(BaseTranslator):
     def __init__(self, request: Request = Request()):
         self.session = request
 
-    def _translate(self, text: str, destination_language: str, source_language: str) -> str:
-        if source_language == "auto":
-            source_language = self._language(text)
+    def _translate(self, text: str, dest_lang: str, source_lang: str) -> str:
+        if source_lang == "auto":
+            source_lang = self._language(text)
 
         request = self.session.post(
             "https://api.reverso.net/translate/v1/translation",
             json={
                 "input": text,
-                "from": source_language,
-                "to": destination_language,
+                "from": source_lang,
+                "to": dest_lang,
                 "format": "text",
                 "options": {
                     "origin": "translation.web",
@@ -41,18 +41,18 @@ class ReversoTranslate(BaseTranslator):
             try:
                 _detected_language = response["languageDetection"]["detectedLanguage"]
             except Exception:
-                _detected_language = source_language
+                _detected_language = source_lang
             return _detected_language, response["translation"][0]
 
-    def _spellcheck(self, text: str, source_language: str) -> str:
-        if source_language == "auto":
-            source_language = self._language(text)
+    def _spellcheck(self, text: str, source_lang: str) -> str:
+        if source_lang == "auto":
+            source_lang = self._language(text)
 
         request = self.session.post(
             "https://orthographe.reverso.net/api/v1/Spelling",
             json={
                 "text": text,
-                "language": source_language,
+                "language": source_lang,
                 "autoReplace": True,
                 "interfaceLanguage": "en",
                 "locale": "Indifferent",
@@ -65,7 +65,7 @@ class ReversoTranslate(BaseTranslator):
         )
         response = request.json()
         if request.status_code < 400:
-            return source_language, response.get("text", text)
+            return source_lang, response.get("text", text)
 
     def _language(self, text: str) -> str:
         request = self.session.post(
@@ -91,32 +91,32 @@ class ReversoTranslate(BaseTranslator):
             except Exception:
                 return response["from"]
 
-    def _example(self, text: str, destination_language: str, source_language: str):
+    def _example(self, text: str, dest_lang: str, source_lang: str):
         # TODO: nrows value
 
-        if source_language == "auto":
-            source_language = self._language(text)
+        if source_lang == "auto":
+            source_lang = self._language(text)
 
-        destination_language = Language(destination_language).alpha2
-        source_language = Language(source_language).alpha2
+        dest_lang = Language(dest_lang).alpha2
+        source_lang = Language(source_lang).alpha2
 
         url = "https://context.reverso.net/bst-query-service"
-        params = {"source_text": text, "source_lang": source_language, "target_lang": destination_language, "npage": 1, "nrows": 20, "expr_sug": 0, "json": 1, "dym_apply": True, "pos_reorder": 5}
+        params = {"source_text": text, "source_lang": source_lang, "target_lang": dest_lang, "npage": 1, "nrows": 20, "expr_sug": 0, "json": 1, "dym_apply": True, "pos_reorder": 5}
         request = self.session.post(url, params=params, headers={"Content-Type": "application/x-www-form-urlencoded"})
         response = request.json()
 
         if request.status_code < 400:
-            return source_language, response["list"]
+            return source_lang, response["list"]
 
-    def _dictionary(self, text: str, destination_language: str, source_language: str):
-        if source_language == "auto":
-            source_language = self._language(text)
+    def _dictionary(self, text: str, dest_lang: str, source_lang: str):
+        if source_lang == "auto":
+            source_lang = self._language(text)
 
-        destination_language = Language(destination_language).alpha2
-        source_language = Language(source_language).alpha2
+        dest_lang = Language(dest_lang).alpha2
+        source_lang = Language(source_lang).alpha2
 
         url = "https://context.reverso.net/bst-query-service"
-        params = {"source_text": text, "source_lang": source_language, "target_lang": destination_language, "npage": 1, "nrows": 20, "expr_sug": 0, "json": 1, "dym_apply": True, "pos_reorder": 5}
+        params = {"source_text": text, "source_lang": source_lang, "target_lang": dest_lang, "npage": 1, "nrows": 20, "expr_sug": 0, "json": 1, "dym_apply": True, "pos_reorder": 5}
         request = self.session.post(url, params=params, headers={"Content-Type": "application/x-www-form-urlencoded"})
         response = request.json()
 
@@ -124,11 +124,11 @@ class ReversoTranslate(BaseTranslator):
             _result = []
             for _dictionary in response["dictionary_entry_list"]:
                 _result.append(_dictionary["term"])
-            return source_language, _result
+            return source_lang, _result
 
-    def _text_to_speech(self, text, speed, gender, source_language):
-        if source_language == "auto":
-            source_language = self._language(text)
+    def _text_to_speech(self, text, speed, gender, source_lang):
+        if source_lang == "auto":
+            source_lang = self._language(text)
 
         _supported_langs_url = "https://voice.reverso.net/RestPronunciation.svc/v1/output=json/GetAvailableVoices"
         _supported_langs_result = self.session.get(_supported_langs_url)
@@ -136,19 +136,19 @@ class ReversoTranslate(BaseTranslator):
 
         _gender = "M" if gender == "male" else "F"
         _text = base64.b64encode(text.encode()).decode()
-        _source_language = "US English".lower() if source_language == "eng" else Language.by_reverso(source_language).name.lower()
+        _source_language = "US English".lower() if source_lang == "eng" else Language.by_reverso(source_lang).name.lower()
 
         for _supported_lang in _supported_langs_list:
             if _supported_lang["Language"].lower() == _source_language and _supported_lang["Gender"] == _gender:
                 voice = _supported_lang["Name"]
                 break
         else:
-            raise UnsupportedMethod("{source_lang} language not supported by Reverso".format(source_lang=source_language))
+            raise UnsupportedMethod("{source_lang} language not supported by Reverso".format(source_lang=source_lang))
 
         url = "https://voice.reverso.net/RestPronunciation.svc/v1/output=json/GetVoiceStream/voiceName={}?voiceSpeed={}&inputText={}".format(voice, speed, _text)
         response = self.session.get(url)
         if response.status_code < 400:
-            return source_language, response.content
+            return source_lang, response.content
 
     def _language_normalize(self, language: Language) -> str:
         if language.id == "zho":

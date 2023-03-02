@@ -85,7 +85,7 @@ class BaseTranslator(ABC):
 
     _supported_languages = {}
 
-    def translate(self, text: str, destination_language: str, source_language: str = "auto") -> TranslationResult:
+    def translate(self, text: str, dest_lang: str, source_lang: str = "auto") -> TranslationResult:
         """
         Translates text from a given language to another specific language.
 
@@ -93,11 +93,11 @@ class BaseTranslator(ABC):
         ----------
         text: str
             The text to be translated.
-        destination_language: str
+        dest_lang: str
             If str it expects the language code that the `text` should be translated to.
             to check the list of languages that a `Translator` supports, and use `.get_language` to
             search for a language of the `Translator`, and find it's code.
-        source_language: str, default = "auto"
+        source_lang: str, default = "auto"
             If str it expects the code of the language that the `text` is written in. When using the default value (`auto`),
             the `Translator` will try to find the language automatically.
 
@@ -115,8 +115,8 @@ class BaseTranslator(ABC):
         # of this method, we still have acess to the original codes.
         # With this we can use the original codes to build the response,
         # this makes the code transformation transparent to the user.
-        dest_code = self._detect_and_validate_lang(destination_language)
-        source_code = self._detect_and_validate_lang(source_language)
+        dest_code = self._detect_and_validate_lang(dest_lang)
+        source_code = self._detect_and_validate_lang(source_lang)
 
         self._validate_language_pair(source_code, dest_code)
 
@@ -125,24 +125,24 @@ class BaseTranslator(ABC):
 
         if _cache_key in self._translations_cache:
             # Taking the values from the cache
-            source_language, translation = self._translations_cache[_cache_key]
+            source_lang, translation = self._translations_cache[_cache_key]
         else:
             # Call the private concrete implementation of the Translator to get the translation
-            source_language, translation = self._translate(text, dest_code, source_code)
+            source_lang, translation = self._translate(text, dest_code, source_code)
 
             # Cache the translation values to speed up the translation process in the future
-            self._translations_cache[_cache_key] = (source_language, translation)
+            self._translations_cache[_cache_key] = (source_lang, translation)
 
         # Return a `TranslationResult` object
         return TranslationResult(
             service=self,
             source=text,
-            source_language=self._language_denormalize(source_language),
-            destination_language=self._language_denormalize(destination_language),
+            source_lang=self._language_denormalize(source_lang),
+            dest_lang=self._language_denormalize(dest_lang),
             result=translation,
         )
 
-    def _translate(self, text: str, destination_language: str, source_language: str) -> str:
+    def _translate(self, text: str, dest_lang: str, source_lang: str) -> str:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations. Receives the validated and normalized parameters and must
@@ -151,8 +151,8 @@ class BaseTranslator(ABC):
         Parameters
         ----------
         text: str
-        destination_language: str
-        source_language: str
+        dest_lang: str
+        source_lang: str
 
         Returns
         -------
@@ -160,7 +160,7 @@ class BaseTranslator(ABC):
         """
         raise UnsupportedMethod()
 
-    def translate_html(self, html: typing.Union[str, bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup], destination_language: str, source_language: str = "auto", parser: str = "html.parser", threads_limit: int = 100) -> typing.Union[str, bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup]:
+    def translate_html(self, html: typing.Union[str, bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup], dest_lang: str, source_lang: str = "auto", parser: str = "html.parser", threads_limit: int = 100) -> typing.Union[str, bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup]:
         """
         Translates the given HTML string or bs4.BeautifulSoup object to the given language
 
@@ -179,9 +179,9 @@ class BaseTranslator(ABC):
         ----------
         html: bs4.element.bs4.element.PageElement | bs4.bs4.BeautifulSoup | bs4.element.bs4.element.Tag | str | typing.Union[str, bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup]
             The HTML string to be translated. This can also be an instance of bs4.BeautifulSoup's `bs4.BeautifulSoup` element, `bs4.element.PageElement` or `bs4.element.Tag` element.
-        destination_language: str
+        dest_lang: str
             The language the HTML string needs to be translated in.
-        source_language: str, default = "auto"
+        source_lang: str, default = "auto"
             The language of the HTML string.
         parser: str, default = "html.parser"
             The parser that bs4.BeautifulSoup will use to parse the HTML string.
@@ -197,8 +197,8 @@ class BaseTranslator(ABC):
             The result will be a string in any other case.
         typing.Union[str, bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup]
         """
-        dest_lang = Language(destination_language)
-        source_lang = Language(source_language)
+        dest_lang = Language(dest_lang)
+        source_lang = Language(source_lang)
 
         def _translate(node: bs4.element.NavigableString):
             """
@@ -207,7 +207,7 @@ class BaseTranslator(ABC):
             node: bs4.element.NavigableString
             """
             try:
-                node.replace_with(self.translate(str(node), destination_language=dest_lang, source_language=source_lang).result)
+                node.replace_with(self.translate(str(node), dest_lang=dest_lang, source_lang=source_lang).result)
             except Exception:  # ignore if it couldn't find any result or an error occured
                 pass
 
@@ -221,7 +221,7 @@ class BaseTranslator(ABC):
             pool.map(_translate, nodes)
         return page if isinstance(html, (bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup)) else str(page)
 
-    def transliterate(self, text: str, destination_language: str, source_language: str = "auto") -> TransliterationResult:
+    def transliterate(self, text: str, dest_lang: str, source_lang: str = "auto") -> TransliterationResult:
         """
         Transliterates text from a given language to another specific language.
 
@@ -232,10 +232,10 @@ class BaseTranslator(ABC):
         Parameters
         ----------
         text: str | The text to be transliterated.
-        destination_language: If str it expects the language code that the `text` should be translated to. | str
+        dest_lang: If str it expects the language code that the `text` should be translated to. | str
             to check the list of languages that a `Translator` supports, and use `.get_language` to
             search for a language of the `Translator`, and find it's code. Default value = English
-        source_language: If str it expects the code of the language that the `text` is written in. When using the default value (`auto`) | str, default = "auto"
+        source_lang: If str it expects the code of the language that the `text` is written in. When using the default value (`auto`) | str, default = "auto"
             the `Translator` will try to find the language automatically.
 
         Returns
@@ -251,8 +251,8 @@ class BaseTranslator(ABC):
         # of this method, we still have acess to the original codes.
         # With this we can use the original codes to build the response,
         # this makes the code transformation transparent to the user.
-        dest_code = self._detect_and_validate_lang(destination_language)
-        source_code = self._detect_and_validate_lang(source_language)
+        dest_code = self._detect_and_validate_lang(dest_lang)
+        source_code = self._detect_and_validate_lang(source_lang)
 
         self._validate_language_pair(source_code, dest_code)
 
@@ -261,24 +261,24 @@ class BaseTranslator(ABC):
 
         if _cache_key in self._transliterations_cache:
             # Taking the values from the cache
-            source_language, transliteration = self._transliterations_cache[_cache_key]
+            source_lang, transliteration = self._transliterations_cache[_cache_key]
         else:
             # Call the private concrete implementation of the Translator to get the transliteration
-            source_language, transliteration = self._transliterate(text, dest_code, source_code)
+            source_lang, transliteration = self._transliterate(text, dest_code, source_code)
 
             # Cache the transliteration values to speed up the translation process in the future
-            self._transliterations_cache[_cache_key] = (source_language, transliteration)
+            self._transliterations_cache[_cache_key] = (source_lang, transliteration)
 
         # Return a `TransliterationResult` object
         return TransliterationResult(
             service=self,
             source=text,
-            source_language=self._language_denormalize(source_language),
-            destination_language=self._language_denormalize(destination_language),
+            source_lang=self._language_denormalize(source_lang),
+            dest_lang=self._language_denormalize(dest_lang),
             result=transliteration,
         )
 
-    def _transliterate(self, text: str, destination_language, source_language: str) -> str:
+    def _transliterate(self, text: str, dest_lang, source_lang: str) -> str:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the transliteration. Receives the validated and normalized parameters and must
@@ -287,8 +287,8 @@ class BaseTranslator(ABC):
         Parameters
         ----------
         text: str
-        destination_language
-        source_language: str
+        dest_lang
+        source_lang: str
 
         Returns
         -------
@@ -296,14 +296,14 @@ class BaseTranslator(ABC):
         """
         raise UnsupportedMethod()
 
-    def spellcheck(self, text: str, source_language: str = "auto") -> SpellcheckResult:
+    def spellcheck(self, text: str, source_lang: str = "auto") -> SpellcheckResult:
         """
         Checks text spelling in a given language.
 
         Parameters
         ----------
         text: The text to be checks. | str
-        source_language: If str it expects the code of the language that the `text` is written in. When using the default value (`auto`) | str, default = "auto"
+        source_lang: If str it expects the code of the language that the `text` is written in. When using the default value (`auto`) | str, default = "auto"
             the `Translator` will try to find the language automatically.
 
         Returns
@@ -320,30 +320,30 @@ class BaseTranslator(ABC):
         # of this method, we still have acess to the original codes.
         # With this we can use the original codes to build the response,
         # this makes the code transformation transparent to the user.
-        source_code = self._detect_and_validate_lang(source_language)
+        source_code = self._detect_and_validate_lang(source_lang)
 
         # Build cache key
         _cache_key = str({"t": text, "s": source_code})
 
         if _cache_key in self._spellchecks_cache:
             # Taking the values from the cache
-            source_language, spellcheck = self._spellchecks_cache[_cache_key]
+            source_lang, spellcheck = self._spellchecks_cache[_cache_key]
         else:
             # Call the private concrete implementation of the Translator to get the spellchecked text
-            source_language, spellcheck = self._spellcheck(text, source_code)
+            source_lang, spellcheck = self._spellcheck(text, source_code)
 
             # Cache the spellcheck values to speed up the translation process in the future
-            self._spellchecks_cache[_cache_key] = (source_language, spellcheck)
+            self._spellchecks_cache[_cache_key] = (source_lang, spellcheck)
 
         # Return a `SpellcheckResult` object
         return SpellcheckResult(
             service=self,
             source=text,
-            source_language=self._language_denormalize(source_language),
+            source_lang=self._language_denormalize(source_lang),
             result=spellcheck,
         )
 
-    def _spellcheck(self, text: str, source_language: str) -> str:
+    def _spellcheck(self, text: str, source_lang: str) -> str:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the spellcheck. Receives the validated and normalized parameters and must
@@ -352,7 +352,7 @@ class BaseTranslator(ABC):
         Parameters
         ----------
         text: str
-        source_language: str
+        source_lang: str
 
         Returns
         -------
@@ -416,7 +416,7 @@ class BaseTranslator(ABC):
         """
         raise UnsupportedMethod()
 
-    def example(self, text: str, destination_language: str, source_language: str = "auto") -> ExampleResult:
+    def example(self, text: str, dest_lang: str, source_lang: str = "auto") -> ExampleResult:
         """
         Returns a set of examples
 
@@ -424,11 +424,11 @@ class BaseTranslator(ABC):
         ----------
         text: str
             The text to be translated.
-        destination_language: str
+        dest_lang: str
             If str it expects the language code that the `text` should be translated to.
             to check the list of languages that a `Translator` supports, and use `.get_language` to
             search for a language of the `Translator`, and find it's code.
-        source_language: str, default = "auto"
+        source_lang: str, default = "auto"
             If str it expects the code of the language that the `text` is written in. When using the default value (`auto`),
             the `Translator` will try to find the language automatically.
 
@@ -446,8 +446,8 @@ class BaseTranslator(ABC):
         # of this method, we still have acess to the original codes.
         # With this we can use the original codes to build the response,
         # this makes the code transformation transparent to the user.
-        dest_code = self._detect_and_validate_lang(destination_language)
-        source_code = self._detect_and_validate_lang(source_language)
+        dest_code = self._detect_and_validate_lang(dest_lang)
+        source_code = self._detect_and_validate_lang(source_lang)
 
         self._validate_language_pair(source_code, dest_code)
 
@@ -456,24 +456,24 @@ class BaseTranslator(ABC):
 
         if _cache_key in self._examples_cache:
             # Taking the values from the cache
-            source_language, example = self._examples_cache[_cache_key]
+            source_lang, example = self._examples_cache[_cache_key]
         else:
             # Call the private concrete implementation of the Translator to get the examples
-            source_language, example = self._example(text, dest_code, source_code)
+            source_lang, example = self._example(text, dest_code, source_code)
 
             # Cache the translation values to speed up the translation process in the future
-            self._examples_cache[_cache_key] = (source_language, example)
+            self._examples_cache[_cache_key] = (source_lang, example)
 
         # Return a `ExampleResult` object
         return ExampleResult(
             service=self,
             source=text,
-            source_language=self._language_denormalize(source_language),
-            destination_language=self._language_denormalize(destination_language),
+            source_lang=self._language_denormalize(source_lang),
+            dest_lang=self._language_denormalize(dest_lang),
             result=example,
         )
 
-    def _example(self, text: str, destination_language: str, source_language: str) -> typing.List:
+    def _example(self, text: str, dest_lang: str, source_lang: str) -> typing.List:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations. Receives the validated and normalized parameters and must
@@ -482,8 +482,8 @@ class BaseTranslator(ABC):
         Parameters
         ----------
         text: str
-        destination_language: str
-        source_language: str
+        dest_lang: str
+        source_lang: str
 
         Returns
         -------
@@ -491,7 +491,7 @@ class BaseTranslator(ABC):
         """
         raise UnsupportedMethod()
 
-    def dictionary(self, text: str, destination_language: str, source_language: str = "auto") -> DictionaryResult:
+    def dictionary(self, text: str, dest_lang: str, source_lang: str = "auto") -> DictionaryResult:
         """
         Returns a list of dictionary results.
 
@@ -499,11 +499,11 @@ class BaseTranslator(ABC):
         ----------
         text: str
             The text to be translated.
-        destination_language: str
+        dest_lang: str
             If str it expects the language code that the `text` should be translated to.
             to check the list of languages that a `Translator` supports, and use `.get_language` to
             search for a language of the `Translator`, and find it's code.
-        source_language: str, default = "auto"
+        source_lang: str, default = "auto"
             If str it expects the code of the language that the `text` is written in. When using the default value (`auto`),
             the `Translator` will try to find the language automatically.
 
@@ -520,8 +520,8 @@ class BaseTranslator(ABC):
         # of this method, we still have acess to the original codes.
         # With this we can use the original codes to build the response,
         # this makes the code transformation transparent to the user.
-        dest_code = self._detect_and_validate_lang(destination_language)
-        source_code = self._detect_and_validate_lang(source_language)
+        dest_code = self._detect_and_validate_lang(dest_lang)
+        source_code = self._detect_and_validate_lang(source_lang)
 
         self._validate_language_pair(source_code, dest_code)
 
@@ -530,24 +530,24 @@ class BaseTranslator(ABC):
 
         if _cache_key in self._dictionaries_cache:
             # Taking the values from the cache
-            source_language, dictionary = self._dictionaries_cache[_cache_key]
+            source_lang, dictionary = self._dictionaries_cache[_cache_key]
         else:
             # Call the private concrete implementation of the Translator to get the dictionary result
-            source_language, dictionary = self._dictionary(text, dest_code, source_code)
+            source_lang, dictionary = self._dictionary(text, dest_code, source_code)
 
             # Cache the translation values to speed up the translation process in the future
-            self._dictionaries_cache[_cache_key] = (source_language, dictionary)
+            self._dictionaries_cache[_cache_key] = (source_lang, dictionary)
 
         # Return a `DictionaryResult` object
         return DictionaryResult(
             service=self,
             source=text,
-            source_language=self._language_denormalize(source_language),
-            destination_language=self._language_denormalize(destination_language),
+            source_lang=self._language_denormalize(source_lang),
+            dest_lang=self._language_denormalize(dest_lang),
             result=dictionary,
         )
 
-    def _dictionary(self, text: str, destination_language: str, source_language: str) -> typing.List:
+    def _dictionary(self, text: str, dest_lang: str, source_lang: str) -> typing.List:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations. Receives the validated and normalized parameters and must
@@ -556,8 +556,8 @@ class BaseTranslator(ABC):
         Parameters
         ----------
         text: str
-        destination_language: str
-        source_language: str
+        dest_lang: str
+        source_lang: str
 
         Returns
         -------
@@ -565,7 +565,7 @@ class BaseTranslator(ABC):
         """
         raise UnsupportedMethod()
 
-    def text_to_speech(self, text: str, speed: int = 100, gender: str = "female", source_language: str = "auto") -> TextToSpechResult:
+    def text_to_speech(self, text: str, speed: int = 100, gender: str = "female", source_lang: str = "auto") -> TextToSpechResult:
         """
         Gives back the text to speech result for the given text
 
@@ -576,7 +576,7 @@ class BaseTranslator(ABC):
         speed: int, default = 100
             text speed
         gender: str, default = "female"
-        source_language: str, default = "auto"
+        source_lang: str, default = "auto"
 
         Returns
         -------
@@ -592,7 +592,7 @@ class BaseTranslator(ABC):
         # of this method, we still have acess to the original codes.
         # With this we can use the original codes to build the response,
         # this makes the code transformation transparent to the user.
-        source_code = self._detect_and_validate_lang(source_language)
+        source_code = self._detect_and_validate_lang(source_lang)
 
         gender = remove_spaces(gender).lower()
 
@@ -607,25 +607,25 @@ class BaseTranslator(ABC):
 
         if _cache_key in self._text_to_speeches_cache:
             # Taking the values from the cache
-            source_language, text_to_speech = self._text_to_speeches_cache[_cache_key]
+            source_lang, text_to_speech = self._text_to_speeches_cache[_cache_key]
         else:
             # Call the private concrete implementation of the Translator to get text to spech result
-            source_language, text_to_speech = self._text_to_speech(text, speed, gender, source_code)
+            source_lang, text_to_speech = self._text_to_speech(text, speed, gender, source_code)
 
             # Cache the text to spech result to speed up the translation process in the future
-            self._text_to_speeches_cache[_cache_key] = (source_language, text_to_speech)
+            self._text_to_speeches_cache[_cache_key] = (source_lang, text_to_speech)
 
         # Return a `TextToSpechResult` object
         return TextToSpechResult(
             service=self,
             source=text,
-            source_language=self._language_denormalize(source_language),
+            source_lang=self._language_denormalize(source_lang),
             speed=speed,
             gender=gender,
             result=text_to_speech,
         )
 
-    def _text_to_speech(self, text: str, speed: int, gender: str, source_language: str) -> bytes:
+    def _text_to_speech(self, text: str, speed: int, gender: str, source_lang: str) -> bytes:
         """
         Private method that concrete Translators must implement to hold the concrete
         logic for the translations.
@@ -635,7 +635,7 @@ class BaseTranslator(ABC):
         text: str
         speed: int
         gender: str
-        source_language: str
+        source_lang: str
 
         Returns
         -------
@@ -721,17 +721,17 @@ class BaseTranslator(ABC):
         if remove_spaces(text) == "":
             raise ParameterValueError("Parameter 'text' must not be empty")
 
-    def _validate_language_pair(self, source_language, destination_language):
+    def _validate_language_pair(self, source_lang, dest_lang):
         """
         Performs language pair validation
 
         Parameters
         ----------
-        source_language
-        destination_language
+        source_lang
+        dest_lang
         """
-        if source_language == destination_language:
-            raise ParameterValueError("Parameter source_language cannot be equal to the destination_language parameter")
+        if source_lang == dest_lang:
+            raise ParameterValueError("Parameter source_lang cannot be equal to the dest_lang parameter")
 
     def clean_cache(self) -> None:
         """

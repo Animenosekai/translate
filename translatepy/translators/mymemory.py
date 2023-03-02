@@ -20,13 +20,13 @@ class MyMemoryTranslate(BaseTranslator):
         self.session = request
         self.base_url = "https://api.mymemory.translated.net/get"
 
-    def _translate(self, text: str, destination_language: str, source_language: str) -> Tuple[str, str]:
+    def _translate(self, text: str, dest_lang: str, source_lang: str) -> Tuple[str, str]:
         """
         This is the translating endpoint
 
         Must return a tuple with (detected_language, result)
         """
-        request = self.session.get(self.base_url, params={"q": text, "langpair": source_language + "|" + destination_language})
+        request = self.session.get(self.base_url, params={"q": text, "langpair": source_lang + "|" + dest_lang})
         if request.status_code < 400:
             try:
                 result = request.json()["matches"][0]
@@ -35,7 +35,7 @@ class MyMemoryTranslate(BaseTranslator):
             try:
                 _detected_language = result["source"].split("-")[0]
             except Exception:
-                _detected_language = source_language
+                _detected_language = source_lang
             return _detected_language, result["translation"]
 
     def _language(self, text: str) -> str:

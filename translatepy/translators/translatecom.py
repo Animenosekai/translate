@@ -15,18 +15,18 @@ class TranslateComTranslate(BaseTranslator):
         self.translate_url = "https://www.translate.com/translator/ajax_translate"
         self.langdetect_url = "https://www.translate.com/translator/ajax_lang_auto_detect"
 
-    def _translate(self, text: str, destination_language: str, source_language: str) -> Tuple[str, str]:
+    def _translate(self, text: str, dest_lang: str, source_lang: str) -> Tuple[str, str]:
         """
         This is the translating endpoint
 
         Must return a tuple with (detected_language, result)
         """
-        if source_language == "auto":
-            source_language = self._language(text)
-        request = self.session.post(self.translate_url, data={"text_to_translate": text, "source_lang": source_language, "translated_lang": destination_language, "use_cache_only": "false"})
+        if source_lang == "auto":
+            source_lang = self._language(text)
+        request = self.session.post(self.translate_url, data={"text_to_translate": text, "source_lang": source_lang, "translated_lang": dest_lang, "use_cache_only": "false"})
         if request.status_code < 400:
             result = request.json()["translated_text"]
-            return source_language, result
+            return source_lang, result
 
     def _language(self, text: str) -> str:
         """
