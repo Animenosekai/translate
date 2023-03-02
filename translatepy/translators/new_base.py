@@ -14,7 +14,8 @@ from multiprocessing.pool import ThreadPool
 
 import bs4
 
-from translatepy import models, utils, exceptions
+from translatepy import models, exceptions
+from translatepy.utils import hasher, lru_cacher, sanitize
 from translatepy.language import Language
 
 # Types
@@ -28,10 +29,11 @@ class LazyIterable(typing.Generic[R]):
     An object which can be iterated through, even multiple times, but lazy loads the results.
     """
 
-    def __init__(self, func: typing.Callable[[str], R], texts: typing.Optional[typing.Iterable[str]] = None) -> None:
+    def __init__(self, func: typing.Callable[[str], R], texts: typing.Optional[typing.Iterable[str]] = None, work_name: str = "") -> None:
         self.func = func
         self.texts = texts or []
         self.results: typing.List[R] = []
+        self.work_name = str(work_name)
 
     def __iter__(self):
         current = 0
@@ -51,6 +53,9 @@ class LazyIterable(typing.Generic[R]):
                 return element
             current += 1
         raise IndexError("list index out of range")
+
+    def __repr__(self) -> str:
+        return "LazyIterable({}, texts={}, loaded={})".format(self.work_name, self.texts, len(self.results))
 
 
 class BaseTranslateException(exceptions.TranslatepyException):
@@ -99,7 +104,7 @@ class BaseTranslator:
     This defines a "Translator" instance, which is the gateway between the translator logic and translatepy
     """
 
-    _caches: typing.Dict[str, utils.lru_cacher.LRUDictCache] = {}
+    _caches: typing.Dict[str, lru_cacher.LRUDictCache] = {}
     _supported_languages: typing.Optional[typing.Set[Language]] = None
 
     def _validate_text(self, text: typing.Union[str, typing.Any]) -> typing.Optional[str]:
@@ -119,7 +124,7 @@ class BaseTranslator:
         if not text:
             return None  # should not continue
         text = str(text)
-        if utils.sanitize.remove_spaces(text) == "":
+        if sanitize.remove_spaces(text) == "":
             return None  # should not continue
         return text
 
@@ -206,7 +211,7 @@ class BaseTranslator:
                     """
                     valid_text = self._validate_text(text)
 
-                    hash_source = [utils.hasher.hash_object(valid_text)]
+                    hash_source = [hasher.hash_object(valid_text)]
 
                     generator = func(self, valid_text or "", *args, **kwargs)
 
@@ -225,12 +230,20 @@ class BaseTranslator:
                             if valid_text is None:
                                 return result  # should be the empty result, because `text` is "empty"
                             break
-                        hash_source.append(utils.hasher.hash_object(element))
+                        hash_source.append(hasher.hash_object(element))
 
                     if result is None:
                         raise ValueError("No result returned by the translator")
 
-                    cache_key = utils.hasher.hash_object(hash_source)
+                    def fill_result(result: models.Result):
+                        """
+                        Internal function to fill `result` with missing attributes and type check some of them
+                        """
+                        result.service = self
+                        result.source = valid_text
+                        return result
+
+                    cache_key = hasher.hash_object(hash_source)
                     try:
                         result = self._caches[func.__name__][cache_key]
                     except Exception:
@@ -239,26 +252,24 @@ class BaseTranslator:
                             # making sure those are set
                             if multiple_results:
                                 for element in result:
-                                    element.service = self
-                                    element.source = valid_text
+                                    fill_result(element)
                             else:
-                                result.service = self
-                                result.source = valid_text
+                                fill_result(result)
                         except StopIteration:
                             return result  # should still be the empty result
 
                         try:
                             self._caches[func.__name__][cache_key] = result
                         except KeyError:
-                            self._caches[func.__name__] = utils.lru_cacher.LRUDictCache(maxsize=1024, **{cache_key: result})
+                            self._caches[func.__name__] = lru_cacher.LRUDictCache(maxsize=1024, **{cache_key: result})
 
                     return result
 
                 try:
-                    if not isinstance(text, str):
-                        raise ValueError("Is iterable but a string")
+                    if isinstance(text, str):
+                        raise ValueError("INFO: NOT BULK")
                     _ = iter(text)  # should raise `TypeError` if not iterable
-                    return LazyIterable(func=worker, texts=text)
+                    return LazyIterable(func=worker, texts=text, work_name=func.__name__)
                 except (ValueError, TypeError):
                     return worker(text)
 
@@ -352,7 +363,13 @@ class BaseTranslator:
         if dest_lang == source_lang:
             return  # will stop the translation here
 
-        yield self._translate(text=text, dest_lang=dest_lang_code, source_lang=source_lang_code)
+        result = self._translate(text=text, dest_lang=dest_lang_code, source_lang=source_lang_code)
+        result.dest_lang = dest_lang
+
+        if not isinstance(result.source_lang, Language):
+            result.source_lang = self._code_to_language(result.source_lang)
+
+        yield result
 
     def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
         """
@@ -428,10 +445,18 @@ class BaseTranslator:
         try:
             result = self._alternatives(translation=translation)
             if isinstance(result, models.TranslationResult):  # if returned a single translation
-                return [result]
-            return result
+                result.dest_lang = translation.dest_lang
+                result.source_lang = translation.source_lang
+                yield [result]
+                return
+
+            for element in result:
+                element.dest_lang = translation.dest_lang
+                element.source_lang = translation.source_lang
+
+            yield result
         except Exception:
-            return []
+            yield []
 
     def _alternatives(self: C, translation: models.TranslationResult) -> typing.Union[models.TranslationResult[C],
                                                                                       typing.List[models.TranslationResult[C]]]:
@@ -534,11 +559,18 @@ class BaseTranslator:
         if dest_lang == source_lang:
             return  # will stop the transliteration here
 
-        yield self._transliterate(
+        result = self._transliterate(
             text=text,
             dest_lang=dest_lang_code,
             source_lang=source_lang_code
         )
+
+        result.dest_lang = dest_lang
+
+        if not isinstance(result.source_lang, Language):
+            result.source_lang = self._code_to_language(result.source_lang)
+
+        yield result
 
     def _transliterate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TransliterationResult[C]:
         """
@@ -627,10 +659,15 @@ class BaseTranslator:
             corrected=text
         )
 
-        yield self._spellcheck(
+        result = self._spellcheck(
             text=text,
             source_lang=source_lang_code
         )
+
+        if not isinstance(result.source_lang, Language):
+            result.source_lang = self._code_to_language(result.source_lang)
+
+        yield result
 
     def _spellcheck(self: C, text: str, source_lang: typing.Any) -> typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]:
         """
@@ -707,7 +744,11 @@ class BaseTranslator:
             language=Language("auto")
         )
 
-        yield self._language(text=text)
+        result = self._language(text=text)
+
+        if not isinstance(result.language, Language):
+            result.language = self._code_to_language(result.language)
+        yield result
 
     def _language(self: C, text: str) -> models.LanguageResult[C]:
         """
@@ -787,10 +828,16 @@ class BaseTranslator:
         try:
             result = self._example(text=text, source_lang=source_lang_code)
             if isinstance(result, models.ExampleResult):  # it returned a single example
-                return [result]
-            return result
+                if not isinstance(result.source_lang, Language):
+                    result.source_lang = self._code_to_language(result.source_lang)
+                yield [result]
+                return
+            for element in result:
+                if not isinstance(element.source_lang, Language):
+                    element.source_lang = self._code_to_language(element.source_lang)
+            yield result
         except Exception:
-            return []
+            yield []
 
     def _example(self: C, text: str, source_lang: typing.Any) -> typing.Union[models.ExampleResult[C],
                                                                               typing.List[models.ExampleResult[C]]]:
@@ -879,10 +926,16 @@ class BaseTranslator:
         try:
             result = self._dictionary(text=text, source_lang=source_lang_code)
             if isinstance(result, models.DictionaryResult):  # it returned a single definition
-                return [result]
-            return result
+                if not isinstance(result.source_lang, Language):
+                    result.source_lang = self._code_to_language(result.source_lang)
+                yield [result]
+                return
+            for element in result:
+                if not isinstance(element.source_lang, Language):
+                    element.source_lang = self._code_to_language(element.source_lang)
+            yield result
         except Exception:
-            return []
+            yield []
 
     def _dictionary(self: C,
                     text: str,
@@ -982,7 +1035,10 @@ class BaseTranslator:
             gender=gender
         )
 
-        yield self._text_to_speech(text=text, speed=valid_speed, gender=gender, source_lang=source_lang_code)
+        result = self._text_to_speech(text=text, speed=valid_speed, gender=gender, source_lang=source_lang_code)
+        if not isinstance(result.source_lang, Language):
+            result.source_lang = self._code_to_language(result.source_lang)
+        yield result
 
     def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpechResult[C]:
         """
@@ -1026,7 +1082,6 @@ class BaseTranslator:
         str
         """
         class_name = self.__class__.__name__
-        class_name = class_name[:class_name.rfind("Translate")]
         return "UnknownTranslator" if class_name == "" else class_name
 
     def __repr__(self) -> str:

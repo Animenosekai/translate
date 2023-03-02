@@ -1,14 +1,15 @@
+"""
+Handles the languages management on `translatepy`
+"""
+
 import re
-from translatepy.utils.sanitize import remove_spaces
 import typing
 
-from translatepy.exceptions import UnknownLanguage
-from translatepy.utils._language_data import CODES, LANGUAGE_DATA, VECTORS
-from translatepy.utils.lru_cacher import LRUDictCache
-from translatepy.utils.similarity import StringVector, fuzzy_search
+from translatepy import exceptions
+from translatepy.utils import similarity, sanitize, _language_data, lru_cacher
 
 # preparing the vectors
-LOADED_VECTORS = [StringVector(language, data=data) for language, data in VECTORS.items()]
+LOADED_VECTORS = [similarity.StringVector(language, data=data) for language, data in _language_data.VECTORS.items()]
 
 LANGUAGE_CLEANUP_REGEX = re.compile(r"\(.+\)")
 
@@ -77,7 +78,7 @@ class Types():
     SPECIAL = Type("Special")
 
 
-_languages_cache = LRUDictCache(512)
+_languages_cache = lru_cacher.LRUDictCache(512)
 
 
 class Language():
@@ -108,30 +109,30 @@ class Language():
             self.id = language.id
             self.similarity = language.similarity
         else:
-            if language is None or remove_spaces(language) == "":
-                raise UnknownLanguage("N/A", 0, "You need to pass in a language")
+            if language is None or sanitize.remove_spaces(language) == "":
+                raise exceptions.UnknownLanguage("N/A", 0, "You need to pass in a language")
             language = str(language)
-            normalized_language = remove_spaces(LANGUAGE_CLEANUP_REGEX.sub("", language.lower()))
+            normalized_language = sanitize.remove_spaces(LANGUAGE_CLEANUP_REGEX.sub("", language.lower()))
 
             # Check the incoming language, whether it is in the cache, then return the values from the cache
             if normalized_language in _languages_cache:
                 self.id, self.similarity = _languages_cache[normalized_language]
             else:
-                if normalized_language in CODES:
-                    self.id = CODES[normalized_language]
+                if normalized_language in _language_data.CODES:
+                    self.id = _language_data.CODES[normalized_language]
                     self.similarity = 100
                 else:
-                    _search_result, _similarity = fuzzy_search(LOADED_VECTORS, normalized_language)
+                    _search_result, _similarity = similarity.fuzzy_search(LOADED_VECTORS, normalized_language)
                     self.similarity = _similarity * 100
                     if self.similarity < threshold:
                         raising_message = "Couldn't recognize the given language ({0})\nDid you mean: {1} (Similarity: {2}%)?".format(language, _search_result, round(self.similarity, 2))
-                        raise UnknownLanguage(_search_result, self.similarity, raising_message)
-                    self.id = VECTORS[_search_result]["i"]
+                        raise exceptions.UnknownLanguage(_search_result, self.similarity, raising_message)
+                    self.id = _language_data.VECTORS[_search_result]["i"]
 
             # Сache the language values to speed up the language recognition process in the future
             _languages_cache[normalized_language] = (self.id, self.similarity)
 
-        data = LANGUAGE_DATA[self.id]
+        data = _language_data.LANGUAGE_DATA[self.id]
 
         self.alpha2 = data.get("2", None)
         self.alpha3b = data.get("b", None)

@@ -124,7 +124,7 @@ class Result(typing.Generic[T]):
     # result: typing.Any
     # """The result"""
 
-    # dest_lang: Language
+    # dest_lang: Language = None
     # """The result's language"""
 
     raw: typing.Optional[typing.Any] = None
@@ -200,7 +200,7 @@ class TranslationResult(Result[T]):
     source_lang: Language
     """The source text's language"""
 
-    dest_lang: Language
+    dest_lang: Language = None
     """The result's language"""
 
     translation: str
@@ -258,7 +258,7 @@ class TransliterationResult(Result[T]):
     source_lang: Language
     """The source text's language"""
 
-    dest_lang: Language
+    dest_lang: Language = None
     """The result's language"""
 
     def __pretty__(self, cli: bool = False) -> str:
