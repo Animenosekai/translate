@@ -6,37 +6,59 @@ Implements the Base Translator class
 
 # This shouldn't be a problem if we are targetting sub-3.6 python versions
 # pylint: disable=consider-using-f-string
+# pylint: disable=line-too-long
 
-import abc
+import enum
 import typing
 from multiprocessing.pool import ThreadPool
 
 import bs4
 
-from translatepy.exceptions import (ParameterTypeError, ParameterValueError,
-                                    TranslatepyException, UnsupportedLanguage,
-                                    UnsupportedMethod)
+from translatepy import models, exceptions
+from translatepy.utils import hasher, lru_cacher, sanitize, request
 from translatepy.language import Language
-from translatepy.models import (DictionaryResult, ExampleResult,
-                                LanguageResult, SpellcheckResult,
-                                TextToSpechResult, TranslationResult,
-                                TransliterationResult)
-from translatepy.utils.lru_cacher import LRUDictCache
-from translatepy.utils.sanitize import remove_spaces
+
+# Types
+T = typing.TypeVar('T')  # The method given to the decorator
+C = typing.TypeVar('C', bound="BaseTranslator")  # The expected result class for `models.Result`
+R = typing.TypeVar('R')  # The expected result class for `LazyIterable`
 
 
-# copied from abc.ABC (Python 3.9.5)
-class ABC(metaclass=abc.ABCMeta):
+class LazyIterable(typing.Generic[R]):
     """
-    Helper class that provides a standard way to create an ABC using
-    inheritance.
-
-    Added in the ABC module in Python 3.4
+    An object which can be iterated through, even multiple times, but lazy loads the results.
     """
-    __slots__ = ()
+
+    def __init__(self, func: typing.Callable[[str], R], texts: typing.Optional[typing.Iterable[str]] = None, work_name: str = "") -> None:
+        self.func = func
+        self.texts = texts or []
+        self.results: typing.List[R] = []
+        self.work_name = str(work_name)
+
+    def __iter__(self):
+        current = 0
+        for text in self.texts:
+            try:
+                yield self.results[current]
+            except IndexError:
+                result = self.func(text)
+                self.results.append(result)  # caches the result
+                yield result
+            current += 1
+
+    def __getitem__(self, index: int):
+        current = 0
+        for element in self:
+            if current >= index:
+                return element
+            current += 1
+        raise IndexError("list index out of range")
+
+    def __repr__(self) -> str:
+        return "LazyIterable({}, texts={}, loaded={})".format(self.work_name, self.texts, len(self.results))
 
 
-class BaseTranslateException(TranslatepyException):
+class BaseTranslateException(exceptions.TranslatepyException):
     """
     A translator exception, indicating a problem which occured during translation
     """
@@ -65,619 +87,87 @@ class BaseTranslateException(TranslatepyException):
         return "{} | {}".format(self.status_code, self.message)
 
 
-# TODO: Feat: support translating > 5000 characters (or just exception raising)
-# TODO: Feat: Some translation services give out a lot of useful information that can come in handy for programmers. I think we need implement separate models class for each Translator service
-# --> If these informations come from already using endpoints like the translation or transliteration endpoint we could make an "extra data" field with those informations
-# --> but if it is completely different endpoints, we could just add them to the Translator class or as an extra function in the classes which the user would be able to use by initiating their own translator.
+# TODO: ADD `HTML` AGAIN
 
-class BaseTranslator(ABC):
+
+class Flag(enum.Enum):
     """
-    Base abstract class for a translate service
+    Defines a set of internal flags the handlers can send to the validator
+    """
+    MULTIPLE_RESULTS = "multi"
+
+
+class BaseTranslator:
+    """
+    The core of translatepy
+
+    This defines a "Translator" instance, which is the gateway between the translator logic and translatepy
     """
 
-    _translations_cache = LRUDictCache()
-    _transliterations_cache = LRUDictCache()
-    _languages_cache = LRUDictCache()
-    _spellchecks_cache = LRUDictCache()
-    _examples_cache = LRUDictCache()
-    _dictionaries_cache = LRUDictCache()
-    _text_to_speeches_cache = LRUDictCache(8)
+    def __init__(self, session: typing.Optional[request.Session] = None):
+        self.session = session or request.Session()
 
-    _supported_languages = {}
+    _caches: typing.Dict[str, lru_cacher.LRUDictCache] = {}
+    """Internal variables which holds the different caches"""
+    _supported_languages: typing.Optional[typing.Set[typing.Any]] = None
+    """A set of supported language codes"""
 
-    def translate(self, text: str, dest_lang: str, source_lang: str = "auto") -> TranslationResult:
+    def _validate_text(self, text: typing.Union[str, typing.Any]) -> typing.Optional[str]:
         """
-        Translates text from a given language to another specific language.
+        Validates the given text, enforcing its type
 
         Parameters
         ----------
         text: str
-            The text to be translated.
-        dest_lang: str
-            If str it expects the language code that the `text` should be translated to.
-            to check the list of languages that a `Translator` supports, and use `.get_language` to
-            search for a language of the `Translator`, and find it's code.
-        source_lang: str, default = "auto"
-            If str it expects the code of the language that the `text` is written in. When using the default value (`auto`),
-            the `Translator` will try to find the language automatically.
-
-        Returns
-        -------
-        TranslationResult
-            Translation result.
-        """
-
-        # Validate the text
-        self._validate_text(text)
-
-        # Validate the languages
-        # We save the values in new variables, so at the end
-        # of this method, we still have acess to the original codes.
-        # With this we can use the original codes to build the response,
-        # this makes the code transformation transparent to the user.
-        dest_code = self._detect_and_validate_lang(dest_lang)
-        source_code = self._detect_and_validate_lang(source_lang)
-
-        self._validate_language_pair(source_code, dest_code)
-
-        # Build cache key
-        _cache_key = str({"t": text, "d": dest_code, "s": source_code})
-
-        if _cache_key in self._translations_cache:
-            # Taking the values from the cache
-            source_lang, translation = self._translations_cache[_cache_key]
-        else:
-            # Call the private concrete implementation of the Translator to get the translation
-            source_lang, translation = self._translate(text, dest_code, source_code)
-
-            # Cache the translation values to speed up the translation process in the future
-            self._translations_cache[_cache_key] = (source_lang, translation)
-
-        # Return a `TranslationResult` object
-        return TranslationResult(
-            service=self,
-            source=text,
-            source_lang=self._language_denormalize(source_lang),
-            dest_lang=self._language_denormalize(dest_lang),
-            result=translation,
-        )
-
-    def _translate(self, text: str, dest_lang: str, source_lang: str) -> str:
-        """
-        Private method that concrete Translators must implement to hold the concrete
-        logic for the translations. Receives the validated and normalized parameters and must
-        return a translation (str).
-
-        Parameters
-        ----------
-        text: str
-        dest_lang: str
-        source_lang: str
+            The text to validate
 
         Returns
         -------
         str
+            The text as a string
         """
-        raise UnsupportedMethod()
+        if not text:
+            return None  # should not continue
+        text = str(text)
+        if sanitize.remove_spaces(text) == "":
+            return None  # should not continue
+        return text
 
-    def translate_html(self, html: typing.Union[str, bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup], dest_lang: str, source_lang: str = "auto", parser: str = "html.parser", threads_limit: int = 100) -> typing.Union[str, bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup]:
+    def _language_to_code(self, language: Language) -> typing.Union[str, typing.Any]:
         """
-        Translates the given HTML string or bs4.BeautifulSoup object to the given language
-
-        i.e
-         English: `<div class="hello"><h1>Hello</h1> everyone and <a href="/welcome">welcome</a> to <span class="w-full">my website</span></div>`
-         French: `<div class="hello"><h1>Bonjour</h1>tout le monde et<a href="/welcome">Bienvenue</a>à<span class="w-full">Mon site internet</span></div>`
-
-        Note: This method is not perfect since it is not tag/context aware. Example: `<span>Hello <strong>everyone</strong></span>` will not be understood as
-        "Hello everyone" with "everyone" in bold but rather "Hello" and "everyone" separately.
-
-        Warning: If you give a `bs4.bs4.BeautifulSoup`, `bs4.element.bs4.element.PageElement` or `bs4.element.bs4.element.Tag` input (which are mutable), they will be modified.
-        If you don't want this behavior, please make sure to pass the string version of the element:
-        >>> result = BaseTranslator().translate_html(str(page_element), "French")
+        Translates the given `translatepy.Language` object into the translator's internally suitable language code
 
         Parameters
         ----------
-        html: bs4.element.bs4.element.PageElement | bs4.bs4.BeautifulSoup | bs4.element.bs4.element.Tag | str | typing.Union[str, bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup]
-            The HTML string to be translated. This can also be an instance of bs4.BeautifulSoup's `bs4.BeautifulSoup` element, `bs4.element.PageElement` or `bs4.element.Tag` element.
-        dest_lang: str
-            The language the HTML string needs to be translated in.
-        source_lang: str, default = "auto"
-            The language of the HTML string.
-        parser: str, default = "html.parser"
-            The parser that bs4.BeautifulSoup will use to parse the HTML string.
-        threads_limit: int, default = 100
-            The maximum number of threads that will be spawned by translate_html
+        language: Language
+            The language to translate
 
         Returns
         -------
-        bs4.BeautifulSoup
-            The result will be the same element as the input `html` parameter with the values modified if the given
-            input is of bs4.bs4.BeautifulSoup, bs4.element.bs4.element.PageElement or bs4.element.bs4.element.Tag instance.
-        str
-            The result will be a string in any other case.
-        typing.Union[str, bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup]
+        Any
+            The language code to be used internally
         """
-        dest_lang = Language(dest_lang)
-        source_lang = Language(source_lang)
+        return self._validate_language(language).alpha2
 
-        def _translate(node: bs4.element.NavigableString):
-            """
-            Parameters
-            ----------
-            node: bs4.element.NavigableString
-            """
-            try:
-                node.replace_with(self.translate(str(node), dest_lang=dest_lang, source_lang=source_lang).result)
-            except Exception:  # ignore if it couldn't find any result or an error occured
-                pass
-
-        if not isinstance(html, (bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup)):
-            page = bs4.BeautifulSoup(str(html), str(parser))
-        else:
-            page = html
-        # nodes = [tag.text for tag in page.find_all(text=True, recursive=True, attrs=lambda class_name: "notranslate" not in str(class_name).split()) if not isinstance(tag, (bs4.element.PreformattedString)) and remove_spaces(tag) != ""]
-        nodes = [tag for tag in page.find_all(text=True, recursive=True) if not isinstance(tag, (bs4.element.PreformattedString)) and remove_spaces(tag) != ""]
-        with ThreadPool(threads_limit) as pool:
-            pool.map(_translate, nodes)
-        return page if isinstance(html, (bs4.element.PageElement, bs4.element.Tag, bs4.BeautifulSoup)) else str(page)
-
-    def transliterate(self, text: str, dest_lang: str, source_lang: str = "auto") -> TransliterationResult:
+    def _code_to_language(self, code: typing.Union[str, typing.Any]) -> Language:
         """
-        Transliterates text from a given language to another specific language.
-
-        Returns
-        TransliterationResult
-            A `TransliterationResult` object with the results of the translation.
+        Translates the given language code to a `translatepy.Language` object
 
         Parameters
         ----------
-        text: str | The text to be transliterated.
-        dest_lang: If str it expects the language code that the `text` should be translated to. | str
-            to check the list of languages that a `Translator` supports, and use `.get_language` to
-            search for a language of the `Translator`, and find it's code. Default value = English
-        source_lang: If str it expects the code of the language that the `text` is written in. When using the default value (`auto`) | str, default = "auto"
-            the `Translator` will try to find the language automatically.
+        code: str
+            The language code to translate
 
         Returns
         -------
-        TransliterationResult
+        Language
+            The `translatepy.Language` object
         """
+        return Language(code)  # hoping for now that the codes used are standard
 
-        # Validate the text
-        self._validate_text(text)
-
-        # Validate the languages
-        # We save the values in new variables, so at the end
-        # of this method, we still have acess to the original codes.
-        # With this we can use the original codes to build the response,
-        # this makes the code transformation transparent to the user.
-        dest_code = self._detect_and_validate_lang(dest_lang)
-        source_code = self._detect_and_validate_lang(source_lang)
-
-        self._validate_language_pair(source_code, dest_code)
-
-        # Build cache key
-        _cache_key = str({"t": text, "d": dest_code, "s": source_code})
-
-        if _cache_key in self._transliterations_cache:
-            # Taking the values from the cache
-            source_lang, transliteration = self._transliterations_cache[_cache_key]
-        else:
-            # Call the private concrete implementation of the Translator to get the transliteration
-            source_lang, transliteration = self._transliterate(text, dest_code, source_code)
-
-            # Cache the transliteration values to speed up the translation process in the future
-            self._transliterations_cache[_cache_key] = (source_lang, transliteration)
-
-        # Return a `TransliterationResult` object
-        return TransliterationResult(
-            service=self,
-            source=text,
-            source_lang=self._language_denormalize(source_lang),
-            dest_lang=self._language_denormalize(dest_lang),
-            result=transliteration,
-        )
-
-    def _transliterate(self, text: str, dest_lang, source_lang: str) -> str:
+    def _validate_language(self, language: typing.Union[str, Language], *args, **kwargs) -> Language:
         """
-        Private method that concrete Translators must implement to hold the concrete
-        logic for the transliteration. Receives the validated and normalized parameters and must
-        return a transliteration (str).
-
-        Parameters
-        ----------
-        text: str
-        dest_lang
-        source_lang: str
-
-        Returns
-        -------
-        str
-        """
-        raise UnsupportedMethod()
-
-    def spellcheck(self, text: str, source_lang: str = "auto") -> SpellcheckResult:
-        """
-        Checks text spelling in a given language.
-
-        Parameters
-        ----------
-        text: The text to be checks. | str
-        source_lang: If str it expects the code of the language that the `text` is written in. When using the default value (`auto`) | str, default = "auto"
-            the `Translator` will try to find the language automatically.
-
-        Returns
-        -------
-        SpellcheckResult
-            A `SpellcheckResult` object with the results of the corrected text.
-        """
-
-        # Validate the text
-        self._validate_text(text)
-
-        # Validate the languages
-        # We save the values in new variables, so at the end
-        # of this method, we still have acess to the original codes.
-        # With this we can use the original codes to build the response,
-        # this makes the code transformation transparent to the user.
-        source_code = self._detect_and_validate_lang(source_lang)
-
-        # Build cache key
-        _cache_key = str({"t": text, "s": source_code})
-
-        if _cache_key in self._spellchecks_cache:
-            # Taking the values from the cache
-            source_lang, spellcheck = self._spellchecks_cache[_cache_key]
-        else:
-            # Call the private concrete implementation of the Translator to get the spellchecked text
-            source_lang, spellcheck = self._spellcheck(text, source_code)
-
-            # Cache the spellcheck values to speed up the translation process in the future
-            self._spellchecks_cache[_cache_key] = (source_lang, spellcheck)
-
-        # Return a `SpellcheckResult` object
-        return SpellcheckResult(
-            service=self,
-            source=text,
-            source_lang=self._language_denormalize(source_lang),
-            result=spellcheck,
-        )
-
-    def _spellcheck(self, text: str, source_lang: str) -> str:
-        """
-        Private method that concrete Translators must implement to hold the concrete
-        logic for the spellcheck. Receives the validated and normalized parameters and must
-        return a spellchecked text (str).
-
-        Parameters
-        ----------
-        text: str
-        source_lang: str
-
-        Returns
-        -------
-        str
-        """
-        raise UnsupportedMethod()
-
-    def language(self, text: str) -> LanguageResult:
-        """
-        Detect the language of the text
-
-        Parameters
-        ----------
-        text: str
-            The text to be detect the language
-
-        Returns
-        -------
-        LanguageResult
-            A `LanguageResult` object with the results of the detected language.
-        """
-
-        # Validate the text
-        self._validate_text(text)
-
-        # Build cache key
-        _cache_key = str({"t": text})
-
-        if _cache_key in self._languages_cache:
-            # Taking the values from the cache
-            language = self._languages_cache[_cache_key]
-        else:
-            # Call the private concrete implementation of the Translator to get the language
-            language = self._language(text)
-
-            # Cache the languages values to speed up the translation process in the future
-            self._languages_cache[_cache_key] = language
-
-        denormalized_lang = self._language_denormalize(language)
-
-        # Return a `LanguageResult` object
-        return LanguageResult(
-            service=self,
-            source=text,
-            result=denormalized_lang,
-        )
-
-    def _language(self, text: str) -> str:
-        """
-        Private method that concrete Translators must implement to hold the concrete
-        logic for the language. Receives the validated and normalized parameters and must
-        return a language code (str).
-
-        Parameters
-        ----------
-        text: str
-
-        Returns
-        -------
-        str
-        """
-        raise UnsupportedMethod()
-
-    def example(self, text: str, dest_lang: str, source_lang: str = "auto") -> ExampleResult:
-        """
-        Returns a set of examples
-
-        Parameters
-        ----------
-        text: str
-            The text to be translated.
-        dest_lang: str
-            If str it expects the language code that the `text` should be translated to.
-            to check the list of languages that a `Translator` supports, and use `.get_language` to
-            search for a language of the `Translator`, and find it's code.
-        source_lang: str, default = "auto"
-            If str it expects the code of the language that the `text` is written in. When using the default value (`auto`),
-            the `Translator` will try to find the language automatically.
-
-        Returns
-        -------
-        ExampleResult
-            Examples result.
-        """
-
-        # Validate the text
-        self._validate_text(text)
-
-        # Validate the languages
-        # We save the values in new variables, so at the end
-        # of this method, we still have acess to the original codes.
-        # With this we can use the original codes to build the response,
-        # this makes the code transformation transparent to the user.
-        dest_code = self._detect_and_validate_lang(dest_lang)
-        source_code = self._detect_and_validate_lang(source_lang)
-
-        self._validate_language_pair(source_code, dest_code)
-
-        # Build cache key
-        _cache_key = str({"t": text, "d": dest_code, "s": source_code})
-
-        if _cache_key in self._examples_cache:
-            # Taking the values from the cache
-            source_lang, example = self._examples_cache[_cache_key]
-        else:
-            # Call the private concrete implementation of the Translator to get the examples
-            source_lang, example = self._example(text, dest_code, source_code)
-
-            # Cache the translation values to speed up the translation process in the future
-            self._examples_cache[_cache_key] = (source_lang, example)
-
-        # Return a `ExampleResult` object
-        return ExampleResult(
-            service=self,
-            source=text,
-            source_lang=self._language_denormalize(source_lang),
-            dest_lang=self._language_denormalize(dest_lang),
-            result=example,
-        )
-
-    def _example(self, text: str, dest_lang: str, source_lang: str) -> typing.List:
-        """
-        Private method that concrete Translators must implement to hold the concrete
-        logic for the translations. Receives the validated and normalized parameters and must
-        return a examples list (typing.List).
-
-        Parameters
-        ----------
-        text: str
-        dest_lang: str
-        source_lang: str
-
-        Returns
-        -------
-        typing.List
-        """
-        raise UnsupportedMethod()
-
-    def dictionary(self, text: str, dest_lang: str, source_lang: str = "auto") -> DictionaryResult:
-        """
-        Returns a list of dictionary results.
-
-        Parameters
-        ----------
-        text: str
-            The text to be translated.
-        dest_lang: str
-            If str it expects the language code that the `text` should be translated to.
-            to check the list of languages that a `Translator` supports, and use `.get_language` to
-            search for a language of the `Translator`, and find it's code.
-        source_lang: str, default = "auto"
-            If str it expects the code of the language that the `text` is written in. When using the default value (`auto`),
-            the `Translator` will try to find the language automatically.
-
-        Returns
-        -------
-        DictionaryResult
-        """
-
-        # Validate the text
-        self._validate_text(text)
-
-        # Validate the languages
-        # We save the values in new variables, so at the end
-        # of this method, we still have acess to the original codes.
-        # With this we can use the original codes to build the response,
-        # this makes the code transformation transparent to the user.
-        dest_code = self._detect_and_validate_lang(dest_lang)
-        source_code = self._detect_and_validate_lang(source_lang)
-
-        self._validate_language_pair(source_code, dest_code)
-
-        # Build cache key
-        _cache_key = str({"t": text, "d": dest_code, "s": source_code})
-
-        if _cache_key in self._dictionaries_cache:
-            # Taking the values from the cache
-            source_lang, dictionary = self._dictionaries_cache[_cache_key]
-        else:
-            # Call the private concrete implementation of the Translator to get the dictionary result
-            source_lang, dictionary = self._dictionary(text, dest_code, source_code)
-
-            # Cache the translation values to speed up the translation process in the future
-            self._dictionaries_cache[_cache_key] = (source_lang, dictionary)
-
-        # Return a `DictionaryResult` object
-        return DictionaryResult(
-            service=self,
-            source=text,
-            source_lang=self._language_denormalize(source_lang),
-            dest_lang=self._language_denormalize(dest_lang),
-            result=dictionary,
-        )
-
-    def _dictionary(self, text: str, dest_lang: str, source_lang: str) -> typing.List:
-        """
-        Private method that concrete Translators must implement to hold the concrete
-        logic for the translations. Receives the validated and normalized parameters and must
-        return a dictionary result list (typing.List).
-
-        Parameters
-        ----------
-        text: str
-        dest_lang: str
-        source_lang: str
-
-        Returns
-        -------
-        typing.List
-        """
-        raise UnsupportedMethod()
-
-    def text_to_speech(self, text: str, speed: int = 100, gender: str = "female", source_lang: str = "auto") -> TextToSpechResult:
-        """
-        Gives back the text to speech result for the given text
-
-        Parameters
-        ----------
-        text: str
-            text for voice-over
-        speed: int, default = 100
-            text speed
-        gender: str, default = "female"
-        source_lang: str, default = "auto"
-
-        Returns
-        -------
-        TextToSpechResult
-            A `TextToSpechResult` object
-        """
-
-        # Validate the text
-        self._validate_text(text)
-
-        # Validate the languages
-        # We save the values in new variables, so at the end
-        # of this method, we still have acess to the original codes.
-        # With this we can use the original codes to build the response,
-        # this makes the code transformation transparent to the user.
-        source_code = self._detect_and_validate_lang(source_lang)
-
-        gender = remove_spaces(gender).lower()
-
-        if gender not in {"male", "female"}:
-            raise ParameterValueError("Gender {gender} not supported. Supported genders: male, female".format(gender=gender))
-
-        if not isinstance(speed, int):
-            raise ParameterTypeError("Parameter 'speed' must be an integer, {} was given".format(type(speed).__name__))
-
-        # Build cache key
-        _cache_key = str({"t": text, "sp": speed, "s": source_code, "g": gender})
-
-        if _cache_key in self._text_to_speeches_cache:
-            # Taking the values from the cache
-            source_lang, text_to_speech = self._text_to_speeches_cache[_cache_key]
-        else:
-            # Call the private concrete implementation of the Translator to get text to spech result
-            source_lang, text_to_speech = self._text_to_speech(text, speed, gender, source_code)
-
-            # Cache the text to spech result to speed up the translation process in the future
-            self._text_to_speeches_cache[_cache_key] = (source_lang, text_to_speech)
-
-        # Return a `TextToSpechResult` object
-        return TextToSpechResult(
-            service=self,
-            source=text,
-            source_lang=self._language_denormalize(source_lang),
-            speed=speed,
-            gender=gender,
-            result=text_to_speech,
-        )
-
-    def _text_to_speech(self, text: str, speed: int, gender: str, source_lang: str) -> bytes:
-        """
-        Private method that concrete Translators must implement to hold the concrete
-        logic for the translations.
-
-        Parameters
-        ----------
-        text: str
-        speed: int
-        gender: str
-        source_lang: str
-
-        Returns
-        -------
-        bytes
-        """
-        raise UnsupportedMethod()
-
-    @abc.abstractmethod
-    def _language_normalize(self, language) -> str:
-        """
-        Private method that concrete Translators must implement to hold the concrete
-        logic for the translations. Receives the Language instance and must
-        return a normalized code language specific of translator (str).
-
-        Parameters
-        ----------
-        language
-
-        Returns
-        -------
-        str
-        """
-
-    @abc.abstractmethod
-    def _language_denormalize(self, language_code) -> str:
-        """
-        Private method that concrete Translators must implement to hold the concrete
-        logic for the translations. Receives the language code specific of translator and must
-        return a Language instance.
-
-        Parameters
-        ----------
-        language_code
-
-        Returns
-        -------
-        str
-        """
-
-    def _detect_and_validate_lang(self, language: str) -> str:
-        """
-        Validates the language code, and converts the language code into a single format.
+        Validates the given language
 
         Parameters
         ----------
@@ -687,51 +177,923 @@ class BaseTranslator(ABC):
         -------
         str
         """
-        if isinstance(language, Language):
-            result = language
-        elif not isinstance(language, str):
-            raise ParameterTypeError("Parameter 'language' must be a string, {} was given".format(type(language).__name__))
-        else:
-            result = Language(language)
-
-        normalized_result = self._language_normalize(result)
+        language = Language(language, *args, **kwargs)
+        language_code = self._language_to_code(language)
 
         if self._supported_languages:  # Check if the attribute is not empty
-            if normalized_result not in self._supported_languages:
-                raise UnsupportedLanguage("The language {language_code} is not supported by {service}".format(language_code=language, service=str(self)))
+            if language_code not in self._supported_languages:
+                raise exceptions.UnsupportedLanguage("The language {language_code} is not supported by {service}".format(language_code=language, service=self))
 
-        return normalized_result
+        return language
 
-    def _validate_text(self, text: str) -> None:
+    @staticmethod
+    def _validate_method(method: typing.Optional[T] = None) -> T:
         """
-        Performs text validation. Checks the text for the correct type,
-        and if it is not empty
+        Internal decorator to automatically validate the different methods
+
+        Parameters
+        ----------
+        method: Callable, optional
+            The method to validate. If omitted, the wrapper will assume that the function was decorated without parameters.
+        """
+        def wrap(func: typing.Callable):
+            # print("Registering", func.__name__)
+
+            @typing.overload
+            def validation(self: C, text: str, *args, **kwargs) -> models.Result[C]: ...
+
+            @typing.overload
+            def validation(self: C, text: typing.Iterable[str], *args, **kwargs) -> LazyIterable[models.Result[C]]: ...
+
+            def validation(self: C,
+                           text: typing.Union[str, typing.Iterable[str]],
+                           *args, **kwargs) -> typing.Union[models.Result[C],
+                                                            LazyIterable[models.Result[C]]]:
+                # print("Calling", func.__name__)
+
+                def worker(text: str) -> models.Result[C]:
+                    """
+                    Inner worker which actually validates everything and calls the handlers.
+                    """
+                    valid_text = self._validate_text(text)
+
+                    hash_source = [hasher.hash_object(valid_text)]
+
+                    generator = func(self, valid_text or "", *args, **kwargs)
+
+                    result = None
+
+                    multiple_results = False
+
+                    for element in generator:
+                        if isinstance(element, models.Result) or element is Flag.MULTIPLE_RESULTS:
+                            if element is Flag.MULTIPLE_RESULTS:
+                                result = []
+                                multiple_results = True
+                            else:
+                                result = element
+
+                            if valid_text is None:
+                                return result  # should be the empty result, because `text` is "empty"
+                            break
+                        hash_source.append(hasher.hash_object(element))
+
+                    if result is None:
+                        raise ValueError("No result returned by the translator")
+
+                    def fill_result(result: models.Result):
+                        """
+                        Internal function to fill `result` with missing attributes and type check some of them
+                        """
+                        result.service = self
+                        result.source = valid_text
+                        return result
+
+                    cache_key = hasher.hash_object(hash_source)
+                    try:
+                        result = self._caches[func.__name__][cache_key]
+                    except Exception:
+                        try:
+                            result: typing.Union[models.Result, typing.Iterable[models.Result]] = next(generator)
+                            # making sure those are set
+                            if multiple_results:
+                                for element in result:
+                                    fill_result(element)
+                            else:
+                                fill_result(result)
+                        except StopIteration:
+                            return result  # should still be the empty result
+
+                        try:
+                            self._caches[func.__name__][cache_key] = result
+                        except KeyError:
+                            self._caches[func.__name__] = lru_cacher.LRUDictCache(maxsize=1024, **{cache_key: result})
+
+                    return result
+
+                try:
+                    if isinstance(text, str):
+                        raise ValueError("INFO: NOT BULK")
+                    _ = iter(text)  # should raise `TypeError` if not iterable
+                    return LazyIterable(func=worker, texts=text, work_name=func.__name__)
+                except (ValueError, TypeError):
+                    return worker(text)
+
+            validation.__doc__ = func.__doc__
+            validation.__name__ = func.__name__
+
+            return validation
+
+        if method is None:
+            return wrap  # Called with parentheses
+        return wrap(method)  # Called without params
+
+    # `translate`
+    # Translates a given text into the desired language, herein `dest_lang`
+    # Type overloads
+
+    @typing.overload
+    def translate(self: C, text: str, dest_lang: typing.Union[str, Language], source_lang: typing.Union[str, Language] = "auto") -> models.TranslationResult[C]:
+        """
+        Translates the given `text` into the given `dest_lang`
+
+        Parameters
+        ---------
+        text: str
+            The text to translate
+        dest_lang: str | Language
+            The language to translate to
+        source_lang: str | Language, default = "auto"
+            The language `text` is in. If "auto", the translator will try to infer the language from `text`
+
+        Returns
+        -------
+        TranslationResult
+            The result of the translation
+        """
+
+    @typing.overload
+    def translate(self: C, text: typing.Iterable[str], dest_lang: typing.Union[str, Language], source_lang: typing.Union[str, Language] = "auto") -> LazyIterable[models.TranslationResult[C]]:
+        """
+        Translates all of the elements in `text` into the given `dest_lang`
+
+        Note: aka "Bulk Translation"
+
+        Parameters
+        ---------
+        text: Iterable[str]
+            A list of texts you want to translate
+        dest_lang: str | Language
+            The language to translate to
+        source_lang: str | Language, default = "auto"
+            The language `text` is in. If "auto", the translator will try to infer the language from `text`
+
+        Returns
+        -------
+        LazyIterable[TranslationResult]
+            An iterable which holds the different translations
+        """
+
+    # Implementation
+
+    @_validate_method
+    def translate(self: C,
+                  text: typing.Union[str, typing.Iterable[str]],
+                  dest_lang: typing.Union[str, Language],
+                  source_lang: typing.Union[str, Language] = "auto") -> typing.Union[models.TranslationResult[C],
+                                                                                     LazyIterable[models.TranslationResult[C]]]:  # type: ignore | the decorator actually returns a `TranslationResult`
+        """
+        Translates `text` into the given `dest_lang`
+
+        Note: Refer to the overloaded methods docstrings for more information.
+        """
+
+        # `text` is already valid
+
+        dest_lang = self._validate_language(dest_lang)
+        dest_lang_code = self._language_to_code(dest_lang)
+        yield dest_lang_code  # send it to the hash builder
+
+        source_lang = self._validate_language(source_lang)
+        source_lang_code = self._language_to_code(source_lang)
+        yield source_lang_code  # send it to the hash builder
+
+        yield models.TranslationResult(
+            service=self,
+            source=text,
+            source_lang=source_lang,
+            dest_lang=dest_lang,
+            translation=text
+        )
+
+        if dest_lang == source_lang:
+            return  # will stop the translation here
+
+        result = self._translate(text=text, dest_lang=dest_lang_code, source_lang=source_lang_code)
+        result.dest_lang = dest_lang
+
+        if not isinstance(result.source_lang, Language):
+            if result.source_lang is None:
+                # not really sure if I should do this, but I guess that until the end user is calling `language` it shouldn't be a big problem
+                result.source_lang = source_lang
+            else:
+                result.source_lang = self._code_to_language(result.source_lang)
+
+        yield result
+
+    def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
+        """
+        The internal handler which contains the translator specific logic to retrieve all of the information
+
+        Parameters
+        ---------
+        text: str
+            The text to translate
+        dest_lang: Any
+            The language code for the destination language, as returned by `_language_to_code`
+        source_lang: Any
+            The language code for the source text language, as returned by `_language_to_code`
+
+        Returns
+        -------
+        TranslationResult
+            The result of the translation, this can omit `service` and `source`
+        """
+        raise exceptions.UnsupportedMethod()
+
+    # `alternatives`
+    # Returns the different alternative translations available for a given previous translation.
+
+    # Type overloads
+
+    @typing.overload
+    def alternatives(self: C, translation: models.TranslationResult[C]) -> typing.List[models.TranslationResult[C]]:
+        """
+        Returns the different alternative translations available for a given previous translation.
+
+        Parameters
+        ----------
+        translation: TranslationResult
+            The previous translation
+
+        Returns
+        -------
+        list[TranslationResult]
+            The list of other translations a word might have
+        """
+
+    @typing.overload
+    def alternatives(self: C, translation: typing.Iterable[models.TranslationResult[C]]) -> LazyIterable[typing.List[models.TranslationResult[C]]]:
+        """
+        Returns the different alternative translations available for all of the given translations.
+
+        Parameters
+        ----------
+        translation: Iterable[TranslationResult]
+            All of the previous translation
+
+        Returns
+        -------
+        LazyIterable[list[TranslationResult]]
+            All of the other translations
+        """
+    # Implementation
+
+    @_validate_method
+    def alternatives(self: C, translation: models.TranslationResult) -> typing.Union[typing.List[models.TranslationResult[C]],
+                                                                                     LazyIterable[typing.List[models.TranslationResult[C]]]]:  # type: ignore | the decorator actually returns a `list[TranslationResult]`
+        """
+        Returns the different alternative translations available for the given `translation`.
+
+        Note: Refer to the overloaded methods docstrings for more information.
+        """
+        yield translation.source_lang
+        yield translation.dest_lang
+        yield translation.source
+        yield Flag.MULTIPLE_RESULTS
+
+        try:
+            result = self._alternatives(translation=translation)
+            if isinstance(result, models.TranslationResult):  # if returned a single translation
+                result.dest_lang = translation.dest_lang
+                result.source_lang = translation.source_lang
+                yield [result]
+                return
+
+            for element in result:
+                element.dest_lang = translation.dest_lang
+                element.source_lang = translation.source_lang
+
+            yield result
+        except Exception:
+            yield []
+
+    def _alternatives(self: C, translation: models.TranslationResult) -> typing.Union[models.TranslationResult[C],
+                                                                                      typing.List[models.TranslationResult[C]]]:
+        """
+        Internal handler for the `alternative` method
+
+        Refer to `alternative` for more information on what this does
+
+        Note: The translator developer could make use of the `raw` parameter to avoid making more requests if they are already given in the first run.
+
+        The developer can either return a list of alternatives or a single other translation.
+        The developer shouldn't return the translation given by the end-user.
+
+        Parameters
+        ----------
+        translation: TranslationResult
+            The previous translation
+
+        Returns
+        -------
+        list[TranslationResult]
+            The list of other translations a word might have, this can omit `service` and `source`
+        """
+        raise exceptions.UnsupportedMethod()
+
+    # `transliterate`
+    # Returns the transliteration for a given text
+
+    # Type overloads
+
+    @typing.overload
+    def transliterate(self: C, text: str, dest_lang: typing.Union[str, Language], source_lang: typing.Union[str, Language] = "auto") -> models.TransliterationResult[C]:
+        """
+        Transliterates the given `text` into the given `dest_lang`
+
+        Parameters
+        ---------
+        text: str
+            The text to transliterate
+        dest_lang: str | Language
+            The language to translate to
+        source_lang: str | Language, default = "auto"
+            The language `text` is in. If "auto", the translator will try to infer the language from `text`
+
+        Returns
+        -------
+        TransliterationResult
+            The result of the transliteration
+        """
+
+    @typing.overload
+    def transliterate(self: C, text: typing.Iterable[str], dest_lang: typing.Union[str, Language], source_lang: typing.Union[str, Language] = "auto") -> LazyIterable[models.TransliterationResult[C]]:
+        """
+        Transliterates all of the given `text` to the given `dest_lang`
+
+        Parameters
+        ---------
+        text: Iterable[str]
+            The texts to transliterate
+        dest_lang: str | Language
+            The language to translate to
+        source_lang: str | Language, default = "auto"
+            The language `text` is in. If "auto", the translator will try to infer the language from `text`
+
+        Returns
+        -------
+        LazyIterable[TransliterationResult]
+            An iterable which contains the transliterations
+        """
+    # Implementation
+    @_validate_method
+    def transliterate(self: C,
+                      text: typing.Union[str, typing.Iterable[str]],
+                      dest_lang: typing.Union[str, Language],
+                      source_lang: typing.Union[str, Language] = "auto") -> typing.Union[models.TransliterationResult[C],
+                                                                                         LazyIterable[models.TransliterationResult[C]]]:  # type: ignore | the decorator actually returns a `TransliterationResult`
+        """
+        Transliterates the given `text` to the given `dest_lang`
+
+        Note: Refer to the overloaded methods docstrings for more information.
+        """
+        # `text` is already valid
+
+        dest_lang = self._validate_language(dest_lang)
+        dest_lang_code = self._language_to_code(dest_lang)
+        yield dest_lang_code  # send it to the hash builder
+
+        source_lang = self._validate_language(source_lang)
+        source_lang_code = self._language_to_code(source_lang)
+        yield source_lang_code  # send it to the hash builder
+
+        yield models.TransliterationResult(
+            service=self,
+            source=text,
+            source_lang=source_lang,
+            dest_lang=dest_lang,
+            transliteration=text
+        )
+
+        if dest_lang == source_lang:
+            return  # will stop the transliteration here
+
+        result = self._transliterate(
+            text=text,
+            dest_lang=dest_lang_code,
+            source_lang=source_lang_code
+        )
+
+        result.dest_lang = dest_lang
+
+        if not isinstance(result.source_lang, Language):
+            if result.source_lang is None:
+                result.source_lang = source_lang
+            else:
+                result.source_lang = self._code_to_language(result.source_lang)
+
+        yield result
+
+    def _transliterate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TransliterationResult[C]:
+        """
+        The internal handler which contains the translator specific logic to retrieve transliterations
+
+        Parameters
+        ---------
+        text: str
+            The text to transliterate
+        dest_lang: Any
+            The language code for the destination language, as returned by `_language_to_code`
+        source_lang: Any
+            The language code for the source text language, as returned by `_language_to_code`
+
+        Returns
+        -------
+        TransliterationResult
+            The transliteration result, this can omit `service` and `source`
+        """
+        raise exceptions.UnsupportedMethod()
+
+    # `spellcheck`
+    # Checks for spelling mistakes within a given text
+
+    # Type overloads
+
+    @typing.overload
+    def spellcheck(self: C, text: str, source_lang: typing.Union[str, Language] = "auto") -> typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]:
+        """
+        Checks for spelling mistakes in the given `text`
+
+        Parameters
+        ---------
+        text: str
+            The text to check for spelling mistakes
+        source_lang: str | Language, default = "auto"
+            The language `text` is in. If "auto", the translator will try to infer the language from `text`
+
+        Returns
+        -------
+        SpellcheckResult
+            The result of the spell check
+        RichSpellcheckResult
+            If supported by the translator, rich spellchecking results, which include the different mistakes made
+        """
+
+    @typing.overload
+    def spellcheck(self: C, text: typing.Iterable[str], source_lang: typing.Union[str, Language] = "auto") -> LazyIterable[typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]]:
+        """
+        Checks for spelling mistakes in all of the given `text`
+
+        Parameters
+        ---------
+        text: Iterable[str]
+            All of the texts to check for spelling mistakes
+        source_lang: str | Language, default = "auto"
+            The language `text` is in. If "auto", the translator will try to infer the language from `text`
+
+        Returns
+        -------
+        LazyIterable[SpellcheckResult]
+            The results of the spell checks
+        LazyIterable[RichSpellcheckResult]
+            If supported by the translator, rich spellchecking results, which include the different mistakes made
+        """
+
+    # Implementation
+    @_validate_method
+    def spellcheck(self: C,
+                   text: typing.Union[str, typing.Iterable[str]],
+                   source_lang: typing.Union[str, Language] = "auto") -> typing.Union[typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]],
+                                                                                      LazyIterable[typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]]]:  # type: ignore | the decorator actually returns a `SpellcheckResult`
+        """
+        Checks for spelling mistakes in the given `text`
+
+        Note: Refer to the other overloaded methods for more information.
+        """
+        source_lang = self._validate_language(source_lang)
+        source_lang_code = self._language_to_code(source_lang)
+        yield source_lang_code  # send it to the hash builder
+
+        yield models.SpellcheckResult(
+            service=self,
+            source=text,
+            source_lang=source_lang,
+            corrected=text
+        )
+
+        result = self._spellcheck(
+            text=text,
+            source_lang=source_lang_code
+        )
+
+        if not isinstance(result.source_lang, Language):
+            if result.source_lang is None:
+                result.source_lang = source_lang
+            else:
+                result.source_lang = self._code_to_language(result.source_lang)
+
+        yield result
+
+    def _spellcheck(self: C, text: str, source_lang: typing.Any) -> typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]:
+        """
+        The internal handler which contains the translator specific logic to check for spelling mistakes
+
+        Parameters
+        ---------
+        text: str
+            The text to translate
+        source_lang: Any
+            The language code for the source text language, as returned by `_language_to_code`
+
+        Returns
+        -------
+        SpellcheckResult
+            The result of the spell checking, this can omit `service` and `source`
+        RichSpellcheckResult
+            If supported, providing more information for the spell checking, this can omit `service` and `source`
+        """
+        raise exceptions.UnsupportedMethod()
+
+    # `language`
+    # Detects the language of a given text
+
+    # Type overloads
+
+    @typing.overload
+    def language(self: C, text: str) -> models.LanguageResult[C]:
+        """
+        Returns the detected language for the given `text`
+
+        Parameters
+        ---------
+        text: str
+            The text to get the language for
+
+        Returns
+        -------
+        LanguageResult
+            The result of the language detection
+        """
+
+    @typing.overload
+    def language(self: C, text: typing.Iterable[str]) -> LazyIterable[models.LanguageResult[C]]:
+        """
+        Returns the detected language for all of the given `text`
+
+        Parameters
+        ---------
+        text: Iterable[str]
+            The texts to get the language of
+
+        Returns
+        -------
+        LazyIterable[LanguageResult]
+            The results of the language detections
+        """
+
+    # Implementation
+    @_validate_method
+    def language(self: C,
+                 text: typing.Union[str, typing.Iterable[str]]) -> typing.Union[models.LanguageResult[C],
+                                                                                LazyIterable[models.LanguageResult[C]]]:  # type: ignore | the decorator actually returns a `LanguageResult`
+        """
+        Returns the detected language for the given `text`
+
+        Note: Refer to the other overloaded methods for more information.
+        """
+        # `text` is already valid
+
+        yield models.LanguageResult(
+            service=self,
+            source=text,
+            language=Language("auto")
+        )
+
+        result = self._language(text=text)
+
+        if not isinstance(result.language, Language):
+            if result.language is None:
+                raise exceptions.UnsupportedLanguage("{} couldn't return a suitable response".format(self))
+            result.language = self._code_to_language(result.language)
+        yield result
+
+    def _language(self: C, text: str) -> models.LanguageResult[C]:
+        """
+        The internal handler which contains the translator specific logic to detect languages
 
         Parameters
         ----------
         text: str
+            The text to get the language for
 
         Returns
         -------
-        None
+        LanguageResult
+            The language detection result, this can omit `service` and `source`
         """
-        if not isinstance(text, str):
-            raise ParameterTypeError("Parameter 'text' must be a string, {} was given".format(type(text).__name__))
+        raise exceptions.UnsupportedMethod()
 
-        if remove_spaces(text) == "":
-            raise ParameterValueError("Parameter 'text' must not be empty")
+    # `example`
+    # Returns an example use cas for a given text
 
-    def _validate_language_pair(self, source_lang, dest_lang):
+    # Type overloads
+
+    @typing.overload
+    def example(self: C, text: str, source_lang: typing.Union[str, Language] = "auto") -> typing.List[models.ExampleResult[C]]:
         """
-        Performs language pair validation
+        Returns use cases for the given `text`
+
+        Parameters
+        ---------
+        text: str
+            The text to get the example for
+        source_lang: str | Language
+            The language `text` is in. If "auto", the translator will try to infer the language from `text`
+
+        Returns
+        -------
+        list[ExampleResult]
+            The examples
+        """
+
+    @typing.overload
+    def example(self: C, text: typing.Iterable[str], source_lang: typing.Union[str, Language] = "auto") -> LazyIterable[typing.List[models.ExampleResult[C]]]:
+        """
+        Returns use cases for all of the given `text`
+
+        Parameters
+        ---------
+        text: Iterable[str]
+            The texts to get the examples for
+        source_lang: str | Language
+            The language `text` is in. If "auto", the translator will try to infer the language from `text`
+
+        Returns
+        -------
+        LazyIterable[list[ExampleResult]]
+            All of the examples
+        """
+
+    # Implementation
+    @_validate_method
+    def example(self: C,
+                text: typing.Union[str, typing.Iterable[str]],
+                source_lang: typing.Union[str, Language] = "auto") -> typing.Union[typing.List[models.ExampleResult[C]],
+                                                                                   LazyIterable[typing.List[models.ExampleResult[C]]]]:  # type: ignore | the decorator actually returns a `ExampleResult`
+        """
+        Returns use cases for the given `text`
+
+        Note: Refer to the other overloaded methods for more information.
+        """
+        # `text` is already valid
+        source_lang = self._validate_language(source_lang)
+        source_lang_code = self._language_to_code(source_lang)
+        yield source_lang_code  # send it to the hash builder
+
+        yield Flag.MULTIPLE_RESULTS
+
+        try:
+            result = self._example(text=text, source_lang=source_lang_code)
+            if isinstance(result, models.ExampleResult):  # it returned a single example
+                if not isinstance(result.source_lang, Language):
+                    if result.source_lang is None:
+                        result.source_lang = source_lang
+                    else:
+                        result.source_lang = self._code_to_language(result.source_lang)
+                yield [result]
+                return
+            for element in result:
+                if not isinstance(element.source_lang, Language):
+                    if element.source_lang is None:
+                        element.source_lang = source_lang
+                    else:
+                        element.source_lang = self._code_to_language(element.source_lang)
+            yield result
+        except Exception:
+            yield []
+
+    def _example(self: C, text: str, source_lang: typing.Any) -> typing.Union[models.ExampleResult[C],
+                                                                              typing.List[models.ExampleResult[C]]]:
+        """
+        The internal handler which contains the translator specific logic to retrieve examples
 
         Parameters
         ----------
-        source_lang
-        dest_lang
+        text: str
+            The text to get the example for
+        source_lang: Any
+            The language code for the source text language, as returned by `_language_to_code`
+
+        Returns
+        -------
+        ExampleResult
+             A use case for `text`, this can omit `service` and `source`
+        list[ExampleResult]
+             Multiple use cases for `text`, this can omit `service` and `source`
         """
-        if source_lang == dest_lang:
-            raise ParameterValueError("Parameter source_lang cannot be equal to the dest_lang parameter")
+        raise exceptions.UnsupportedMethod()
+
+    # `example`
+    # Returns the meaning and multiple information on a given text
+
+    # Type overloads
+
+    @typing.overload
+    def dictionary(self: C, text: str, source_lang: typing.Union[str, Language] = "auto") -> typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]:
+        """
+        Returns the meaning for the given `text`
+
+        Parameters
+        ---------
+        text: str
+            The text to get the meaning for
+        source_lang: str | Language
+            The language `text` is in. If "auto", the translator will try to infer the language from `text`
+
+        Returns
+        -------
+        DictionaryResult
+            The meaning of the given `text`
+        RichDictionaryResult
+            If supported, a value which contains much more information on `text`
+        """
+
+    @typing.overload
+    def dictionary(self: C, text: typing.Iterable[str], source_lang: typing.Union[str, Language] = "auto") -> LazyIterable[typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
+        """
+        Returns the meaning for all of the given `text`
+
+        Parameters
+        ---------
+        text: Iterable[str]
+            The texts to get the meanings for
+        source_lang: str | Language
+            The language `text` is in. If "auto", the translator will try to infer the language from `text`
+
+        Returns
+        -------
+        LazyIterable[DictionaryResult]
+            The meanings for all of the given `text`
+        LazyIterable[RichDictionaryResult]
+            If supported, a value which contains much more information on all of the `text`
+        """
+
+    # Implementation
+    @_validate_method
+    def dictionary(self: C,
+                   text: typing.Union[str, typing.Iterable[str]],
+                   source_lang: typing.Union[str, Language] = "auto") -> typing.Union[typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]],
+                                                                                      LazyIterable[typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]]:  # type: ignore | the decorator actually returns a `DictionaryResult`
+        """
+        Returns the meaning for the given `text`
+
+        Note: Refer to the other overloaded methods for more information.
+        """
+        # `text` is already valid
+        source_lang = self._validate_language(source_lang)
+        source_lang_code = self._language_to_code(source_lang)
+        yield source_lang_code  # send it to the hash builder
+
+        yield Flag.MULTIPLE_RESULTS
+
+        try:
+            result = self._dictionary(text=text, source_lang=source_lang_code)
+            if isinstance(result, models.DictionaryResult):  # it returned a single definition
+                if not isinstance(result.source_lang, Language):
+                    if result.source_lang is None:
+                        result.source_lang = source_lang
+                    else:
+                        result.source_lang = self._code_to_language(result.source_lang)
+                yield [result]
+                return
+            for element in result:
+                if not isinstance(element.source_lang, Language):
+                    if element.source_lang is None:
+                        element.source_lang = source_lang
+                    else:
+                        element.source_lang = self._code_to_language(element.source_lang)
+            yield result
+        except Exception:
+            yield []
+
+    def _dictionary(self: C,
+                    text: str,
+                    source_lang: typing.Any) -> typing.Union[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]],
+                                                             typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
+        """
+        The internal handler which contains the translator specific logic to retrieve dictionary results
+
+        Parameters
+        ----------
+        text: str
+            The text to get the example for
+        source_lang: Any
+            The language code for the source text language, as returned by `_language_to_code`
+
+        Returns
+        -------
+        DictionaryResult
+            The meaning of the given `text`, this can omit `service` and `source`
+        RichDictionaryResult
+            If supported, a value which contains much more information on `text`, this can omit `service` and `source`
+        """
+        raise exceptions.UnsupportedMethod
+
+    @typing.overload
+    def text_to_speech(self: C, text: str, speed: typing.Union[int, models.Speed] = 100, gender: models.Gender = models.Gender.OTHER, source_lang: typing.Union[str, Language] = "auto") -> models.TextToSpechResult[C]:
+        """
+        Returns the speech version of the given `text`
+
+        Parameters
+        ---------
+        text: str
+            The text to get the speech for
+        speed: int | Speed
+            The speed percentage of the text to speech result, if supported
+        gender: Gender
+            The gender of the voice, if supported
+        source_lang: str | Language
+            The language `text` is in. If "auto", the translator will try to infer the language from `text`
+
+        Returns
+        -------
+        TextToSpeechResult
+            The text to speech result
+        """
+
+    @typing.overload
+    def text_to_speech(self: C, text: typing.Iterable[str], speed: typing.Union[int, models.Speed] = 100, gender: models.Gender = models.Gender.OTHER, source_lang: typing.Union[str, Language] = "auto") -> LazyIterable[models.TextToSpechResult[C]]:
+        """
+        Returns the speech version for all of the given `text`
+
+        Parameters
+        ---------
+        text: str
+            The texts to get the speech versions for
+        speed: int | Speed
+            The speed percentage of the text to speech result, if supported
+        gender: Gender
+            The gender of the voice, if supported
+        source_lang: str | Language
+            The language `text` is in. If "auto", the translator will try to infer the language from `text`
+
+        Returns
+        -------
+        LazyIterable[TextToSpeechResult]
+            The text to speech results
+        """
+
+    @_validate_method
+    def text_to_speech(self: C,
+                       text: typing.Union[str, typing.Iterable[str]],
+                       speed: typing.Union[int, models.Speed] = 100,
+                       gender: models.Gender = models.Gender.OTHER,
+                       source_lang: typing.Union[str, Language] = "auto") -> typing.Union[models.TextToSpechResult[C],
+                                                                                          LazyIterable[models.TextToSpechResult[C]]]:  # type: ignore | the decorator actually returns a `TextToSpechResult`
+        """
+        Returns the speech version of the given `text`
+
+        Note: Refer to the other overloaded methods for more information.
+        """
+        if isinstance(speed, models.Speed):
+            valid_speed = speed.value
+        else:
+            valid_speed = speed
+        yield valid_speed
+
+        source_lang = self._validate_language(source_lang)
+        source_lang_code = self._language_to_code(source_lang)
+        yield source_lang_code  # send it to the hash builder
+
+        yield models.TextToSpechResult(
+            service=self,
+            source=text,
+            source_lang=source_lang,
+            result=b"",
+            speed=valid_speed,
+            gender=gender
+        )
+
+        result = self._text_to_speech(text=text, speed=valid_speed, gender=gender, source_lang=source_lang_code)
+        if not isinstance(result.source_lang, Language):
+            if result.source_lang is None:
+                result.source_lang = source_lang
+            else:
+                result.source_lang = self._code_to_language(result.source_lang)
+        yield result
+
+    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpechResult[C]:
+        """
+        The internal handler which contains the translator specific logic to retrieve text to speech results
+
+        Parameters
+        ----------
+        text: str
+            The text to get the speech for
+        speed: int
+            The speed percentage of the text to speech result
+        gender: Gender
+            The gender of the voice, can be `Gender.OTHER`
+        source_lang: str | Language
+            The language `text` is in. If "auto", the translator will try to infer the language from `text`
+
+        Returns
+        -------
+        TextToSpeechResult
+            The text to speech result, `service` and `source` can be omitted.
+        """
+        raise exceptions.UnsupportedMethod()
 
     def clean_cache(self) -> None:
         """
@@ -741,12 +1103,8 @@ class BaseTranslator(ABC):
         -------
         None
         """
-        self._translations_cache.clear()
-        self._transliterations_cache.clear()
-        self._spellchecks_cache.clear()
-        self._languages_cache.clear()
-        self._examples_cache.clear()
-        self._dictionaries_cache.clear()
+        for cache in self._caches.values():
+            cache.clear()
 
     def __str__(self) -> str:
         """
@@ -757,8 +1115,7 @@ class BaseTranslator(ABC):
         str
         """
         class_name = self.__class__.__name__
-        class_name = class_name[:class_name.rfind("Translate")]
-        return "Unknown" if class_name == "" else class_name
+        return "UnknownTranslator" if class_name == "" else class_name
 
     def __repr__(self) -> str:
         """

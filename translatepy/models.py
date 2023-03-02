@@ -107,11 +107,12 @@ class WordClass(enum.Enum):
 T = typing.TypeVar("T")
 
 
-@dataclasses.dataclass(kw_only=True, slots=True)
+@dataclasses.dataclass(kw_only=True, slots=True, repr=False)
 class Result(typing.Generic[T]):
     """
     The base result model
     """
+    # these are `None` for now but they will be enforced by `BaseTranslator`
     service: T = None
     """The service which returned the result"""
 
@@ -159,12 +160,12 @@ class Result(typing.Generic[T]):
     # def __str__(self) -> str:
     #     return str(self.result)
 
-    def __repr__(self) -> str:
+    def __repr__(self, attrs: typing.Optional[typing.List[str]] = None) -> str:
         return "{name}({params})".format(
             name=self.__class__.__name__,
             params=", ".join("{key}={val}".format(key=attr,
                                                   val=repr(getattr(self, attr)))
-                             for attr in dir(self)
+                             for attr in (attrs or dir(self))
                              if not str(attr).startswith("__") and not callable(getattr(self, attr)) and attr != "raw")
         )
 
@@ -188,16 +189,17 @@ class Result(typing.Generic[T]):
                     val=repr(getattr(self, attr))
                 )
                 for attr in dir(self)
-                if not str(attr).startswith("__") and not callable(getattr(self, attr)) and attr != "raw")
+                if not str(attr).startswith("_") and not callable(getattr(self, attr)) and attr != "raw")
         )
 
 
-@dataclasses.dataclass(kw_only=True, slots=True)
+@dataclasses.dataclass(kw_only=True, slots=True, repr=False)
 class TranslationResult(Result[T]):
     """
     Holds the result of a regular translation
     """
-    source_lang: Language
+    # these are `None` for now but they will be enforced by `BaseTranslator`
+    source_lang: Language = None
     """The source text's language"""
 
     dest_lang: Language = None
@@ -208,6 +210,16 @@ class TranslationResult(Result[T]):
 
     _alternatives: typing.List["TranslationResult"] = dataclasses.field(default_factory=list)
     """A cache to alternative translations"""
+
+    def __repr__(self, attrs: typing.Optional[typing.List[str]] = None) -> str:
+        attrs = [attr for attr in (attrs or dir(self)) if attr != "alternatives"]
+        return "{name}({params})".format(
+            name=self.__class__.__name__,
+            params=", ".join("{key}={val}".format(key=attr,
+                                                  val=repr(getattr(self, attr)))
+                             for attr in attrs
+                             if not str(attr).startswith("_") and not callable(getattr(self, attr)) and attr != "raw")
+        )
 
     @property
     def alternatives(self):
@@ -247,7 +259,7 @@ TRANSLATION_TEST = TranslationResult(
 # Note: No, we can't inherit from `TranslationResult` because transliterations aren't translations
 
 
-@dataclasses.dataclass(kw_only=True, slots=True)
+@dataclasses.dataclass(kw_only=True, slots=True, repr=False)
 class TransliterationResult(Result[T]):
     """
     Holds the result of a transliteration
@@ -255,7 +267,7 @@ class TransliterationResult(Result[T]):
     transliteration: str
     """The transliteration result"""
 
-    source_lang: Language
+    source_lang: Language = None
     """The source text's language"""
 
     dest_lang: Language = None
@@ -290,12 +302,12 @@ TRANSLITERATION_TEST = TransliterationResult(
 )
 
 
-@dataclasses.dataclass(kw_only=True, slots=True)
+@dataclasses.dataclass(kw_only=True, slots=True, repr=False)
 class SpellcheckResult(Result[T]):
     """
     Holds a spellchecking result
     """
-    source_lang: Language
+    source_lang: Language = None
     """The source text's language"""
     corrected: str
     """The corrected text"""
@@ -344,12 +356,12 @@ class SpellcheckMistake:
 # Cannot inherit `SpellcheckResult` for now because of overlapping types for attribute `result`
 
 
-@dataclasses.dataclass(kw_only=True, slots=True)
+@dataclasses.dataclass(kw_only=True, slots=True, repr=False)
 class RichSpellcheckResult(Result[T]):
     """
     Holds a rich spellchecking result
     """
-    source_lang: Language
+    source_lang: Language = None
     """The source text's language"""
     mistakes: typing.List[SpellcheckMistake] = dataclasses.field(default_factory=list)
     """The different mistakes made"""
@@ -517,7 +529,7 @@ RICH_SPELLCHECK_TEST = RichSpellcheckResult(
 )
 
 
-@dataclasses.dataclass(kw_only=True, slots=True)
+@dataclasses.dataclass(kw_only=True, slots=True, repr=False)
 class LanguageResult(Result[T]):
     """
     Holds the language of the given text
@@ -536,12 +548,12 @@ class LanguageResult(Result[T]):
 LANGUAGE_TEST = LanguageResult(service=None, source="Hello world", language=Language("English"))
 
 
-@dataclasses.dataclass(kw_only=True, slots=True)
+@dataclasses.dataclass(kw_only=True, slots=True, repr=False)
 class ExampleResult(Result[T]):
     """
     Holds an example sentence where the given word is used.
     """
-    source_lang: Language
+    source_lang: Language = None
     """The source text's language"""
 
     example: str
@@ -634,12 +646,12 @@ EXAMPLE_TEST = ExampleResult(
 )
 
 
-@dataclasses.dataclass(kw_only=True, slots=True)
+@dataclasses.dataclass(kw_only=True, slots=True, repr=False)
 class DictionaryResult(Result[T]):
     """
     Holds the meaning of the given text
     """
-    source_lang: Language
+    source_lang: Language = None
     """The source text's language"""
 
     meaning: str
@@ -691,7 +703,7 @@ class EtymologicalNode:
         return str(self.origin)
 
 
-@dataclasses.dataclass(kw_only=True, slots=True)
+@dataclasses.dataclass(kw_only=True, slots=True, repr=False)
 class RichDictionaryResult(DictionaryResult[T]):
     """
     Holds more (optional) information than the regular `DictionaryResult`
@@ -815,12 +827,12 @@ RICH_DICTIONARY_TEST = RichDictionaryResult(
 )
 
 
-@dataclasses.dataclass(kw_only=True, slots=True)
+@dataclasses.dataclass(kw_only=True, slots=True, repr=False)
 class TextToSpechResult(Result[T]):
     """
     Holds the text to speech results
     """
-    source_lang: Language
+    source_lang: Language = None
     """The source text's language"""
 
     result: bytes

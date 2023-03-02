@@ -4,14 +4,15 @@ This implementation was made specifically for translatepy from 'Zhymabek Roman',
 
 import json
 import os
+import pathlib
 import re
-import time
-from safeIO import JSONFile
+import typing
 
+from translatepy import models
 from translatepy.exceptions import UnsupportedMethod
 from translatepy.language import Language
 from translatepy.translators.base import BaseTranslateException, BaseTranslator
-from translatepy.utils.request import Request
+from translatepy.utils import request
 from translatepy.utils.annotations import Callable, Dict
 
 HOME_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -23,49 +24,15 @@ class BingTranslateException(BaseTranslateException):
     }
 
 
-class BingExampleResult():
-
-    class SourceExample():
-        """The source for an example"""
-
-        def __init__(self, data) -> None:
-            self._data = data
-            self.prefix = self._data.get("sourcePrefix", "")
-            self.term = self._data.get("sourceTerm", "")
-            self.suffix = self._data.get("sourceSuffix", "")
-            self.example = self.prefix + self.term + self.suffix
-
-        def __repr__(self) -> str:
-            return str(self.example)
-
-    class DestinationExample():
-        """The target language example"""
-
-        def __init__(self, data) -> None:
-            self._data = data
-            self.prefix = self._data.get("targetPrefix", "")
-            self.term = self._data.get("targetTerm", "")
-            self.suffix = self._data.get("targetSuffix", "")
-            self.example = self.prefix + self.term + self.suffix
-
-        def __repr__(self) -> str:
-            return str(self.example)
-
-    def __init__(self, data) -> None:
-        self._data = data
-        self.source = self.SourceExample(self._data)
-        self.destination = self.DestinationExample(self._data)
-
-    def __repr__(self) -> str:
-        return str(self.source)
-
-
 class BingSessionManager():
-    def __init__(self, request: Request, captcha_callback: Callable[[str], str] = None):
-        self.session = request
-        self._auth_session_file = JSONFile(os.path.join(HOME_DIR, ".bing_translatepy"), blocking=False)
-        with self._auth_session_file as _auth_session:
-            _auth_session_data = _auth_session.read()
+    """
+    Creates and manages a Bing session
+    """
+
+    def __init__(self, session: request.Session, captcha_callback: Callable[[str], str] = None):
+        self.session = session
+        self._auth_session_file = pathlib.Path(__file__).parent / ".bing.translatepy"
+        _auth_session_data = json.loads(self._auth_session_file.read_text())
         self.ig, self.iid, self.key, self.token, self.cookies = _auth_session_data.get("id"), _auth_session_data.get("iid"), _auth_session_data.get("key"), _auth_session_data.get("token"), _auth_session_data.get("cookies")
         self.captcha_callback = captcha_callback
         if not _auth_session_data:
@@ -146,89 +113,109 @@ class BingSessionManager():
     # def _verify_captcha(solution: str, region: str, captcha_type: str, challenge_id: str):
     #     pass
 
+
 class BingTranslate(BaseTranslator):
     """
     A Python implementation of Microsoft Bing Translation's APIs
     """
 
-    _supported_languages = {'auto-detect', 'af', 'sq', 'am', 'ar', 'hy', 'as', 'az', 'bn', 'bs', 'bg', 'my', 'ca', 'ca', 'zh-Hans', 'cs', 'da', 'nl', 'nl', 'en', 'et', 'fj', 'fil', 'fil', 'fi', 'fr', 'fr-ca', 'de', 'ga', 'el', 'gu', 'ht', 'ht', 'he', 'hi', 'hr', 'hu', 'is', 'iu', 'id', 'it', 'ja', 'kn', 'kk', 'km', 'ko', 'ku', 'lo', 'lv', 'lt', 'ml', 'mi', 'mr', 'ms', 'mg', 'mt', 'ne', 'nb', 'nb', 'or', 'pa', 'pa', 'fa', 'pl', 'pt', 'ps', 'ps', 'ro', 'ro', 'ro', 'ru', 'sk', 'sl', 'sm', 'es', 'es', 'sr-Cyrl', 'sw', 'sv', 'ty', 'ta', 'te', 'th', 'ti', 'tlh-Latn', 'tlh-Latn', 'to', 'tr', 'uk', 'ur', 'vi', 'cy', 'zh-Hans', 'zh-Hant', 'yue', 'prs', 'mww', 'tlh-Piqd', 'kmr', 'pt-pt', 'otq', 'sr-Cyrl', 'sr-Latn', 'yua'}
+    _supported_languages = {'ur', 'hy', 'fil', 'th', 'nl', 'auto-detect', 'gu', 'sr-Latn', 'ar', 'lo', 'da', 'my', 'ja', 'otq', 'ms',
+                            'is', 'sl', 'zh-Hans', 'tr', 'pt-pt', 'mt', 'bn', 'sk', 'el', 'ti', 'ty', 'sv', 'yue', 'lv', 'fr-ca', 'ca',
+                            'he', 'fi', 'it', 'nb', 'mi', 'prs', 'ps', 'az', 'sm', 'es', 'ko', 'tlh-Piqd', 'pt', 'iu', 'bs', 'zh-Hant',
+                            'mww', 'pa', 'km', 'as', 'en', 'id', 'am', 'sw', 'cy', 'ne', 'ta', 'de', 'hu', 'sq', 'ro', 'kmr', 'kk', 'hi',
+                            'hr', 'tlh-Latn', 'ga', 'fr', 'te', 'ht', 'lt', 'fa', 'or', 'mr', 'vi', 'pl', 'fj', 'to', 'kn', 'yua', 'uk',
+                            'sr-Cyrl', 'et', 'af', 'bg', 'ku', 'cs', 'ml', 'ru', 'mg'}
 
-    def __init__(self, request: Request = Request()):
-        self.session_manager = BingSessionManager(request)
-        self.session = request
+    def __init__(self, session=None):
+        super().__init__(session)
+        self.session_manager = BingSessionManager(self.session)
 
-    def _translate(self, text: str, dest_lang: str, source_lang: str) -> str:
+    def _translate(self, text: str, dest_lang: typing.Any, source_lang: typing.Any):
         response = self.session_manager.send("https://www.bing.com/ttranslatev3", data={'text': text, 'fromLang': source_lang, 'to': dest_lang})
         try:
-            _detected_language = response[0]["detectedLanguage"]["language"]
+            lang = response[0]["detectedLanguage"]["language"]
         except Exception:
-            _detected_language = source_lang
-        return _detected_language, response[0]["translations"][0]["text"]
+            lang = None
+        return models.TranslationResult(source_lang=lang, translation=response[0]["translations"][0]["text"])
 
-    def _example(self, text, dest_lang, source_lang) -> str:
+    def _example(self, text: str, source_lang: typing.Any):
         if source_lang == "auto-detect":
-            source_lang = self._language(text)
+            source_lang = self._language_to_code(self.language(text).language)
 
-        _detected_language, translation = self._translate(text, dest_lang, source_lang)
+        # source_lang to source_lang ?
+        response = self.session_manager.send("https://www.bing.com/texamplev3", data={'text': text.lower(), 'from': source_lang, 'to': source_lang, 'translation': text.lower()})
+        results = []
+        for example in response[0]["examples"]:
+            try:
+                example = dict(example)
+                # sourceTerm or targetTerm ?
+                final = "".join([example.get("sourcePrefix", ""), example.get("sourceTerm", ""), example.get("sourceSuffix", "")])
+                results.append(models.ExampleResult(
+                    source_lang=source_lang,
+                    example=final,
+                    raw=example
+                ))
+            except Exception:
+                continue
+        return results
 
-        response = self.session_manager.send("https://www.bing.com/texamplev3", data={'text': text.lower(), 'from': source_lang, 'to': dest_lang, 'translation': translation.lower()})
-        return _detected_language, [BingExampleResult(example) for example in response[0]["examples"]]
-
-    def _spellcheck(self, text: str, source_lang: str) -> str:
+    def _spellcheck(self, text: str, source_lang: typing.Any):
         if source_lang == "auto-detect":
-            source_lang = self._language(text)
+            source_lang = self._language_to_code(self.language(text).language)
 
         response = self.session_manager.send("https://www.bing.com/tspellcheckv3", data={'text': text, 'fromLang': source_lang})
         result = response["correctedText"]
         if result == "":
-            return source_lang, text
-        return source_lang, result
+            return models.SpellcheckResult(raw=response, corrected=result, source_lang=source_lang)
+        return models.SpellcheckResult(raw=response, corrected=result, source_lang=source_lang)
 
-    def _language(self, text: str) -> str:
+    def _language(self, text: str):
         response = self.session_manager.send("https://www.bing.com/ttranslatev3", data={'text': text, 'fromLang': "auto-detect", 'to': "en"})
-        return response[0]["detectedLanguage"]["language"]
+        return models.LanguageResult(raw=response, language=response[0]["detectedLanguage"]["language"])
 
-    def _transliterate(self, text: str, dest_lang: str, source_lang: str):
+    def _transliterate(self, text: str, dest_lang: typing.Any, source_lang: typing.Any):
         response = self.session_manager.send("https://www.bing.com/ttranslatev3", data={'text': text, 'fromLang': source_lang, 'to': dest_lang})
-        # XXX: Not a predictable response from Bing Translate
+        # Note: Not a predictable response from Bing Translate
         try:
-            return source_lang, response[1]["inputTransliteration"]
+            return models.TransliterationResult(raw=response, transliteration=response[1]["inputTransliteration"])
         except IndexError:
             try:
-                return source_lang, response[0]["translations"][0]["transliteration"]["text"]
+                return models.TransliterationResult(raw=response, transliteration=response[0]["translations"][0]["transliteration"]["text"])
             except Exception:
-                return source_lang, text
+                raise UnsupportedMethod("Bing couldn't return a suitable response")
 
-    def _dictionary(self, text: str, dest_lang: str, source_lang: str):
+    def _dictionary(self, text: str, source_lang: typing.Any):
+        raise UnsupportedMethod
         if source_lang == "auto-detect":
             source_lang = self._language(text)
 
-        response = self.session_manager.send("https://www.bing.com/tlookupv3", data={'text': text, 'from': source_lang, 'to': dest_lang})
+        response = self.session_manager.send("https://www.bing.com/tlookupv3", data={'text': text, 'from': source_lang, 'to': source_lang})
         _result = []
         for _dictionary in response[0]["translations"]:
             _dictionary_result = _dictionary["displayTarget"]
             _result.append(_dictionary_result)
+        # TODO
         return source_lang, _result
 
-    def _text_to_speech(self, text: str, speed: int, gender: str, source_lang: str):
+    def _text_to_speech(self, text: str, speed: int, gender: models.Gender, source_lang: typing.Any):
         raise BingTranslateException(status_code=719, message="DEPRECATED! Use Microsoft Translate's text to spech method")
 
-    def _language_normalize(self, language):
-        _language = Language(language)
-        if _language.id == "auto":
+    def _language_to_code(self, language: Language):
+        if language.id == "auto":
             return "auto-detect"
         elif language.id == "zho":
             return "zh-Hans"
         elif language.id == "och":
             return "zh-Hant"
-        return _language.alpha2
+        return language.alpha2
 
-    def _language_denormalize(self, language_code):
-        if str(language_code) == "auto-detect":
+    def _code_to_language(self, code: typing.Union[str, typing.Any]) -> Language:
+        language_code = str(code).lower()
+        if language_code == "auto-detect":
             return Language("auto")
-        elif str(language_code).lower() in {"zh-cn", "zh-hans"}:
+        elif language_code.lower() in {"zh-cn", "zh-hans"}:
             return Language("zho")
-        elif str(language_code).lower() == "zh-tw":
+        elif language_code.lower() == "zh-tw":
             return Language("och")
         return Language(language_code)
 

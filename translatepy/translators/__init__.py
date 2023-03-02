@@ -1,4 +1,4 @@
-from translatepy.translators.new_base import BaseTranslator
+from translatepy.translators.base import BaseTranslator
 
 from translatepy.translators.bing import BingTranslate
 from translatepy.translators.deepl import DeeplTranslate

@@ -1,23 +1,22 @@
 """
 Google Translate
 
-Class GoogleTranslateV1 are using Google's new batchexecute (JSONRPC) API.
-The code for the functions used (_request and _parse_response) come from https://github.com/ssut/py-googletrans/pull/255 with few adjustments
-Heavily inspired by ssut/googletrans and https://kovatch.medium.com/deciphering-google-batchexecute-74991e4e446c
-
-Class GoogleTranslateV2 uses official API methods that are used in Google Translate mobile and web applications
+This both uses the mobile version of Google Translate, extension endpoints and the `batchexecute` (JSONRPC) API
+The `batchexecute` implementation is heavily inspired by ssut/py-googletrans#255 and https://kovatch.medium.com/deciphering-google-batchexecute-74991e4e446c
 """
 
-from json import dumps, loads
+import json
+import typing
 
+from translatepy import exceptions, models
 from translatepy.exceptions import ServiceURLError, UnsupportedMethod
 from translatepy.language import Language
-from translatepy.translators.base import BaseTranslator
+from translatepy.translators.base import BaseTranslator, C
+from translatepy.utils import request
 from translatepy.utils.gtoken import TokenAcquirer
-from translatepy.utils.request import Request
 from translatepy.utils.utils import convert_to_float
 
-# a set is used to avoid having a O(n) lookup time complexity (a set should have a O(1) lookup time complexity)
+# Sets have O(1) time complexity when using the `in` keyword
 DOMAINS = {
     "translate.google.ac", "translate.google.ad", "translate.google.ae", "translate.google.al", "translate.google.am", "translate.google.as",
     "translate.google.at", "translate.google.az", "translate.google.ba", "translate.google.be", "translate.google.bf", "translate.google.bg",
@@ -52,89 +51,80 @@ DOMAINS = {
     "translate.google.sc", "translate.google.se", "translate.google.sh", "translate.google.si", "translate.google.sk", "translate.google.sm",
     "translate.google.sn", "translate.google.so", "translate.google.sr", "translate.google.st", "translate.google.td", "translate.google.tg",
     "translate.google.tk", "translate.google.tl", "translate.google.tm", "translate.google.tn", "translate.google.to", "translate.google.tt",
-    "translate.google.us", "translate.google.vg", "translate.google.vu", "translate.google.ws",
-
+    "translate.google.us", "translate.google.vg", "translate.google.vu", "translate.google.ws"
 }
 
-_google_supported_languages = {'auto', 'af', 'sq', 'am', 'ar', 'hy', 'az', 'eu', 'be', 'bn', 'bs', 'bg', 'my', 'ca', 'ca', 'ceb', 'zh-cn', 'co', 'cs', 'da', 'nl', 'nl', 'en', 'eo', 'et', 'fi', 'fr', 'fy', 'ka', 'de', 'gd', 'gd', 'ga', 'gl', 'el', 'gu', 'ht', 'ht', 'ha', 'haw', 'he', 'hi', 'hr', 'hu', 'ig', 'is', 'id', 'it', 'jw', 'ja', 'kn', 'kk', 'km', 'ky', 'ky', 'ko', 'ku', 'lo', 'la', 'lv', 'lt', 'lb', 'lb', 'mk', 'ml', 'mi', 'mr', 'ms', 'mg', 'mt', 'mn', 'ne', 'no', 'ny', 'ny', 'ny', 'or', 'pa', 'pa', 'fa', 'pl', 'pt', 'ps', 'ps', 'ro', 'ro', 'ro', 'ru', 'si', 'si', 'sk', 'sl', 'sm', 'sn', 'sd', 'so', 'st', 'es', 'es', 'sr', 'su', 'sw', 'sv', 'ta', 'te', 'tg', 'tl', 'th', 'tr', 'ug', 'ug', 'uk', 'ur', 'uz', 'vi', 'cy', 'xh', 'yi', 'yo', 'zu', 'zh-CN', 'zh-TW'}
+SUPPORTED_LANGUAGES = {'af', 'am', 'ar', 'auto', 'az', 'be', 'bg', 'bn', 'bs', 'ca', 'ceb', 'co', 'cs', 'cy', 'da', 'de', 'el', 'en', 'eo', 'es',
+                       'et', 'eu', 'fa', 'fi', 'fr', 'fy', 'ga', 'gd', 'gl', 'gu', 'ha', 'haw', 'he', 'hi', 'hr', 'ht', 'hu', 'hy', 'id', 'ig',
+                       'is', 'it', 'ja', 'jw', 'ka', 'kk', 'km', 'kn', 'ko', 'ku', 'ky', 'la', 'lb', 'lo', 'lt', 'lv', 'mg', 'mi', 'mk', 'ml',
+                       'mn', 'mr', 'ms', 'mt', 'my', 'ne', 'nl', 'no', 'ny', 'or', 'pa', 'pl', 'ps', 'pt', 'ro', 'ru', 'sd', 'si', 'sk', 'sl',
+                       'sm', 'sn', 'so', 'sq', 'sr', 'st', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'tl', 'tr', 'ug', 'uk', 'ur', 'uz', 'vi',
+                       'xh', 'yi', 'yo', 'zh-CN', 'zh-TW', 'zh-cn', 'zu'}
 
 
 # For backward compatibility
 class GoogleTranslate(BaseTranslator):
 
-    _supported_languages = _google_supported_languages
+    _supported_languages = SUPPORTED_LANGUAGES
 
-    def __init__(self, request: Request = Request(), service_url: str = "translate.google.com"):
-
+    def __init__(self, session: typing.Optional[request.Session] = None, service_url: str = "translate.google.com"):
+        super().__init__(session)
         if service_url not in DOMAINS:
             raise ServiceURLError("{url} is not a valid service URL".format(url=str(service_url)))
 
-        google_v1 = GoogleTranslateV1(service_url=service_url, request=request)
-        google_v2 = GoogleTranslateV2(service_url=service_url, request=request)
+        google_v1 = GoogleTranslateV1(service_url=service_url, session=self.session)
+        google_v2 = GoogleTranslateV2(service_url=service_url, session=self.session)
 
         self.services = [google_v1, google_v2]
 
-    def _translate(self, text, dest_lang, source_lang):
-        exception = None
+    def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
         for service in self.services:
             try:
                 return service._translate(text, dest_lang, source_lang)
-            except Exception as ex:
-                exception = ex
+            except Exception:
                 continue
-        else:
-            raise exception
+        raise ValueError("No service has returned a valid result")
 
-    def _transliterate(self, text, dest_lang, source_lang):
-        exception = None
+    def _transliterate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TransliterationResult[C]:
         for service in self.services:
             try:
                 return service._transliterate(text, dest_lang, source_lang)
-            except Exception as ex:
-                exception = ex
+            except Exception:
                 continue
-        else:
-            raise exception
+        raise ValueError("No service has returned a valid result")
 
-    def _language(self, text):
-        exception = None
+    def _language(self: C, text: str) -> models.LanguageResult[C]:
         for service in self.services:
             try:
                 return service._language(text)
-            except Exception as ex:
-                exception = ex
+            except Exception:
                 continue
-        else:
-            raise exception
+        raise ValueError("No service has returned a valid result")
 
-    def _language_normalize(self, language: Language):
+    def _language_to_code(self, language: Language) -> typing.Union[str, typing.Any]:
         if language.id == "zho":
             return "zh-cn"
         elif language.id == "och":
             return "zh-tw"
         return language.alpha2
 
-    def _language_denormalize(self, language_code):
-        if str(language_code).lower() == "zh-cn":
+    def _code_to_language(self, code: typing.Union[str, typing.Any]) -> Language:
+        language_code = str(code).lower()
+        if language_code == "zh-cn":
             return Language("zho")
-        elif str(language_code).lower() == "zh-tw":
+        elif language_code == "zh-tw":
             return Language("och")
         return Language(language_code)
 
-    def _spellcheck(self, text, source_lang):
-        # TODO: Implement
-        raise UnsupportedMethod()
+    # TODO: Implement `spellcheck`
 
-    def _text_to_speech(self, text, speed, gender, source_lang):
-        exception = None
+    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpechResult[C]:
         for service in self.services:
             try:
                 return service._text_to_speech(text, speed, gender, source_lang)
-            except Exception as ex:
-                exception = ex
+            except Exception:
                 continue
-        else:
-            raise exception
+        raise ValueError("No service has returned a valid result")
 
     def __str__(self):
         return "Google"
@@ -142,13 +132,13 @@ class GoogleTranslate(BaseTranslator):
 
 class GoogleTranslateV1(BaseTranslator):
     """
-    A Python implementation of Google Translate's RPC API
+    A Python implementation of Google Translate's JSONRPC API
     """
 
-    _supported_languages = _google_supported_languages
+    _supported_languages = SUPPORTED_LANGUAGES
 
-    def __init__(self, request: Request = Request(), service_url: str = "translate.google.com"):
-        self.session = request
+    def __init__(self, session: typing.Optional[request.Session] = None, service_url: str = "translate.google.com"):
+        super().__init__(session)
         self.service_url = service_url
 
     def _request(self, text, destination, source):
@@ -157,10 +147,10 @@ class GoogleTranslateV1(BaseTranslator):
 
         Most of the code comes from https://github.com/ssut/py-googletrans/pull/255
         """
-        rpc_request = dumps([[
+        rpc_request = json.dumps([[
             [
                 'MkEWBc',
-                dumps([[text, source, destination, True], [None]], separators=(',', ':')),
+                json.dumps([[text, source, destination, True], [None]], separators=(',', ':')),
                 None,
                 'generic',
             ],
@@ -177,8 +167,8 @@ class GoogleTranslateV1(BaseTranslator):
             'rt': 'c',
         }
         request = self.session.post('https://{}/_/TranslateWebserverUi/data/batchexecute'.format(self.service_url), params=params, data=data)
-        if request.status_code < 400:
-            return request.text
+        request.raise_for_status()
+        return request.text
 
     def _parse_response(self, data):
         """
@@ -210,11 +200,11 @@ class GoogleTranslateV1(BaseTranslator):
             if opening_bracket == closing_bracket:
                 break
 
-        return loads(loads(resp)[0][2])
+        return json.loads(json.loads(resp)[0][2])
 
-    def _translate(self, text: str, dest_lang: str, source_lang: str) -> str:
+    def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
         """
-        Translates the given text to the destination language with the new batchexecute API
+        Translates the given text to the destination language with the new `batchexecute` API
 
         Heavily inspired by ssut/googletrans and https://kovatch.medium.com/deciphering-google-batchexecute-74991e4e446c
         """
@@ -240,9 +230,9 @@ class GoogleTranslateV1(BaseTranslator):
             except Exception:
                 pass
 
-        return source_lang, translated
+        return models.TranslationResult(source_lang=source_lang, translation=translated, raw=parsed)
 
-    def _transliterate(self, text: str, dest_lang: str, source_lang: str) -> str:
+    def _transliterate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TransliterationResult[C]:
         request = self._request(text, dest_lang, source_lang)
         parsed = self._parse_response(request)
 
@@ -271,9 +261,9 @@ class GoogleTranslateV1(BaseTranslator):
             except Exception:
                 pass
 
-        return source_lang, origin_pronunciation
+        return models.TransliterationResult(source_lang=source_lang, raw=parsed, transliteration=origin_pronunciation)
 
-    def _language(self, text):
+    def _language(self: C, text: str) -> models.LanguageResult[C]:
         """
         Returns the language of the given text with the new batchexecute API
 
@@ -299,19 +289,20 @@ class GoogleTranslateV1(BaseTranslator):
             except Exception:
                 pass
 
-        return source_lang
+        return models.LanguageResult(language=source_lang, raw=parsed)
 
-    def _language_normalize(self, language: Language):
+    def _language_to_code(self, language: Language) -> typing.Union[str, typing.Any]:
         if language.id == "zho":
             return "zh-CN"
         elif language.id == "och":
             return "zh-TW"
         return language.alpha2
 
-    def _language_denormalize(self, language_code):
-        if str(language_code).lower() == "zh-cn":
+    def _code_to_language(self, code: typing.Union[str, typing.Any]) -> Language:
+        language_code = str(code).lower()
+        if language_code == "zh-cn":
             return Language("zho")
-        elif str(language_code).lower() == "zh-tw":
+        elif language_code == "zh-tw":
             return Language("och")
         return Language(language_code)
 
@@ -324,48 +315,60 @@ class GoogleTranslateV2(BaseTranslator):
     A Python implementation of Google Translate's APIs
     """
 
-    _supported_languages = _google_supported_languages
+    _supported_languages = SUPPORTED_LANGUAGES
 
-    def __init__(self, request: Request = Request(), service_url: str = "translate.google.com"):
-        self.session = request
+    def __init__(self, session: typing.Optional[request.Session] = None, service_url: str = "translate.google.com"):
+        super().__init__(session)
         self.service_url = service_url
         self.token_acquirer = TokenAcquirer(service_url)
 
-    def _translate(self, text: str, dest_lang: str, source_lang: str) -> str:
+    def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
         params = {"client": "gtx", "dt": "t", "sl": source_lang, "tl": dest_lang, "q": text}
         request = self.session.get("https://translate.googleapis.com/translate_a/single", params=params)
-        response = request.json()
         if request.status_code < 400:
+            response = request.json()
             try:
                 _detected_language = response[2]
             except Exception:
                 _detected_language = source_lang
-            return _detected_language, "".join([sentence[0] for sentence in response[0]])
+            return models.TranslationResult(source_lang=_detected_language, translation="".join([sentence[0] for sentence in response[0]]), raw=response)
 
         params = {"client": "dict-chrome-ex", "sl": source_lang, "tl": dest_lang, "q": text}
         request = self.session.get("https://clients5.google.com/translate_a/t", params=params)
-        response = request.json()
+
         if request.status_code < 400:
+            response = request.json()
             try:
                 try:
                     _detected_language = response['ld_result']["srclangs"][0]
                 except Exception:
                     _detected_language = source_lang
-                return "".join((sentence["trans"] if "trans" in sentence else "") for sentence in response["sentences"])
+                return models.TranslationResult(source_lang=_detected_language,
+                                                translation="".join((sentence["trans"] if "trans" in sentence else "") for sentence in response["sentences"]),
+                                                raw=response)
             except Exception:
                 try:
                     try:
                         _detected_language = response[0][0][2]
                     except Exception:
                         _detected_language = source_lang
-                    return "".join(sentence for sentence in response[0][0][0][0])
+                    return models.TranslationResult(source_lang=_detected_language,
+                                                    translation="".join(sentence for sentence in response[0][0][0][0]),
+                                                    raw=response)
                 except Exception:  # if it fails, continue with the other endpoints
                     pass
 
-        params = {"dt": ["t", "bd", "ex", "ld", "md", "qca", "rw", "rm", "ss", "t", "at"], "client": "gtx", "q": text, "hl": dest_lang, "sl": source_lang, "tl": dest_lang, "dj": "1", "source": "bubble"}
+        params = {"dt": ["t", "bd", "ex", "ld", "md", "qca", "rw", "rm", "ss", "t", "at"],
+                  "client": "gtx",
+                  "q": text,
+                  "hl": dest_lang,
+                  "sl": source_lang,
+                  "tl": dest_lang,
+                  "dj": "1",
+                  "source": "bubble"}
         request = self.session.get("https://translate.googleapis.com/translate_a/single", params=params)
-        response = request.json()
         if request.status_code < 400:
+            response = request.json()
             try:
                 _detected_language = response.get("src", None)
                 if _detected_language is None:
@@ -374,83 +377,94 @@ class GoogleTranslateV2(BaseTranslator):
                         _detected_language = response.get("ld_result", {}).get("extended_srclangs", [None])[0]
             except Exception:
                 _detected_language = source_lang
-            return _detected_language, " ".join([sentence["trans"] for sentence in response["sentences"] if "trans" in sentence])
+            return models.TranslationResult(source_lang=_detected_language,
+                                            translation=" ".join([sentence["trans"] for sentence in response["sentences"] if "trans" in sentence]),
+                                            raw=response)
 
-        params = {"client": "gtx", "dt": ["t", "bd"], "dj": "1", "source": "input", "q": text, "sl": source_lang, "tl": dest_lang}
+        params = {"client": "gtx",
+                  "dt": ["t", "bd"],
+                  "dj": "1",
+                  "source": "input",
+                  "q": text,
+                  "sl": source_lang,
+                  "tl": dest_lang}
         request = self.session.get("https://translate.googleapis.com/translate_a/single", params=params)
-        response = request.json()
         if request.status_code < 400:
+            response = request.json()
             try:
                 _detected_language = response["src"]
             except Exception:
                 _detected_language = source_lang
-            return _detected_language, "".join([sentence["trans"] for sentence in response["sentences"] if "trans" in sentence])
+            return models.TranslationResult(source_lang=_detected_language,
+                                            translation="".join([sentence["trans"] for sentence in response["sentences"] if "trans" in sentence]),
+                                            raw=response)
 
-    def _transliterate(self, text: str, dest_lang: str, source_lang: str) -> str:
-        params = {"dt": ["t", "bd", "ex", "ld", "md", "qca", "rw", "rm", "ss", "t", "at"], "client": "gtx", "q": text, "hl": dest_lang, "sl": source_lang, "tl": dest_lang, "dj": "1", "source": "bubble"}
+    def _transliterate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TransliterationResult[C]:
+        params = {"dt": ["t", "bd", "ex", "ld", "md", "qca", "rw", "rm", "ss", "t", "at"],
+                  "client": "gtx",
+                  "q": text,
+                  "hl": dest_lang,
+                  "sl": source_lang,
+                  "tl": dest_lang,
+                  "dj": "1",
+                  "source": "bubble"}
         request = self.session.get("https://translate.googleapis.com/translate_a/single", params=params)
+        request.raise_for_status()
         response = request.json()
-        if request.status_code < 400:
-            try:
-                _detected_language = response.get("src", None)
+        try:
+            _detected_language = response.get("src", None)
+            if _detected_language is None:
+                _detected_language = response.get("ld_result", {}).get("srclangs", [None])[0]
                 if _detected_language is None:
-                    _detected_language = response.get("ld_result", {}).get("srclangs", [None])[0]
-                    if _detected_language is None:
-                        _detected_language = response.get("ld_result", {}).get("extended_srclangs", [None])[0]
-            except Exception:
-                _detected_language = source_lang
-            result = " ".join([sentence["src_translit"] for sentence in response["sentences"] if "src_translit" in sentence])
-            return _detected_language, (result if (result is not None and result != "") else text)
+                    _detected_language = response.get("ld_result", {}).get("extended_srclangs", [None])[0]
+        except Exception:
+            _detected_language = source_lang
+        result = " ".join([sentence["src_translit"] for sentence in response["sentences"] if "src_translit" in sentence])
+        return models.TransliterationResult(source_lang=_detected_language,
+                                            transliteration=(result if (result is not None and result != "") else text),
+                                            raw=response)
 
-    # def define(self):  # XXX: What for need this? --> because I saw on Google Translate that there is a definition feature
-    #     """Returns the definition of the given word"""
-    #     raise NotImplementedError
+    # TODO: `dictionary`
 
-    def _text_to_speech(self, text: str, speed: int, gender: str, source_lang: str) -> bytes:
+    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpechResult[C]:
         if source_lang == "auto":
-            source_lang = self._language(text)
+            source_lang = self._language_to_code(self.language(text).language)
 
         params = {"client": "gtx", "ie": "UTF-8", "tl": source_lang, "q": text}
         request = self.session.get("https://translate.googleapis.com/translate_tts", params=params)
         if request.status_code == 200:
-            return source_lang, request.content
+            return models.TextToSpechResult(source_lang=source_lang, result=request.content)
 
         params = {"client": "tw-ob", "q": text, "tl": source_lang}
         request = self.session.get("https://translate.google.com/translate_tts", params=params)
         if request.status_code == 200:
-            return source_lang, request.content
+            return models.TextToSpechResult(source_lang=source_lang, result=request.content)
 
         textlen = len(text)
         token = self.token_acquirer.do(text)
         params = {"ie": "UTF-8", "q": text, "tl": source_lang, "total": "1", "idx": "0", "textlen": textlen, "tk": token, "client": "webapp", "prev": "input", "ttsspeed": convert_to_float(speed)}
         request = self.session.get("https://translate.google.com/translate_tts", params=params)
-        if request.status_code < 400:
-            return source_lang, request.content
+        request.raise_for_status()
+        return models.TextToSpechResult(source_lang=source_lang, result=request.content)
 
-    def _language(self, text: str) -> str:
-        params = {"client": "gtx", "dt": "t", "sl": "auto", "tl": "ja", "q": text}
-        request = self.session.get("https://translate.googleapis.com/translate_a/single", params=params)
-        response = request.json()
-        if request.status_code < 400:
-            return response[2]
+    def _language(self: C, text: str) -> models.LanguageResult[C]:
+        translation = self.translate(text=text,
+                                     dest_lang="Japanese")
 
-        params = {"client": "dict-chrome-ex", "sl": "auto", "tl": "ja", "q": text}
-        request = self.session.get("https://clients5.google.com/translate_a/t", params=params)
-        response = request.json()
-        if request.status_code < 400:
-            return response['ld_result']["srclangs"][0]
+        models.LanguageResult(language=translation.source_lang, raw=translation.raw)
 
-    def _language_normalize(self, language: Language):
+    def _language_to_code(self, language: Language) -> typing.Union[str, typing.Any]:
         if language.id == "zho":
             return "zh-CN"
         elif language.id == "och":
             return "zh-TW"
         return language.alpha2
 
-    def _language_denormalize(self, language_code):
-        if str(language_code).lower() == "zh-cn":
+    def _code_to_language(self, code: typing.Union[str, typing.Any]) -> Language:
+        language_code = str(code).lower()
+        if language_code == "zh-cn":
             return Language("zho")
-        elif str(language_code).lower() == "zh-tw":
+        elif language_code == "zh-tw":
             return Language("och")
         return Language(language_code)
 
