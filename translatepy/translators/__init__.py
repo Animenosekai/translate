@@ -12,3 +12,4 @@ from translatepy.translators.yandex import YandexTranslate
 from translatepy.translators.microsoft import MicrosoftTranslate
 
 from translatepy.translators.qcri import QCRI
+from translatepy.translators.pons import PONS

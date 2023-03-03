@@ -26,7 +26,7 @@ class PONS(BaseTranslator):
     translatepy's implementation of <PONS>
     """
 
-    _supported_languages = {'ar', 'bg', 'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'et', 'fa', 'fi', 'fr', 'he', 'hr', 'ht', 'hu', 'id', 'it', 'ja',
+    _supported_languages = {'auto', 'ar', 'bg', 'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'et', 'fa', 'fi', 'fr', 'he', 'hr', 'ht', 'hu', 'id', 'it', 'ja',
                             'ko', 'lt', 'lv', 'nb', 'nl', 'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sk', 'sl', 'sr', 'sv', 'th', 'tr', 'uk', 'vi', 'zh-cn', 'zh-tw'}
 
     _base_url = "https://api.pons.com/text-translation-web/v4/{endpoint}"
@@ -41,21 +41,21 @@ class PONS(BaseTranslator):
                      "targetLanguage": dest_lang}
         if source_lang != "auto":
             json_data["sourceLanguage"] = source_lang
-        request = self.session.get(self._base_url.format(endpoint="translate"),
-                                   params={"locale": "en"},
-                                   json=json_data)
+        request = self.session.post(self._base_url.format(endpoint="translate"),
+                                    params={"locale": "en"},
+                                    json=json_data)
         request.raise_for_status()
         data = request.json()
         return models.TranslationResult(raw=data, source_lang=data["sourceLanguage"], translation=data["text"])
 
     def _alternatives(self: C, translation: models.TranslationResult, *args, **kwargs) -> typing.Union[models.TranslationResult[C], typing.List[models.TranslationResult[C]]]:
-        request = self.session.get(self._base_url.format(endpoint="alternatives"),
-                                   params={"locale": "en"},
-                                   json={"impressionId": self.impression_id,
-                                         "text": translation.translation,
-                                         "sourceLanguage": self._language_to_code(translation.source_lang),
-                                         "targetLanguage": self._language_to_code(translation.dest_lang),
-                                         "targetPrefix": ""})
+        request = self.session.post(self._base_url.format(endpoint="alternatives"),
+                                    params={"locale": "en"},
+                                    json={"impressionId": self.impression_id,
+                                          "text": translation.translation,
+                                          "sourceLanguage": self._language_to_code(translation.source_lang),
+                                          "targetLanguage": self._language_to_code(translation.dest_lang),
+                                          "targetPrefix": ""})
         request.raise_for_status()
         data = request.json()
         return [models.TranslationResult(translation=translation["text"], raw=data) for translation in data["alternatives"]]
@@ -67,11 +67,11 @@ class PONS(BaseTranslator):
     #     return super()._spellcheck(text, source_lang, *args, **kwargs)
 
     def _language(self: C, text: str, *args, **kwargs) -> models.LanguageResult[C]:
-        request = self.session.get(self._base_url.format(endpoint="detect"),
-                                   params={"locale": "en"},
-                                   json={"impressionId": self.impression_id,
-                                         "text": text,
-                                         "hint": "en"})
+        request = self.session.post(self._base_url.format(endpoint="detect"),
+                                    params={"locale": "en"},
+                                    json={"impressionId": self.impression_id,
+                                          "text": text,
+                                          "hint": "en"})
         request.raise_for_status()
         data = request.json()
         return models.LanguageResult(raw=data, language=data["language"])

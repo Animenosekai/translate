@@ -40,23 +40,29 @@ class QCRI(BaseTranslator):
         self.lang_pairs = None
         self.api_key = None
         for line in str(script.text).lower().replace(" ", "").splitlines():
-            if line.startswith("varglobal_langpairs"):
-                _, _, parsing = line.partition("=")
-                parsing = parsing[:-1]
-                self.lang_pairs = json.loads(parsing)
-            if line.startswith("vartranslationKey"):
+            try:
+                if line.startswith("varglobal_langpairs"):
+                    _, _, parsing = line.partition("=")
+                    parsing = parsing[:-1]
+                    self.lang_pairs = json.loads(parsing)
+            except Exception:
+                pass
+            if line.startswith("vartranslationkey"):
                 _, _, parsing = line.partition("=")
                 self.api_key = parsing[:-1].strip('"')
 
         if self.api_key is None:
             raise RuntimeError("Couldn't get the API key")
 
-        if self.lang_pairs:
-            self._supported_languages.clear()
-            for lang_pair in self.lang_pairs:
-                source, _, dest = lang_pair.parition("-")
-                self._supported_languages.add(source)
-                self._supported_languages.add(dest)
+        try:
+            if self.lang_pairs:
+                self._supported_languages.clear()
+                for lang_pair in self.lang_pairs:
+                    source, _, dest = lang_pair.partition("-")
+                    self._supported_languages.add(source)
+                    self._supported_languages.add(dest)
+        except Exception:
+            pass
 
     def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any, domain: str = "general") -> models.TranslationResult[C]:
         request = self.session.get(self._base_url.format(endpoint="translate"), params={
