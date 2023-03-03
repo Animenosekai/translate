@@ -13,11 +13,9 @@ from bs4.element import NavigableString, PageElement, PreformattedString, Tag
 
 from translatepy import exceptions, models
 from translatepy.language import Language
-from translatepy.translators import (BaseTranslator, BingTranslate,
-                                     DeeplTranslate, GoogleTranslate,
-                                     LibreTranslate, MicrosoftTranslate,
-                                     MyMemoryTranslate, ReversoTranslate,
-                                     TranslateComTranslate, YandexTranslate)
+from translatepy.translators import (PONS, QCRI, BaseTranslator, Bing, DeepL,
+                                     Google, Libre, Microsoft, MyMemory,
+                                     Reverso, TranslateCom, Yandex)
 from translatepy.translators.base import BaseTranslator, C
 from translatepy.utils import importer, queue, request
 
@@ -41,17 +39,8 @@ class Translate(BaseTranslator):
             Enables fast mode (concurrent processing)
         """
         super().__init__(session)
-        self.services_list = services_list or [
-            GoogleTranslate,
-            YandexTranslate,
-            MicrosoftTranslate,
-            ReversoTranslate,
-            BingTranslate,
-            DeeplTranslate,
-            LibreTranslate,
-            TranslateComTranslate,
-            MyMemoryTranslate
-        ]
+        self.services_list = services_list or [Google, Yandex, Microsoft, Reverso, Bing,
+                                               DeepL, Libre, TranslateCom, MyMemory, PONS, QCRI]
 
         try:
             _ = iter(self.services_list)
