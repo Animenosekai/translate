@@ -133,29 +133,29 @@ class Translate(BaseTranslator):
 
         raise exceptions.NoResult("No service has returned a valid result")
 
-    def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
-        return self._apply("translate", text=text, dest_lang=dest_lang, source_lang=source_lang)
+    def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any, *args, **kwargs) -> models.TranslationResult[C]:
+        return self._apply("translate", text=text, dest_lang=dest_lang, source_lang=source_lang, *args, **kwargs)
 
-    def _alternatives(self: C, translation: models.TranslationResult) -> typing.Union[models.TranslationResult[C], typing.List[models.TranslationResult[C]]]:
-        return self._apply("alternatives", translation=translation)
+    def _alternatives(self: C, translation: models.TranslationResult, *args, **kwargs) -> typing.Union[models.TranslationResult[C], typing.List[models.TranslationResult[C]]]:
+        return self._apply("alternatives", translation=translation, *args, **kwargs)
 
-    def _transliterate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TransliterationResult[C]:
-        return self._apply("transliterate", text=text, dest_lang=dest_lang, source_lang=source_lang)
+    def _transliterate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any, *args, **kwargs) -> models.TransliterationResult[C]:
+        return self._apply("transliterate", text=text, dest_lang=dest_lang, source_lang=source_lang, *args, **kwargs)
 
-    def _spellcheck(self: C, text: str, source_lang: typing.Any) -> typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]:
-        return self._apply("spellcheck", text=text, source_lang=source_lang)
+    def _spellcheck(self: C, text: str, source_lang: typing.Any, *args, **kwargs) -> typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]:
+        return self._apply("spellcheck", text=text, source_lang=source_lang, *args, **kwargs)
 
-    def _language(self: C, text: str) -> models.LanguageResult[C]:
-        return self._apply("language", text=text)
+    def _language(self: C, text: str, *args, **kwargs) -> models.LanguageResult[C]:
+        return self._apply("language", text=text, *args, **kwargs)
 
-    def _example(self: C, text: str, source_lang: typing.Any) -> typing.Union[models.ExampleResult[C], typing.List[models.ExampleResult[C]]]:
-        return self._apply("example", text=text, source_lang=source_lang)
+    def _example(self: C, text: str, source_lang: typing.Any, *args, **kwargs) -> typing.Union[models.ExampleResult[C], typing.List[models.ExampleResult[C]]]:
+        return self._apply("example", text=text, source_lang=source_lang, *args, **kwargs)
 
-    def _dictionary(self: C, text: str, source_lang: typing.Any) -> typing.Union[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]], typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
-        return self._apply("dictionary", text=text, source_lang=source_lang)
+    def _dictionary(self: C, text: str, source_lang: typing.Any, *args, **kwargs) -> typing.Union[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]], typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
+        return self._apply("dictionary", text=text, source_lang=source_lang, *args, **kwargs)
 
-    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpechResult[C]:
-        return self._apply("text_to_speech", text=text, speed=speed, gender=gender, source_lang=source_lang)
+    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any, *args, **kwargs) -> models.TextToSpechResult[C]:
+        return self._apply("text_to_speech", text=text, speed=speed, gender=gender, source_lang=source_lang, *args, **kwargs)
 
     def _code_to_language(self, code: Language) -> Language:
         return code

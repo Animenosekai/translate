@@ -12,10 +12,16 @@ You can easily create your own translator by inheriting the "BaseTranslator" cla
 This is how your class should look like:
 
 ```python
+"""
+translatepy's implementation of <TranslatorName>
+"""
+import typing
+
+from translatepy import exceptions, models
 from translatepy.language import Language
-from translatepy.utils.request import Request
-from translatepy.translators.base import BaseTranslator, BaseTranslateException
-from translatepy.utils.annotations import Tuple, List
+from translatepy.translators.base import (BaseTranslateException,
+                                          BaseTranslator, C)
+from translatepy.utils import request
 
 class TranslatorNameException(BaseTranslateException):
     error_codes = {
@@ -30,114 +36,51 @@ class TranslatorName(BaseTranslator):
     translatepy's implementation of <TranslatorName>
     """
 
-    _supported_languages = {"set", "of", "supported", "language", "code"}
+    _supported_languages = {"set", "of", "supported", "language", "code", "eng", "fra", "jpa"}
 
-    def __init__(self, request: Request = Request()):
-        self.session = request
+    def __init__(self, session: typing.Optional[request.Session] = None, *args, **kwargs):
+        super().__init__(session, *args, **kwargs)
 
-    def _translate(self, text: str, dest_lang: str, source_lang: str) -> str:
-        """
-        This is the translating endpoint
+    def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any, *args, **kwargs) -> models.TranslationResult[C]:
+        return super()._translate(text, dest_lang, source_lang, *args, **kwargs)
 
-        Must return a tuple with (detected_language, result)
-        """
-        # You could use `self.session` to make a request to the endpoint, with all of the parameters
-        # Then extract the detected language (or use the "source_lang" parameter but what if the user pass in "auto")
-        return detected_language, result
+    def _alternatives(self: C, translation: models.TranslationResult, *args, **kwargs) -> typing.Union[models.TranslationResult[C], typing.List[models.TranslationResult[C]]]:
+        return super()._alternatives(translation, *args, **kwargs)
 
-    def _transliterate(self, text: str, dest_lang, source_lang: str) -> str:
-        """
-        This is the transliterating endpoint
+    def _transliterate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any, *args, **kwargs) -> models.TransliterationResult[C]:
+        return super()._transliterate(text, dest_lang, source_lang, *args, **kwargs)
 
-        Must return a tuple with (detected_language, result)
-        """
-        # You could use `self.session` to make a request to the endpoint, with all of the parameters
-        # Then extract the detected language (or use the "source_lang" parameter but what if the user pass in "auto")
-        return detected_language, result
+    def _spellcheck(self: C, text: str, source_lang: typing.Any, *args, **kwargs) -> typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]:
+        return super()._spellcheck(text, source_lang, *args, **kwargs)
 
+    def _language(self: C, text: str, *args, **kwargs) -> models.LanguageResult[C]:
+        return super()._language(text, *args, **kwargs)
 
-    def _spellcheck(self, text: str, source_lang: str) -> str:
-        """
-        This is the spellcheking endpoint
+    def _example(self: C, text: str, source_lang: typing.Any, *args, **kwargs) -> typing.Union[models.ExampleResult[C], typing.List[models.ExampleResult[C]]]:
+        return super()._example(text, source_lang, *args, **kwargs)
 
-        Must return a tuple with (detected_language, result)
-        """
-        # You could use `self.session` to make a request to the endpoint, with all of the parameters
-        # Then extract the detected language (or use the "source_lang" parameter but what if the user pass in "auto")
-        # result should be the original text if no correction is made or the corrected text if found
-        return detected_language, result
+    def _dictionary(self: C, text: str, source_lang: typing.Any, *args, **kwargs) -> typing.Union[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]], typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
+        return super()._dictionary(text, source_lang, *args, **kwargs)
 
-    def _language(self, text: str) -> str:
-        """
-        This is the language detection endpoint
+    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any, *args, **kwargs) -> models.TextToSpechResult[C]:
+        return super()._text_to_speech(text, speed, gender, source_lang)
 
-        Must return a string with the language code
-        """
-        # You could use `self.session` to make a request to the endpoint, with all of the parameters
-        return result
+    def _code_to_language(self, code: typing.Union[str, typing.Any], *args, **kwargs) -> Language:
+        return super()._code_to_language(code, *args, **kwargs)
 
-    def _example(self, text: str, dest_lang: str, source_lang: str) -> Tuple[str, List]:
-        """
-        This is the examples endpoint
-
-        Must return a tuple with (detected_language, result)
-        """
-        # You could use `self.session` to make a request to the endpoint, with all of the parameters
-        # Then extract the detected language (or use the "source_lang" parameter but what if the user pass in "auto")
-        # the result should be a list of use examples
-        return detected_language, result
-
-    def _dictionary(self, text: str, dest_lang: str, source_lang: str) -> Tuple[str, List]:
-        """
-        This is the dictionary endpoint
-
-        Must return a tuple with (detected_language, result)
-        """
-        # You could use `self.session` to make a request to the endpoint, with all of the parameters
-        # Then extract the detected language (or use the "source_lang" parameter but what if the user pass in "auto")
-        # the result should be
-        return detected_language, result
-
-    def _language_normalize(self, language: Language) -> str:
-        """
-        This is the language validation function
-        It receives a "translatepy.language.Language" object and returns the correct language code
-
-        Must return a string with the correct language code
-        """
-        return result
-
-
-    def _language_denormalize(self, language_code: str) -> Language:
-        """
-        This is the language denormalization function
-        It receives a string with the translator language code and returns a "translatepy.language.Language" object
-
-        Must return a string with the correct language code
-        """
-        return result
-
-    def __str__(self) -> str:
-        """
-        This is optional but you can use it if you want to change the way the class is represented as a string.
-
-        It defaults (if not defined) to:
-        ... class_name = self.__class__.__name__.split("Translate")[0]
-        ... return "Unknown" if class_name == "" else class_name
-        """
-        return name
-
+    def _language_to_code(self, language: Language, *args, **kwargs) -> typing.Union[str, typing.Any]:
+        return super()._language_to_code(language, *args, **kwargs)
 ```
 
 ## Best Practices
 
 ### Requests
 
-Using the object passed in "request" is highly suggested because it is the one passed in by the user (which is in most of the cases our translatepy's version of requests' `Request` object).
+Using `self.session` to make your requests is highly recommended because it is the custom `requests.Session` object provided by the user, and which contains all of their desired parameters and caches.
 
 ### Caching
 
-Responses will be cached in the Base class if successful
+Responses are all automatically cached by `BaseTranslator`
 
 ### Supported Languages
 
@@ -145,16 +88,16 @@ The `_supported_languages` set is optional but highly recommended to avoid makin
 
 ### Recursion
 
-Avoid making big loops and recursions to wait for a valid result, if the user is using the `Translator` class, you might tremendously slow down the execution of the user's program.
+Avoid making big loops and recursions to wait for a valid result, if the translator is used inside the `Translate` (aggregation) class, you might tremendously slow down the execution of the user's program.
 
 ### Unsupported Methods/Endpoints
 
-Your source might not support some of the available features, in which case you need to raise the `translatepy.exceptions.UnsupportedMethod()`exception to let `Translator` know that this is an unsupported feature.
+Your source might not support some of the available features, in which case you need to raise the `translatepy.exceptions.UnsupportedMethod()`exception to let `Translate` know that this is an unsupported feature.
 
 ### Non "_" prefixed functions
 
-You should not use the normal functions/methods for the naming of the features you implement. They are used by the `BaseTranslator` class to make verifications, cache and shape your responses before giving it back to the user.
+You should not redefine the normal functions/methods for the naming of the features you implement. They are used by the `BaseTranslator` class to make verifications, cache and shape your responses before giving it back to the user.
 
 ### Usage
 
-The user will be able to use your plugin by importing it and using it normally or adding it to the `services_list` parameter in the `Translator` class.
+The user will be able to use your plugin by importing it and using it normally or adding it to the `services_list` parameter in the `Translate` class or using the dynamic importer.

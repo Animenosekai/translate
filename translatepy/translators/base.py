@@ -294,7 +294,7 @@ class BaseTranslator:
     # Type overloads
 
     @typing.overload
-    def translate(self: C, text: str, dest_lang: typing.Union[str, Language], source_lang: typing.Union[str, Language] = "auto") -> models.TranslationResult[C]:
+    def translate(self: C, text: str, dest_lang: typing.Union[str, Language], source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> models.TranslationResult[C]:
         """
         Translates the given `text` into the given `dest_lang`
 
@@ -314,7 +314,7 @@ class BaseTranslator:
         """
 
     @typing.overload
-    def translate(self: C, text: typing.Iterable[str], dest_lang: typing.Union[str, Language], source_lang: typing.Union[str, Language] = "auto") -> LazyIterable[models.TranslationResult[C]]:
+    def translate(self: C, text: typing.Iterable[str], dest_lang: typing.Union[str, Language], source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> LazyIterable[models.TranslationResult[C]]:
         """
         Translates all of the elements in `text` into the given `dest_lang`
 
@@ -341,7 +341,7 @@ class BaseTranslator:
     def translate(self: C,
                   text: typing.Union[str, typing.Iterable[str]],
                   dest_lang: typing.Union[str, Language],
-                  source_lang: typing.Union[str, Language] = "auto") -> typing.Union[models.TranslationResult[C],
+                  source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.Union[models.TranslationResult[C],
                                                                                      LazyIterable[models.TranslationResult[C]]]:  # type: ignore | the decorator actually returns a `TranslationResult`
         """
         Translates `text` into the given `dest_lang`
@@ -370,7 +370,7 @@ class BaseTranslator:
         if dest_lang == source_lang:
             return  # will stop the translation here
 
-        result = self._translate(text=text, dest_lang=dest_lang_code, source_lang=source_lang_code)
+        result = self._translate(text=text, dest_lang=dest_lang_code, source_lang=source_lang_code, *args, **kwargs)
         result.dest_lang = dest_lang
 
         if not isinstance(result.source_lang, Language):
@@ -382,7 +382,7 @@ class BaseTranslator:
 
         yield result
 
-    def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
+    def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any, *args, **kwargs) -> models.TranslationResult[C]:
         """
         The internal handler which contains the translator specific logic to retrieve all of the information
 
@@ -408,7 +408,7 @@ class BaseTranslator:
     # Type overloads
 
     @typing.overload
-    def alternatives(self: C, translation: models.TranslationResult[C]) -> typing.List[models.TranslationResult[C]]:
+    def alternatives(self: C, translation: models.TranslationResult[C], *args, **kwargs) -> typing.List[models.TranslationResult[C]]:
         """
         Returns the different alternative translations available for a given previous translation.
 
@@ -424,7 +424,7 @@ class BaseTranslator:
         """
 
     @typing.overload
-    def alternatives(self: C, translation: typing.Iterable[models.TranslationResult[C]]) -> LazyIterable[typing.List[models.TranslationResult[C]]]:
+    def alternatives(self: C, translation: typing.Iterable[models.TranslationResult[C]], *args, **kwargs) -> LazyIterable[typing.List[models.TranslationResult[C]]]:
         """
         Returns the different alternative translations available for all of the given translations.
 
@@ -441,7 +441,7 @@ class BaseTranslator:
     # Implementation
 
     @_validate_method
-    def alternatives(self: C, translation: models.TranslationResult) -> typing.Union[typing.List[models.TranslationResult[C]],
+    def alternatives(self: C, translation: models.TranslationResult, *args, **kwargs) -> typing.Union[typing.List[models.TranslationResult[C]],
                                                                                      LazyIterable[typing.List[models.TranslationResult[C]]]]:  # type: ignore | the decorator actually returns a `list[TranslationResult]`
         """
         Returns the different alternative translations available for the given `translation`.
@@ -454,7 +454,7 @@ class BaseTranslator:
         yield Flag.MULTIPLE_RESULTS
 
         try:
-            result = self._alternatives(translation=translation)
+            result = self._alternatives(translation=translation, *args, **kwargs)
             if isinstance(result, models.TranslationResult):  # if returned a single translation
                 result.dest_lang = translation.dest_lang
                 result.source_lang = translation.source_lang
@@ -469,7 +469,7 @@ class BaseTranslator:
         except Exception:
             yield []
 
-    def _alternatives(self: C, translation: models.TranslationResult) -> typing.Union[models.TranslationResult[C],
+    def _alternatives(self: C, translation: models.TranslationResult, *args, **kwargs) -> typing.Union[models.TranslationResult[C],
                                                                                       typing.List[models.TranslationResult[C]]]:
         """
         Internal handler for the `alternative` method
@@ -499,7 +499,7 @@ class BaseTranslator:
     # Type overloads
 
     @typing.overload
-    def transliterate(self: C, text: str, dest_lang: typing.Union[str, Language], source_lang: typing.Union[str, Language] = "auto") -> models.TransliterationResult[C]:
+    def transliterate(self: C, text: str, dest_lang: typing.Union[str, Language], source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> models.TransliterationResult[C]:
         """
         Transliterates the given `text` into the given `dest_lang`
 
@@ -519,7 +519,7 @@ class BaseTranslator:
         """
 
     @typing.overload
-    def transliterate(self: C, text: typing.Iterable[str], dest_lang: typing.Union[str, Language], source_lang: typing.Union[str, Language] = "auto") -> LazyIterable[models.TransliterationResult[C]]:
+    def transliterate(self: C, text: typing.Iterable[str], dest_lang: typing.Union[str, Language], source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> LazyIterable[models.TransliterationResult[C]]:
         """
         Transliterates all of the given `text` to the given `dest_lang`
 
@@ -542,7 +542,7 @@ class BaseTranslator:
     def transliterate(self: C,
                       text: typing.Union[str, typing.Iterable[str]],
                       dest_lang: typing.Union[str, Language],
-                      source_lang: typing.Union[str, Language] = "auto") -> typing.Union[models.TransliterationResult[C],
+                      source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.Union[models.TransliterationResult[C],
                                                                                          LazyIterable[models.TransliterationResult[C]]]:  # type: ignore | the decorator actually returns a `TransliterationResult`
         """
         Transliterates the given `text` to the given `dest_lang`
@@ -573,7 +573,8 @@ class BaseTranslator:
         result = self._transliterate(
             text=text,
             dest_lang=dest_lang_code,
-            source_lang=source_lang_code
+            source_lang=source_lang_code,
+            *args, **kwargs
         )
 
         result.dest_lang = dest_lang
@@ -589,7 +590,7 @@ class BaseTranslator:
     # aliasing
     transliteration = transliterate
 
-    def _transliterate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TransliterationResult[C]:
+    def _transliterate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any, *args, **kwargs) -> models.TransliterationResult[C]:
         """
         The internal handler which contains the translator specific logic to retrieve transliterations
 
@@ -615,7 +616,7 @@ class BaseTranslator:
     # Type overloads
 
     @typing.overload
-    def spellcheck(self: C, text: str, source_lang: typing.Union[str, Language] = "auto") -> typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]:
+    def spellcheck(self: C, text: str, source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]:
         """
         Checks for spelling mistakes in the given `text`
 
@@ -635,7 +636,7 @@ class BaseTranslator:
         """
 
     @typing.overload
-    def spellcheck(self: C, text: typing.Iterable[str], source_lang: typing.Union[str, Language] = "auto") -> LazyIterable[typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]]:
+    def spellcheck(self: C, text: typing.Iterable[str], source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> LazyIterable[typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]]:
         """
         Checks for spelling mistakes in all of the given `text`
 
@@ -658,7 +659,7 @@ class BaseTranslator:
     @_validate_method
     def spellcheck(self: C,
                    text: typing.Union[str, typing.Iterable[str]],
-                   source_lang: typing.Union[str, Language] = "auto") -> typing.Union[typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]],
+                   source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.Union[typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]],
                                                                                       LazyIterable[typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]]]:  # type: ignore | the decorator actually returns a `SpellcheckResult`
         """
         Checks for spelling mistakes in the given `text`
@@ -678,7 +679,7 @@ class BaseTranslator:
 
         result = self._spellcheck(
             text=text,
-            source_lang=source_lang_code
+            source_lang=source_lang_code, *args, **kwargs
         )
 
         if not isinstance(result.source_lang, Language):
@@ -689,7 +690,7 @@ class BaseTranslator:
 
         yield result
 
-    def _spellcheck(self: C, text: str, source_lang: typing.Any) -> typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]:
+    def _spellcheck(self: C, text: str, source_lang: typing.Any, *args, **kwargs) -> typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]:
         """
         The internal handler which contains the translator specific logic to check for spelling mistakes
 
@@ -715,7 +716,7 @@ class BaseTranslator:
     # Type overloads
 
     @typing.overload
-    def language(self: C, text: str) -> models.LanguageResult[C]:
+    def language(self: C, text: str, *args, **kwargs) -> models.LanguageResult[C]:
         """
         Returns the detected language for the given `text`
 
@@ -731,7 +732,7 @@ class BaseTranslator:
         """
 
     @typing.overload
-    def language(self: C, text: typing.Iterable[str]) -> LazyIterable[models.LanguageResult[C]]:
+    def language(self: C, text: typing.Iterable[str], *args, **kwargs) -> LazyIterable[models.LanguageResult[C]]:
         """
         Returns the detected language for all of the given `text`
 
@@ -749,7 +750,7 @@ class BaseTranslator:
     # Implementation
     @_validate_method
     def language(self: C,
-                 text: typing.Union[str, typing.Iterable[str]]) -> typing.Union[models.LanguageResult[C],
+                 text: typing.Union[str, typing.Iterable[str]], *args, **kwargs) -> typing.Union[models.LanguageResult[C],
                                                                                 LazyIterable[models.LanguageResult[C]]]:  # type: ignore | the decorator actually returns a `LanguageResult`
         """
         Returns the detected language for the given `text`
@@ -764,7 +765,7 @@ class BaseTranslator:
             language=Language("auto")
         )
 
-        result = self._language(text=text)
+        result = self._language(text=text, *args, **kwargs)
 
         if not isinstance(result.language, Language):
             if result.language is None:
@@ -772,7 +773,7 @@ class BaseTranslator:
             result.language = self._code_to_language(result.language)
         yield result
 
-    def _language(self: C, text: str) -> models.LanguageResult[C]:
+    def _language(self: C, text: str, *args, **kwargs) -> models.LanguageResult[C]:
         """
         The internal handler which contains the translator specific logic to detect languages
 
@@ -794,7 +795,7 @@ class BaseTranslator:
     # Type overloads
 
     @typing.overload
-    def example(self: C, text: str, source_lang: typing.Union[str, Language] = "auto") -> typing.List[models.ExampleResult[C]]:
+    def example(self: C, text: str, source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.List[models.ExampleResult[C]]:
         """
         Returns use cases for the given `text`
 
@@ -812,7 +813,7 @@ class BaseTranslator:
         """
 
     @typing.overload
-    def example(self: C, text: typing.Iterable[str], source_lang: typing.Union[str, Language] = "auto") -> LazyIterable[typing.List[models.ExampleResult[C]]]:
+    def example(self: C, text: typing.Iterable[str], source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> LazyIterable[typing.List[models.ExampleResult[C]]]:
         """
         Returns use cases for all of the given `text`
 
@@ -833,7 +834,7 @@ class BaseTranslator:
     @_validate_method
     def example(self: C,
                 text: typing.Union[str, typing.Iterable[str]],
-                source_lang: typing.Union[str, Language] = "auto") -> typing.Union[typing.List[models.ExampleResult[C]],
+                source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.Union[typing.List[models.ExampleResult[C]],
                                                                                    LazyIterable[typing.List[models.ExampleResult[C]]]]:  # type: ignore | the decorator actually returns a `ExampleResult`
         """
         Returns use cases for the given `text`
@@ -848,7 +849,7 @@ class BaseTranslator:
         yield Flag.MULTIPLE_RESULTS
 
         try:
-            result = self._example(text=text, source_lang=source_lang_code)
+            result = self._example(text=text, source_lang=source_lang_code, *args, **kwargs)
             if isinstance(result, models.ExampleResult):  # it returned a single example
                 if not isinstance(result.source_lang, Language):
                     if result.source_lang is None:
@@ -867,7 +868,7 @@ class BaseTranslator:
         except Exception:
             yield []
 
-    def _example(self: C, text: str, source_lang: typing.Any) -> typing.Union[models.ExampleResult[C],
+    def _example(self: C, text: str, source_lang: typing.Any, *args, **kwargs) -> typing.Union[models.ExampleResult[C],
                                                                               typing.List[models.ExampleResult[C]]]:
         """
         The internal handler which contains the translator specific logic to retrieve examples
@@ -894,7 +895,7 @@ class BaseTranslator:
     # Type overloads
 
     @typing.overload
-    def dictionary(self: C, text: str, source_lang: typing.Union[str, Language] = "auto") -> typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]:
+    def dictionary(self: C, text: str, source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]:
         """
         Returns the meaning for the given `text`
 
@@ -914,7 +915,7 @@ class BaseTranslator:
         """
 
     @typing.overload
-    def dictionary(self: C, text: typing.Iterable[str], source_lang: typing.Union[str, Language] = "auto") -> LazyIterable[typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
+    def dictionary(self: C, text: typing.Iterable[str], source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> LazyIterable[typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
         """
         Returns the meaning for all of the given `text`
 
@@ -937,7 +938,7 @@ class BaseTranslator:
     @_validate_method
     def dictionary(self: C,
                    text: typing.Union[str, typing.Iterable[str]],
-                   source_lang: typing.Union[str, Language] = "auto") -> typing.Union[typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]],
+                   source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.Union[typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]],
                                                                                       LazyIterable[typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]]:  # type: ignore | the decorator actually returns a `DictionaryResult`
         """
         Returns the meaning for the given `text`
@@ -952,7 +953,7 @@ class BaseTranslator:
         yield Flag.MULTIPLE_RESULTS
 
         try:
-            result = self._dictionary(text=text, source_lang=source_lang_code)
+            result = self._dictionary(text=text, source_lang=source_lang_code, *args, **kwargs)
             if isinstance(result, models.DictionaryResult):  # it returned a single definition
                 if not isinstance(result.source_lang, Language):
                     if result.source_lang is None:
@@ -973,7 +974,7 @@ class BaseTranslator:
 
     def _dictionary(self: C,
                     text: str,
-                    source_lang: typing.Any) -> typing.Union[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]],
+                    source_lang: typing.Any, *args, **kwargs) -> typing.Union[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]],
                                                              typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
         """
         The internal handler which contains the translator specific logic to retrieve dictionary results
@@ -995,7 +996,7 @@ class BaseTranslator:
         raise exceptions.UnsupportedMethod
 
     @typing.overload
-    def text_to_speech(self: C, text: str, speed: typing.Union[int, models.Speed] = 100, gender: models.Gender = models.Gender.OTHER, source_lang: typing.Union[str, Language] = "auto") -> models.TextToSpechResult[C]:
+    def text_to_speech(self: C, text: str, speed: typing.Union[int, models.Speed] = 100, gender: models.Gender = models.Gender.OTHER, source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> models.TextToSpechResult[C]:
         """
         Returns the speech version of the given `text`
 
@@ -1017,7 +1018,7 @@ class BaseTranslator:
         """
 
     @typing.overload
-    def text_to_speech(self: C, text: typing.Iterable[str], speed: typing.Union[int, models.Speed] = 100, gender: models.Gender = models.Gender.OTHER, source_lang: typing.Union[str, Language] = "auto") -> LazyIterable[models.TextToSpechResult[C]]:
+    def text_to_speech(self: C, text: typing.Iterable[str], speed: typing.Union[int, models.Speed] = 100, gender: models.Gender = models.Gender.OTHER, source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> LazyIterable[models.TextToSpechResult[C]]:
         """
         Returns the speech version for all of the given `text`
 
@@ -1043,7 +1044,7 @@ class BaseTranslator:
                        text: typing.Union[str, typing.Iterable[str]],
                        speed: typing.Union[int, models.Speed] = 100,
                        gender: models.Gender = models.Gender.OTHER,
-                       source_lang: typing.Union[str, Language] = "auto") -> typing.Union[models.TextToSpechResult[C],
+                       source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.Union[models.TextToSpechResult[C],
                                                                                           LazyIterable[models.TextToSpechResult[C]]]:  # type: ignore | the decorator actually returns a `TextToSpechResult`
         """
         Returns the speech version of the given `text`
@@ -1069,7 +1070,7 @@ class BaseTranslator:
             gender=gender
         )
 
-        result = self._text_to_speech(text=text, speed=valid_speed, gender=gender, source_lang=source_lang_code)
+        result = self._text_to_speech(text=text, speed=valid_speed, gender=gender, source_lang=source_lang_code, *args, **kwargs)
         if not isinstance(result.source_lang, Language):
             if result.source_lang is None:
                 result.source_lang = source_lang
@@ -1077,7 +1078,7 @@ class BaseTranslator:
                 result.source_lang = self._code_to_language(result.source_lang)
         yield result
 
-    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpechResult[C]:
+    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any, *args, **kwargs) -> models.TextToSpechResult[C]:
         """
         The internal handler which contains the translator specific logic to retrieve text to speech results
 
