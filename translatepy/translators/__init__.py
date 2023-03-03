@@ -13,3 +13,20 @@ from translatepy.translators.microsoft import MicrosoftTranslate
 
 from translatepy.translators.qcri import QCRI
 from translatepy.translators.pons import PONS
+
+
+# aliases
+
+Reverso = ReversoTranslate
+Bing = BingTranslate
+DeepL = DeeplTranslate
+Deepl = DeeplTranslate
+Google = GoogleTranslate
+Libre = LibreTranslate
+MyMemory = MyMemoryTranslate
+TranslateCom = TranslateComTranslate
+Yandex = YandexTranslate
+Microsoft = MicrosoftTranslate
+
+QCRITranslate = QCRI
+PONSTranslate = PONS
