@@ -77,9 +77,9 @@ class Translate(BaseTranslator):
 
     def _instantiate_translator(self, service: BaseTranslator, services_list: list, index: int):
         if not isinstance(service, BaseTranslator):  # not instantiated
-            if "request" in inspect.getfullargspec(service.__init__).args:  # check if __init__
+            try:
                 service = service(session=self.session)  # it should want `session` because that's how `BaseTranslator` is implemented
-            else:
+            except TypeError:
                 service = service()
             services_list[index] = service
         return service
