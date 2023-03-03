@@ -33,12 +33,12 @@ class Translate(BaseTranslator):
 
         Parameters
         ----------
-        services_list: list
-            A list of instanciated or not BaseTranslator subclasses to use as translators
-        request: Request
-            The Request class used to make requests
+        services_list: list[Type | BaseTranslator]
+            A list of instanciated `BaseTranslator` or subclasses of `BaseTranslator` to use as translators
+        session: utils.request.Session
+            The `Session` object used to make all of the requests
         fast: bool
-            Enabling fast mode (concurrent processing) or not
+            Enables fast mode (concurrent processing)
         """
         super().__init__(session)
         self.services_list = services_list or [
