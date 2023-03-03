@@ -1,8 +1,9 @@
 """
-Python Translate\n
+translatepy
+
 Translate, transliterate, get the language of texts in no time with the help of multiple APIs!
 
-© Anime no Sekai — 2021
+© Anime no Sekai — 2023
 """
 
 from translatepy.language import Language
@@ -11,7 +12,7 @@ from translatepy.translate import Translate
 # For backward compatibility
 Translator = Translate
 
-__version_tuple__ = (2, 4, '(alpha)')
+__version_tuple__ = (3, 0, '(alpha)')
 
 
 def __version_string__():
@@ -21,7 +22,7 @@ def __version_string__():
 
 
 __author__ = 'Anime no Sekai'
-__copyright__ = 'Copyright 2022, translate'
+__copyright__ = 'Copyright 2023, translatepy'
 __credits__ = ['animenosekai']
 __license__ = 'GNU General Public License v3 (GPLv3)'
 __version__ = 'translatepy v{}'.format(__version_string__())

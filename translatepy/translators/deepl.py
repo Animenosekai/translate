@@ -223,7 +223,7 @@ class DeeplTranslate(BaseTranslator):
             return models.LanguageResult(language=results["source_lang"])
 
     def _dictionary(self: C, text: str, source_lang: typing.Any) -> typing.Union[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]], typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
-        # TODO
+        # TODO: Need to reimplement
         raise exceptions.UnsupportedMethod("Need to reimplement this")
         if source_lang == "AUTO":
             source_lang = self._language_to_code(self.language(text).language)

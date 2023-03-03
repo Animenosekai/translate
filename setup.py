@@ -14,13 +14,13 @@ def read_requirements(filename):
 setup(
     name="translatepy",
     packages=["translatepy"],
-    version="2.4",
+    version="3.0",
     license="GNU General Public License v3 (GPLv3)",
     description="Translate, transliterate, get the language of texts in no time with the help of multiple APIs!",
     author="Anime no Sekai",
     author_email="niichannomail@gmail.com",
     url="https://github.com/Animenosekai/translate",
-    download_url="https://github.com/Animenosekai/translate/archive/v2.4.tar.gz",
+    download_url="https://github.com/Animenosekai/translate/archive/v3.0.tar.gz",
     keywords=[
         "python",
         "translate",
@@ -40,15 +40,7 @@ setup(
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.2",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3"
     ],
     long_description=readme_description,
     long_description_content_type="text/markdown",

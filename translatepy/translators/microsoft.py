@@ -173,7 +173,7 @@ class MicrosoftTranslate(BaseTranslator):
                     voice = _supported_lang["ShortName"]
                     break
             else:
-                raise exceptions.UnsupportedMethod("Microsoft Translate doesn't support {source_lang} for text to speech conversions".format(source_lang=source_lang))
+                raise exceptions.NoResult("Microsoft Translate doesn't support {source_lang} for text to speech conversions".format(source_lang=source_lang))
 
         speech_url = "https://{region}.tts.speech.microsoft.com/cognitiveservices/v1".format(region=self.session_manager._region)
         headers = {"authorization": "Bearer {token}".format(token=self.session_manager._token), "content-type": "application/ssml+xml", "x-microsoft-outputformat": "audio-48khz-192kbitrate-mono-mp3"}

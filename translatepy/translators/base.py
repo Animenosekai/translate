@@ -245,7 +245,8 @@ class BaseTranslator:
                         """
                         Internal function to fill `result` with missing attributes and type check some of them
                         """
-                        result.service = self
+                        if not result.service:
+                            result.service = self
                         result.source = valid_text
                         return result
 
@@ -584,6 +585,9 @@ class BaseTranslator:
                 result.source_lang = self._code_to_language(result.source_lang)
 
         yield result
+
+    # aliasing
+    transliteration = transliterate
 
     def _transliterate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TransliterationResult[C]:
         """

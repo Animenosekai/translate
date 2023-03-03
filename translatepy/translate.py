@@ -1,42 +1,47 @@
 """
-translatepy v2.4
+translatepy v3.0
 
-© Anime no Sekai — 2021
+© Anime no Sekai — 2023
 """
 import inspect
+import typing
 from multiprocessing.pool import ThreadPool
 from threading import Thread
-from typing import Iterable, Union
 
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, PageElement, PreformattedString, Tag
 
-from translatepy.exceptions import NoResult, ParameterTypeError, ParameterValueError
+from translatepy import exceptions, models
 from translatepy.language import Language
-from translatepy.models import (DictionaryResult, ExampleResult,
-                                LanguageResult, SpellcheckResult,
-                                TextToSpechResult, TranslationResult,
-                                TransliterationResult)
 from translatepy.translators import (BaseTranslator, BingTranslate,
                                      DeeplTranslate, GoogleTranslate,
-                                     LibreTranslate, MyMemoryTranslate,
-                                     ReversoTranslate, TranslateComTranslate,
-                                     YandexTranslate, MicrosoftTranslate)
-from translatepy.utils.annotations import List
-from translatepy.utils.queue import Queue
-from translatepy.utils.request import Request
-from translatepy.utils.sanitize import remove_spaces
-from translatepy.utils.importer import get_translator
+                                     LibreTranslate, MicrosoftTranslate,
+                                     MyMemoryTranslate, ReversoTranslate,
+                                     TranslateComTranslate, YandexTranslate)
+from translatepy.translators.base import BaseTranslator, C
+from translatepy.utils import importer, queue, request
 
 
-class Translate():
+class Translate(BaseTranslator):
     """
-    A class which groups all of the APIs
+    A class which groups all of the translators
     """
 
-    def __init__(
-        self,
-        services_list: List[BaseTranslator] = [
+    def __init__(self, session: typing.Optional[request.Session] = None, services_list: typing.Optional[typing.List[BaseTranslator]] = None, fast: bool = False):
+        """
+        A special `Translator` class which groups multiple translators to have better results.
+
+        Parameters
+        ----------
+        services_list: list
+            A list of instanciated or not BaseTranslator subclasses to use as translators
+        request: Request
+            The Request class used to make requests
+        fast: bool
+            Enabling fast mode (concurrent processing) or not
+        """
+        super().__init__(session)
+        self.services_list = services_list or [
             GoogleTranslate,
             YandexTranslate,
             MicrosoftTranslate,
@@ -46,456 +51,114 @@ class Translate():
             LibreTranslate,
             TranslateComTranslate,
             MyMemoryTranslate
-        ],
-        request: Request = Request(),
-        fast: bool = False
-    ) -> None:
-        """
-        A special Translator class grouping multiple translators to have better results.
+        ]
 
-        Parameters:
-        ----------
-            services_list : list
-                A list of instanciated or not BaseTranslator subclasses to use as translators
-            request : Request
-                The Request class used to make requests
-            fast : bool
-                Enabling fast mode (concurrent processing) or not
-        """
-        if not isinstance(services_list, Iterable):
-            raise ParameterTypeError("Parameter 'services_list' must be iterable, {} was given".format(type(services_list).__name__))
-
-        if not services_list:
-            raise ParameterValueError("Parameter 'services_list' must not be empty")
+        try:
+            _ = iter(self.services_list)
+        except Exception as err:
+            raise exceptions.ParameterTypeError("Parameter 'services_list' must be iterable, {} was given".format(type(services_list).__name__)) from err
 
         self.FAST_MODE = fast
 
-        if isinstance(request, type):  # is not instantiated
-            self.request = request()
+        if isinstance(session, type):  # is not instantiated
+            self.session = session()
         else:
-            self.request = request
+            self.session = session
 
         self.services = []
-        for service in services_list:
+        for service in self.services_list:
             if isinstance(service, str):
-                service = get_translator(service)
+                service = importer.get_translator(service)
             if not isinstance(service, BaseTranslator):  # not instantiated
                 if not issubclass(service, BaseTranslator):
-                    raise ParameterTypeError("{service} must be a child class of the BaseTranslator class".format(service=service))
+                    raise exceptions.ParameterTypeError("{service} must be a child class of the BaseTranslator class".format(service=service))
+                # avoiding to instantiate anything because it might not be used
             self.services.append(service)
 
     def _instantiate_translator(self, service: BaseTranslator, services_list: list, index: int):
         if not isinstance(service, BaseTranslator):  # not instantiated
-            if "request" in inspect.getfullargspec(service.__init__).args:  # check if __init__ wants a request parameter
-                service = service(request=self.request)
+            if "request" in inspect.getfullargspec(service.__init__).args:  # check if __init__
+                service = service(session=self.session)  # it should want `session` because that's how `BaseTranslator` is implemented
             else:
                 service = service()
             services_list[index] = service
         return service
 
-    def translate(self, text: str, dest_lang: str, source_lang: str = "auto") -> TranslationResult:
+    def _apply(self, work: str, *args, **kwargs):
         """
-        Translates the given text to the given language
+        Tests `work` on all of the services
 
-        i.e Good morning (en) --> おはようございます (ja)
-        """
-        dest_lang = Language(dest_lang)
-        source_lang = Language(source_lang)
-
-        def _translate(translator: BaseTranslator, index: int):
-            translator = self._instantiate_translator(translator, self.services, index)
-            result = translator.translate(
-                text=text, dest_lang=dest_lang, source_lang=source_lang
-            )
-            if result is None:
-                raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
-            return result
-
-        def _fast_translate(queue: Queue, translator: BaseTranslator, index: int):
-            try:
-                queue.put(_translate(translator=translator, index=index))
-            except Exception:
-                pass
-
-        if self.FAST_MODE:
-            _queue = Queue()
-            threads = []
-            for index, service in enumerate(self.services):
-                thread = Thread(target=_fast_translate, args=(_queue, service, index))
-                thread.start()
-                threads.append(thread)
-            result = _queue.get(threads=threads)  # wait for a value and return it
-            if result is None:
-                raise NoResult("No service has returned a valid result")
-            return result
-
-        exception = None
-        for index, service in enumerate(self.services):
-            try:
-                return _translate(translator=service, index=index)
-            except Exception as ex:
-                exception = ex
-                continue
-        else:
-            raise NoResult("No service has returned a valid result") from exception
-
-    def translate_html(self, html: Union[str, PageElement, Tag, BeautifulSoup], dest_lang: str, source_lang: str = "auto", parser: str = "html.parser", threads_limit: int = 100, __internal_replacement_function__ = None) -> Union[str, PageElement, Tag, BeautifulSoup]:
-        """
-        Translates the given HTML string or BeautifulSoup object to the given language
-
-        i.e
-         English: `<div class="hello"><h1>Hello</h1> everyone and <a href="/welcome">welcome</a> to <span class="w-full">my website</span></div>`
-         French: `<div class="hello"><h1>Bonjour</h1>tout le monde et<a href="/welcome">Bienvenue</a>à<span class="w-full">Mon site internet</span></div>`
-
-        Note: This method is not perfect since it is not tag/context aware. Example: `<span>Hello <strong>everyone</strong></span>` will not be understood as
-        "Hello everyone" with "everyone" in bold but rather "Hello" and "everyone" separately.
-
-        Warning: If you give a `bs4.BeautifulSoup`, `bs4.element.PageElement` or `bs4.element.Tag` input (which are mutable), they will be modified.
-        If you don't want this behavior, please make sure to pass the string version of the element:
-        >>> result = Translate().translate_html(str(page_element), "French")
-
-        Parameters:
+        Parameters
         ----------
-            html : str | bs4.element.PageElement | bs4.element.Tag | bs4.BeautifulSoup
-                The HTML string to be translated. This can also be an instance of BeautifulSoup's `BeautifulSoup` element, `PageElement` or `Tag` element.
-            dest_lang : str
-                The language the HTML string needs to be translated in.
-            source_lang : str, default = "auto"
-                The language of the HTML string.
-            parser : str, default = "html.parser"
-                The parser that BeautifulSoup will use to parse the HTML string.
-            threads_limit : int, default = 100
-                The maximum number of threads that will be spawned by translate_html
-            __internal_replacement_function__ : function, default = None
-                This is used internally, especially by the translatepy HTTP server to modify the translation step.
-
-        Returns:
-        --------
-            BeautifulSoup:
-                The result will be the same element as the input `html` parameter with the values modified if the given
-                input is of bs4.BeautifulSoup, bs4.element.PageElement or bs4.element.Tag instance.
-            str:
-                The result will be a string in any other case.
-
+        work: str
+            The function name to call
+        *args
+        **kwargs
+            The arguments to give to `work`
         """
-        dest_lang = Language(dest_lang)
-        source_lang = Language(source_lang)
 
-        def _translate(node: NavigableString):
-            try:
-                node.replace_with(self.translate(str(node), dest_lang=dest_lang, source_lang=source_lang).result)
-            except Exception:  # ignore if it couldn't find any result or an error occured
-                pass
-
-        if __internal_replacement_function__ is not None:
-            _translate = __internal_replacement_function__
-
-        if not isinstance(html, (PageElement, Tag, BeautifulSoup)):
-            page = BeautifulSoup(str(html), str(parser))
-        else:
-            page = html
-        # nodes = [tag.text for tag in page.find_all(text=True, recursive=True, attrs=lambda class_name: "notranslate" not in str(class_name).split()) if not isinstance(tag, (PreformattedString)) and remove_spaces(tag) != ""]
-        nodes = [tag for tag in page.find_all(text=True, recursive=True) if not isinstance(tag, (PreformattedString)) and remove_spaces(tag) != ""]
-        with ThreadPool(int(threads_limit)) as pool:
-            pool.map(_translate, nodes)
-        return page if isinstance(html, (PageElement, Tag, BeautifulSoup)) else str(page)
-
-    def transliterate(self, text: str, dest_lang: str = "en", source_lang: str = "auto") -> TransliterationResult:
-        """
-        Transliterates the given text, get its pronunciation
-
-        i.e おはよう --> Ohayou
-        """
-        dest_lang = Language(dest_lang)
-        source_lang = Language(source_lang)
-
-        def _transliterate(translator: BaseTranslator, index: int):
+        def worker(translator: BaseTranslator, index: int):
             translator = self._instantiate_translator(translator, self.services, index)
-            result = translator.transliterate(
-                text=text, dest_lang=dest_lang, source_lang=source_lang
-            )
-            if result is None:
-                raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
+            try:
+                result = getattr(translator, work)(*args, **kwargs)
+            except Exception:
+                raise exceptions.NoResult("{service} did not return any value".format(service=translator.__repr__()))
+            if not result:
+                pass
             return result
 
-        def _fast_transliterate(queue: Queue, translator: BaseTranslator, index: int):
+        def fast_work(queue: queue.Queue, translator: BaseTranslator, index: int):
             try:
-                queue.put(_transliterate(translator=translator, index=index))
+                queue.put(worker(translator=translator, index=index))
             except Exception:
                 pass
 
         if self.FAST_MODE:
-            _queue = Queue()
+            _queue = queue.Queue()
             threads = []
             for index, service in enumerate(self.services):
-                thread = Thread(target=_fast_transliterate, args=(_queue, service, index))
+                thread = Thread(target=fast_work, args=(_queue, service, index))
                 thread.start()
                 threads.append(thread)
             result = _queue.get(threads=threads)  # wait for a value and return it
             if result is None:
-                raise NoResult("No service has returned a valid result")
+                raise exceptions.NoResult("No service has returned a valid result")
             return result
 
-        exception = None
         for index, service in enumerate(self.services):
             try:
-                return _transliterate(translator=service, index=index)
-            except Exception as ex:
-                exception = ex
-                continue
-        else:
-            raise NoResult("No service has returned a valid result") from exception
-
-    def spellcheck(self, text: str, source_lang: str = "auto") -> SpellcheckResult:
-        """
-        Checks the spelling of a given text
-
-        i.e God morning --> Good morning
-        """
-        source_lang = Language(source_lang)
-
-        def _spellcheck(translator: BaseTranslator, index: int):
-            translator = self._instantiate_translator(translator, self.services, index)
-            result = translator.spellcheck(
-                text=text, source_lang=source_lang
-            )
-            if result is None:
-                raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
-            return result
-
-        def _fast_spellcheck(queue: Queue, translator: BaseTranslator, index: int):
-            try:
-                queue.put(_spellcheck(translator=translator, index=index))
+                return worker(service, index=index)
             except Exception:
-                pass
-
-        if self.FAST_MODE:
-            _queue = Queue()
-            threads = []
-            for index, service in enumerate(self.services):
-                thread = Thread(target=_fast_spellcheck, args=(_queue, service, index))
-                thread.start()
-                threads.append(thread)
-            result = _queue.get(threads=threads)  # wait for a value and return it
-            if result is None:
-                raise NoResult("No service has returned a valid result")
-            return result
-
-        exception = None
-        for index, service in enumerate(self.services):
-            try:
-                return _spellcheck(translator=service, index=index)
-            except Exception as ex:
-                exception = ex
                 continue
-        else:
-            raise NoResult("No service has returned a valid result") from exception
 
-    def language(self, text: str) -> LanguageResult:
-        """
-        Returns the language of the given text
+        raise exceptions.NoResult("No service has returned a valid result")
 
-        i.e 皆さんおはようございます！ --> Japanese
-        """
-        def _language(translator: BaseTranslator, index: int):
-            translator = self._instantiate_translator(translator, self.services, index)
-            result = translator.language(
-                text=text
-            )
-            if result is None:
-                raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
-            return result
+    def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
+        return self._apply("translate", text=text, dest_lang=dest_lang, source_lang=source_lang)
 
-        def _fast_language(queue: Queue, translator: BaseTranslator, index: int):
-            try:
-                queue.put(_language(translator=translator, index=index))
-            except Exception:
-                pass
+    def _alternatives(self: C, translation: models.TranslationResult) -> typing.Union[models.TranslationResult[C], typing.List[models.TranslationResult[C]]]:
+        return self._apply("alternatives", translation=translation)
 
-        if self.FAST_MODE:
-            _queue = Queue()
-            threads = []
-            for index, service in enumerate(self.services):
-                thread = Thread(target=_fast_language, args=(_queue, service, index))
-                thread.start()
-                threads.append(thread)
-            result = _queue.get(threads=threads)  # wait for a value and return it
-            if result is None:
-                raise NoResult("No service has returned a valid result")
-            return result
+    def _transliterate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TransliterationResult[C]:
+        return self._apply("transliterate", text=text, dest_lang=dest_lang, source_lang=source_lang)
 
-        exception = None
-        for index, service in enumerate(self.services):
-            try:
-                return _language(translator=service, index=index)
-            except Exception as ex:
-                exception = ex
-                continue
-        else:
-            raise NoResult("No service has returned a valid result") from exception
+    def _spellcheck(self: C, text: str, source_lang: typing.Any) -> typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]:
+        return self._apply("spellcheck", text=text, source_lang=source_lang)
 
-    def example(self, text: str, dest_lang: str, source_lang: str = "auto") -> ExampleResult:
-        """
-        Returns a set of examples / use cases for the given word
+    def _language(self: C, text: str) -> models.LanguageResult[C]:
+        return self._apply("language", text=text)
 
-        i.e Hello --> ['Hello friends how are you?', 'Hello im back again.']
-        """
-        dest_lang = Language(dest_lang)
-        source_lang = Language(source_lang)
+    def _example(self: C, text: str, source_lang: typing.Any) -> typing.Union[models.ExampleResult[C], typing.List[models.ExampleResult[C]]]:
+        return self._apply("example", text=text, source_lang=source_lang)
 
-        def _example(translator: BaseTranslator, index: int):
-            translator = self._instantiate_translator(translator, self.services, index)
-            result = translator.example(
-                text=text, dest_lang=dest_lang, source_lang=source_lang
-            )
-            if result is None:
-                raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
-            return result
+    def _dictionary(self: C, text: str, source_lang: typing.Any) -> typing.Union[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]], typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
+        return self._apply("dictionary", text=text, source_lang=source_lang)
 
-        def _fast_example(queue: Queue, translator: BaseTranslator, index: int):
-            try:
-                queue.put(_example(translator=translator, index=index))
-            except Exception:
-                pass
+    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpechResult[C]:
+        return self._apply("text_to_speech", text=text, speed=speed, gender=gender, source_lang=source_lang)
 
-        if self.FAST_MODE:
-            _queue = Queue()
-            threads = []
-            for index, service in enumerate(self.services):
-                thread = Thread(target=_fast_example, args=(_queue, service, index))
-                thread.start()
-                threads.append(thread)
-            result = _queue.get(threads=threads)  # wait for a value and return it
-            if result is None:
-                raise NoResult("No service has returned a valid result")
-            return result
+    def _code_to_language(self, code: Language) -> Language:
+        return code
 
-        exception = None
-        for index, service in enumerate(self.services):
-            try:
-                return _example(translator=service, index=index)
-            except Exception as ex:
-                exception = ex
-                continue
-        else:
-            raise NoResult("No service has returned a valid result") from exception
-
-    def dictionary(self, text: str, dest_lang: str, source_lang="auto") -> DictionaryResult:
-        """
-        Returns a list of translations that are classified between two categories: featured and less common
-
-        i.e Hello --> {'featured': ['ハロー', 'こんにちは'], 'less_common': ['hello', '今日は', 'どうも', 'こんにちわ', 'こにちは', 'ほいほい', 'おーい', 'アンニョンハセヨ', 'アニョハセヨ'}
-        """
-        dest_lang = Language(dest_lang)
-        source_lang = Language(source_lang)
-
-        def _dictionary(translator: BaseTranslator, index: int):
-            translator = self._instantiate_translator(translator, self.services, index)
-            result = translator.dictionary(
-                text=text, dest_lang=dest_lang, source_lang=source_lang
-            )
-            if result is None:
-                raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
-            return result
-
-        def _fast_dictionary(queue: Queue, translator: BaseTranslator, index: int):
-            try:
-                queue.put(_dictionary(translator=translator, index=index))
-            except Exception:
-                pass
-
-        if self.FAST_MODE:
-            _queue = Queue()
-            threads = []
-            for index, service in enumerate(self.services):
-                thread = Thread(target=_fast_dictionary, args=(_queue, service, index))
-                thread.start()
-                threads.append(thread)
-            result = _queue.get(threads=threads)  # wait for a value and return it
-            if result is None:
-                raise NoResult("No service has returned a valid result")
-            return result
-
-        exception = None
-        for index, service in enumerate(self.services):
-            try:
-                return _dictionary(translator=service, index=index)
-            except Exception as ex:
-                exception = ex
-                continue
-        else:
-            raise NoResult("No service has returned a valid result") from exception
-
-    def text_to_speech(self, text: str, speed: int = 100, gender: str = "female", source_lang: str = "auto") -> TextToSpechResult:
-        """
-        Gives back the text to speech result for the given text
-
-        Args:
-          text: the given text
-          source_lang: the source language
-
-        Returns:
-            the mp3 file as bytes
-
-        Example:
-            >>> from translatepy import Translator
-            >>> t = Translator()
-            >>> result = t.text_to_speech("Hello, how are you?")
-            >>> with open("output.mp3", "wb") as output: # open a binary (b) file to write (w)
-            ...     output.write(result.result)
-                    # or:
-                    result.write_to_file(output)
-            # Or you can just use write_to_file method:
-            >>> result.write_to_file("output.mp3")
-            >>> print("Output of Text to Speech is available in output.mp3!")
-
-            # the result is an MP3 file with the text to speech output
-        """
-        source_lang = Language(source_lang)
-
-        def _text_to_speech(translator: BaseTranslator, index: int):
-            translator = self._instantiate_translator(translator, self.services, index)
-            result = translator.text_to_speech(
-                text=text, speed=speed, gender=gender, source_lang=source_lang
-            )
-            if result is None:
-                raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
-            return result
-
-        def _fast_text_to_speech(queue: Queue, translator: BaseTranslator, index: int):
-            try:
-                queue.put(_text_to_speech(translator=translator, index=index))
-            except Exception:
-                pass
-
-        if self.FAST_MODE:
-            _queue = Queue()
-            threads = []
-            for index, service in enumerate(self.services):
-                thread = Thread(target=_fast_text_to_speech, args=(_queue, service, index))
-                thread.start()
-                threads.append(thread)
-            result = _queue.get(threads=threads)  # wait for a value and return it
-            if result is None:
-                raise NoResult("No service has returned a valid result")
-            return result
-
-        exception = None
-        for index, service in enumerate(self.services):
-            try:
-                return _text_to_speech(translator=service, index=index)
-            except Exception as ex:
-                exception = ex
-                continue
-        else:
-            raise NoResult("No service has returned a valid result") from exception
-
-    def clean_cache(self) -> None:
-        """
-        Cleans caches
-
-        Returns:
-            None
-        """
-        for service in self.services:
-            service.clean_cache()
+    def _language_to_code(self, language: Language) -> Language:
+        return language
