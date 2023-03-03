@@ -18,7 +18,8 @@ class ReversoTranslate(BaseTranslator):
     A Python implementation of Reverso's API
     """
 
-    _supported_languages = {'ara', 'auto', 'chi', 'dut', 'eng', 'fra', 'ger', 'heb', 'ita', 'jpn', 'pol', 'por', 'rum', 'rus', 'spa', 'tur'}
+    _supported_languages = {'ara', 'auto', 'chi', 'cze', 'dan', 'dut', 'eng', 'fra', 'ger', 'gre', 'heb', 'hin', 'hun', 'ita', 'jpn',
+                            'kor', 'per', 'pol', 'por', 'rum', 'rus', 'slo', 'spa', 'swe', 'tha', 'tur', 'ukr'}
 
     def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
         if source_lang == "auto":
@@ -171,8 +172,10 @@ class ReversoTranslate(BaseTranslator):
         return language.alpha3
 
     def _code_to_language(self, code: typing.Union[str, typing.Any]) -> Language:
-        if str(code).lower() in {"chi", "zh-cn"}:
+        language_code = str(code).lower()
+        if language_code in {"chi", "zh-cn"}:
             return Language("zho")
+
         return Language(code)
 
     def __str__(self) -> str:
