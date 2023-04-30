@@ -19,7 +19,7 @@ from translatepy.translators.base import BaseTranslator, BaseTranslateException
 from translatepy.utils.annotations import Tuple, List
 from translatepy.utils.request import Request
 
-SENTENCES_SPLITTING_REGEX = compile('(?<=[.!:?]) +')
+SENTENCES_SPLITTING_REGEX = compile('(?<=[.!:?])\s+')
 
 
 class DeeplTranslateException(BaseTranslateException):
