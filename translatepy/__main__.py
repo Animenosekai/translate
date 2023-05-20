@@ -1,11 +1,12 @@
 import argparse
-from json import dumps
-from traceback import print_exc
+import dataclasses
+import json
 
 import inquirer
 
 import translatepy
 from translatepy.exceptions import UnknownLanguage, VersionNotSupported
+from translatepy.models import Result
 
 INPUT_PREFIX = "(\033[90mtranslatepy ~ \033[0m{action}) > "
 
@@ -21,6 +22,34 @@ actions = [
         carousel=True
     )
 ]
+
+
+def print_json_success(result: Result):
+    """
+    Prints a successful JSON response
+    """
+    print(json.dumps({
+        "success": True,
+        "data": dataclasses.asdict(result)
+    }, ensure_ascii=False, indent=4))
+
+
+def print_json_error(err: Exception):
+    """
+    Prints a JSON-formatted error
+    """
+    data = {}
+    if isinstance(err, UnknownLanguage):
+        data = {
+            "guessedLanguage": err.guessed_language,
+            "similarity": err.similarity
+        }
+    print(json.dumps({
+        "success": False,
+        "exception": err.__class__.__name__,
+        "error": str(err),
+        "data": data
+    }, ensure_ascii=False, indent=4))
 
 
 def main():
@@ -72,96 +101,42 @@ def main():
 
     if args.action == 'translate':
         try:
-            result = dl.translate(text=args.text, dest_lang=args.dest_lang, source_lang=args.source_lang)
-            print(result.as_json(indent=4, ensure_ascii=False))
-        except UnknownLanguage as err:
-            print(dumps({
-                "success": False,
-                "guessedLanguage": err.guessed_language,
-                "similarity": err.similarity,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
+            result = dl.translate(text=str(args.text), dest_lang=args.dest_lang, source_lang=args.source_lang)
+            print_json_success(result)
         except Exception as err:
-            print(dumps({
-                "success": False,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
+            print_json_error(err)
 
     elif args.action == 'transliterate':
         try:
             result = dl.transliterate(args.text, args.dest_lang, args.source_lang)
-            print(result.as_json(indent=4, ensure_ascii=False))
-        except UnknownLanguage as err:
-            print(dumps({
-                "success": False,
-                "guessedLanguage": err.guessed_language,
-                "similarity": err.similarity,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
+            print_json_success(result)
         except Exception as err:
-            print(dumps({
-                "success": False,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
+            print_json_error(err)
 
     elif args.action == 'spellcheck':
         try:
             result = dl.spellcheck(args.text, args.source_lang)
-            print(result.as_json(indent=4, ensure_ascii=False))
-        except UnknownLanguage as err:
-            print(dumps({
-                "success": False,
-                "guessedLanguage": err.guessed_language,
-                "similarity": err.similarity,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
+            print_json_success(result)
         except Exception as err:
-            print(dumps({
-                "success": False,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
+            print_json_error(err)
 
     elif args.action == 'language':
         try:
             result = dl.language(args.text)
-            print(result.as_json(indent=4, ensure_ascii=False))
-        except UnknownLanguage as err:
-            print(dumps({
-                "success": False,
-                "guessedLanguage": err.guessed_language,
-                "similarity": err.similarity,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
+            print_json_success(result)
         except Exception as err:
-            print(dumps({
-                "success": False,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
+            print_json_error(err)
 
     # SERVER
     if args.action == "server":
         try:
-            from translatepy.server import translation
-            from translatepy.server import language
+            from translatepy.server import language, translation
             from translatepy.server.server import app
-            from nasse.logging import log, LogLevels
-            log("🍡 Press Ctrl+C to quit", LogLevels.INFO)
             app.run(host=args.host, port=args.port)
         except Exception as err:
             from sys import version_info
             if version_info < (3, 4):
                 raise VersionNotSupported("Python 3.4 or higher is required to run the server with Nasse") from err
-            from os import name
-            if name == "nt":
-                raise VersionNotSupported("The server can only be ran on Unix-like systems") from err
             raise err
 
     # INTERACTIVE VERSION
@@ -210,10 +185,9 @@ def main():
                     if input_text == ".quit":
                         break
                     try:
-                        result = dl.translate(input_text, dest_lang, args.source_lang)
-                        print("Result \033[90m({source} → {dest})\033[0m: {result}".format(source=result.source_lang, dest=result.dest_lang, result=result.result))
+                        result = dl.translate(str(input_text), str(dest_lang), args.source_lang)
+                        print(result.__pretty__(cli=True))
                     except Exception:
-                        print_exc()
                         print("We are sorry but an error occured or no result got returned...")
 
             elif action == "Transliterate":
@@ -223,10 +197,9 @@ def main():
                     if input_text == ".quit":
                         break
                     try:
-                        result = dl.transliterate(text=input_text, dest_lang=dest_lang, source_lang=args.source_lang)
-                        print("Result ({lang}): {result}".format(lang=result.source_lang, result=result.result))
+                        result = dl.transliterate(text=str(input_text), dest_lang=str(dest_lang), source_lang=args.source_lang)
+                        print(result.__pretty__(cli=True))
                     except Exception:
-                        print_exc()
                         print("We are sorry but an error occured or no result got returned...")
 
             elif action == "Spellcheck":
@@ -236,10 +209,9 @@ def main():
                     if input_text == ".quit":
                         break
                     try:
-                        result = dl.spellcheck(input_text, args.source_lang)
-                        print("Result ({lang}): {result}".format(lang=result.source_lang, result=result.result))
+                        result = dl.spellcheck(str(input_text), args.source_lang)
+                        print(result.__pretty__(cli=True))
                     except Exception:
-                        print_exc()
                         print("We are sorry but an error occured or no result got returned...")
 
             elif action == "Language":
@@ -250,13 +222,8 @@ def main():
                         break
                     try:
                         result = dl.language(input_text)
-                        try:
-                            result = translatepy.Language(result.result).name
-                        except Exception:
-                            result = result.result
-                        print("The given text is in {lang}".format(lang=result))
+                        print(result.__pretty__(cli=True))
                     except Exception:
-                        print_exc()
                         print("We are sorry but an error occured or no result got returned...")
 
             elif action == "Example":
@@ -267,20 +234,7 @@ def main():
                         break
                     try:
                         result = dl.example(input_text, dest_lang, args.source_lang)
-                        results = []
-                        if isinstance(result.result, list):
-                            try:
-                                results = results[:3]
-                            except Exception:
-                                results = results
-                        else:
-                            results = [str(result.result)]
-                        if len(results) > 0:
-                            print("Here is a list of examples:")
-                            for example in results:
-                                print("    - " + str(example))
-                        else:
-                            print("No example found for {input_text}".format(input_text=input_text))
+                        print(result.__pretty__(cli=True))
                     except Exception:
                         print("We are sorry but an error occured or no result got returned...")
 
