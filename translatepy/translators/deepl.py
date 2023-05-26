@@ -102,7 +102,7 @@ class JSONRPCRequest():
 
 class DeeplTranslate(BaseTranslator):
 
-    _supported_languages = {'AUTO', 'BG', 'ZH', 'CS', 'DA', 'NL', 'EN', 'ET', 'FI', 'FR', 'DE', 'EL', 'HU', 'IT', 'JA', 'LV', 'LT', 'PL', 'PT', 'RO', 'RU', 'SK', 'SL', 'ES', 'SV'}
+    _supported_languages = {'AUTO', 'BG', 'ZH', 'CS', 'DA', 'NL', 'EN', 'ET', 'FI', 'FR', 'DE', 'EL', 'HU', 'IT', 'JA', 'LV', 'LT', 'PL', 'PT', 'RO', 'RU', 'SK', 'SL', 'ES', 'SV', 'TR', 'ID', 'NB', 'KO', 'UK'}
 
     def __init__(self, request: Request = Request(), preferred_langs: List = ["EN", "RU"]) -> None:
         self.session = request
