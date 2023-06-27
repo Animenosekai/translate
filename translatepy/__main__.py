@@ -1,4 +1,6 @@
 import argparse
+import cmd
+from typing import Optional, Any, Callable
 from json import dumps
 from traceback import print_exc
 
@@ -10,6 +12,7 @@ from translatepy.exceptions import UnknownLanguage, VersionNotSupported
 class TermColor():
     GREY = "\033[90m"
     CYAN = "\033[96m"
+    ORANGE = "\033[33m"
     NC = "\033[0m"
 
 INPUT_PREFIX = f"({TermColor.GREY}translatepy ~ {TermColor.NC}{{action}}) > "
@@ -19,6 +22,7 @@ usage: translatepy [-h] [--version] {translate,transliterate,spellcheck,language
 translatepy: error: the following arguments are required: action
 """
 
+# TODO: use 'rich' library
 
 actions = [
     inquirer.List(
@@ -175,10 +179,12 @@ def main():
     if args.action == 'shell':
         destination_language = args.dest_lang
         # source_language = args.source_lang
+
         try:
             destination_language = translatepy.Language(destination_language)
         except Exception:
             destination_language = None
+        
         while True:
             answers = inquirer.prompt(actions)
             action = answers["action"]
@@ -186,12 +192,17 @@ def main():
                 break
             if action in ['Translate', 'Example', 'Dictionary']:
                 def _prompt_for_destination_language():
-                    answers = inquirer.prompt([
-                        inquirer.Text(
-                            name='destination_language',
-                            message=INPUT_PREFIX.format(action="Select Lang.")
-                        )
-                    ])
+                    try:
+                        answers = inquirer.prompt([
+                            inquirer.Text(
+                                name='destination_language',
+                                message=INPUT_PREFIX.format(action="Select Lang.")
+                            )
+                        ], raise_keyboard_interrupt=True)
+                    except KeyboardInterrupt:
+                        print(f"{TermColor.CYAN}Operation was interrupted, exit...{TermColor.NC}")
+                        exit(1)
+
                     try:
                         destination_language = translatepy.Language(answers["destination_language"])
                         print("The selected language is " + destination_language.name)
@@ -209,91 +220,105 @@ def main():
                         print("What language do you want to use for the dictionary checking?")
                     destination_language = _prompt_for_destination_language()
 
-            print("")
-            if action == "Translate":
-                print(f"{TermColor.CYAN}Enter '.quit' to stop translating{TermColor.NC}")
-                while True:
-                    input_text = input(INPUT_PREFIX.format(action="Translate"))
-                    if input_text == ".quit":
-                        break
-                    try:
-                        result = dl.translate(input_text, destination_language, args.source_lang)
-                        print(f"Result {TermColor.GREY}({{source}} → {{dest}}){TermColor.NC}: {{result}}".format(source=result.source_language, dest=result.destination_language, result=result.result))
-                    except Exception:
-                        print_exc()
-                        print("We are sorry but an error occured or no result got returned...")
+            intro_msg = f"{TermColor.CYAN}Enter '.quit' to exit shell mode{TermColor.NC}"
+            cmd_shell = TrnaslatepyShell(intro_msg=intro_msg, prompt=INPUT_PREFIX.format(action=action), dl=dl, default_cmd=action.lower())
+            cmd_shell.destination_language = destination_language
+            # cmd_shell.source_language = source_language
 
-            elif action == "Transliterate":
-                print(f"{TermColor.CYAN}Enter '.quit' to stop transliterating{TermColor.NC}")
-                while True:
-                    input_text = input(INPUT_PREFIX.format(action="Transliterate"))
-                    if input_text == ".quit":
-                        break
-                    try:
-                        result = dl.transliterate(text=input_text, destination_language=destination_language, source_language=args.source_lang)
-                        print("Result ({lang}): {result}".format(lang=result.source_language, result=result.result))
-                    except Exception:
-                        print_exc()
-                        print("We are sorry but an error occured or no result got returned...")
+            cmd_shell.cmdloop()
 
-            elif action == "Spellcheck":
-                print(f"{TermColor.CYAN}Enter '.quit' to stop spellchecking{TermColor.NC}")
-                while True:
-                    input_text = input(INPUT_PREFIX.format(action="Spellcheck"))
-                    if input_text == ".quit":
-                        break
-                    try:
-                        result = dl.spellcheck(input_text, args.source_lang)
-                        print("Result ({lang}): {result}".format(lang=result.source_language, result=result.result))
-                    except Exception:
-                        print_exc()
-                        print("We are sorry but an error occured or no result got returned...")
+class TrnaslatepyShell(cmd.Cmd):
+    def __init__(self, intro_msg: str, prompt: str, dl: translatepy.Translator(), default_cmd: Optional[str] = None, cmd_prefix: str = "."):
+        super().__init__()
 
-            elif action == "Language":
-                print(f"{TermColor.CYAN}Enter '.quit' to stop checking for the language{TermColor.NC}")
-                while True:
-                    input_text = input(INPUT_PREFIX.format(action="Language"))
-                    if input_text == ".quit":
-                        break
-                    try:
-                        result = dl.language(input_text)
-                        try:
-                            result = translatepy.Language(result.result).name
-                        except Exception:
-                            result = result.result
-                        print("The given text is in {lang}".format(lang=result))
-                    except Exception:
-                        print_exc()
-                        print("We are sorry but an error occured or no result got returned...")
+        self.intro = intro_msg
+        self.prompt = prompt
+        self.cmd_prefix = cmd_prefix
+        self.dl = dl
 
-            elif action == "Example":
-                print(f"{TermColor.CYAN}Enter '.quit' to stop checking for examples{TermColor.NC}")
-                while True:
-                    input_text = input(INPUT_PREFIX.format(action="Example"))
-                    if input_text == ".quit":
-                        break
-                    try:
-                        result = dl.example(input_text, destination_language, args.source_lang)
-                        results = []
-                        if isinstance(result.result, list):
-                            try:
-                                results = results[:3]
-                            except Exception:
-                                results = results
-                        else:
-                            results = [str(result.result)]
-                        if len(results) > 0:
-                            print("Here is a list of examples:")
-                            for example in results:
-                                print("    - " + str(example))
-                        else:
-                            print("No example found for {input_text}".format(input_text=input_text))
-                    except Exception:
-                        print("We are sorry but an error occured or no result got returned...")
+        if default_cmd:
+            if not (default_cmd_func := self._get_cmd_func(default_cmd)):
+                raise ValueError(f"No such command: {default_cmd}")
+        else:
+            default_cmd_func = None
+        self.default_cmd_func = default_cmd_func
 
+        self.destination_language = None
+        self.source_language = 'auto'
+
+    def _get_cmd_func(self, cmd: str) -> Callable:
+        return getattr(self, f'do_{cmd}', None)
+
+    def _safe_exec(self, function: Callable, *args, **kwargs) -> Any:
+        try:
+            return function(*args, **kwargs)
+        except Exception:
+            print_exc()
+            print("We are sorry but an error occured or no result got returned...")
+
+    def default(self, line: str) -> None:
+        if line.startswith(self.cmd_prefix):
+            cmd = line.split(self.cmd_prefix)[1]
+            # cmd = line_cmd.split(" ")[0]
+            # cmd_arg = line_cmd.split(" ")[1:]
+            func = self._get_cmd_func(cmd)
+            if func:
+                return self._safe_exec(func, line)
+            else:
+                print(f"{TermColor.ORANGE}No such command: {cmd}{TermColor.NC}")
+        elif self.default_cmd_func:
+            return self._safe_exec(self.default_cmd_func, line)
+        else:
+            print(f"{TermColor.ORANGE}Unknown command line{TermColor.NC}")
+    
+    def do_quit(self, line: str) -> bool:
         print(f"Thank you for using {TermColor.CYAN}translatepy{TermColor.NC}!")
+        return True
 
+    def do_set_cmd(self, cmd: str):
+        func = self._get_cmd_func(cmd.lower())
+        if func:
+            self.default_cmd_func = func
+            self.prompt = cmd
+        else:
+            print(f"{TermColor.ORANGE}No such command: {cmd}{TermColor.NC}")
 
+    def do_transliterate(self, input_text: str):
+        result = self.dl.transliterate(input_text, self.destination_language, self.source_language)
+        print("Result ({lang}): {result}".format(lang=result.source_language, result=result.result))
+
+    def do_translate(self, input_text: str):
+        result = self.dl.translate(input_text, self.destination_language, self.source_language)
+        print(f"Result {TermColor.GREY}({{source}} → {{dest}}){TermColor.NC}: {{result}}".format(source=result.source_language, dest=result.destination_language, result=result.result))
+
+    def do_spellcheck(self, input_text: str):
+        result = self.dl.spellcheck(input_text, self.source_language)
+        print("Result ({lang}): {result}".format(lang=result.source_language, result=result.result))
+
+    def do_language(self, input_text: str):
+        result = self.dl.language(input_text)
+        try:
+            result = translatepy.Language(result.result).name
+        except Exception:
+            result = result.result
+        print("The given text is in {lang}".format(lang=result))
+
+    def do_example(self, input_text: str):
+        result = self.dl.example(input_text, self.destination_language, self.source_language)
+        results = []
+        if isinstance(result.result, list):
+            try:
+                results = results[:3]
+            except Exception:
+                results = results
+        else:
+            results = [str(result.result)]
+        if len(results) > 0:
+            print("Here is a list of examples:")
+            for example in results:
+                print("    - " + str(example))
+        else:
+            print("No example found for {input_text}".format(input_text=input_text))
 
 
 if __name__ == "__main__":
