@@ -7,11 +7,18 @@ import inquirer
 import translatepy
 from translatepy.exceptions import UnknownLanguage, VersionNotSupported
 
-INPUT_PREFIX = "(\033[90mtranslatepy ~ \033[0m{action}) > "
+class TermColor():
+    GREY = "\033[90m"
+    CYAN = "\033[96m"
+    NC = "\033[0m"
 
-NO_ACTION = """\
+INPUT_PREFIX = f"({TermColor.GREY}translatepy ~ {TermColor.NC}{{action}}) > "
+
+NO_ACTION = """
 usage: translatepy [-h] [--version] {translate,transliterate,spellcheck,language,shell,server} ...
-translatepy: error: the following arguments are required: action"""
+translatepy: error: the following arguments are required: action
+"""
+
 
 actions = [
     inquirer.List(
@@ -190,7 +197,7 @@ def main():
                         print("The selected language is " + destination_language.name)
                         return destination_language
                     except Exception:
-                        print("\033[93mThe given input doesn't seem to be a valid language\033[0m")
+                        print(f"{TermColor.CYAN}The given input doesn't seem to be a valid language{TermColor.NC}")
                         return _prompt_for_destination_language()
 
                 if destination_language is None:
@@ -204,20 +211,20 @@ def main():
 
             print("")
             if action == "Translate":
-                print("\033[96mEnter '.quit' to stop translating\033[0m")
+                print(f"{TermColor.CYAN}Enter '.quit' to stop translating{TermColor.NC}")
                 while True:
                     input_text = input(INPUT_PREFIX.format(action="Translate"))
                     if input_text == ".quit":
                         break
                     try:
                         result = dl.translate(input_text, destination_language, args.source_lang)
-                        print("Result \033[90m({source} → {dest})\033[0m: {result}".format(source=result.source_language, dest=result.destination_language, result=result.result))
+                        print(f"Result {TermColor.GREY}({{source}} → {{dest}}){TermColor.NC}: {{result}}".format(source=result.source_language, dest=result.destination_language, result=result.result))
                     except Exception:
                         print_exc()
                         print("We are sorry but an error occured or no result got returned...")
 
             elif action == "Transliterate":
-                print("\033[96mEnter '.quit' to stop transliterating\033[0m")
+                print(f"{TermColor.CYAN}Enter '.quit' to stop transliterating{TermColor.NC}")
                 while True:
                     input_text = input(INPUT_PREFIX.format(action="Transliterate"))
                     if input_text == ".quit":
@@ -230,7 +237,7 @@ def main():
                         print("We are sorry but an error occured or no result got returned...")
 
             elif action == "Spellcheck":
-                print("\033[96mEnter '.quit' to stop spellchecking\033[0m")
+                print(f"{TermColor.CYAN}Enter '.quit' to stop spellchecking{TermColor.NC}")
                 while True:
                     input_text = input(INPUT_PREFIX.format(action="Spellcheck"))
                     if input_text == ".quit":
@@ -243,7 +250,7 @@ def main():
                         print("We are sorry but an error occured or no result got returned...")
 
             elif action == "Language":
-                print("\033[96mEnter '.quit' to stop checking for the language\033[0m")
+                print(f"{TermColor.CYAN}Enter '.quit' to stop checking for the language{TermColor.NC}")
                 while True:
                     input_text = input(INPUT_PREFIX.format(action="Language"))
                     if input_text == ".quit":
@@ -260,7 +267,7 @@ def main():
                         print("We are sorry but an error occured or no result got returned...")
 
             elif action == "Example":
-                print("\033[96mEnter '.quit' to stop checking for examples\033[0m")
+                print(f"{TermColor.CYAN}Enter '.quit' to stop checking for examples{TermColor.NC}")
                 while True:
                     input_text = input(INPUT_PREFIX.format(action="Example"))
                     if input_text == ".quit":
@@ -284,7 +291,9 @@ def main():
                     except Exception:
                         print("We are sorry but an error occured or no result got returned...")
 
-        print("Thank you for using \033[96mtranslatepy\033[0m!")
+        print(f"Thank you for using {TermColor.CYAN}translatepy{TermColor.NC}!")
+
+
 
 
 if __name__ == "__main__":
