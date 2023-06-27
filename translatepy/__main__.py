@@ -9,13 +9,13 @@ import inquirer
 import translatepy
 from translatepy.exceptions import UnknownLanguage, VersionNotSupported
 
-class TermColor():
+class TC():
     GREY = "\033[90m"
     CYAN = "\033[96m"
     ORANGE = "\033[33m"
     NC = "\033[0m"
 
-INPUT_PREFIX = f"({TermColor.GREY}translatepy ~ {TermColor.NC}{{action}}) > "
+INPUT_PREFIX = f"({TC.GREY}translatepy ~ {TC.NC}{{action}}) > "
 
 NO_ACTION = """
 usage: translatepy [-h] [--version] {translate,transliterate,spellcheck,language,shell,server} ...
@@ -200,7 +200,7 @@ def main():
                             )
                         ], raise_keyboard_interrupt=True)
                     except KeyboardInterrupt:
-                        print(f"{TermColor.CYAN}Operation was interrupted, exit...{TermColor.NC}")
+                        print(f"{TC.CYAN}Operation was interrupted, exit...{TC.NC}")
                         exit(1)
 
                     try:
@@ -208,7 +208,7 @@ def main():
                         print("The selected language is " + destination_language.name)
                         return destination_language
                     except Exception:
-                        print(f"{TermColor.CYAN}The given input doesn't seem to be a valid language{TermColor.NC}")
+                        print(f"{TC.CYAN}The given input doesn't seem to be a valid language{TC.NC}")
                         return _prompt_for_destination_language()
 
                 if destination_language is None:
@@ -220,7 +220,7 @@ def main():
                         print("What language do you want to use for the dictionary checking?")
                     destination_language = _prompt_for_destination_language()
 
-            intro_msg = f"{TermColor.CYAN}Enter '.quit' to exit shell mode{TermColor.NC}"
+            intro_msg = f"{TC.CYAN}Enter '.quit' to exit shell mode{TC.NC}"
             cmd_shell = TrnaslatepyShell(intro_msg=intro_msg, prompt=INPUT_PREFIX.format(action=action), dl=dl, default_cmd=action.lower())
             cmd_shell.destination_language = destination_language
             # cmd_shell.source_language = source_language
@@ -265,14 +265,14 @@ class TrnaslatepyShell(cmd.Cmd):
             if func:
                 return self._safe_exec(func, line)
             else:
-                print(f"{TermColor.ORANGE}No such command: {cmd}{TermColor.NC}")
+                print(f"{TC.ORANGE}No such command: {cmd}{TC.NC}")
         elif self.default_cmd_func:
             return self._safe_exec(self.default_cmd_func, line)
         else:
-            print(f"{TermColor.ORANGE}Unknown command line{TermColor.NC}")
+            print(f"{TC.ORANGE}Unknown command line{TC.NC}")
     
     def do_quit(self, line: str) -> bool:
-        print(f"Thank you for using {TermColor.CYAN}translatepy{TermColor.NC}!")
+        print(f"Thank you for using {TC.CYAN}translatepy{TC.NC}!")
         return True
 
     def do_set_cmd(self, cmd: str):
@@ -281,7 +281,7 @@ class TrnaslatepyShell(cmd.Cmd):
             self.default_cmd_func = func
             self.prompt = cmd
         else:
-            print(f"{TermColor.ORANGE}No such command: {cmd}{TermColor.NC}")
+            print(f"{TC.ORANGE}No such command: {cmd}{TC.NC}")
 
     def do_transliterate(self, input_text: str):
         result = self.dl.transliterate(input_text, self.destination_language, self.source_language)
@@ -289,7 +289,7 @@ class TrnaslatepyShell(cmd.Cmd):
 
     def do_translate(self, input_text: str):
         result = self.dl.translate(input_text, self.destination_language, self.source_language)
-        print(f"Result {TermColor.GREY}({{source}} → {{dest}}){TermColor.NC}: {{result}}".format(source=result.source_language, dest=result.destination_language, result=result.result))
+        print(f"Result {TC.GREY}({{source}} → {{dest}}){TC.NC}: {{result}}".format(source=result.source_language, dest=result.destination_language, result=result.result))
 
     def do_spellcheck(self, input_text: str):
         result = self.dl.spellcheck(input_text, self.source_language)
