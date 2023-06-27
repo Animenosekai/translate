@@ -5,19 +5,18 @@ LRU cache implementation for the translatepy project.
 """
 
 import gc
-import os
 import sys
 import logging
 from functools import lru_cache, wraps
 from collections import OrderedDict # , MutableMapping
-from multiprocessing.pool import ThreadPool
+from multiprocessing import Lock
+# from multiprocessing.pool import ThreadPool
 from datetime import datetime, timedelta
 
 logger = logging.getLogger('translatepy')
 
 
 class LRUDictCache(OrderedDict):
-
     def __init__(self, maxsize=1024, *args, **kwds):
         self.maxsize = maxsize
         super().__init__(*args, **kwds)
@@ -44,9 +43,8 @@ class SizeLimitedLRUCache():
     Special implementation of a size limited LRU cache.
     """
 
-    __slots__ = ("_lru_size", "ordered_dict", "max_size", "allow_overflow")
+    __slots__ = ("_lru_size", "ordered_dict", "max_size", "allow_overflow", "pool_lock")  # lock
 
-    pool = ThreadPool(100)
 
     def __init__(self, *args, max_size: int = 1e+7, allow_overflow: bool = True, **kwds):
         """
@@ -59,6 +57,8 @@ class SizeLimitedLRUCache():
         """
         self.allow_overflow = bool(allow_overflow)
         self.max_size = int(max_size)
+        # self.pool = ThreadPool(3)
+        self.pool_lock = Lock()
         if sys.version_info[1] >= 7:
             # In Python 3.7+, the dictionary is ordered by default.
             self.ordered_dict = {}
@@ -106,8 +106,10 @@ class SizeLimitedLRUCache():
         - This is considered as an operation made to the cache and the object will be placed at the end.
         - The object might is not added right after this call if allow_overflow is set to False
         """
-        if not self.allow_overflow:
-            def _set_item():
+        def _set_item():
+              with self.pool_lock:
+                if self.allow_overflow:
+                    self.ordered_dict.__setitem__(key, value)
                 obj_size = self.get_size({key: value})
                 self._lru_size[key] = obj_size
                 self._lru_size["total_size"] += obj_size
@@ -121,32 +123,11 @@ class SizeLimitedLRUCache():
 
                     del self.ordered_dict[oldest]
                     del self._lru_size[oldest]
+                if not self.allow_overflow:
+                    self.ordered_dict.__setitem__(key, value)
 
-                self.ordered_dict.__setitem__(key, value)
-                # self.move_to_end(key)
-        else:
-            # if we can overflow the cache, we can just add the object and check for the size later
-            # self.ordered_dict.__setitem__(self, key, value)
-            
-            self.ordered_dict.__setitem__(key, value)
-            # self.ordered_dict.move_to_end(key)
-
-            def _set_item():
-                obj_size = self.get_size({key: value})
-                self._lru_size[key] = obj_size
-                self._lru_size["total_size"] += obj_size
-                while self._lru_size["total_size"] > self.max_size:
-                    try:
-                        oldest = next(iter(self.ordered_dict))
-                    except StopIteration:
-                        break
-
-                    self._lru_size["total_size"] -= self._lru_size[oldest]
-
-                    del self.ordered_dict[oldest]
-                    del self._lru_size[oldest]
-
-        self.pool.apply(_set_item)
+        _set_item()
+        # self.pool.apply(_set_item)
 
     def __iter__(self):
         return iter(self.ordered_dict)
