@@ -1,5 +1,8 @@
 # `translatepy` (originally: translate)
 
+> **Warning**  
+> You are currently on the `next` branch. This branch contains the most up-to-date code for `translatepy` but might be unstable and is not suitable for anything other than development.
+
 ### An aggregation of multiple translation API
 
 ***Translate, transliterate, get the language of texts in no time with the help of multiple APIs!***
