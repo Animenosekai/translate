@@ -3,7 +3,7 @@
 
 This file lists and explains the different endpoints available in the Translation section.
 
-## Translate
+# Translate
 
 
         Translates the given text to the given language
@@ -15,7 +15,7 @@ This file lists and explains the different endpoints available in the Translatio
 GET /translate
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L40)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L45)
 
 ### Authentication
 
@@ -25,14 +25,19 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to translate  | True            | str            |
-| `dest` | The destination language  | True            | str            |
-| `source` | The source language  | False            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+| `text` | The text to translate  | Yes            | str            |
+| `dest` | The destination language  | Yes            | str            |
+| `source` | The source language  | No            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | No            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
 
 ### Example
 
 <!-- tabs:start -->
+
+
+<details>
+    <summary>cURL Example</summary>
 
 #### **cURL**
 
@@ -43,9 +48,15 @@ curl -X GET \
     "/translate"
 ```
 
+</details>
+
+
+<details>
+    <summary>JavaScript Example</summary>
+
 #### **JavaScript**
 
-```bash
+```javascript
 fetch(`/translate?text=${encodeURIComponent("text")}&dest=${encodeURIComponent("dest")}`, {
     method: "GET"
 })
@@ -60,9 +71,15 @@ fetch(`/translate?text=${encodeURIComponent("text")}&dest=${encodeURIComponent("
 })
 ```
 
+</details>
+
+
+<details>
+    <summary>Python Example</summary>
+
 #### **Python**
 
-```bash
+```python
 import requests
 r = requests.request("GET", "/translate",
         params = {
@@ -74,11 +91,13 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /translate")
 print(r.json()["data"])
 ```
+
+</details>
 <!-- tabs:end -->
 
 ### Response
 
-#### Example Response
+#### Example response
 
 ```json
 {
@@ -88,8 +107,32 @@ print(r.json()["data"])
     "data": {
         "service": "Google",
         "source": "Hello world",
-        "sourceLang": "English",
-        "destLang": "Japanese",
+        "sourceLanguage": {
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
+        },
+        "destinationLanguage": {
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
+        },
         "result": "こんにちは世界"
     }
 }
@@ -100,11 +143,11 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | False      |
-| `source` | The source text  | str      | False      |
-| `sourceLang` | The source language  | str      | False      |
-| `destLang` | The destination language  | str      | False      |
-| `result` | The translated text  | str      | False      |
+| `service` | The translator used  | str      | No      |
+| `source` | The source text  | str      | No      |
+| `sourceLanguage` | The source language  | object      | No      |
+| `destinationLanguage` | The destination language  | object      | No      |
+| `result` | The translated text  | str      | No      |
 
 #### Possible Errors
 
@@ -120,7 +163,7 @@ print(r.json()["data"])
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
-## Translation Stream
+# Translation Stream
 
 
         Translates the given text to the given language
@@ -132,7 +175,7 @@ print(r.json()["data"])
 GET /stream
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L95)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L101)
 
 ### Authentication
 
@@ -142,14 +185,19 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to translate  | True            | str            |
-| `dest` | The destination language  | True            | str            |
-| `source` | The source language  | False            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+| `text` | The text to translate  | Yes            | str            |
+| `dest` | The destination language  | Yes            | str            |
+| `source` | The source language  | No            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | No            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
 
 ### Example
 
 <!-- tabs:start -->
+
+
+<details>
+    <summary>cURL Example</summary>
 
 #### **cURL**
 
@@ -160,9 +208,15 @@ curl -X GET \
     "/stream"
 ```
 
+</details>
+
+
+<details>
+    <summary>JavaScript Example</summary>
+
 #### **JavaScript**
 
-```bash
+```javascript
 fetch(`/stream?text=${encodeURIComponent("text")}&dest=${encodeURIComponent("dest")}`, {
     method: "GET"
 })
@@ -177,9 +231,15 @@ fetch(`/stream?text=${encodeURIComponent("text")}&dest=${encodeURIComponent("des
 })
 ```
 
+</details>
+
+
+<details>
+    <summary>Python Example</summary>
+
 #### **Python**
 
-```bash
+```python
 import requests
 r = requests.request("GET", "/stream",
         params = {
@@ -191,11 +251,13 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /stream")
 print(r.json()["data"])
 ```
+
+</details>
 <!-- tabs:end -->
 
 ### Response
 
-#### Example Response
+#### Example response
 
 ```json
 {
@@ -205,8 +267,32 @@ print(r.json()["data"])
     "data": {
         "service": "Google",
         "source": "Hello world",
-        "sourceLang": "English",
-        "destLang": "Japanese",
+        "sourceLanguage": {
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
+        },
+        "destinationLanguage": {
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
+        },
         "result": "こんにちは世界"
     }
 }
@@ -217,11 +303,11 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | False      |
-| `source` | The source text  | str      | False      |
-| `sourceLang` | The source language  | str      | False      |
-| `destLang` | The destination language  | str      | False      |
-| `result` | The translated text  | str      | False      |
+| `service` | The translator used  | str      | No      |
+| `source` | The source text  | str      | No      |
+| `sourceLanguage` | The source language  | object      | No      |
+| `destinationLanguage` | The destination language  | object      | No      |
+| `result` | The translated text  | str      | No      |
 
 #### Possible Errors
 
@@ -237,7 +323,7 @@ print(r.json()["data"])
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
-## Translate HTML
+# Translate HTML
 
 
         Translates the given HTML string or BeautifulSoup object to the given language
@@ -282,7 +368,7 @@ print(r.json()["data"])
 GET /html
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L199)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L206)
 
 ### Authentication
 
@@ -292,15 +378,20 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `code` | The HTML snippet to translate  | True            | str            |
-| `dest` | The destination language  | True            | str            |
-| `source` | The source language  | False            | str            |
-| `parser` | The HTML parser to use  | False            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+| `code` | The HTML snippet to translate  | Yes            | str            |
+| `dest` | The destination language  | Yes            | str            |
+| `source` | The source language  | No            | str            |
+| `parser` | The HTML parser to use  | No            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | No            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
 
 ### Example
 
 <!-- tabs:start -->
+
+
+<details>
+    <summary>cURL Example</summary>
 
 #### **cURL**
 
@@ -311,9 +402,15 @@ curl -X GET \
     "/html"
 ```
 
+</details>
+
+
+<details>
+    <summary>JavaScript Example</summary>
+
 #### **JavaScript**
 
-```bash
+```javascript
 fetch(`/html?code=${encodeURIComponent("code")}&dest=${encodeURIComponent("dest")}`, {
     method: "GET"
 })
@@ -328,9 +425,15 @@ fetch(`/html?code=${encodeURIComponent("code")}&dest=${encodeURIComponent("dest"
 })
 ```
 
+</details>
+
+
+<details>
+    <summary>Python Example</summary>
+
 #### **Python**
 
-```bash
+```python
 import requests
 r = requests.request("GET", "/html",
         params = {
@@ -342,11 +445,13 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /html")
 print(r.json()["data"])
 ```
+
+</details>
 <!-- tabs:end -->
 
 ### Response
 
-#### Example Response
+#### Example response
 
 ```json
 {
@@ -359,11 +464,23 @@ print(r.json()["data"])
             "Bing"
         ],
         "source": "<div><p>Hello, how are you today</p><p>Comment allez-vous</p></div>",
-        "sourceLang": [
+        "sourceLanguage": [
             "fra",
             "eng"
         ],
-        "destLang": "Japanese",
+        "destinationLanguage": {
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
+        },
         "result": "<div><p>こんにちは、今日はお元気ですか</p><p>大丈夫</p></div>"
     }
 }
@@ -374,11 +491,11 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `services` | The translators used  | array      | False      |
-| `source` | The source text  | str      | False      |
-| `sourceLang` | The source languages  | array      | False      |
-| `destLang` | The destination language  | str      | False      |
-| `result` | The translated text  | str      | False      |
+| `services` | The translators used  | array      | No      |
+| `source` | The source text  | str      | No      |
+| `sourceLanguage` | The source languages  | array      | No      |
+| `destinationLanguage` | The destination language  | object      | No      |
+| `result` | The translated text  | str      | No      |
 
 #### Possible Errors
 
@@ -394,7 +511,7 @@ print(r.json()["data"])
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
-## Transliterate
+# Transliterate
 
 
         Transliterates the given text, get its pronunciation
@@ -406,7 +523,7 @@ print(r.json()["data"])
 GET /transliterate
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L270)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L284)
 
 ### Authentication
 
@@ -416,14 +533,19 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to transliterate  | True            | str            |
-| `dest` | The destination language  | False            | str            |
-| `source` | The source language  | False            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+| `text` | The text to transliterate  | Yes            | str            |
+| `dest` | The destination language  | No            | str            |
+| `source` | The source language  | No            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | No            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
 
 ### Example
 
 <!-- tabs:start -->
+
+
+<details>
+    <summary>cURL Example</summary>
 
 #### **cURL**
 
@@ -433,9 +555,15 @@ curl -X GET \
     "/transliterate"
 ```
 
+</details>
+
+
+<details>
+    <summary>JavaScript Example</summary>
+
 #### **JavaScript**
 
-```bash
+```javascript
 fetch(`/transliterate?text=${encodeURIComponent("text")}`, {
     method: "GET"
 })
@@ -450,9 +578,15 @@ fetch(`/transliterate?text=${encodeURIComponent("text")}`, {
 })
 ```
 
+</details>
+
+
+<details>
+    <summary>Python Example</summary>
+
 #### **Python**
 
-```bash
+```python
 import requests
 r = requests.request("GET", "/transliterate",
         params = {
@@ -463,11 +597,13 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /transliterate")
 print(r.json()["data"])
 ```
+
+</details>
 <!-- tabs:end -->
 
 ### Response
 
-#### Example Response
+#### Example response
 
 ```json
 {
@@ -477,8 +613,32 @@ print(r.json()["data"])
     "data": {
         "service": "Google",
         "source": "おはよう",
-        "sourceLang": "Japanese",
-        "destLang": "English",
+        "sourceLanguage": {
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
+        },
+        "destinationLanguage": {
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
+        },
         "result": "Ohayou"
     }
 }
@@ -489,11 +649,11 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | False      |
-| `source` | The source text  | str      | False      |
-| `sourceLang` | The source language  | str      | False      |
-| `destLang` | The destination language  | str      | False      |
-| `result` | The transliteration  | str      | False      |
+| `service` | The translator used  | str      | No      |
+| `source` | The source text  | str      | No      |
+| `sourceLanguage` | The source language  | object      | No      |
+| `destinationLanguage` | The destination language  | object      | No      |
+| `result` | The transliteration  | str      | No      |
 
 #### Possible Errors
 
@@ -509,7 +669,7 @@ print(r.json()["data"])
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
-## Spellcheck
+# Spellcheck
 
 
         Checks the spelling of a given text
@@ -521,7 +681,7 @@ print(r.json()["data"])
 GET /spellcheck
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L325)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L340)
 
 ### Authentication
 
@@ -531,13 +691,18 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to spellcheck  | True            | str            |
-| `source` | The source language  | False            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+| `text` | The text to spellcheck  | Yes            | str            |
+| `source` | The source language  | No            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | No            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
 
 ### Example
 
 <!-- tabs:start -->
+
+
+<details>
+    <summary>cURL Example</summary>
 
 #### **cURL**
 
@@ -547,9 +712,15 @@ curl -X GET \
     "/spellcheck"
 ```
 
+</details>
+
+
+<details>
+    <summary>JavaScript Example</summary>
+
 #### **JavaScript**
 
-```bash
+```javascript
 fetch(`/spellcheck?text=${encodeURIComponent("text")}`, {
     method: "GET"
 })
@@ -564,9 +735,15 @@ fetch(`/spellcheck?text=${encodeURIComponent("text")}`, {
 })
 ```
 
+</details>
+
+
+<details>
+    <summary>Python Example</summary>
+
 #### **Python**
 
-```bash
+```python
 import requests
 r = requests.request("GET", "/spellcheck",
         params = {
@@ -577,11 +754,13 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /spellcheck")
 print(r.json()["data"])
 ```
+
+</details>
 <!-- tabs:end -->
 
 ### Response
 
-#### Example Response
+#### Example response
 
 ```json
 {
@@ -591,7 +770,19 @@ print(r.json()["data"])
     "data": {
         "service": "Google",
         "source": "God morning",
-        "sourceLang": "English",
+        "sourceLang": {
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
+        },
         "result": "Good morning"
     }
 }
@@ -602,10 +793,10 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | False      |
-| `source` | The source text  | str      | False      |
-| `sourceLang` | The source language  | str      | False      |
-| `result` | The spellchecked text  | str      | False      |
+| `service` | The translator used  | str      | No      |
+| `source` | The source text  | str      | No      |
+| `sourceLang` | The source language  | object      | No      |
+| `result` | The spellchecked text  | str      | No      |
 
 #### Possible Errors
 
@@ -621,7 +812,7 @@ print(r.json()["data"])
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
-## Language
+# Language
 
 
         Returns the language of the given text
@@ -633,7 +824,7 @@ print(r.json()["data"])
 GET /language
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L377)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L394)
 
 ### Authentication
 
@@ -643,12 +834,17 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to get the language of  | True            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+| `text` | The text to get the language of  | Yes            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | No            | TranslatorList            |
+| `foreign` | Whether to include the language in foreign languages  | No            | Bool            |
 
 ### Example
 
 <!-- tabs:start -->
+
+
+<details>
+    <summary>cURL Example</summary>
 
 #### **cURL**
 
@@ -658,9 +854,15 @@ curl -X GET \
     "/language"
 ```
 
+</details>
+
+
+<details>
+    <summary>JavaScript Example</summary>
+
 #### **JavaScript**
 
-```bash
+```javascript
 fetch(`/language?text=${encodeURIComponent("text")}`, {
     method: "GET"
 })
@@ -675,9 +877,15 @@ fetch(`/language?text=${encodeURIComponent("text")}`, {
 })
 ```
 
+</details>
+
+
+<details>
+    <summary>Python Example</summary>
+
 #### **Python**
 
-```bash
+```python
 import requests
 r = requests.request("GET", "/language",
         params = {
@@ -688,11 +896,13 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /language")
 print(r.json()["data"])
 ```
+
+</details>
 <!-- tabs:end -->
 
 ### Response
 
-#### Example Response
+#### Example response
 
 ```json
 {
@@ -702,7 +912,19 @@ print(r.json()["data"])
     "data": {
         "service": "Google",
         "source": "Hello world",
-        "result": "jpa"
+        "result": {
+            "inForeignLanguages": {},
+            "extra": {
+                "scope": "Individual",
+                "type": "Living"
+            },
+            "id": "eng",
+            "alpha2": "en",
+            "alpha3b": "eng",
+            "alpha3t": "eng",
+            "alpha3": "eng",
+            "name": "English"
+        }
     }
 }
 
@@ -712,9 +934,9 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | False      |
-| `source` | The source text  | str      | False      |
-| `result` | The resulting language alpha-3 code  | str      | False      |
+| `service` | The translator used  | str      | No      |
+| `source` | The source text  | str      | No      |
+| `result` | The resulting language alpha-3 code  | object      | No      |
 
 #### Possible Errors
 
@@ -730,7 +952,7 @@ print(r.json()["data"])
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
-## Text to Speech
+# Text to Speech
 
 
         Gives back the text to speech result for the given text
@@ -761,7 +983,7 @@ print(r.json()["data"])
 GET /tts
 ```
 
-> [translatepy/server/translation.py](../../translatepy/server/translation.py#L416)
+> [translatepy/server/translation.py](../../translatepy/server/translation.py#L434)
 
 ### Authentication
 
@@ -771,15 +993,19 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to convert to speech  | True            | str            |
-| `source` | The source language  | False            | str            |
-| `speed` | The speed of the speech  | False            | int            |
-| `gender` | The gender of the speech  | False            | str            |
-| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | False            | TranslatorList            |
+| `text` | The text to convert to speech  | Yes            | str            |
+| `source` | The source language  | No            | str            |
+| `speed` | The speed of the speech  | No            | int            |
+| `gender` | The gender of the speech  | No            | str            |
+| `translators` | The translator(s) to use. When providing multiple translators, the names should be comma-separated.  | No            | TranslatorList            |
 
 ### Example
 
 <!-- tabs:start -->
+
+
+<details>
+    <summary>cURL Example</summary>
 
 #### **cURL**
 
@@ -789,9 +1015,15 @@ curl -X GET \
     "/tts"
 ```
 
+</details>
+
+
+<details>
+    <summary>JavaScript Example</summary>
+
 #### **JavaScript**
 
-```bash
+```javascript
 fetch(`/tts?text=${encodeURIComponent("text")}`, {
     method: "GET"
 })
@@ -806,9 +1038,15 @@ fetch(`/tts?text=${encodeURIComponent("text")}`, {
 })
 ```
 
+</details>
+
+
+<details>
+    <summary>Python Example</summary>
+
 #### **Python**
 
-```bash
+```python
 import requests
 r = requests.request("GET", "/tts",
         params = {
@@ -819,37 +1057,9 @@ if r.status_code >= 400 or not r.json()["success"]:
 print("Successfully requested for /tts")
 print(r.json()["data"])
 ```
+
+</details>
 <!-- tabs:end -->
-
-### Response
-
-#### Example Response
-
-```json
-{
-    "success": true,
-    "message": "Successfully processed your request",
-    "error": null,
-    "data": {
-        "service": "Google",
-        "source": "Hello world",
-        "sourceLang": "English",
-        "destLang": "Japanese",
-        "result": "こんにちは世界"
-    }
-}
-
-```
-
-#### Returns
-
-| Field        | Description                      | Type   | Nullable  |
-| ----------   | -------------------------------- | ------ | --------- |
-| `service` | The translator used  | str      | False      |
-| `source` | The source text  | str      | False      |
-| `sourceLang` | The source language  | str      | False      |
-| `destLang` | The destination language  | str      | False      |
-| `result` | The translated text  | str      | False      |
 
 #### Possible Errors
 

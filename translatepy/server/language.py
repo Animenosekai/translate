@@ -1,8 +1,10 @@
 from nasse import Response
-from nasse.models import Endpoint, Error, Login, Param, Return, Dynamic
+from nasse.models import Dynamic, Endpoint, Error, Login, Param, Return
 from nasse.utils.boolean import to_bool
+import translatepy
 from translatepy.exceptions import UnknownLanguage
-from translatepy.language import LANGUAGE_CLEANUP_REGEX, LOADED_VECTORS, Language, VECTORS
+from translatepy.language import (LANGUAGE_CLEANUP_REGEX, LOADED_VECTORS,
+                                  VECTORS, Language)
 from translatepy.server.server import app
 from translatepy.utils.sanitize import remove_spaces
 from translatepy.utils.similarity import StringVector
@@ -16,11 +18,65 @@ base = Endpoint(
     login=Login(no_login=True)
 )
 
+EXAMPLE_ENGLISH = {
+    "id": "eng",
+    "similarity": 100,
+    "alpha2": "en",
+    "alpha3b": "eng",
+    "alpha3t": "eng",
+    "alpha3": "eng",
+    "name": "English",
+    "inForeignLanguages": {
+        "af": "Engels",
+        "sq": "Anglisht",
+        "am": "እንግሊዝኛ",
+        "ar": "الإنجليزية",
+        "hy": "Անգլերեն",
+        "...": "...",
+        "zh": "英语",
+        "he": "אנגלית",
+        "jv": "Inggris",
+        "en": "English"
+    },
+    "extra": {
+        "type": "Living",
+        "scope": "Individual"
+    }
+}
+
+EXAMPLE_JAPANESE = {
+    "id": "jpn",
+    "similarity": 100,
+    "alpha2": "ja",
+    "alpha3b": "jpn",
+    "alpha3t": "jpn",
+    "alpha3": "jpn",
+    "name": "Japanese",
+    "extra": {
+        "type": "Living",
+        "scope": "Individual"
+    },
+    "inForeignLanguages": {
+        "af": "Japanese",
+        "sq": "Japonez",
+        "am": "ጃፓንኛ",
+        "ar": "اليابانية",
+        "hy": "Ճապոնական",
+        "...": "...",
+        "zh": "日本",
+        "he": "יַפָּנִית",
+        "jv": "Jepang",
+        "en": "Japanese"
+    }
+}
+
 
 def Bool(value):
     """A boolean value with True by default"""
     return to_bool(value, default=True)
 
+
+PARAM_FOREIGN = Param("foreign", "Whether to include the language in foreign languages", required=False, type=Bool)
 
 language_details_endpoint = Endpoint(
     endpoint=base,
@@ -28,7 +84,7 @@ language_details_endpoint = Endpoint(
     description="Retrieving details about the given language",
     params=[
         Param("threshold", "The similarity threshold to use when searching for similar languages", required=False, type=float),
-        Param("foreign", "Whether to include the language in foreign languages", required=False, type=Bool)
+        PARAM_FOREIGN
     ],
     returning=[
         Return("id", example="eng", description="The language id"),
@@ -37,12 +93,12 @@ language_details_endpoint = Endpoint(
         Return("alpha3t", nullable=True, example="eng", description="The language alpha3t code"),
         Return("alpha3", example="eng", description="The language alpha3 code"),
         Return("name", example="English", description="The language name"),
-        Return("foreign", nullable=True, description="The language in foreign languages", type="dict", example={'af': 'Engels', 'sq': 'Anglisht', 'am': 'እንግሊዝኛ', 'ar': 'الإنجليزية', 'hy': 'Անգլերեն', "...": "...", 'zh': '英语', 'he': 'אנגלית', 'jv': 'Inggris', 'en': 'English'}),
+        Return("inForeignLanguages", nullable=True, description="The language in foreign languages", type="dict", example={'af': 'Engels', 'sq': 'Anglisht', 'am': 'እንግሊዝኛ', 'ar': 'الإنجليزية', 'hy': 'Անգլերեն', "...": "...", 'zh': '英语', 'he': 'אנגלית', 'jv': 'Inggris', 'en': 'English'}),
         Return(
             "extra",
             example={
                 "type": "Living",
-                "scope": None,
+                "scope": "Individual",
             },
             description="The language extra data",
             children=[
@@ -71,20 +127,9 @@ def language_details(lang: str, threshold: float = 93, foreign: bool = True):
             error="UNKNOWN_LANGUAGE",
             code=400
         )
-    return 200, {
-        "id": result.id,
-        "similarity": result.similarity,
-        "alpha2": result.alpha2,
-        "alpha3b": result.alpha3b,
-        "alpha3t": result.alpha3t,
-        "alpha3": result.alpha3,
-        "name": result.name,
-        "foreign": (result.in_foreign_languages if foreign else None),
-        "extra": {
-            "type": result.extra.type.name if result.extra.type is not None else None,
-            "scope": result.extra.scope.name if result.extra.scope is not None else None
-        }
-    }
+    return Response(result.as_dict(camelCase=True, foreign=foreign), headers={
+        "X-TRANSLATEPY-VERSION": translatepy.__version__
+    })
 
 
 @app.route("/language/search", Endpoint(
@@ -97,30 +142,7 @@ def language_details(lang: str, threshold: float = 93, foreign: bool = True):
             {
                 "string": "English",
                 "similarity": 100,
-                "language": {
-                    "id": "eng",
-                    "alpha2": "en",
-                    "alpha3b": "eng",
-                    "alpha3t": "eng",
-                    "alpha3": "eng",
-                    "name": "English",
-                    "foreign": {
-                        "af": "Engels",
-                        "sq": "Anglisht",
-                        "am": "እንግሊዝኛ",
-                        "ar": "الإنجليزية",
-                        "hy": "Անգլերեն",
-                        "...": "...",
-                        "zh": "英语",
-                        "he": "אנגלית",
-                        "jv": "Inggris",
-                        "en": "English"
-                    },
-                    "extra": {
-                        "type": "Living",
-                        "scope": None
-                    }
-                }
+                "language": EXAMPLE_ENGLISH
             }
         ],
         description="The languages found"
@@ -128,7 +150,7 @@ def language_details(lang: str, threshold: float = 93, foreign: bool = True):
     params=[
         Param("lang", "The language to lookup"),
         Param("limit", "The limit of languages to return. (max: 100, default: 10)", required=False, type=int),
-        Param("foreign", "Whether to include the language in foreign languages", required=False, type=Bool)
+        PARAM_FOREIGN
     ]
 ))
 def language_search(lang: str, foreign: bool = True, limit: int = 10):
@@ -145,16 +167,18 @@ def language_search(lang: str, foreign: bool = True, limit: int = 10):
 
     results = sorted(results_dict.items(), key=lambda x: x[1], reverse=True)[:limit]
 
-    return 200, {
+    return Response({
         "languages": [
             {
                 "string": str(vector.string),
                 "similarity": similarity,
-                "language": Language(VECTORS[vector.string]["i"]).as_dict(foreign)
+                "language": Language(VECTORS[vector.string]["i"]).as_dict(camelCase=True, foreign=foreign)
             }
             for vector, similarity in results
         ]
-    }
+    }, headers={
+        "X-TRANSLATEPY-VERSION": translatepy.__version__
+    })
 
 
 @app.route("/language/details/<language>", Endpoint(
@@ -175,17 +199,6 @@ def language_details_dynamic(language: str, threshold: float = 93, foreign: bool
             error="UNKNOWN_LANGUAGE",
             code=400
         )
-    return 200, {
-        "id": result.id,
-        "similarity": result.similarity,
-        "alpha2": result.alpha2,
-        "alpha3b": result.alpha3b,
-        "alpha3t": result.alpha3t,
-        "alpha3": result.alpha3,
-        "name": result.name,
-        "foreign": (result.in_foreign_languages if foreign else None),
-        "extra": {
-            "type": result.extra.type.name if result.extra.type is not None else None,
-            "scope": result.extra.scope.name if result.extra.scope is not None else None
-        }
-    }
+    return Response(result.as_dict(camelCase=True, foreign=foreign), headers={
+        "X-TRANSLATEPY-VERSION": translatepy.__version__
+    })

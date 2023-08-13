@@ -4,12 +4,23 @@ You can easily create your own translator by inheriting the "BaseTranslator" cla
 
 ## Table of Content
 
+- [Usage](#usage)
 - [Template](#template)
 - [Best Practices](#best-practices)
 
+## Usage
+
+You can use plugins by importing them and using as normal translatepy translators.
+
+You can also import them and add them to the `services_list` parameter in the `Translate`/`Translator` class.
+
+To dynamic import them (using the CLI, the API or any other interface using a text-based translator definition/the dynamic translator importer), you need to give the *dot path* of the translator.
+
+> Example : translatepy.translators.google.GoogleTranslate
+
 ## Template
 
-This is how your class should look like:
+If you want to create your own translator, you can use the following template :
 
 ```python
 """
@@ -84,7 +95,7 @@ Responses are all automatically cached by `BaseTranslator`
 
 ### Supported Languages
 
-The `_supported_languages` set is optional but highly recommended to avoid making unneeded requests.
+The `_supported_languages` set is optional but highly recommended : it avoids making unneeded requests.
 
 ### Recursion
 

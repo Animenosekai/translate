@@ -164,11 +164,12 @@ class Language():
         """
         return {
             "id": self.id,
+            "name": self.name,
+            "similarity": self.similarity,
             "alpha2": self.alpha2,
             "alpha3b": self.alpha3b,
             "alpha3t": self.alpha3t,
             "alpha3": self.alpha3,
-            "name": self.name,
             "extra": self.extra.as_dict(),
             "in_foreign_languages": self.in_foreign_languages if foreign else None
         }

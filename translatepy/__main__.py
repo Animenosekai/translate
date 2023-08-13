@@ -8,11 +8,20 @@ import translatepy
 from translatepy.exceptions import UnknownLanguage, VersionNotSupported
 from translatepy.models import Result
 
-INPUT_PREFIX = "(\033[90mtranslatepy ~ \033[0m{action}) > "
+class TC():
+    GREY = "\033[90m"
+    CYAN = "\033[96m"
+    ORANGE = "\033[33m"
+    NC = "\033[0m"
 
-NO_ACTION = """\
+INPUT_PREFIX = f"({TC.GREY}translatepy ~ {TC.NC}{{action}}) > "
+
+NO_ACTION = """
 usage: translatepy [-h] [--version] {translate,transliterate,spellcheck,language,shell,server} ...
-translatepy: error: the following arguments are required: action"""
+translatepy: error: the following arguments are required: action
+"""
+
+# TODO: use 'rich' library
 
 actions = [
     inquirer.List(
@@ -165,7 +174,7 @@ def main():
                         print("The selected language is " + dest_lang.name)
                         return dest_lang
                     except Exception:
-                        print("\033[93mThe given input doesn't seem to be a valid language\033[0m")
+                        print(f"{TC.CYAN}The given input doesn't seem to be a valid language{TC.NC}")
                         return _prompt_for_destination_language()
 
                 if dest_lang is None:
@@ -238,7 +247,82 @@ def main():
                     except Exception:
                         print("We are sorry but an error occured or no result got returned...")
 
-        print("Thank you for using \033[96mtranslatepy\033[0m!")
+        self.destination_language = None
+        self.source_language = 'auto'
+
+    def _get_cmd_func(self, cmd: str) -> Callable:
+        return getattr(self, f'do_{cmd}', None)
+
+    def _safe_exec(self, function: Callable, *args, **kwargs) -> Any:
+        try:
+            return function(*args, **kwargs)
+        except Exception:
+            print_exc()
+            print("We are sorry but an error occured or no result got returned...")
+
+    def default(self, line: str) -> None:
+        if line.startswith(self.cmd_prefix):
+            cmd = line.split(self.cmd_prefix)[1]
+            # cmd = line_cmd.split(" ")[0]
+            # cmd_arg = line_cmd.split(" ")[1:]
+            func = self._get_cmd_func(cmd)
+            if func:
+                return self._safe_exec(func, line)
+            else:
+                print(f"{TC.ORANGE}No such command: {cmd}{TC.NC}")
+        elif self.default_cmd_func:
+            return self._safe_exec(self.default_cmd_func, line)
+        else:
+            print(f"{TC.ORANGE}Unknown command line{TC.NC}")
+    
+    def do_quit(self, line: str) -> bool:
+        print(f"Thank you for using {TC.CYAN}translatepy{TC.NC}!")
+        return True
+
+    def do_set_cmd(self, cmd: str):
+        func = self._get_cmd_func(cmd.lower())
+        if func:
+            self.default_cmd_func = func
+            self.prompt = cmd
+        else:
+            print(f"{TC.ORANGE}No such command: {cmd}{TC.NC}")
+
+    def do_transliterate(self, input_text: str):
+        result = self.dl.transliterate(input_text, self.destination_language, self.source_language)
+        print("Result ({lang}): {result}".format(lang=result.source_language, result=result.result))
+
+    def do_translate(self, input_text: str):
+        result = self.dl.translate(input_text, self.destination_language, self.source_language)
+        print(f"Result {TC.GREY}({{source}} → {{dest}}){TC.NC}: {{result}}".format(source=result.source_language, dest=result.destination_language, result=result.result))
+
+    def do_spellcheck(self, input_text: str):
+        result = self.dl.spellcheck(input_text, self.source_language)
+        print("Result ({lang}): {result}".format(lang=result.source_language, result=result.result))
+
+    def do_language(self, input_text: str):
+        result = self.dl.language(input_text)
+        try:
+            result = translatepy.Language(result.result).name
+        except Exception:
+            result = result.result
+        print("The given text is in {lang}".format(lang=result))
+
+    def do_example(self, input_text: str):
+        result = self.dl.example(input_text, self.destination_language, self.source_language)
+        results = []
+        if isinstance(result.result, list):
+            try:
+                results = results[:3]
+            except Exception:
+                results = results
+        else:
+            results = [str(result.result)]
+        if len(results) > 0:
+            print("Here is a list of examples:")
+            for example in results:
+                print("    - " + str(example))
+        else:
+            print("No example found for {input_text}".format(input_text=input_text))
 
 
 if __name__ == "__main__":

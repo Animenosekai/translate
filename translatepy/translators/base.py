@@ -17,45 +17,23 @@ import bs4
 from translatepy import models, exceptions
 from translatepy.utils import hasher, lru_cacher, sanitize, request
 from translatepy.language import Language
+from translatepy.models import (DictionaryResult, ExampleResult,
+                                LanguageResult, SpellcheckResult,
+                                TextToSpechResult, TranslationResult,
+                                TransliterationResult)
+from translatepy.utils.annotations import List
+from translatepy.utils.lru_cacher import LRUDictCache
+from translatepy.utils.sanitize import remove_spaces
 
-# Types
-T = typing.TypeVar('T')  # The method given to the decorator
-C = typing.TypeVar('C', bound="BaseTranslator")  # The expected result class for `models.Result`
-R = typing.TypeVar('R')  # The expected result class for `LazyIterable`
 
+# copied from abc.ABC (Python 3.9.5)
+class ABC(metaclass=ABCMeta):
+    """Helper class that provides a standard way to create an ABC using
+    inheritance.
 
-class LazyIterable(typing.Generic[R]):
+    Added in the ABC module in Python 3.4
     """
-    An object which can be iterated through, even multiple times, but lazy loads the results.
-    """
-
-    def __init__(self, func: typing.Callable[[str], R], texts: typing.Optional[typing.Iterable[str]] = None, work_name: str = "") -> None:
-        self.func = func
-        self.texts = texts or []
-        self.results: typing.List[R] = []
-        self.work_name = str(work_name)
-
-    def __iter__(self):
-        current = 0
-        for text in self.texts:
-            try:
-                yield self.results[current]
-            except IndexError:
-                result = self.func(text)
-                self.results.append(result)  # caches the result
-                yield result
-            current += 1
-
-    def __getitem__(self, index: int):
-        current = 0
-        for element in self:
-            if current >= index:
-                return element
-            current += 1
-        raise IndexError("list index out of range")
-
-    def __repr__(self) -> str:
-        return "LazyIterable({}, texts={}, loaded={})".format(self.work_name, self.texts, len(self.results))
+    __slots__ = ()
 
 
 class BaseTranslateException(exceptions.TranslatepyException):
@@ -87,32 +65,27 @@ class BaseTranslateException(exceptions.TranslatepyException):
         return "{} | {}".format(self.status_code, self.message)
 
 
-# TODO: ADD `HTML` AGAIN
+# TODO: Feat: support translating > 5000 characters (or just exception raising)
+# TODO: Feat: Some translation services give out a lot of useful information that can come in handy for programmers. I think we need implement separate models class for each Translator service
+# --> If these informations come from already using endpoints like the translation or transliteration endpoint we could make an "extra data" field with those informations
+# --> but if it is completely different endpoints, we could just add them to the Translator class or as an extra function in the classes which the user would be able to use by initiating their own translator.
 
-
-class Flag(enum.Enum):
+class BaseTranslator(ABC):
     """
-    Defines a set of internal flags the handlers can send to the validator
-    """
-    MULTIPLE_RESULTS = "multi"
-
-
-class BaseTranslator:
-    """
-    The core of translatepy
-
-    This defines a "Translator" instance, which is the gateway between the translator logic and translatepy
+    Base abstract class for a translate service
     """
 
-    def __init__(self, session: typing.Optional[request.Session] = None):
-        self.session = session or request.Session()
+    _translations_cache = LRUDictCache()
+    _transliterations_cache = LRUDictCache()
+    _languages_cache = LRUDictCache()
+    _spellchecks_cache = LRUDictCache()
+    _examples_cache = LRUDictCache()
+    _dictionaries_cache = LRUDictCache()
+    _text_to_speeches_cache = LRUDictCache(8)
 
-    _caches: typing.Dict[str, lru_cacher.LRUDictCache] = {}
-    """Internal variables which holds the different caches"""
-    _supported_languages: typing.Optional[typing.Set[typing.Any]] = None
-    """A set of supported language codes"""
+    _supported_languages = {}
 
-    def _validate_text(self, text: typing.Union[str, typing.Any]) -> typing.Optional[str]:
+    def translate(self, text: str, destination_language: str, source_language: str = "auto") -> TranslationResult:
         """
         Validates the given text, enforcing its type
 
@@ -1110,6 +1083,11 @@ class BaseTranslator:
         """
         for cache in self._caches.values():
             cache.clear()
+
+    def __new__(cls, *args, **kwargs):
+        new_cls = object.__new__(cls)
+        new_cls.__base_init__()
+        return new_cls
 
     def __str__(self) -> str:
         """

@@ -64,8 +64,10 @@ class MicrosoftSessionManager:
             }
             _params = {'api-version': '3.0'}
             _params.update(params)
-
-            request = self.session.post(url, params=_params, json=data, headers=headers)
+            if request_type == "POST":
+                request = self.session.post(url, params=_params, json=data, headers=headers)
+            elif request_type == "GET":
+                request = self.session.get(url, params=_params, headers=headers)
             response = request.json()
 
             if request.status_code != 200:

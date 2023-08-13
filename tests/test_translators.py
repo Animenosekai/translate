@@ -136,3 +136,7 @@ class TestAllTranslators:
                 except IGNORED_EXCEPTIONS as ex:
                     self.report_exception("translate_html", service, ex)
                     continue
+
+    def test_service_cache_clean(self):
+        for service in self.services_list:
+            service.clean_cache()
