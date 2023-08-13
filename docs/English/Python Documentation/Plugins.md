@@ -4,12 +4,23 @@ You can easily create your own translator by inheriting the "BaseTranslator" cla
 
 ## Table of Content
 
+- [Usage](#usage)
 - [Template](#template)
 - [Best Practices](#best-practices)
 
+## Usage
+
+You can use plugins by importing them and using as normal translatepy translators.
+
+You can also import them and add them to the `services_list` parameter in the `Translate`/`Translator` class.
+
+To dynamic import them (using the CLI, the API or any other interface using a text-based translator definition/the dynamic translator importer), you need to give the *dot path* of the translator.
+
+> Example : translatepy.translators.google.GoogleTranslate
+
 ## Template
 
-This is how your class should look like:
+If you want to create your own translator, you can use the following template :
 
 ```python
 from translatepy.language import Language
@@ -141,7 +152,7 @@ Responses will be cached in the Base class if successful
 
 ### Supported Languages
 
-The `_supported_languages` set is optional but highly recommended to avoid making unneeded requests.
+The `_supported_languages` set is optional but highly recommended : it avoids making unneeded requests.
 
 ### Recursion
 
@@ -149,7 +160,7 @@ Avoid making big loops and recursions to wait for a valid result, if the user is
 
 ### Unsupported Methods/Endpoints
 
-Your source might not support some of the available features, in which case you need to raise the `translatepy.exceptions.UnsupportedMethod()`exception to let `Translator` know that this is an unsupported feature.
+Your source might not support some of the available features, in which case you need to raise the `translatepy.exceptions.UnsupportedMethod`exception to let `Translator` know that this is an unsupported feature.
 
 ### Non "_" prefixed functions
 
