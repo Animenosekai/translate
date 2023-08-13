@@ -13,11 +13,15 @@ class Queue(_Queue):
                 return True
         return False
 
-    def get(self, threads: List[Thread] = []):
-        '''Remove and return an item from the queue.
+    def get(self, threads: List[Thread] = None):
+        '''
+        Remove and return an item from the queue.
 
         It waits for a value or the termination of all threads
         '''
+        if threads is None:
+            threads = []
+
         with self.not_empty:
             while not self._qsize() and self._threads_are_alive(threads):
                 self.not_empty.wait()

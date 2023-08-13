@@ -136,7 +136,7 @@ class ReversoTranslate(BaseTranslator):
 
         _gender = "M" if gender == "male" else "F"
         _text = base64.b64encode(text.encode()).decode()
-        _source_language = "US English".lower() if source_language == "eng" else Language.by_reverso(source_language).name.lower()
+        _source_language = "US English".lower() if source_language == "eng" else Language(self._language_denormalize(source_language)).name.lower()
 
         for _supported_lang in _supported_langs_list:
             if _supported_lang["Language"].lower() == _source_language and _supported_lang["Gender"] == _gender:
