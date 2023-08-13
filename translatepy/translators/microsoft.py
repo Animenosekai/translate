@@ -50,7 +50,7 @@ class MicrosoftSessionManager():
 
             self._auth_session_file.write({"token": self._token, "region": self._region, "token_expiries": self._token_expiries})
 
-    def send(self, url, data, params: Dict = {}):
+    def send(self, url: str, data: Dict = None, params: Dict = {}, request_type: str = "POST"):
         # Try 2 times to make a request
         for _ in range(2):
             headers = {
@@ -60,8 +60,10 @@ class MicrosoftSessionManager():
             }
             _params = {'api-version': '3.0'}
             _params.update(params)
-
-            request = self.session.post(url, params=_params, json=data, headers=headers)
+            if request_type == "POST":
+                request = self.session.post(url, params=_params, json=data, headers=headers)
+            elif request_type == "GET":
+                request = self.session.get(url, params=_params, headers=headers)
             response = request.json()
 
             if request.status_code != 200:
@@ -121,7 +123,7 @@ class MicrosoftTranslate(BaseTranslator):
         gender = gender.capitalize()
 
         _supported_langs_url = "https://{region}.tts.speech.microsoft.com/cognitiveservices/voices/list".format(region=self.session_manager._region)
-        _supported_langs_list = self.session_manager.send(_supported_langs_url)
+        _supported_langs_list = self.session_manager.send(_supported_langs_url, request_type="GET")
 
         # all locals list: {('zh-HK', 'zh-HK'), ('de', 'de-DE'), ('da', 'da-DK'), ('id', 'id-ID'), ('ko', 'ko-KR'), ('en', 'en-NZ'), ('el', 'el-GR'), ('ms', 'ms-MY'), ('es', 'es-AR'), ('ro', 'ro-RO'), ('pl', 'pl-PL'), ('it', 'it-IT'), ('hr', 'hr-HR'), ('pt', 'pt-PT'), ('hu', 'hu-HU'), ('sw', 'sw-KE'), ('en', 'en-GB'), ('mt', 'mt-MT'), ('tr', 'tr-TR'), ('ar', 'ar-EG'), ('fr', 'fr-CA'), ('te', 'te-IN'), ('fr', 'fr-BE'), ('en', 'en-SG'), ('zh-CN', 'zh-CN'), ('fr', 'fr-FR'), ('en', 'en-PH'), ('cs', 'cs-CZ'), ('fi', 'fi-FI'), ('zh-TW', 'zh-TW'), ('de', 'de-CH'), ('nb', 'nb-NO'), ('bg', 'bg-BG'), ('he', 'he-IL'), ('en', 'en-CA'), ('en', 'en-HK'), ('es', 'es-MX'), ('en', 'en-AU'), ('th', 'th-TH'), ('pt', 'pt-BR'), ('mr', 'mr-IN'), ('sk', 'sk-SK'), ('ru', 'ru-RU'), ('nl', 'nl-NL'), ('en', 'en-US'), ('ta', 'ta-IN'), ('hi', 'hi-IN'), ('cy', 'cy-GB'), ('ar', 'ar-SA'), ('ga', 'ga-IE'), ('nl', 'nl-BE'), ('de', 'de-AT'), ('ca', 'ca-ES'), ('uk', 'uk-UA'), ('es', 'es-CO'), ('es', 'es-ES'), ('es', 'es-US'), ('en', 'en-ZA'), ('ur', 'ur-PK'), ('sv', 'sv-SE'), ('lv', 'lv-LV'), ('lt', 'lt-LT'), ('vi', 'vi-VN'), ('et', 'et-EE'), ('en', 'en-IN'), ('en', 'en-IE'), ('ja', 'ja-JP'), ('fr', 'fr-CH'), ('gu', 'gu-IN'), ('sl', 'sl-SI')}
         _locals = {'zh-CN': 'zh-CN', 'mr': 'mr-IN', 'en': 'en-US', 'ru': 'ru-RU', 'el': 'el-GR', 'es': 'es-CO', 'id': 'id-ID', 'pt': 'pt-PT', 'ko': 'ko-KR', 'ta': 'ta-IN', 'te': 'te-IN', 'et': 'et-EE', 'pl': 'pl-PL', 'it': 'it-IT', 'ms': 'ms-MY', 'mt': 'mt-MT', 'ro': 'ro-RO', 'vi': 'vi-VN', 'bg': 'bg-BG', 'zh-TW': 'zh-TW', 'tr': 'tr-TR', 'de': 'de-CH', 'fr': 'fr-CH', 'nb': 'nb-NO', 'nl': 'nl-BE', 'uk': 'uk-UA', 'he': 'he-IL', 'ur': 'ur-PK', 'hi': 'hi-IN', 'ja': 'ja-JP', 'hr': 'hr-HR', 'sv': 'sv-SE', 'hu': 'hu-HU', 'sw': 'sw-KE', 'lt': 'lt-LT', 'sl': 'sl-SI', 'fi': 'fi-FI', 'lv': 'lv-LV', 'sk': 'sk-SK', 'da': 'da-DK', 'cy': 'cy-GB', 'gu': 'gu-IN', 'ga': 'ga-IE', 'th': 'th-TH', 'ar': 'ar-EG', 'ca': 'ca-ES', 'zh-HK': 'zh-HK', 'cs': 'cs-CZ'}

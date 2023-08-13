@@ -12,13 +12,13 @@ on:
 
 jobs:
   test-py35:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.5
         uses: actions/setup-python@v2
         with:
-          python-version: "3.5"
+          python-version: "3.5.4"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -27,21 +27,21 @@ jobs:
           python3 setup.py install
       - name: Test with pytest
         run: |
-          pytest --cov-config=.coveragerc --cov-report xml:coverage.xml --cov=translatepy -vv tests/
+          pytest --cov-config=.coveragerc --cov-report xml:coverage.xml --cov=translatepy -vvs tests/
       - name: Upload Coverage report
         uses: codecov/codecov-action@v2
         with:
           files: ./coverage.xml
 
   test-py37:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: test-py35
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.7
         uses: actions/setup-python@v2
         with:
-          python-version: "3.7"
+          python-version: "3.7.1"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -50,10 +50,10 @@ jobs:
           python3 setup.py install
       - name: Test with pytest
         run: |
-          pytest -vv
+          pytest -vvs
 
   test-py39:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: test-py37
     steps:
       - uses: actions/checkout@v2
@@ -69,10 +69,10 @@ jobs:
           python3 setup.py install
       - name: Test with pytest
         run: |
-          pytest -vv
+          pytest -vvs
 
   test-py310:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: test-py39
     steps:
       - uses: actions/checkout@v2
@@ -88,4 +88,4 @@ jobs:
           python3 setup.py install
       - name: Test with pytest
         run: |
-          pytest -vv tests/
+          pytest -vvs tests/

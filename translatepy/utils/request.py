@@ -7,7 +7,7 @@ import pyuseragents
 import requests
 from requests.models import CaseInsensitiveDict
 from translatepy.exceptions import RequestStatusError
-from translatepy.utils.lru_cacher import LRUDictCache
+from translatepy.utils.lru import SizeLimitedLRUCache
 
 
 class Response():
@@ -116,7 +116,7 @@ class Request():
 #        }
         self.session = requests.Session()
 
-        self.GETCACHE = LRUDictCache()
+        self.GETCACHE = SizeLimitedLRUCache()
         self.cache_duration = float(cache_duration)
 
         self.headers = HEADERS

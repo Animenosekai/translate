@@ -4,7 +4,7 @@ from typing import Union
 
 from translatepy.exceptions import UnknownLanguage
 from translatepy.utils._language_data import CODES, LANGUAGE_DATA, VECTORS
-from translatepy.utils.lru_cacher import LRUDictCache
+from translatepy.utils.lru import LRUDictCache
 from translatepy.utils.similarity import StringVector, fuzzy_search
 
 # preparing the vectors

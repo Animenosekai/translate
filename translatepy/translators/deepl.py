@@ -19,7 +19,7 @@ from translatepy.translators.base import BaseTranslator, BaseTranslateException
 from translatepy.utils.annotations import Tuple, List
 from translatepy.utils.request import Request
 
-SENTENCES_SPLITTING_REGEX = compile('(?<=[.!:?]) +')
+SENTENCES_SPLITTING_REGEX = compile('(?<=[.!:?])\s+')
 
 
 class DeeplTranslateException(BaseTranslateException):
@@ -102,7 +102,7 @@ class JSONRPCRequest():
 
 class DeeplTranslate(BaseTranslator):
 
-    _supported_languages = {'AUTO', 'BG', 'ZH', 'CS', 'DA', 'NL', 'NL', 'EN', 'ET', 'FI', 'FR', 'DE', 'EL', 'HU', 'IT', 'JA', 'LV', 'LT', 'PL', 'PT', 'RO', 'RO', 'RO', 'RU', 'SK', 'SL', 'ES', 'ES', 'SV'}
+    _supported_languages = {'AUTO', 'BG', 'ZH', 'CS', 'DA', 'NL', 'EN', 'ET', 'FI', 'FR', 'DE', 'EL', 'HU', 'IT', 'JA', 'LV', 'LT', 'PL', 'PT', 'RO', 'RU', 'SK', 'SL', 'ES', 'SV', 'TR', 'ID', 'NB', 'KO', 'UK'}
 
     def __init__(self, request: Request = Request(), preferred_langs: List = ["EN", "RU", "JA", "FR"]) -> None:
         self.session = request
