@@ -2,9 +2,11 @@ class TranslatepyException(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
+
 class VersionNotSupported(TranslatepyException):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
+
 
 class NoResult(TranslatepyException, ValueError):  # ValueError is needed for backward compatibility
     def __init__(self, *args: object) -> None:
@@ -36,6 +38,7 @@ class UnknownLanguage(TranslatepyException):
         super().__init__(*args)
         self.guessed_language = str(guessed_language)
         self.similarity = similarity
+
 
 class UnknownTranslator(TranslatepyException):
     def __init__(self, guessed_translator, similarity, *args: object) -> None:

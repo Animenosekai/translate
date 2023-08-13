@@ -1,25 +1,31 @@
 """
-DeepL
+DeepL Implementation for translatepy
 
-About the translation and the language endpoints:
-    This implementation of DeepL follows Marocco2's implementation of DeepL's JSONRPC API\n
-    Arrangements and optimizations have been made\n
-    Refer to Issue Animenosekai/translate#7 on GitHub for further details
-
-© Anime no Sekai — 2021
+Copyright
+---------
+Marocco2
+    Original implementation
+    Refer to Animenosekai/translate#7
+Animenosekai
+    Arrangements, optimizations
+ZhymabekRoman
+    Co-Author
 """
 
-from time import time, sleep
-from re import compile
-from random import randint
+import re
+import time
+import random
+import typing
+
 from bs4 import BeautifulSoup
 
+from translatepy import models, exceptions
 from translatepy.language import Language
-from translatepy.translators.base import BaseTranslator, BaseTranslateException
-from translatepy.utils.annotations import Tuple, List
-from translatepy.utils.request import Request
+from translatepy.translators.base import BaseTranslateException, BaseTranslator, C
+from translatepy.utils.annotations import List, Tuple
+from translatepy.utils import request
 
-SENTENCES_SPLITTING_REGEX = compile('(?<=[.!:?])\s+')
+SENTENCES_SPLITTING_REGEX = re.compile('(?<=[.!:?]) +')
 
 
 class DeeplTranslateException(BaseTranslateException):
@@ -32,13 +38,14 @@ class DeeplTranslateException(BaseTranslateException):
     }
 
 
-class GetClientState():
+class GetClientState:
     """
     DeepL Translate state manager
     """
-    def __init__(self, request: Request):
-        self.id_number = randint(1000, 9999) * 10000
-        self.session = request
+
+    def __init__(self, session: request.Session):
+        self.id_number = random.randint(1000, 9999) * 10000
+        self.session = session
 
     def dump(self) -> dict:
         self.id_number += 1
@@ -62,17 +69,18 @@ class GetClientState():
         return response["id"]
 
 
-class JSONRPCRequest():
+class JSONRPCRequest:
     """
     JSON RPC Request Sender for DeepL
     """
-    def __init__(self, request: Request) -> None:
+
+    def __init__(self, session: request.Session) -> None:
         self.client_state = GetClientState(request)
         try:
             self.id_number = self.client_state.get()
         except Exception:
-            self.id_number = (randint(1000, 9999) * 10000) + 1  # ? I didn't verify the range, but it's better having only DeepL not working than having Translator() crash for only one service
-        self.session = request
+            self.id_number = (random.randint(1000, 9999) * 10000) + 1  # ? I didn't verify the range, but it's better having only DeepL not working than having Translator() crash for only one service
+        self.session = session
         self.last_access = 0
 
     def dump(self, method, params):
@@ -87,12 +95,12 @@ class JSONRPCRequest():
 
     def send_jsonrpc(self, method, params):
         # Take a break 3 sec between requests, so as not to get a block by the IP address
-        if time() - self.last_access < 3:
-            distance = 3 - (time() - self.last_access)
-            sleep((distance if distance >= 0 else 0))
+        if time.time() - self.last_access < 3:
+            distance = 3 - (time.time() - self.last_access)
+            time.sleep((distance if distance >= 0 else 0))
 
         request = self.session.post("https://www2.deepl.com/jsonrpc", json=self.dump(method, params))
-        self.last_access = time()
+        self.last_access = time.time()
         response = request.json()
         if request.status_code == 200:
             return response["result"]
@@ -102,19 +110,19 @@ class JSONRPCRequest():
 
 class DeeplTranslate(BaseTranslator):
 
-    _supported_languages = {'AUTO', 'BG', 'ZH', 'CS', 'DA', 'NL', 'EN', 'ET', 'FI', 'FR', 'DE', 'EL', 'HU', 'IT', 'JA', 'LV', 'LT', 'PL', 'PT', 'RO', 'RU', 'SK', 'SL', 'ES', 'SV', 'TR', 'ID', 'NB', 'KO', 'UK'}
+    _supported_languages = {'AUTO', 'BG', 'CS', 'DA', 'DE', 'EL', 'EN', 'ES', 'ET', 'FI', 'FR', 'HU', 'IT', 'JA', 'LT', 'LV', 'NL', 'PL', 'PT', 'RO', 'RU', 'SK', 'SL', 'SV', 'ZH', 'TR', 'ID', 'UK'}
 
-    def __init__(self, request: Request = Request(), preferred_langs: List = ["EN", "RU", "JA", "FR"]) -> None:
-        self.session = request
-        self.jsonrpc = JSONRPCRequest(request)
+    def __init__(self, session: request.Session = None, preferred_langs: List = ["EN", "RU"]) -> None:
+        super().__init__(session)
+        self.jsonrpc = JSONRPCRequest(session)
         self.user_preferred_langs = preferred_langs
 
-    def _split_into_sentences(self, text: str, destination_language: str, source_language: str) -> Tuple[List[str], str]:
+    def _split_into_sentences(self, text: str, dest_lang: str, source_lang: str) -> Tuple[List[str], str]:
         """
         Split a string into sentences using the DeepL API.\n
         Fallbacks to a simple Regex splitting if an error occurs or no result is found
 
-        Returned tuple: (Result, Computed Language (None if same as source_language))
+        Returned tuple: (Result, Computed Language (None if same as source_lang))
         """
         REGEX_SPLIT = True
 
@@ -124,59 +132,59 @@ class DeeplTranslate(BaseTranslator):
         params = {
             "texts": [text.strip()],  # What for need strip there?
             "lang": {
-                "lang_user_selected": source_language,
-                "user_preferred_langs": list(set(self.user_preferred_langs + [destination_language]))
+                "lang_user_selected": source_lang,
+                "user_preferred_langs": list(set(self.user_preferred_langs + [dest_lang]))
             }
         }
         resp = self.jsonrpc.send_jsonrpc("LMT_split_into_sentences", params)
 
         return resp["splitted_texts"][0], resp["lang"]
 
-    def _translate(self, text: str, destination_language: str, source_language: str) -> str:
+    def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
         priority = 1
         quality = ""
 
         # splitting the text into sentences
-        sentences, computed_lang = self._split_into_sentences(text, destination_language, source_language)
+        sentences, computed_lang = self._split_into_sentences(text, dest_lang, source_lang)
 
         # building the a job per sentence
         jobs = self._build_jobs(sentences, quality)
 
-        # timestamp generation
+        # time.timestamp generation
         i_count = 1
         for sentence in sentences:
             i_count += sentence.count("i")
-        ts = int(time() * 10) * 100 + 1000
+        ts = int(time.time() * 10) * 100 + 1000
 
         # params building
         params = {
             "jobs": jobs,
             "lang": {
-                "target_lang": destination_language,
-                "user_preferred_langs": [destination_language]
+                "target_lang": dest_lang,
+                "user_preferred_langs": [dest_lang]
             },
             "priority": priority,
-            "timestamp": ts + (i_count - ts % i_count)
+            "time.timestamp": ts + (i_count - ts % i_count)
         }
 
-        if source_language == "auto":
+        if source_lang == "auto":
             params["lang"]["source_lang_computed"] = computed_lang
             params["lang"]["user_preferred_langs"].append(computed_lang)
         else:
-            params["lang"]["source_lang_user_selected"] = source_language
+            params["lang"]["source_lang_user_selected"] = source_lang
 
         results = self.jsonrpc.send_jsonrpc("LMT_handle_jobs", params)
 
         try:
             _detected_language = results["source_lang"]
-        except:
-            _detected_language = source_language
+        except Exception:
+            _detected_language = source_lang
 
         if results is not None:
             translations = results["translations"]
-            return _detected_language, " ".join(obj["beams"][0]["postprocessed_sentence"] for obj in translations if obj["beams"])
+            return models.TranslationResult(source_lang=_detected_language, translation=" ".join(obj["beams"][0]["postprocessed_sentence"] for obj in translations if obj["beams"]))
 
-    def _language(self, text: str) -> str:
+    def _language(self: C, text: str) -> models.LanguageResult[C]:
         priority = 1
         quality = ""
 
@@ -186,11 +194,11 @@ class DeeplTranslate(BaseTranslator):
         # building the a job per sentence
         jobs = self._build_jobs(sentences, quality)
 
-        # timestamp generation
+        # time.timestamp generation
         i_count = 1
         for sentence in sentences:
             i_count += sentence.count("i")
-        ts = int(time() * 10) * 100 + 1000
+        ts = int(time.time() * 10) * 100 + 1000
 
         # params building
         params = {
@@ -200,7 +208,7 @@ class DeeplTranslate(BaseTranslator):
                 "user_preferred_langs": ["EN"]
             },
             "priority": priority,
-            "timestamp": ts + (i_count - ts % i_count)
+            "time.timestamp": ts + (i_count - ts % i_count)
         }
 
         if computed_lang is not None:
@@ -212,16 +220,19 @@ class DeeplTranslate(BaseTranslator):
         results = self.jsonrpc.send_jsonrpc("LMT_handle_jobs", params)
 
         if results is not None:
-            return results["source_lang"]
+            return models.LanguageResult(language=results["source_lang"])
 
-    def _dictionary(self, text: str, destination_language: str, source_language: str) -> str:
-        if source_language == "AUTO":
-            source_language = self._language(text)
+    def _dictionary(self: C, text: str, source_lang: typing.Any) -> typing.Union[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]], typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
+        # TODO: Need to reimplement
+        raise exceptions.UnsupportedMethod("Need to reimplement this")
+        if source_lang == "AUTO":
+            source_lang = self._language_to_code(self.language(text).language)
 
-        destination_language = Language(destination_language).name.lower()
-        source_language = Language(source_language).name.lower()
+        dest_lang = ""
+        dest_lang = Language(dest_lang).name.lower()
+        source_lang = Language(source_lang).name.lower()
 
-        request = self.session.post("https://dict.deepl.com/" + source_language + "-" + destination_language + "/search?ajax=1&source=" + source_language + "&onlyDictEntries=1&translator=dnsof7h3k2lgh3gda&delay=800&jsStatus=0&kind=full&eventkind=keyup&forleftside=true", data={"query": text})
+        request = self.session.post("https://dict.deepl.com/" + source_lang + "-" + dest_lang + "/search?ajax=1&source=" + source_lang + "&onlyDictEntries=1&translator=dnsof7h3k2lgh3gda&delay=800&jsStatus=0&kind=full&eventkind=keyup&forleftside=true", data={"query": text})
         if request.status_code < 400:
             response = BeautifulSoup(request.text, "html.parser")
             _result = []
@@ -233,7 +244,7 @@ class DeeplTranslate(BaseTranslator):
                         #     results["featured"].append(element.text.replace("\n", ""))
                         # else:
                         #     results["less_common"].append(element.text.replace("\n", ""))
-            return source_language, _result
+            return source_lang, _result
 
     def _build_jobs(self, sentences, quality=""):
         """
@@ -269,15 +280,15 @@ class DeeplTranslate(BaseTranslator):
 
         return jobs
 
-    def _language_normalize(self, language):
+    def _language_to_code(self, language: Language) -> typing.Union[str, typing.Any]:
         if language.id == "zho":
             return "ZH"
         return language.alpha2.upper()
 
-    def _language_denormalize(self, language_code):
-        if str(language_code).lower() in {"zh", "zh-cn"}:
+    def _code_to_language(self, code: typing.Union[str, typing.Any]) -> Language:
+        if str(code).lower() in {"zh", "zh-cn"}:
             return Language("zho")
-        return Language(language_code)
+        return Language(code)
 
     def __str__(self) -> str:
         return "DeepL"

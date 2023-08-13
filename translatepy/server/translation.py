@@ -80,7 +80,7 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
             )
 
     try:
-        result = current_translator.translate(text=text, destination_language=dest, source_language=source)
+        result = current_translator.translate(text=text, dest_lang=dest, source_lang=source)
     except UnknownLanguage as err:
         return Response(
             data={
@@ -93,9 +93,13 @@ def translate(text: str, dest: str, source: str = "auto", translators: List[str]
                 "X-TRANSLATEPY-VERSION": translatepy.__version__
             }
         )
-    return Response(result.as_dict(camelCase=True, foreign=foreign), headers={
-        "X-TRANSLATEPY-VERSION": translatepy.__version__
-    })
+    return 200, {
+        "service": str(result.service),
+        "source": result.source,
+        "sourceLang": result.source_lang,
+        "destLang": result.dest_lang,
+        "result": result.result
+    }
 
 
 @app.route("/stream", Endpoint(
@@ -138,7 +142,7 @@ def stream(text: str, dest: str, source: str = "auto", translators: List[str] = 
     try:
         dest = Language(dest)
         source = Language(source)
-        # result = current_translator.translate(text=text, destination_language=dest, source_language=source)
+        # result = current_translator.translate(text=text, dest_lang=dest, source_lang=source)
     except UnknownLanguage as err:
         return Response(
             data={
@@ -154,7 +158,7 @@ def stream(text: str, dest: str, source: str = "auto", translators: List[str] = 
 
     def _translate(translator: BaseTranslator):
         result = translator.translate(
-            text=text, destination_language=dest, source_language=source
+            text=text, dest_lang=dest, source_lang=source
         )
         if result is None:
             raise NoResult("{service} did not return any value".format(service=translator.__repr__()))
@@ -168,7 +172,13 @@ def stream(text: str, dest: str, source: str = "auto", translators: List[str] = 
                 "success": True,
                 "error": None,
                 "message": None,
-                "data": result.as_dict(camelCase=True, foreign=foreign)
+                "data": {
+                    "service": str(result.service),
+                    "source": str(result.source),
+                    "sourceLang": str(result.source_lang),
+                    "destLang": str(result.dest_lang),
+                    "result": str(result.result)
+                }
             })
         except Exception as err:
             queue.put({
@@ -261,14 +271,14 @@ def html(code: str, dest: str, source: str = "auto", parser: str = "html.parser"
 
     def _translate(node: NavigableString):
         try:
-            result = current_translator.translate(str(node), destination_language=destination, source_language=source)
+            result = current_translator.translate(str(node), dest_lang=dest, source_lang=source)
             services.append(str(result.service))
-            languages.append(str(result.source_language))
+            languages.append(str(result.source_lang))
             node.replace_with(result.result)
         except Exception:  # ignore if it couldn't find any result or an error occured
             pass
 
-    result = current_translator.translate_html(html=code, destination_language=destination, source_language=source, parser=parser, __internal_replacement_function__=_translate)
+    result = current_translator.translate_html(html=code, dest_lang=dest, source_lang=source, parser=parser, __internal_replacement_function__=_translate)
 
     return Response({
         "services": [element for element, _ in Counter(services).most_common()],
@@ -319,7 +329,7 @@ def transliterate(text: str, dest: str = "English", source: str = "auto", transl
             )
 
     try:
-        result = current_translator.transliterate(text=text, destination_language=dest, source_language=source)
+        result = current_translator.transliterate(text=text, dest_lang=dest, source_lang=source)
     except UnknownLanguage as err:
         return Response(
             data={
@@ -332,9 +342,13 @@ def transliterate(text: str, dest: str = "English", source: str = "auto", transl
                 "X-TRANSLATEPY-VERSION": translatepy.__version__
             }
         )
-    return Response(result.as_dict(camelCase=True, foreign=foreign), headers={
-        "X-TRANSLATEPY-VERSION": translatepy.__version__
-    })
+    return 200, {
+        "service": str(result.service),
+        "source": result.source,
+        "sourceLang": result.source_lang,
+        "destLang": result.dest_lang,
+        "result": result.result
+    }
 
 
 @app.route("/spellcheck", Endpoint(
@@ -373,7 +387,7 @@ def spellcheck(text: str, source: str = "auto", translators: List[str] = None, f
             )
 
     try:
-        result = current_translator.spellcheck(text=text, source_language=source)
+        result = current_translator.spellcheck(text=text, source_lang=source)
     except UnknownLanguage as err:
         return Response(
             data={
@@ -386,9 +400,12 @@ def spellcheck(text: str, source: str = "auto", translators: List[str] = None, f
                 "X-TRANSLATEPY-VERSION": translatepy.__version__
             }
         )
-    return Response(result.as_dict(camelCase=True, foreign=foreign), headers={
-        "X-TRANSLATEPY-VERSION": translatepy.__version__
-    })
+    return 200, {
+        "service": str(result.service),
+        "source": result.source,
+        "sourceLang": result.source_lang,
+        "result": result.result
+    }
 
 
 @app.route("/language", Endpoint(
@@ -461,7 +478,7 @@ def tts(text: str, speed: int = 100, gender: str = "female", source: str = "auto
                 }
             )
 
-    result = current_translator.text_to_speech(text=text, speed=speed, gender=gender, source_language=source)
+    result = current_translator.text_to_speech(text=text, speed=speed, gender=gender, source_lang=source)
 
     return Response(result.result, content_type="audio/mpeg", headers={
         "X-TRANSLATEPY-VERSION": translatepy.__version__

@@ -1,7 +1,15 @@
-from translatepy.exceptions import UnsupportedMethod
+"""
+MyMemory
+
+translatepy's implementation of MyMemory
+"""
+import typing
+
+from translatepy import models
 from translatepy.language import Language
-from translatepy.translators.base import BaseTranslateException, BaseTranslator
-from translatepy.utils.annotations import Tuple
+from translatepy.translators.base import (BaseTranslateException,
+                                          BaseTranslator, C)
+from translatepy.utils import request
 from translatepy.utils.request import Request
 
 
@@ -15,64 +23,45 @@ class MyMemoryTranslate(BaseTranslator):
     """
     translatepy's implementation of MyMemory
     """
+    base_url = "https://api.mymemory.translated.net/get"
 
-    def __init__(self, request: Request = Request()):
-        self.session = request
-        self.base_url = "https://api.mymemory.translated.net/get"
+    def __init__(self, session: typing.Optional[request.Session] = None):
+        super().__init__(session)
 
-    def _translate(self, text: str, destination_language: str, source_language: str) -> Tuple[str, str]:
-        """
-        This is the translating endpoint
+    def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
+        request = self.session.get(self.base_url, params={"q": text, "langpair": source_lang + "|" + dest_lang})
+        request.raise_for_status()
+        try:
+            data = request.json()["matches"][0]
+            result = data["matches"][0]
+        except IndexError:
+            raise MyMemoryException("NO_MATCH")
 
-        Must return a tuple with (detected_language, result)
-        """
-        request = self.session.get(self.base_url, params={"q": text, "langpair": source_language + "|" + destination_language})
-        if request.status_code < 400:
-            try:
-                result = request.json()["matches"][0]
-            except IndexError:
-                raise MyMemoryException("NO_MATCH")
-            try:
-                _detected_language = result["source"].split("-")[0]
-            except Exception:
-                _detected_language = source_language
-            return _detected_language, result["translation"]
+        try:
+            _detected_language = result["source"].split("-")[0]
+        except Exception:
+            _detected_language = source_lang
 
-    def _language(self, text: str) -> str:
-        """
-        This is the language detection endpoint
+        return models.TranslationResult(source_lang=_detected_language, translation=result["translation"], raw=data)
 
-        Must return a string with the language code
-        """
-        # You could use `self.session` to make a request to the endpoint, with all of the parameters
+    def _language(self: C, text: str) -> models.LanguageResult[C]:
         request = self.session.get(self.base_url, params={"q": text, "langpair": "autodetect|en"})
         request.raise_for_status()
-        result = request.json()["matches"][0]
-        return result["source"]
+        data = request.json()
+        return models.LanguageResult(language=data["matches"][0]["source"], raw=data)
 
-    def _language_normalize(self, language: Language) -> str:
-        """
-        This is the language validation function
-        It receives a "translatepy.language.Language" object and returns the correct language code
-
-        Must return a string with the correct language code
-        """
+    def _language_to_code(self, language: Language) -> typing.Union[str, typing.Any]:
         if language.id == "auto":
             return "autodetect"
         return language.alpha2
 
-    def _language_denormalize(self, language_code) -> str:
-        """
-        This is the language denormalization function
-        It receives a string with the translator language code and returns a "translatepy.language.Language" object
-
-        Must return a string with the correct language code
-        """
-        language_code = str(language_code).split("-")[0]
+    def _code_to_language(self, code: typing.Union[str, typing.Any]) -> Language:
+        language_code = str(code).split("-")[0]
         if language_code == "autodetect":
             return Language("auto")
-        elif str(language_code).lower() in {"zh-cn", "zh"}:
-            return Language("zho")
+        # this should work without checking
+        # elif str(language_code).lower() == "zh":
+        #     return Language("zho")
         return Language(language_code)
 
     def __str__(self) -> str:

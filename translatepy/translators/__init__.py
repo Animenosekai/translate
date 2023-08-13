@@ -1,4 +1,5 @@
 from translatepy.translators.base import BaseTranslator
+
 from translatepy.translators.bing import BingTranslate
 from translatepy.translators.deepl import DeeplTranslate
 from translatepy.translators.google import (GoogleTranslate, GoogleTranslateV1,
@@ -9,3 +10,23 @@ from translatepy.translators.reverso import ReversoTranslate
 from translatepy.translators.translatecom import TranslateComTranslate
 from translatepy.translators.yandex import YandexTranslate
 from translatepy.translators.microsoft import MicrosoftTranslate
+
+from translatepy.translators.qcri import QCRI
+from translatepy.translators.pons import PONS
+
+
+# aliases
+
+Reverso = ReversoTranslate
+Bing = BingTranslate
+DeepL = DeeplTranslate
+Deepl = DeeplTranslate
+Google = GoogleTranslate
+Libre = LibreTranslate
+MyMemory = MyMemoryTranslate
+TranslateCom = TranslateComTranslate
+Yandex = YandexTranslate
+Microsoft = MicrosoftTranslate
+
+QCRITranslate = QCRI
+PONSTranslate = PONS
