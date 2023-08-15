@@ -167,16 +167,14 @@ name = "cain"
 version = "1.1"
 description = "A small yet powerful data format ✨"
 optional = false
-python-versions = "^3.8"
-files = []
-develop = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "cain-1.1-py3-none-any.whl", hash = "sha256:277b0a0d3747dbed37625e8b0fe1be84607601c3754d87e3b5da8739a2491cd9"},
+    {file = "cain-1.1.tar.gz", hash = "sha256:9b5e01bf9276d866cc5862bd7189b3965fa40753fe7e83b4f3fa73d8ed7105cd"},
+]
 
 [package.dependencies]
-typing_extensions = "^4.7"
-
-[package.source]
-type = "directory"
-url = "../cain"
+typing_extensions = ">=4.7,<5.0"
 
 [[package]]
 name = "certifi"
@@ -696,23 +694,21 @@ name = "nasse"
 version = "2.0.1"
 description = "A web server framework written on top of Flask which lets you focus on your ideas 🍡"
 optional = false
-python-versions = "^3.8"
-files = []
-develop = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "nasse-2.0.1-py3-none-any.whl", hash = "sha256:ceb1df30922e753ef448599704306e34f3af9903945725c4f0c079716fc6ac37"},
+    {file = "nasse-2.0.1.tar.gz", hash = "sha256:9663853860f712f842d5c8b1b2d8e725f141f2346ef63511bd3e1775fc461da3"},
+]
 
 [package.dependencies]
-flask = "^2"
-flask-compress = "^1.10"
-miko = "^1.1"
-nh3 = "^0.2.14"
-requests = "^2"
-rich = "^13"
-textual = "^0.30.0"
-watchdog = "^3.0.0"
-
-[package.source]
-type = "directory"
-url = "../Nasse"
+flask = ">=2,<3"
+flask-compress = ">=1.10,<2.0"
+miko = ">=1.1,<2.0"
+nh3 = ">=0.2.14,<0.3.0"
+requests = ">=2,<3"
+rich = ">=13,<14"
+textual = ">=0.30.0,<0.31.0"
+watchdog = ">=3.0.0,<4.0.0"
 
 [[package]]
 name = "nh3"
@@ -1093,4 +1089,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "ea5591fe84226e1f385768792aa63784ec3332e80609dbc455b982644efd074c"
+content-hash = "2dc11cdf476165d518a8d8e7cb97b44ec61f68ad42bfb7c3494c179fa21c04d1"

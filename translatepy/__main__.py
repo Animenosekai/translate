@@ -1,27 +1,28 @@
+"""
+__main__.py
+
+The `translatepy` CLI
+"""
 import argparse
-import dataclasses
+import cmd
 import json
+import typing
 
 import inquirer
+from nasse import logger
 
 import translatepy
-from translatepy.exceptions import UnknownLanguage, VersionNotSupported
-from translatepy.models import Result
+from translatepy.exceptions import UnknownLanguage
 
-class TC():
+
+class TC:
     GREY = "\033[90m"
     CYAN = "\033[96m"
     ORANGE = "\033[33m"
     NC = "\033[0m"
 
+
 INPUT_PREFIX = f"({TC.GREY}translatepy ~ {TC.NC}{{action}}) > "
-
-NO_ACTION = """
-usage: translatepy [-h] [--version] {translate,transliterate,spellcheck,language,shell,server} ...
-translatepy: error: the following arguments are required: action
-"""
-
-# TODO: use 'rich' library
 
 actions = [
     inquirer.List(
@@ -33,43 +34,14 @@ actions = [
 ]
 
 
-def print_json_success(result: Result):
-    """
-    Prints a successful JSON response
-    """
-    print(json.dumps({
-        "success": True,
-        "data": dataclasses.asdict(result)
-    }, ensure_ascii=False, indent=4))
-
-
-def print_json_error(err: Exception):
-    """
-    Prints a JSON-formatted error
-    """
-    data = {}
-    if isinstance(err, UnknownLanguage):
-        data = {
-            "guessedLanguage": err.guessed_language,
-            "similarity": err.similarity
-        }
-    print(json.dumps({
-        "success": False,
-        "exception": err.__class__.__name__,
-        "error": str(err),
-        "data": data
-    }, ensure_ascii=False, indent=4))
-
-
-def main():
+def entry():
     # Create the parser
-    parser = argparse.ArgumentParser(prog='translatepy', description='Translate, transliterate, get the language of texts in no time with the help of multiple APIs!')
+    parser = argparse.ArgumentParser(prog='translatepy', description='Translate, transliterate, get the language of texts in no time with the help of numerous APIs!')
 
     parser.add_argument('--version', '-v', action='version', version=translatepy.__version__)
     parser.add_argument("--translators", action="store", type=str, help="List of translators to use. Each translator name should be comma-separated.", required=False, default=None)
 
-    # subparser = parser.add_subparsers(help='Actions', dest="action", required=True)
-    subparser = parser.add_subparsers(help='Actions', dest="action")
+    subparser = parser.add_subparsers(help='Actions', dest="action", required=True)
 
     parser_translate = subparser.add_parser('translate', help='Translates the given text to the given language')
     parser_translate.add_argument('--text', '-t', action='store', type=str, required=True, help='text to translate')
@@ -98,64 +70,103 @@ def main():
 
     args = parser.parse_args()
 
-    if not args.action:
-        # required subparser had been added in Python 3.7
-        print(NO_ACTION)
-        return
-
     if args.translators is not None:
-        dl = translatepy.Translator(args.translators.split(","))
+        service = translatepy.Translator(args.translators.split(","))
     else:
-        dl = translatepy.Translator()
+        service = translatepy.Translator()
 
     if args.action == 'translate':
         try:
-            result = dl.translate(text=str(args.text), dest_lang=args.dest_lang, source_lang=args.source_lang)
-            print_json_success(result)
+            result = service.translate(text=args.text, dest_lang=args.dest_lang, source_lang=args.source_lang)
+            print(result.as_json(indent=4, ensure_ascii=False))
+        except UnknownLanguage as err:
+            print(json.dumps({
+                "success": False,
+                "guessedLanguage": err.guessed_language,
+                "similarity": err.similarity,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
         except Exception as err:
-            print_json_error(err)
+            print(json.dumps({
+                "success": False,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
 
     elif args.action == 'transliterate':
         try:
-            result = dl.transliterate(args.text, args.dest_lang, args.source_lang)
-            print_json_success(result)
+            result = service.transliterate(args.text, args.dest_lang, args.source_lang)
+            print(result.as_json(indent=4, ensure_ascii=False))
+        except UnknownLanguage as err:
+            print(json.dumps({
+                "success": False,
+                "guessedLanguage": err.guessed_language,
+                "similarity": err.similarity,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
         except Exception as err:
-            print_json_error(err)
+            print(json.dumps({
+                "success": False,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
 
     elif args.action == 'spellcheck':
         try:
-            result = dl.spellcheck(args.text, args.source_lang)
-            print_json_success(result)
+            result = service.spellcheck(args.text, args.source_lang)
+            print(result.as_json(indent=4, ensure_ascii=False))
+        except UnknownLanguage as err:
+            print(json.dumps({
+                "success": False,
+                "guessedLanguage": err.guessed_language,
+                "similarity": err.similarity,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
         except Exception as err:
-            print_json_error(err)
+            print(json.dumps({
+                "success": False,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
 
     elif args.action == 'language':
         try:
-            result = dl.language(args.text)
-            print_json_success(result)
+            result = service.language(args.text)
+            print(result.as_json(indent=4, ensure_ascii=False))
+        except UnknownLanguage as err:
+            print(json.dumps({
+                "success": False,
+                "guessedLanguage": err.guessed_language,
+                "similarity": err.similarity,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
         except Exception as err:
-            print_json_error(err)
+            print(json.dumps({
+                "success": False,
+                "exception": err.__class__.__name__,
+                "error": str(err)
+            }, indent=4, ensure_ascii=False))
 
     # SERVER
     if args.action == "server":
-        try:
-            from translatepy.server import language, translation
-            from translatepy.server.server import app
-            app.run(host=args.host, port=args.port)
-        except Exception as err:
-            from sys import version_info
-            if version_info < (3, 4):
-                raise VersionNotSupported("Python 3.4 or higher is required to run the server with Nasse") from err
-            raise err
+        from translatepy.server.endpoints import _, language
+        from translatepy.server.server import app
+        app.run(host=args.host, port=args.port)
 
     # INTERACTIVE VERSION
     if args.action == 'shell':
-        dest_lang = args.dest_lang
-        # source_lang = args.source_lang
+        destination_language = args.dest_lang
+        # source_language = args.source_lang
+
         try:
-            dest_lang = translatepy.Language(dest_lang)
+            destination_language = translatepy.Language(destination_language)
         except Exception:
-            dest_lang = None
+            destination_language = None
+
         while True:
             answers = inquirer.prompt(actions)
             action = answers["action"]
@@ -163,101 +174,73 @@ def main():
                 break
             if action in ['Translate', 'Example', 'Dictionary']:
                 def _prompt_for_destination_language():
-                    answers = inquirer.prompt([
-                        inquirer.Text(
-                            name='dest_lang',
-                            message=INPUT_PREFIX.format(action="Select Lang.")
-                        )
-                    ])
                     try:
-                        dest_lang = translatepy.Language(answers["dest_lang"])
-                        print("The selected language is " + dest_lang.name)
-                        return dest_lang
+                        answers = inquirer.prompt([
+                            inquirer.Text(
+                                name='destination_language',
+                                message=INPUT_PREFIX.format(action="Select Lang.")
+                            )
+                        ], raise_keyboard_interrupt=True)
+                    except KeyboardInterrupt:
+                        print(f"{TC.CYAN}Operation was interrupted, exit...{TC.NC}")
+                        exit(1)
+
+                    try:
+                        destination_language = translatepy.Language(answers["destination_language"])
+                        print("The selected language is " + destination_language.name)
+                        return destination_language
                     except Exception:
                         print(f"{TC.CYAN}The given input doesn't seem to be a valid language{TC.NC}")
                         return _prompt_for_destination_language()
 
-                if dest_lang is None:
+                if destination_language is None:
                     if action == "Translate":
                         print("In what language do you want to translate in?")
                     elif action == "Example":
                         print("What language do you want to use for the example checking?")
                     else:
                         print("What language do you want to use for the dictionary checking?")
-                    dest_lang = _prompt_for_destination_language()
+                    destination_language = _prompt_for_destination_language()
 
-            print("")
-            if action == "Translate":
-                print("\033[96mEnter '.quit' to stop translating\033[0m")
-                while True:
-                    input_text = input(INPUT_PREFIX.format(action="Translate"))
-                    if input_text == ".quit":
-                        break
-                    try:
-                        result = dl.translate(str(input_text), str(dest_lang), args.source_lang)
-                        print(result.__pretty__(cli=True))
-                    except Exception:
-                        print("We are sorry but an error occured or no result got returned...")
+            intro_msg = f"{TC.CYAN}Enter '.quit' to exit shell mode{TC.NC}"
+            cmd_shell = TranslatepyShell(intro_msg=intro_msg, dest_lang=destination_language, prompt=INPUT_PREFIX.format(action=action), service=service, default_cmd=action.lower())
 
-            elif action == "Transliterate":
-                print("\033[96mEnter '.quit' to stop transliterating\033[0m")
-                while True:
-                    input_text = input(INPUT_PREFIX.format(action="Transliterate"))
-                    if input_text == ".quit":
-                        break
-                    try:
-                        result = dl.transliterate(text=str(input_text), dest_lang=str(dest_lang), source_lang=args.source_lang)
-                        print(result.__pretty__(cli=True))
-                    except Exception:
-                        print("We are sorry but an error occured or no result got returned...")
+            cmd_shell.cmdloop()
 
-            elif action == "Spellcheck":
-                print("\033[96mEnter '.quit' to stop spellchecking\033[0m")
-                while True:
-                    input_text = input(INPUT_PREFIX.format(action="Spellcheck"))
-                    if input_text == ".quit":
-                        break
-                    try:
-                        result = dl.spellcheck(str(input_text), args.source_lang)
-                        print(result.__pretty__(cli=True))
-                    except Exception:
-                        print("We are sorry but an error occured or no result got returned...")
 
-            elif action == "Language":
-                print("\033[96mEnter '.quit' to stop checking for the language\033[0m")
-                while True:
-                    input_text = input(INPUT_PREFIX.format(action="Language"))
-                    if input_text == ".quit":
-                        break
-                    try:
-                        result = dl.language(input_text)
-                        print(result.__pretty__(cli=True))
-                    except Exception:
-                        print("We are sorry but an error occured or no result got returned...")
+class TranslatepyShell(cmd.Cmd):
+    def __init__(self,
+                 intro_msg: str,
+                 prompt: str,
+                 dest_lang: translatepy.Language,
+                 service: typing.Optional[translatepy.Translate] = None,
+                 default_cmd: typing.Optional[str] = None,
+                 cmd_prefix: str = "."):
+        super().__init__()
 
-            elif action == "Example":
-                print("\033[96mEnter '.quit' to stop checking for examples\033[0m")
-                while True:
-                    input_text = input(INPUT_PREFIX.format(action="Example"))
-                    if input_text == ".quit":
-                        break
-                    try:
-                        result = dl.example(input_text, dest_lang, args.source_lang)
-                        print(result.__pretty__(cli=True))
-                    except Exception:
-                        print("We are sorry but an error occured or no result got returned...")
+        self.intro = intro_msg
+        self.prompt = prompt
+        self.cmd_prefix = cmd_prefix
+        self.service = service or translatepy.Translate()
 
-        self.destination_language = None
+        if default_cmd:
+            if not (default_cmd_func := self._get_cmd_func(default_cmd)):
+                raise ValueError(f"No such command: {default_cmd}")
+        else:
+            default_cmd_func = None
+        self.default_cmd_func = default_cmd_func
+
+        self.destination_language = dest_lang
         self.source_language = 'auto'
 
-    def _get_cmd_func(self, cmd: str) -> Callable:
+    def _get_cmd_func(self, cmd: str) -> typing.Callable:
         return getattr(self, f'do_{cmd}', None)
 
-    def _safe_exec(self, function: Callable, *args, **kwargs) -> Any:
+    def _safe_exec(self, function: typing.Callable, *args, **kwargs) -> typing.Any:
         try:
             return function(*args, **kwargs)
         except Exception:
-            print_exc()
+            logger.print_exception()
             print("We are sorry but an error occured or no result got returned...")
 
     def default(self, line: str) -> None:
@@ -274,7 +257,7 @@ def main():
             return self._safe_exec(self.default_cmd_func, line)
         else:
             print(f"{TC.ORANGE}Unknown command line{TC.NC}")
-    
+
     def do_quit(self, line: str) -> bool:
         print(f"Thank you for using {TC.CYAN}translatepy{TC.NC}!")
         return True
@@ -288,42 +271,30 @@ def main():
             print(f"{TC.ORANGE}No such command: {cmd}{TC.NC}")
 
     def do_transliterate(self, input_text: str):
-        result = self.dl.transliterate(input_text, self.destination_language, self.source_language)
-        print("Result ({lang}): {result}".format(lang=result.source_language, result=result.result))
+        result = self.service.transliterate(input_text, self.destination_language, self.source_language)
+        print(result.__pretty__(cli=True))
 
     def do_translate(self, input_text: str):
-        result = self.dl.translate(input_text, self.destination_language, self.source_language)
-        print(f"Result {TC.GREY}({{source}} → {{dest}}){TC.NC}: {{result}}".format(source=result.source_language, dest=result.destination_language, result=result.result))
+        result = self.service.translate(input_text, self.destination_language, self.source_language)
+        print(result.__pretty__(cli=True))
 
     def do_spellcheck(self, input_text: str):
-        result = self.dl.spellcheck(input_text, self.source_language)
-        print("Result ({lang}): {result}".format(lang=result.source_language, result=result.result))
+        result = self.service.spellcheck(input_text, self.source_language)
+        print(result.__pretty__(cli=True))
 
     def do_language(self, input_text: str):
-        result = self.dl.language(input_text)
-        try:
-            result = translatepy.Language(result.result).name
-        except Exception:
-            result = result.result
-        print("The given text is in {lang}".format(lang=result))
+        result = self.service.language(input_text)
+        print(result.__pretty__(cli=True))
 
     def do_example(self, input_text: str):
-        result = self.dl.example(input_text, self.destination_language, self.source_language)
-        results = []
-        if isinstance(result.result, list):
-            try:
-                results = results[:3]
-            except Exception:
-                results = results
-        else:
-            results = [str(result.result)]
+        results = self.service.example(input_text, self.destination_language, self.source_language)
         if len(results) > 0:
             print("Here is a list of examples:")
             for example in results:
-                print("    - " + str(example))
+                print("    - " + str(example.__pretty__(cli=True)))
         else:
-            print("No example found for {input_text}".format(input_text=input_text))
+            print(f'No example found for "{input_text}"')
 
 
 if __name__ == "__main__":
-    main()
+    entry()

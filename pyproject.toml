@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "translatepy"
 version = "3.0rc1"
-description = "Translate, transliterate, get the language of texts in no time with the help of multiple APIs!"
+description = "Translate, transliterate, get the language of texts in no time with the help of numerous APIs!"
 license = "GNU General Public License v3 (GPLv3)"
 authors = ["Animenosekai <animenosekai.mail@gmail.com>"]
 maintainers = ["Animenosekai <animenosekai.mail@gmail.com>"]
@@ -56,10 +56,8 @@ requests = "^2.31"
 beautifulsoup4 = "^4.12"
 pyuseragents = "^1"
 inquirer = "^3"
-# nasse = "^2.0.1"
-nasse = { path = "/Users/animenosekai/Documents/Coding/Projects/Nasse" }
-# cain = "^1.0.1"
-cain = { path = "/Users/animenosekai/Documents/Coding/Projects/cain" }
+nasse = "^2.0.1"
+cain = "^1.1"
 
 [tool.poetry.scripts]
 translatepy = 'translatepy.__main__:entry'

@@ -102,11 +102,14 @@ The "call_stack" attribute is enabled only when an error occurs or the `call_sta
 
 ## Index
 
+- [Language](./Sections/Language.md#language)
+  - [__language__](./Sections/Language.md#language-1)
+  - [search](./Sections/Language.md#search)
 - [Work](./Sections/Work.md#work)
   - [translate](./Sections/Work.md#translate)
   - [transliterate](./Sections/Work.md#transliterate)
   - [spellcheck](./Sections/Work.md#spellcheck)
-  - [language](./Sections/Work.md#language)
+  - [language](./Sections/Work.md#language-2)
   - [example](./Sections/Work.md#example)
   - [dictionary](./Sections/Work.md#dictionary)
   - [tts](./Sections/Work.md#tts)

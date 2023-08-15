@@ -5,7 +5,7 @@
 
 ### An aggregation of multiple translation API
 
-***Translate, transliterate, get the language of texts in no time with the help of multiple APIs!***
+***Translate, transliterate, get the language of texts in no time with the help of numerous APIs!***
 
 [![PyPI version](https://badge.fury.io/py/translatepy.svg)](https://pypi.org/project/translatepy/)
 [![Downloads](https://static.pepy.tech/personalized-badge/translatepy?period=total&units=international_system&left_color=grey&right_color=blue&left_text=Total%20Downloads)](https://pepy.tech/project/translatepy)

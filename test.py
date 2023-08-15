@@ -1,5 +1,5 @@
 from translatepy.server.server import app
-from translatepy.server.endpoints import _
+from translatepy.server.endpoints import _, language
 from rich.console import Console
 
 console = Console()

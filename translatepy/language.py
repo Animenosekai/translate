@@ -304,6 +304,8 @@ class Language(cain.Object):
 
     def get_foreign(self, attribute: str) -> typing.Optional[str]:
         """Retrieves the given attribute from `foreign` if available"""
+        if isinstance(attribute, Language):
+            attribute = vectorize.string_preprocessing(attribute.name)
         try:
             return self.foreign[attribute]
         except AttributeError:

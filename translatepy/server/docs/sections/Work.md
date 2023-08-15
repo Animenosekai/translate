@@ -11,7 +11,7 @@ Translates the text in the given language
 GET /translate
 ```
 
-> [../../endpoints/_.py](../../endpoints/_.py#L104)
+> [../../endpoints/_.py](../../endpoints/_.py#L105)
 
 ### Authentication
 
@@ -21,10 +21,10 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `translators` | A comma-separated list of translators to use  | No            | TranslatorList            |
-| `dest_lang` | The language to translate to  | Yes            | Language            |
 | `text` | The text to translate  | Yes            | str            |
+| `translators` | A comma-separated list of translators to use  | No            | TranslatorList            |
 | `source_lang` | The language `text` is in. If "auto", the translator will try to infer the language from `text`  | No            | Language            |
+| `dest_lang` | The language to translate to  | Yes            | Language            |
 
 ### Example
 
@@ -38,10 +38,10 @@ Login is **not** required
 
 ```bash
 curl -X GET \
-    --data-urlencode "translators=<A comma-separated list of translators to use>"\
-    --data-urlencode "dest_lang=<The language to translate to>"\
     --data-urlencode "text=<The text to translate>"\
-    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>" \
+    --data-urlencode "translators=<A comma-separated list of translators to use>"\
+    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>"\
+    --data-urlencode "dest_lang=<The language to translate to>" \
     "/translate"
 ```
 
@@ -54,7 +54,7 @@ curl -X GET \
 #### **JavaScript**
 
 ```javascript
-fetch(`/translate?dest_lang=${encodeURIComponent("dest_lang")}&text=${encodeURIComponent("text")}`, {
+fetch(`/translate?text=${encodeURIComponent("text")}&dest_lang=${encodeURIComponent("dest_lang")}`, {
     method: "GET"
 })
 .then((response) => {response.json()})
@@ -80,8 +80,8 @@ fetch(`/translate?dest_lang=${encodeURIComponent("dest_lang")}&text=${encodeURIC
 import requests
 r = requests.request("GET", "/translate",
         params = {
-            "dest_lang": "The language to translate to",
-            "text": "The text to translate"
+            "text": "The text to translate",
+            "dest_lang": "The language to translate to"
         })
 if r.status_code >= 400 or not r.json()["success"]:
     raise ValueError("An error occured while requesting for /translate, error: " + r.json()["error"])
@@ -102,11 +102,11 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "source": "no example",
-        "source_lang": "no example",
         "dest_lang": "no example",
-        "service": "no example",
-        "translation": "no example"
+        "source_lang": "no example",
+        "translation": "no example",
+        "source": "no example",
+        "service": "no example"
     }
 }
 
@@ -116,20 +116,20 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `source` | The source text  | string      | No      |
-| `source_lang` | The source text's language  | Language      | No      |
 | `dest_lang` | The result's language  | Language      | No      |
-| `service` | The service which returned the result  | Translator      | No      |
+| `source_lang` | The source text's language  | Language      | No      |
 | `translation` | The translation result  | string      | No      |
+| `source` | The source text  | string      | No      |
+| `service` | The service which returned the result  | Translator      | No      |
 
 #### Possible Errors
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
+| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
-| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # transliterate
@@ -140,7 +140,7 @@ Transliterates the text in the given language
 GET /transliterate
 ```
 
-> [../../endpoints/_.py](../../endpoints/_.py#L116)
+> [../../endpoints/_.py](../../endpoints/_.py#L117)
 
 ### Authentication
 
@@ -152,8 +152,8 @@ Login is **not** required
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `translators` | A comma-separated list of translators to use  | No            | TranslatorList            |
 | `dest_lang` | The language to translate to  | Yes            | Language            |
-| `text` | The text to transliterate  | Yes            | str            |
 | `source_lang` | The language `text` is in. If "auto", the translator will try to infer the language from `text`  | No            | Language            |
+| `text` | The text to transliterate  | Yes            | str            |
 
 ### Example
 
@@ -169,8 +169,8 @@ Login is **not** required
 curl -X GET \
     --data-urlencode "translators=<A comma-separated list of translators to use>"\
     --data-urlencode "dest_lang=<The language to translate to>"\
-    --data-urlencode "text=<The text to transliterate>"\
-    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>" \
+    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>"\
+    --data-urlencode "text=<The text to transliterate>" \
     "/transliterate"
 ```
 
@@ -231,11 +231,11 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "transliteration": "no example",
-        "source": "no example",
-        "source_lang": "no example",
         "dest_lang": "no example",
-        "service": "no example"
+        "source_lang": "no example",
+        "source": "no example",
+        "service": "no example",
+        "transliteration": "no example"
     }
 }
 
@@ -245,20 +245,20 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `transliteration` | The transliteration result  | string      | No      |
-| `source` | The source text  | string      | No      |
-| `source_lang` | The source text's language  | Language      | No      |
 | `dest_lang` | The result's language  | Language      | No      |
+| `source_lang` | The source text's language  | Language      | No      |
+| `source` | The source text  | string      | No      |
 | `service` | The service which returned the result  | Translator      | No      |
+| `transliteration` | The transliteration result  | string      | No      |
 
 #### Possible Errors
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
+| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
-| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # spellcheck
@@ -269,7 +269,7 @@ Spellchecks the given text
 GET /spellcheck
 ```
 
-> [../../endpoints/_.py](../../endpoints/_.py#L124)
+> [../../endpoints/_.py](../../endpoints/_.py#L125)
 
 ### Authentication
 
@@ -280,8 +280,8 @@ Login is **not** required
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
 | `translators` | A comma-separated list of translators to use  | No            | TranslatorList            |
-| `source_lang` | The language `text` is in. If "auto", the translator will try to infer the language from `text`  | No            | Language            |
 | `text` | The text to check for spelling mistakes  | Yes            | str            |
+| `source_lang` | The language `text` is in. If "auto", the translator will try to infer the language from `text`  | No            | Language            |
 
 ### Example
 
@@ -296,8 +296,8 @@ Login is **not** required
 ```bash
 curl -X GET \
     --data-urlencode "translators=<A comma-separated list of translators to use>"\
-    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>"\
-    --data-urlencode "text=<The text to check for spelling mistakes>" \
+    --data-urlencode "text=<The text to check for spelling mistakes>"\
+    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>" \
     "/spellcheck"
 ```
 
@@ -358,8 +358,8 @@ print(r.json()["data"])
     "error": null,
     "data": {
         "source": "no example",
-        "source_lang": "no example",
         "service": "no example",
+        "source_lang": "no example",
         "corrected": "no example"
     }
 }
@@ -371,8 +371,8 @@ print(r.json()["data"])
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
 | `source` | The source text  | string      | No      |
-| `source_lang` | The source text's language  | Language      | No      |
 | `service` | The service which returned the result  | Translator      | No      |
+| `source_lang` | The source text's language  | Language      | No      |
 | `corrected` | The corrected text  | string      | No      |
 
 #### Possible Errors
@@ -380,9 +380,9 @@ print(r.json()["data"])
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
+| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
-| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # language
@@ -393,7 +393,7 @@ Retrieves the language of the given text
 GET /language
 ```
 
-> [../../endpoints/_.py](../../endpoints/_.py#L132)
+> [../../endpoints/_.py](../../endpoints/_.py#L133)
 
 ### Authentication
 
@@ -403,9 +403,9 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
+| `source_lang` | No description  | No            | Language            |
 | `translators` | A comma-separated list of translators to use  | No            | TranslatorList            |
 | `text` | The text to get the language for  | Yes            | str            |
-| `source_lang` | No description  | No            | Language            |
 
 ### Example
 
@@ -419,9 +419,9 @@ Login is **not** required
 
 ```bash
 curl -X GET \
+    --data-urlencode "source_lang=<>"\
     --data-urlencode "translators=<A comma-separated list of translators to use>"\
-    --data-urlencode "text=<The text to get the language for>"\
-    --data-urlencode "source_lang=<>" \
+    --data-urlencode "text=<The text to get the language for>" \
     "/language"
 ```
 
@@ -482,8 +482,8 @@ print(r.json()["data"])
     "error": null,
     "data": {
         "source": "no example",
-        "language": "no example",
-        "service": "no example"
+        "service": "no example",
+        "language": "no example"
     }
 }
 
@@ -494,17 +494,17 @@ print(r.json()["data"])
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
 | `source` | The source text  | string      | No      |
-| `language` | The detected language  | Language      | No      |
 | `service` | The service which returned the result  | Translator      | No      |
+| `language` | The detected language  | Language      | No      |
 
 #### Possible Errors
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
+| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
-| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # example
@@ -515,7 +515,7 @@ Finds examples for the given text
 GET /example
 ```
 
-> [../../endpoints/_.py](../../endpoints/_.py#L140)
+> [../../endpoints/_.py](../../endpoints/_.py#L141)
 
 ### Authentication
 
@@ -525,9 +525,9 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
+| `text` | The text to get the example for  | Yes            | str            |
 | `translators` | A comma-separated list of translators to use  | No            | TranslatorList            |
 | `source_lang` | The language `text` is in. If "auto", the translator will try to infer the language from `text`  | No            | Language            |
-| `text` | The text to get the example for  | Yes            | str            |
 
 ### Example
 
@@ -541,9 +541,9 @@ Login is **not** required
 
 ```bash
 curl -X GET \
+    --data-urlencode "text=<The text to get the example for>"\
     --data-urlencode "translators=<A comma-separated list of translators to use>"\
-    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>"\
-    --data-urlencode "text=<The text to get the example for>" \
+    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>" \
     "/example"
 ```
 
@@ -603,11 +603,11 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "source": "no example",
+        "example": "no example",
         "source_lang": "no example",
-        "service": "no example",
         "reference": "no example",
-        "example": "no example"
+        "source": "no example",
+        "service": "no example"
     }
 }
 
@@ -617,20 +617,20 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `source` | The source text  | string      | No      |
-| `source_lang` | The source text's language  | Language      | No      |
-| `service` | The service which returned the result  | Translator      | No      |
-| `reference` | Where the example comes from (i.e a book or a the person who said it if it's a quote)  | string      | No      |
 | `example` | The example  | string      | No      |
+| `source_lang` | The source text's language  | Language      | No      |
+| `reference` | Where the example comes from (i.e a book or a the person who said it if it's a quote)  | string      | No      |
+| `source` | The source text  | string      | No      |
+| `service` | The service which returned the result  | Translator      | No      |
 
 #### Possible Errors
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
+| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
-| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # dictionary
@@ -641,7 +641,7 @@ Retrieves meanings for the given text
 GET /dictionary
 ```
 
-> [../../endpoints/_.py](../../endpoints/_.py#L148)
+> [../../endpoints/_.py](../../endpoints/_.py#L149)
 
 ### Authentication
 
@@ -729,10 +729,10 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "meaning": "no example",
         "source": "no example",
+        "service": "no example",
         "source_lang": "no example",
-        "service": "no example"
+        "meaning": "no example"
     }
 }
 
@@ -742,19 +742,19 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `meaning` | The meaning of the text  | string      | No      |
 | `source` | The source text  | string      | No      |
-| `source_lang` | The source text's language  | Language      | No      |
 | `service` | The service which returned the result  | Translator      | No      |
+| `source_lang` | The source text's language  | Language      | No      |
+| `meaning` | The meaning of the text  | string      | No      |
 
 #### Possible Errors
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
+| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
-| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # tts
@@ -765,7 +765,7 @@ Returns the speech version of the given text
 GET /tts
 ```
 
-> [../../endpoints/_.py](../../endpoints/_.py#L156)
+> [../../endpoints/_.py](../../endpoints/_.py#L157)
 
 ### Authentication
 
@@ -775,10 +775,10 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
+| `text` | The text to get the speech for  | Yes            | str            |
 | `translators` | A comma-separated list of translators to use  | No            | TranslatorList            |
 | `raw` | No description  | No            | to_bool            |
 | `source_lang` | The language `text` is in. If "auto", the translator will try to infer the language from `text`  | No            | Language            |
-| `text` | The text to get the speech for  | Yes            | str            |
 
 ### Example
 
@@ -792,10 +792,10 @@ Login is **not** required
 
 ```bash
 curl -X GET \
+    --data-urlencode "text=<The text to get the speech for>"\
     --data-urlencode "translators=<A comma-separated list of translators to use>"\
     --data-urlencode "raw=<>"\
-    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>"\
-    --data-urlencode "text=<The text to get the speech for>" \
+    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>" \
     "/tts"
 ```
 
@@ -855,12 +855,12 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "gender": "no example",
-        "source": "no example",
         "result": "no example",
         "source_lang": "no example",
+        "speed": 4,
+        "source": "no example",
         "service": "no example",
-        "speed": 4
+        "gender": "no example"
     }
 }
 
@@ -870,19 +870,19 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `gender` | Gender of the 'person' saying the text  | Gender      | No      |
-| `source` | The source text  | string      | No      |
 | `result` | Text to speech result  | bytes      | No      |
 | `source_lang` | The source text's language  | Language      | No      |
-| `service` | The service which returned the result  | Translator      | No      |
 | `speed` | Speed of the text to speech result  | int      | No      |
+| `source` | The source text  | string      | No      |
+| `service` | The service which returned the result  | Translator      | No      |
+| `gender` | Gender of the 'person' saying the text  | Gender      | No      |
 
 #### Possible Errors
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
+| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
-| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)

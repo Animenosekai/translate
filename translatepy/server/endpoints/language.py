@@ -1,12 +1,8 @@
 """translatepy's language endpoints"""
-from nasse import Endpoint, Error
+from nasse import Endpoint, Error, Response, Return
 
 from translatepy import Language
 from translatepy.server.server import TRANSLATEPY_ENDPOINT, app
-
-from translatepy.language import LANGUAGE_CLEANUP_REGEX, LOADED_VECTORS, Language, VECTORS
-from translatepy.utils.sanitize import remove_spaces
-from translatepy.utils.similarity import StringVector
 
 LANGUAGE_ENDPOINT = Endpoint(
     category="Language",
@@ -20,32 +16,21 @@ LANGUAGE_ENDPOINT = Endpoint(
 
 @app.route(endpoint=LANGUAGE_ENDPOINT)
 def __language__(language: Language):
-    return language.as_dict()
+    return language._cain_value
 
 
-@app.route
-def search(query: str, limit: int = 10):
+@app.route(endpoint=LANGUAGE_ENDPOINT)
+def search(query: str, limit: int = 10) -> Response[Return("languages", description="The language search results", type=list)]:
     limit = max(min(limit, 100), 0)
+    results = Language.search(query)
 
-    normalized_language = StringVector(remove_spaces(LANGUAGE_CLEANUP_REGEX.sub("", lang.lower())))
-
-    results_dict = {}
-    for vector in LOADED_VECTORS:
-        summation = sum(vector.counter[character] * normalized_language.counter[character] for character in vector.set.intersection(normalized_language.set))
-        length = vector.length * normalized_language.length
-        similarity = (0 if length == 0 else summation / length)
-        results_dict[vector] = similarity
-
-    results = sorted(results_dict.items(), key=lambda x: x[1], reverse=True)[:limit]
-
-    return 200, {
+    return Response({
         "languages": [
             {
-                "string": str(vector.string),
-                "similarity": similarity,
-                "language": Language(VECTORS[vector.string]["i"]).as_dict(foreign)
+                "string": result.vector.string,
+                "similarity": result.similarity,
+                "language": result.vector.id
             }
-            for vector, similarity in results
+            for result in results[:limit]
         ]
-    }
-
+    })
