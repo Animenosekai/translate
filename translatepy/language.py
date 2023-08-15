@@ -5,8 +5,10 @@ Handles the languages management on `translatepy`
 import copy
 import pathlib
 import typing
+import os
 
 import cain
+from nasse.utils.boolean import to_bool
 
 from translatepy import exceptions
 from translatepy.utils import lru, vectorize
@@ -18,228 +20,191 @@ Number = typing.Union[int, float]
 class LanguageExtra(cain.Object):
     """Extra data given on supported languages"""
     scope: cain.types.Enum["individual", "macrolanguage", "special"]
-    """Language scope"""
+    """Language scope
+    
+    Note: Can be one of "individual", "macrolanguage", "special"
+    """
     type: cain.types.Enum["ancient", "constructed", "extinct",
                           "historical", "living", "special"]
-    """Language type"""
+    """
+    Language type
+    
+    Note: Can be one of "ancient", "constructed", "extinct", "historical", "living", "special"
+    """
 
 
 class Foreign(cain.Object):
     """The language name in foreign languages"""
-    afrikaans: typing.Optional[str]
-    """The language name in afrikaans, if available"""
-    albanian: typing.Optional[str]
-    """The language name in albanian, if available"""
-    amharic: typing.Optional[str]
-    """The language name in amharic, if available"""
-    arabic: typing.Optional[str]
-    """The language name in arabic, if available"""
-    armenian: typing.Optional[str]
-    """The language name in armenian, if available"""
-    azerbaijani: typing.Optional[str]
-    """The language name in azerbaijani, if available"""
-    basque: typing.Optional[str]
-    """The language name in basque, if available"""
-    bashkir: typing.Optional[str]
-    """The language name in bashkir, if available"""
-    belarusian: typing.Optional[str]
-    """The language name in belarusian, if available"""
-    bengali: typing.Optional[str]
-    """The language name in bengali, if available"""
-    bosnian: typing.Optional[str]
-    """The language name in bosnian, if available"""
-    bulgarian: typing.Optional[str]
-    """The language name in bulgarian, if available"""
-    catalan: typing.Optional[str]
-    """The language name in catalan, if available"""
-    chuvash: typing.Optional[str]
-    """The language name in chuvash, if available"""
-    cebuano: typing.Optional[str]
-    """The language name in cebuano, if available"""
-    nyanja: typing.Optional[str]
-    """The language name in nyanja, if available"""
-    corsican: typing.Optional[str]
-    """The language name in corsican, if available"""
-    croatian: typing.Optional[str]
-    """The language name in croatian, if available"""
-    czech: typing.Optional[str]
-    """The language name in czech, if available"""
-    danish: typing.Optional[str]
-    """The language name in danish, if available"""
-    dutch: typing.Optional[str]
-    """The language name in dutch, if available"""
-    esperanto: typing.Optional[str]
-    """The language name in esperanto, if available"""
-    estonian: typing.Optional[str]
-    """The language name in estonian, if available"""
-    tagalog: typing.Optional[str]
-    """The language name in tagalog, if available"""
-    finnish: typing.Optional[str]
-    """The language name in finnish, if available"""
-    french: typing.Optional[str]
-    """The language name in french, if available"""
-    westernfrisian: typing.Optional[str]
-    """The language name in westernfrisian, if available"""
-    galician: typing.Optional[str]
-    """The language name in galician, if available"""
-    georgian: typing.Optional[str]
-    """The language name in georgian, if available"""
-    german: typing.Optional[str]
-    """The language name in german, if available"""
-    moderngreek: typing.Optional[str]
-    """The language name in moderngreek, if available"""
-    gujarati: typing.Optional[str]
-    """The language name in gujarati, if available"""
-    haitian: typing.Optional[str]
-    """The language name in haitian, if available"""
-    hausa: typing.Optional[str]
-    """The language name in hausa, if available"""
-    hawaiian: typing.Optional[str]
-    """The language name in hawaiian, if available"""
-    hindi: typing.Optional[str]
-    """The language name in hindi, if available"""
-    hmong: typing.Optional[str]
-    """The language name in hmong, if available"""
-    hungarian: typing.Optional[str]
-    """The language name in hungarian, if available"""
-    icelandic: typing.Optional[str]
-    """The language name in icelandic, if available"""
-    igbo: typing.Optional[str]
-    """The language name in igbo, if available"""
-    indonesian: typing.Optional[str]
-    """The language name in indonesian, if available"""
-    irish: typing.Optional[str]
-    """The language name in irish, if available"""
-    italian: typing.Optional[str]
-    """The language name in italian, if available"""
-    japanese: typing.Optional[str]
-    """The language name in japanese, if available"""
-    kannada: typing.Optional[str]
-    """The language name in kannada, if available"""
-    kazakh: typing.Optional[str]
-    """The language name in kazakh, if available"""
-    khmer: typing.Optional[str]
-    """The language name in khmer, if available"""
-    korean: typing.Optional[str]
-    """The language name in korean, if available"""
-    kurdish: typing.Optional[str]
-    """The language name in kurdish, if available"""
-    kirghiz: typing.Optional[str]
-    """The language name in kirghiz, if available"""
-    lao: typing.Optional[str]
-    """The language name in lao, if available"""
-    latin: typing.Optional[str]
-    """The language name in latin, if available"""
-    latvian: typing.Optional[str]
-    """The language name in latvian, if available"""
-    lithuanian: typing.Optional[str]
-    """The language name in lithuanian, if available"""
-    luxembourgish: typing.Optional[str]
-    """The language name in luxembourgish, if available"""
-    macedonian: typing.Optional[str]
-    """The language name in macedonian, if available"""
-    malagasy: typing.Optional[str]
-    """The language name in malagasy, if available"""
-    malay: typing.Optional[str]
-    """The language name in malay, if available"""
-    malayalam: typing.Optional[str]
-    """The language name in malayalam, if available"""
-    maltese: typing.Optional[str]
-    """The language name in maltese, if available"""
-    maori: typing.Optional[str]
-    """The language name in maori, if available"""
-    marathi: typing.Optional[str]
-    """The language name in marathi, if available"""
-    mongolian: typing.Optional[str]
-    """The language name in mongolian, if available"""
-    burmese: typing.Optional[str]
-    """The language name in burmese, if available"""
-    nepali: typing.Optional[str]
-    """The language name in nepali, if available"""
-    norwegian: typing.Optional[str]
-    """The language name in norwegian, if available"""
-    oriya: typing.Optional[str]
-    """The language name in oriya, if available"""
-    pushto: typing.Optional[str]
-    """The language name in pushto, if available"""
-    persian: typing.Optional[str]
-    """The language name in persian, if available"""
-    polish: typing.Optional[str]
-    """The language name in polish, if available"""
-    portuguese: typing.Optional[str]
-    """The language name in portuguese, if available"""
-    panjabi: typing.Optional[str]
-    """The language name in panjabi, if available"""
-    romanian: typing.Optional[str]
-    """The language name in romanian, if available"""
-    russian: typing.Optional[str]
-    """The language name in russian, if available"""
-    samoan: typing.Optional[str]
-    """The language name in samoan, if available"""
-    scottishgaelic: typing.Optional[str]
-    """The language name in scottishgaelic, if available"""
-    serbian: typing.Optional[str]
-    """The language name in serbian, if available"""
-    southernsotho: typing.Optional[str]
-    """The language name in southernsotho, if available"""
-    shona: typing.Optional[str]
-    """The language name in shona, if available"""
-    sindhi: typing.Optional[str]
-    """The language name in sindhi, if available"""
-    sinhala: typing.Optional[str]
-    """The language name in sinhala, if available"""
-    slovak: typing.Optional[str]
-    """The language name in slovak, if available"""
-    slovenian: typing.Optional[str]
-    """The language name in slovenian, if available"""
-    somali: typing.Optional[str]
-    """The language name in somali, if available"""
-    spanish: typing.Optional[str]
-    """The language name in spanish, if available"""
-    sundanese: typing.Optional[str]
-    """The language name in sundanese, if available"""
-    swahili: typing.Optional[str]
-    """The language name in swahili, if available"""
-    swedish: typing.Optional[str]
-    """The language name in swedish, if available"""
-    tajik: typing.Optional[str]
-    """The language name in tajik, if available"""
-    tamil: typing.Optional[str]
-    """The language name in tamil, if available"""
-    telugu: typing.Optional[str]
-    """The language name in telugu, if available"""
-    thai: typing.Optional[str]
-    """The language name in thai, if available"""
-    turkish: typing.Optional[str]
-    """The language name in turkish, if available"""
-    tatar: typing.Optional[str]
-    """The language name in tatar, if available"""
-    ukrainian: typing.Optional[str]
-    """The language name in ukrainian, if available"""
-    urdu: typing.Optional[str]
-    """The language name in urdu, if available"""
-    uighur: typing.Optional[str]
-    """The language name in uighur, if available"""
-    uzbek: typing.Optional[str]
-    """The language name in uzbek, if available"""
-    vietnamese: typing.Optional[str]
-    """The language name in vietnamese, if available"""
-    welsh: typing.Optional[str]
-    """The language name in welsh, if available"""
-    xhosa: typing.Optional[str]
-    """The language name in xhosa, if available"""
-    yiddish: typing.Optional[str]
-    """The language name in yiddish, if available"""
-    yoruba: typing.Optional[str]
-    """The language name in yoruba, if available"""
-    zulu: typing.Optional[str]
-    """The language name in zulu, if available"""
-    chinese: typing.Optional[str]
-    """The language name in chinese, if available"""
-    hebrew: typing.Optional[str]
-    """The language name in hebrew, if available"""
-    javanese: typing.Optional[str]
-    """The language name in javanes, if available"""
+    afrikaans: str
+    """The language name in afrikaans"""
+    albanian: str
+    """The language name in albanian"""
+    amharic: str
+    """The language name in amharic"""
+    arabic: str
+    """The language name in arabic"""
+    armenian: str
+    """The language name in armenian"""
+    azerbaijani: str
+    """The language name in azerbaijani"""
+    basque: str
+    """The language name in basque"""
+    belarusian: str
+    """The language name in belarusian"""
+    bengali: str
+    """The language name in bengali"""
+    bosnian: str
+    """The language name in bosnian"""
+    bulgarian: str
+    """The language name in bulgarian"""
+    burmese: str
+    """The language name in burmese"""
+    catalan: str
+    """The language name in catalan"""
+    chinese: str
+    """The language name in chinese"""
+    croatian: str
+    """The language name in croatian"""
+    czech: str
+    """The language name in czech"""
+    danish: str
+    """The language name in danish"""
+    dutch: str
+    """The language name in dutch"""
+    esperanto: str
+    """The language name in esperanto"""
+    estonian: str
+    """The language name in estonian"""
+    finnish: str
+    """The language name in finnish"""
+    french: str
+    """The language name in french"""
+    galician: str
+    """The language name in galician"""
+    georgian: str
+    """The language name in georgian"""
+    german: str
+    """The language name in german"""
+    gujarati: str
+    """The language name in gujarati"""
+    haitian: str
+    """The language name in haitian"""
+    hebrew: str
+    """The language name in hebrew"""
+    hindi: str
+    """The language name in hindi"""
+    hungarian: str
+    """The language name in hungarian"""
+    icelandic: str
+    """The language name in icelandic"""
+    indonesian: str
+    """The language name in indonesian"""
+    irish: str
+    """The language name in irish"""
+    italian: str
+    """The language name in italian"""
+    japanese: str
+    """The language name in japanese"""
+    javanese: str
+    """The language name in javanese"""
+    kannada: str
+    """The language name in kannada"""
+    kazakh: str
+    """The language name in kazakh"""
+    khmer: str
+    """The language name in khmer"""
+    kirghiz: str
+    """The language name in kirghiz"""
+    korean: str
+    """The language name in korean"""
+    lao: str
+    """The language name in lao"""
+    latin: str
+    """The language name in latin"""
+    latvian: str
+    """The language name in latvian"""
+    lithuanian: str
+    """The language name in lithuanian"""
+    luxembourgish: str
+    """The language name in luxembourgish"""
+    macedonian: str
+    """The language name in macedonian"""
+    malagasy: str
+    """The language name in malagasy"""
+    malay: str
+    """The language name in malay"""
+    maltese: str
+    """The language name in maltese"""
+    maori: str
+    """The language name in maori"""
+    marathi: str
+    """The language name in marathi"""
+    moderngreek: str
+    """The language name in moderngreek"""
+    mongolian: str
+    """The language name in mongolian"""
+    nepali: str
+    """The language name in nepali"""
+    norwegian: str
+    """The language name in norwegian"""
+    panjabi: str
+    """The language name in panjabi"""
+    persian: str
+    """The language name in persian"""
+    polish: str
+    """The language name in polish"""
+    portuguese: str
+    """The language name in portuguese"""
+    romanian: str
+    """The language name in romanian"""
+    russian: str
+    """The language name in russian"""
+    scottishgaelic: str
+    """The language name in scottishgaelic"""
+    serbian: str
+    """The language name in serbian"""
+    sinhala: str
+    """The language name in sinhala"""
+    slovak: str
+    """The language name in slovak"""
+    slovenian: str
+    """The language name in slovenian"""
+    spanish: str
+    """The language name in spanish"""
+    sundanese: str
+    """The language name in sundanese"""
+    swahili: str
+    """The language name in swahili"""
+    swedish: str
+    """The language name in swedish"""
+    tagalog: str
+    """The language name in tagalog"""
+    tajik: str
+    """The language name in tajik"""
+    tamil: str
+    """The language name in tamil"""
+    telugu: str
+    """The language name in telugu"""
+    thai: str
+    """The language name in thai"""
+    turkish: str
+    """The language name in turkish"""
+    ukrainian: str
+    """The language name in ukrainian"""
+    urdu: str
+    """The language name in urdu"""
+    uzbek: str
+    """The language name in uzbek"""
+    vietnamese: str
+    """The language name in vietnamese"""
+    welsh: str
+    """The language name in welsh"""
+    xhosa: str
+    """The language name in xhosa"""
+    yiddish: str
+    """The language name in yiddish"""
+    zulu: str
+    """The language name in zulu"""
 
 
 LANGUAGE_CACHE = lru.LRUDictCache(512)
@@ -269,19 +234,33 @@ class Language(cain.Object):
         if isinstance(language, typing.Dict):
             super().__init__(language)
         elif isinstance(language, Language):
-            self._cain_value = copy.copy(language.value)
+            self._cain_value = copy.copy(language._cain_value)
+            try:
+                self._rich = language._rich
+            except AttributeError:
+                pass
         else:
-            results = self.search(str(language))
+            results = self.search(language)
             if not results:
                 raise exceptions.UnknownLanguage("N/A", 0,
                                                  "Couldn't find any corresponding language")
             result = results[0]
             if result.similarity < threhsold:
-                raise exceptions.UnknownLanguage(result, result.similarity,
-                                                 "Couldn\'t find the given language. "
-                                                 f'Did you mean "{result.vector.string}" ({result.vector.id}; {round(result.similarity)}%) ?')
+                raising_message = f"Couldn't recognize the given translator ({language})\nDid you mean: {result.vector.string} (Similarity: {round(result.similarity, 2)}%)?"
+                raise exceptions.UnknownLanguage(result, result.similarity, raising_message)
 
-            self._cain_value = copy.copy(DATA["data"][result.vector.id])
+            try:
+                self._cain_value = copy.copy(DATA["data"][result.vector.id]._cain_value)
+                self._rich = True
+            except KeyError:
+                self._cain_value = {
+                    "id": result.vector.id,
+                    "alpha3": result.vector.id,
+                    "name": result.vector.string
+                }
+                for attr in ("alpha2", "alpha3b", "alpha3t", "extra", "foreign"):
+                    self._cain_value[attr] = None
+                self._rich = False
             self._similarity = result.similarity
 
     @classmethod
@@ -310,10 +289,41 @@ class Language(cain.Object):
 
         return results
 
+    def __repr__(self) -> str:
+        return f'Language({self.name})'
+
+    def __str__(self) -> str:
+        return self.id
+
+    def get_extra(self, attribute: str) -> typing.Optional[str]:
+        """Retrieves the given attribute from `extra` if available"""
+        try:
+            return self.extra[attribute]
+        except AttributeError:
+            return None
+
+    def get_foreign(self, attribute: str) -> typing.Optional[str]:
+        """Retrieves the given attribute from `foreign` if available"""
+        try:
+            return self.foreign[attribute]
+        except AttributeError:
+            return None
+
     @property
     def similarity(self) -> float:
         """The similarity with the vector while searching the language"""
         return self._similarity
+
+    @property
+    def rich(self) -> bool:
+        """If the language discovery used the full translatepy dataset
+        Note: This returns `False` if the `Language` was not fully initialized"""
+        try:
+            return self._rich
+        except AttributeError:
+            return False
+
+# Internal Data
 
 
 class LanguageData(typing.TypedDict):
@@ -331,7 +341,10 @@ DATA = LanguageData({})
 with open(LANGUAGE_DATA_DIR / "codes.cain", "b+r") as f:
     DATA["codes"] = {key: value for key, value in cain.load(f, typing.List[typing.Tuple[str, str]])}
 
-with open(LANGUAGE_DATA_DIR / "data.cain", "b+r") as f:
+TRANSLATEPY_LANGUAGE_FULL = to_bool(os.environ.get("TRANSLATEPY_LANGUAGE_FULL"))
+
+with open(LANGUAGE_DATA_DIR / ("data_full.cain" if TRANSLATEPY_LANGUAGE_FULL
+                               else "data.cain"), "b+r") as f:
     DATA["data"] = {value.id: value for value in cain.load(f, typing.List[Language])}
 
 with open(LANGUAGE_DATA_DIR / "vectors.cain", "b+r") as f:

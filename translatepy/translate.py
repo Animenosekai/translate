@@ -3,13 +3,8 @@ translatepy v3.0
 
 © Anime no Sekai — 2023
 """
-import inspect
 import typing
-from multiprocessing.pool import ThreadPool
 from threading import Thread
-
-from bs4 import BeautifulSoup
-from bs4.element import NavigableString, PageElement, PreformattedString, Tag
 
 from translatepy import exceptions, models
 from translatepy.language import Language
@@ -65,7 +60,12 @@ class Translate(BaseTranslator):
                 # avoiding to instantiate anything because it might not be used
             self.services.append(service)
 
-    def _instantiate_translator(self, service: BaseTranslator, services_list: list, index: int):
+    def _instantiate_translator(self,
+                                service: typing.Union[str, BaseTranslator, typing.Type[BaseTranslator]],
+                                services_list: list, index: int) -> BaseTranslator:
+        """Internal function to instantiate a translator"""
+        if isinstance(service, str):
+            service = importer.get_translator(service)
         if not isinstance(service, BaseTranslator):  # not instantiated
             try:
                 service = service(session=self.session)  # it should want `session` because that's how `BaseTranslator` is implemented

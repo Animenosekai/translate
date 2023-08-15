@@ -2,6 +2,8 @@ from nasse.exceptions import NasseException
 
 
 class TranslatepyException(NasseException):
+    LOG = False
+
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 

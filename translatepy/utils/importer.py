@@ -4,98 +4,85 @@ importer.py
 A module to allow for dynamic importing of translators.
 """
 
-import typing
+import copy
+import pathlib
 import pydoc
-from translatepy.exceptions import UnknownTranslator
-# TODO
-# from translatepy.language import LANGUAGE_CLEANUP_REGEX
+import typing
 
-from translatepy.translators import (BingTranslate, DeeplTranslate,
-                                     GoogleTranslate, GoogleTranslateV1,
-                                     GoogleTranslateV2, LibreTranslate,
-                                     MicrosoftTranslate, MyMemoryTranslate,
-                                     ReversoTranslate, TranslateComTranslate,
-                                     YandexTranslate)
+import cain
+
+from translatepy import exceptions, translators
 from translatepy.translators.base import BaseTranslator
-from translatepy.utils.sanitize import remove_spaces
-from translatepy.utils.similarity import fuzzy_search, StringVector
-# from translatepy.utils._importer_data import VECTORS
+from translatepy.utils import lru, vectorize
+
+IMPORTER_CACHE = lru.LRUDictCache(512)
+
+IMPORTER_DATA_DIR = pathlib.Path(__file__).parent.parent / "data" / "translators"
+with open(IMPORTER_DATA_DIR / "vectors.cain", "b+r") as f:
+    IMPORTER_VECTORS = cain.load(f, typing.List[vectorize.Vector])
+
+
+# registry of all exported translators
+NAMED_TRANSLATORS = {}
+for element in dir(translators):
+    obj = getattr(translators, element)
+    try:
+        if issubclass(obj, BaseTranslator):
+            NAMED_TRANSLATORS[vectorize.string_preprocessing(element)] = obj
+    except TypeError:
+        continue
 
 
 def translator_from_name(name: str) -> typing.Type[BaseTranslator]:
     """Retrieves the given translate from its name"""
-    if name == "GoogleTranslate":
-        return GoogleTranslate
-    elif name == "GoogleTranslateV1":
-        return GoogleTranslateV1
-    elif name == "GoogleTranslateV2":
-        return GoogleTranslateV2
-    elif name == "MicrosoftTranslate":
-        return MicrosoftTranslate
-    elif name == "YandexTranslate":
-        return YandexTranslate
-    elif name == "LibreTranslate":
-        return LibreTranslate
-    elif name == "BingTranslate":
-        return BingTranslate
-    elif name == "DeeplTranslate":
-        return DeeplTranslate
-    elif name == "MyMemoryTranslate":
-        return MyMemoryTranslate
-    elif name == "ReversoTranslate":
-        return ReversoTranslate
-    elif name == "TranslateComTranslate":
-        return TranslateComTranslate
-    raise ValueError(f"Couldn't get the translator {name}")
-
-
-"""
-for alias, data in VECTORS.items():
-    Translator = translator_from_name(data['t'])
-    if Translator is None:  # RUNTIME NON-CRITICAL ERROR: translator not found
-        continue
-    data["t"] = Translator
-
-LOADED_VECTORS = [StringVector(alias, data=data) for alias, data in VECTORS.items()]
-"""
-
-
-def get_translator(translator: str,
-                   threshold: float = 90,
-                   forceload: bool = False) -> BaseTranslator:
-    """
-    Gets a translator object from the translator name or import path.
-
-    Parameters
-    ----------
-    translator : str
-        The translator name or import path.
-    forceload : bool
-        Whether to reload the module from disk (used by pydoc).
-
-    Returns
-    -------
-    translator : translatepy.translators.BaseTranslator
-        The translator object.
-
-    Raises
-    ------
-    UnknownTranslator
-        If the translator is not found.
-    """
-    translator = str(translator)
     try:
-        result = pydoc.locate(translator, forceload=forceload)
-        if not isinstance(result, BaseTranslator):
-            raise ImportError
+        return NAMED_TRANSLATORS[vectorize.string_preprocessing(name)]
+    except KeyError as err:
+        raise ValueError(f"Couldn't get the translator {name}") from err
+
+
+def get_translator(query: str,
+                   threshold: float = 90,
+                   forceload: bool = False) -> typing.Type[BaseTranslator]:
+    """Searches the given translator"""
+    query = vectorize.string_preprocessing(str(query or ""))
+    if not query:
+        raise exceptions.UnknownTranslator(BaseTranslator, 0, "Couldn't find a nameless translator")
+
+    # Check the incoming language, whether it is in the cache, then return the values from the cache
+    cache_result = IMPORTER_CACHE.get(query)
+    if cache_result:
+        return cache_result
+
+    try:
+        result = pydoc.locate(query, forceload=forceload)
+        try:
+            if not issubclass(result, BaseTranslator):
+                raise ImportError
+        except TypeError:
+            if not isinstance(result, BaseTranslator):
+                raise ImportError
+            result = result.__class__
         return result
     except ImportError:  # this also catches ErrorDuringImport
         pass
-    normalized = remove_spaces(LANGUAGE_CLEANUP_REGEX.sub("", translator.lower()))
-    alias, similarity = fuzzy_search(LOADED_VECTORS, normalized)
-    similarity *= 100
-    result = VECTORS[alias]["t"]
+
+    try:
+        return translator_from_name(query)
+    except ValueError:
+        pass
+
+    results = sorted(vectorize.search(query, IMPORTER_VECTORS), key=lambda element: element.similarity, reverse=True)
+
+    if not results:
+        raising_message = f"Couldn't recognize the given translator `{query}`"
+        raise exceptions.UnknownTranslator(BaseTranslator, 0, raising_message)
+
+    result = translator_from_name(results[0].vector.id)
+    similarity = results[0].similarity
+    IMPORTER_CACHE[query] = copy.copy(result)
     if similarity < threshold:
-        raising_message = "Couldn't recognize the given translator ({0})\nDid you mean: {1} (Similarity: {2}%)?".format(translator, alias, round(similarity, 2))
-        raise UnknownTranslator(result, similarity, raising_message)
+        raising_message = f"Couldn't recognize the given translator ({query})\nDid you mean: {results[0].vector.string} (Similarity: {round(similarity, 2)}%)?"
+        raise exceptions.UnknownTranslator(result, similarity, raising_message)
+
     return result

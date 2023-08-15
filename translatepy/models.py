@@ -114,7 +114,7 @@ PRIVATE_ATTRIBUTES = {"raw"}
 def should_be_exported(attr: str):
     """if the given attribute should be exposed or not"""
     attr = str(attr or "")
-    return attr and not attr.startswith("_") and attr not in PRIVATE_ATTRIBUTES
+    return attr and (not attr.startswith("_")) and (attr not in PRIVATE_ATTRIBUTES)
 
 
 @dataclasses.dataclass
@@ -175,18 +175,6 @@ class Result(typing.Generic[Translator]):
         """
         yield self
 
-    # def __str__(self) -> str:
-    #     return str(self.result)
-
-    def __repr__(self, attrs: typing.Optional[typing.List[str]] = None) -> str:
-        return "{name}({params})".format(
-            name=self.__class__.__name__,
-            params=", ".join("{key}={val}".format(key=attr,
-                                                  val=repr(getattr(self, attr)))
-                             for attr in (attrs or dir(self))
-                             if not str(attr).startswith("_") and not callable(getattr(self, attr)) and attr != "raw")
-        )
-
     def __pretty__(self, cli: bool = False) -> str:
         """
         A nice way of presenting the result to the end user
@@ -246,6 +234,12 @@ class Result(typing.Generic[Translator]):
             if should_be_exported(key)
         }
 
+    def __repr__(self) -> str:
+        results = []
+        for key, val in self.exported.items():
+            results.append(f"{key}={repr(val)}")
+        return f"{self.__class__.__name__}({', '.join(results)})"
+
 
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
 class TranslationResult(Result[Translator]):
@@ -264,16 +258,6 @@ class TranslationResult(Result[Translator]):
 
     _alternatives: typing.List["TranslationResult"] = dataclasses.field(default_factory=list)
     """A cache to alternative translations"""
-
-    def __repr__(self, attrs: typing.Optional[typing.List[str]] = None) -> str:
-        attrs = [attr for attr in (attrs or dir(self)) if attr != "alternatives"]
-        return "{name}({params})".format(
-            name=self.__class__.__name__,
-            params=", ".join("{key}={val}".format(key=attr,
-                                                  val=repr(getattr(self, attr)))
-                             for attr in attrs
-                             if not str(attr).startswith("_") and not callable(getattr(self, attr)) and attr != "raw")
-        )
 
     @property
     def alternatives(self):
