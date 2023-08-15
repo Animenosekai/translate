@@ -73,7 +73,7 @@ class TranslatorName(BaseTranslator):
     def _dictionary(self: C, text: str, source_lang: typing.Any, *args, **kwargs) -> typing.Union[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]], typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
         return super()._dictionary(text, source_lang, *args, **kwargs)
 
-    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any, *args, **kwargs) -> models.TextToSpechResult[C]:
+    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any, *args, **kwargs) -> models.TextToSpeechResult[C]:
         return super()._text_to_speech(text, speed, gender, source_lang)
 
     def _code_to_language(self, code: typing.Union[str, typing.Any], *args, **kwargs) -> Language:

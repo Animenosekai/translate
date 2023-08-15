@@ -66,7 +66,7 @@
        26    0.000    0.000    0.007    0.000 <frozen importlib._bootstrap_external>:1171(create_module)
       445    0.002    0.000    0.007    0.000 <frozen importlib._bootstrap_external>:1505(find_spec)
        26    0.007    0.000    0.007    0.000 {built-in method _imp.create_dynamic}
-        1    0.000    0.000    0.007    0.007 lru_cacher.py:3(<module>)
+        1    0.000    0.000    0.007    0.007 lru.py:3(<module>)
        14    0.000    0.000    0.006    0.000 css_parser.py:1055(process_selectors)
     52/14    0.000    0.000    0.006    0.000 css_parser.py:862(parse_selectors)
         1    0.000    0.000    0.006    0.006 client.py:1(<module>)
@@ -285,7 +285,7 @@
         1    0.000    0.000    0.000    0.000 status_codes.py:107(_init)
        44    0.000    0.000    0.000    0.000 enum.py:971(__or__)
       850    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:129(<genexpr>)
-        1    0.000    0.000    0.000    0.000 lru_cacher.py:35(wrapper_cache)
+        1    0.000    0.000    0.000    0.000 lru.py:35(wrapper_cache)
         2    0.000    0.000    0.000    0.000 hashlib.py:82(__get_builtin_constructor)
         1    0.000    0.000    0.000    0.000 bisect.py:1(<module>)
       502    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:398(parent)
@@ -422,7 +422,7 @@
       264    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:152(__init__)
         1    0.000    0.000    0.000    0.000 _collections.py:1(<module>)
       288    0.000    0.000    0.000    0.000 {method 'endswith' of 'str' objects}
-        9    0.000    0.000    0.000    0.000 lru_cacher.py:13(__init__)
+        9    0.000    0.000    0.000    0.000 lru.py:13(__init__)
       103    0.000    0.000    0.000    0.000 {built-in method _imp.is_builtin}
       619    0.000    0.000    0.000    0.000 {built-in method _thread.get_ident}
       323    0.000    0.000    0.000    0.000 sre_compile.py:453(_get_iscased)
@@ -903,7 +903,7 @@
         1    0.000    0.000    0.000    0.000 tokenize.py:45(TokenInfo)
         1    0.000    0.000    0.000    0.000 structures.py:92(__init__)
        14    0.000    0.000    0.000    0.000 {method 'start' of 're.Match' objects}
-        1    0.000    0.000    0.000    0.000 lru_cacher.py:11(LRUDictCache)
+        1    0.000    0.000    0.000    0.000 lru.py:11(LRUDictCache)
         1    0.000    0.000    0.000    0.000 _lxml.py:308(LXMLTreeBuilder)
         1    0.000    0.000    0.000    0.000 selectors.py:291(SelectSelector)
         1    0.000    0.000    0.000    0.000 connection.py:238(HTTPSConnection)
@@ -1068,7 +1068,7 @@
         1    0.000    0.000    0.000    0.000 {built-in method time.time}
         1    0.000    0.000    0.000    0.000 {built-in method _thread._set_sentinel}
         1    0.000    0.000    0.000    0.000 __init__.py:418(__init__)
-        1    0.000    0.000    0.000    0.000 models.py:203(TextToSpechResult)
+        1    0.000    0.000    0.000    0.000 models.py:203(TextToSpeechResult)
         1    0.000    0.000    0.000    0.000 queue.py:242(LifoQueue)
         1    0.000    0.000    0.000    0.000 queue.py:10(LifoQueue)
         1    0.000    0.000    0.000    0.000 request.py:832(HTTPPasswordMgr)
@@ -1178,7 +1178,7 @@
         1    0.000    0.000    0.000    0.000 exceptions.py:9(UnknownLanguage)
         1    0.000    0.000    0.000    0.000 exceptions.py:15(UnsupportedMethod)
         1    0.000    0.000    0.000    0.000 {method 'popitem' of 'dict' objects}
-        1    0.000    0.000    0.000    0.000 lru_cacher.py:34(timed_lru_cache)
+        1    0.000    0.000    0.000    0.000 lru.py:34(timed_lru_cache)
         1    0.000    0.000    0.000    0.000 threading.py:1292(_MainThread)
         1    0.000    0.000    0.000    0.000 {method 'toordinal' of 'datetime.date' objects}
         1    0.000    0.000    0.000    0.000 ast.py:441(NodeTransformer)

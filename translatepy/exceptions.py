@@ -1,4 +1,7 @@
-class TranslatepyException(Exception):
+from nasse.exceptions import NasseException
+
+
+class TranslatepyException(NasseException):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
@@ -66,3 +69,9 @@ class RequestStatusError(TranslatepyException):
 class ServiceURLError(TranslatepyException):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
+
+
+class RateLimitPrevention(TranslatepyException):
+    STATUS_CODE = 500
+    MESSAGE = "The server made too many requests to another server"
+    EXCEPTION_NAME = "RATE_LIMIT_PREVENTION"

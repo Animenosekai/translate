@@ -7,6 +7,8 @@ import dataclasses
 import enum
 import pathlib
 import typing
+import ast
+import inspect
 
 from translatepy.language import Language
 from translatepy.utils.audio import get_type
@@ -71,7 +73,7 @@ class WordClass(enum.Enum):
 
     PREPOSITION = "Preposition"
     """
-    a word that relates words to each other in a phrase or sentence and aids in syntactic context (in, of).
+    A word that relates words to each other in a phrase or sentence and aids in syntactic context (in, of).
     Prepositions show the relationship between a noun or a pronoun with another word in the sentence.
 
     Note: https://en.wikipedia.org/wiki/Part_of_speech#Classification
@@ -104,16 +106,32 @@ class WordClass(enum.Enum):
     """
 
 
-T = typing.TypeVar("T")
+Translator = typing.TypeVar("Translator", bound="translatepy.base.BaseTranslator")
+
+PRIVATE_ATTRIBUTES = {"raw"}
+
+
+def should_be_exported(attr: str):
+    """if the given attribute should be exposed or not"""
+    attr = str(attr or "")
+    return attr and not attr.startswith("_") and attr not in PRIVATE_ATTRIBUTES
+
+
+@dataclasses.dataclass
+class ResultAttribute:
+    """Details about a result attribute"""
+    name: str
+    annotation: typing.Optional[str] = None
+    description: typing.Optional[str] = None
 
 
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
-class Result(typing.Generic[T]):
+class Result(typing.Generic[Translator]):
     """
     The base result model
     """
     # these are `None` for now but they will be enforced by `BaseTranslator`
-    service: T = None
+    service: Translator = None
     """The service which returned the result"""
 
     source: str = None
@@ -192,9 +210,45 @@ class Result(typing.Generic[T]):
                 if not str(attr).startswith("_") and not callable(getattr(self, attr)) and attr != "raw")
         )
 
+    @classmethod
+    @property
+    def attributes(cls) -> typing.List[ResultAttribute]:
+        """The different attributes on the dataclass"""
+        results = Result.attributes if cls != Result else []
+        source = inspect.getsource(cls)
+        parsed = ast.parse(source)
+        for element in parsed.body:
+            if isinstance(element, ast.ClassDef):
+                current_attr = None
+
+                for node in element.body:
+                    if isinstance(node, ast.AnnAssign):
+                        attr_name = node.target.id if hasattr(node.target, "id") else ""
+
+                        if not should_be_exported(attr_name):
+                            continue
+
+                        attr_ann = node.annotation.id if hasattr(node.annotation, "id") else None
+                        current_attr = ResultAttribute(name=attr_name,
+                                                       annotation=attr_ann)
+                    elif isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant) and current_attr:
+                        current_attr.description = str(node.value.value or "")
+                        results.append(current_attr)
+                        current_attr = None
+        return results
+
+    @property
+    def exported(self) -> typing.Dict[str, typing.Any]:
+        """A dictionary version of the dataclass which can be exposed to the public"""
+        return {
+            key: val
+            for key, val in dataclasses.asdict(self).items()
+            if should_be_exported(key)
+        }
+
 
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
-class TranslationResult(Result[T]):
+class TranslationResult(Result[Translator]):
     """
     Holds the result of a regular translation
     """
@@ -225,7 +279,7 @@ class TranslationResult(Result[T]):
     def alternatives(self):
         """Returns the alternative translations associated"""
         if not self._alternatives:
-            self._alternatives = self.service.alternatives(self)
+            self._alternatives = self.service.alternatives([self])
         return self._alternatives
 
     def __pretty__(self, cli: bool = False) -> str:
@@ -260,7 +314,7 @@ TRANSLATION_TEST = TranslationResult(
 
 
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
-class TransliterationResult(Result[T]):
+class TransliterationResult(Result[Translator]):
     """
     Holds the result of a transliteration
     """
@@ -303,7 +357,7 @@ TRANSLITERATION_TEST = TransliterationResult(
 
 
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
-class SpellcheckResult(Result[T]):
+class SpellcheckResult(Result[Translator]):
     """
     Holds a spellchecking result
     """
@@ -357,7 +411,7 @@ class SpellcheckMistake:
 
 
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
-class RichSpellcheckResult(Result[T]):
+class RichSpellcheckResult(Result[Translator]):
     """
     Holds a rich spellchecking result
     """
@@ -530,7 +584,7 @@ RICH_SPELLCHECK_TEST = RichSpellcheckResult(
 
 
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
-class LanguageResult(Result[T]):
+class LanguageResult(Result[Translator]):
     """
     Holds the language of the given text
     """
@@ -549,7 +603,7 @@ LANGUAGE_TEST = LanguageResult(service=None, source="Hello world", language=Lang
 
 
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
-class ExampleResult(Result[T]):
+class ExampleResult(Result[Translator]):
     """
     Holds an example sentence where the given word is used.
     """
@@ -647,7 +701,7 @@ EXAMPLE_TEST = ExampleResult(
 
 
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
-class DictionaryResult(Result[T]):
+class DictionaryResult(Result[Translator]):
     """
     Holds the meaning of the given text
     """
@@ -704,7 +758,7 @@ class EtymologicalNode:
 
 
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
-class RichDictionaryResult(DictionaryResult[T]):
+class RichDictionaryResult(DictionaryResult[Translator]):
     """
     Holds more (optional) information than the regular `DictionaryResult`
     """
@@ -828,7 +882,7 @@ RICH_DICTIONARY_TEST = RichDictionaryResult(
 
 
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
-class TextToSpechResult(Result[T]):
+class TextToSpeechResult(Result[Translator]):
     """
     Holds the text to speech results
     """

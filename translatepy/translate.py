@@ -25,7 +25,8 @@ class Translate(BaseTranslator):
     A class which groups all of the translators
     """
 
-    def __init__(self, session: typing.Optional[request.Session] = None, services_list: typing.Optional[typing.List[BaseTranslator]] = None, fast: bool = False):
+    def __init__(self, services_list: typing.Optional[typing.List[typing.Union[BaseTranslator, typing.Type[BaseTranslator]]]] = None,
+                 session: typing.Optional[request.Session] = None, fast: bool = False):
         """
         A special `Translator` class which groups multiple translators to have better results.
 
@@ -143,7 +144,7 @@ class Translate(BaseTranslator):
     def _dictionary(self: C, text: str, source_lang: typing.Any, *args, **kwargs) -> typing.Union[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]], typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
         return self._apply("dictionary", text=text, source_lang=source_lang, *args, **kwargs)
 
-    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any, *args, **kwargs) -> models.TextToSpechResult[C]:
+    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any, *args, **kwargs) -> models.TextToSpeechResult[C]:
         return self._apply("text_to_speech", text=text, speed=speed, gender=gender, source_lang=source_lang, *args, **kwargs)
 
     def _code_to_language(self, code: Language) -> Language:

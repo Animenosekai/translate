@@ -1,6 +1,6 @@
-from nasse import Nasse
-from nasse.config import General
+"""the translatepy server"""
+from nasse import Nasse, NasseConfig, Endpoint, Login
+import pathlib
 
-General.SANITIZE_USER_SENT = False  # this is needed for /html
-
-app = Nasse("translatepy")
+app = Nasse("translatepy", NasseConfig(sanitize_user_input=False))
+TRANSLATEPY_ENDPOINT = Endpoint(base_dir=pathlib.Path(__file__).parent / "endpoints", login=Login(skip=True))

@@ -118,7 +118,7 @@ class GoogleTranslate(BaseTranslator):
 
     # TODO: Implement `spellcheck`
 
-    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpechResult[C]:
+    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpeechResult[C]:
         for service in self.services:
             try:
                 return service._text_to_speech(text, speed, gender, source_lang)
@@ -426,26 +426,26 @@ class GoogleTranslateV2(BaseTranslator):
 
     # TODO: `dictionary`
 
-    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpechResult[C]:
+    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpeechResult[C]:
         if source_lang == "auto":
             source_lang = self._language_to_code(self.language(text).language)
 
         params = {"client": "gtx", "ie": "UTF-8", "tl": source_lang, "q": text}
         request = self.session.get("https://translate.googleapis.com/translate_tts", params=params)
         if request.status_code == 200:
-            return models.TextToSpechResult(source_lang=source_lang, result=request.content)
+            return models.TextToSpeechResult(source_lang=source_lang, result=request.content)
 
         params = {"client": "tw-ob", "q": text, "tl": source_lang}
         request = self.session.get("https://translate.google.com/translate_tts", params=params)
         if request.status_code == 200:
-            return models.TextToSpechResult(source_lang=source_lang, result=request.content)
+            return models.TextToSpeechResult(source_lang=source_lang, result=request.content)
 
         textlen = len(text)
         token = self.token_acquirer.do(text)
         params = {"ie": "UTF-8", "q": text, "tl": source_lang, "total": "1", "idx": "0", "textlen": textlen, "tk": token, "client": "webapp", "prev": "input", "ttsspeed": convert_to_float(speed)}
         request = self.session.get("https://translate.google.com/translate_tts", params=params)
         request.raise_for_status()
-        return models.TextToSpechResult(source_lang=source_lang, result=request.content)
+        return models.TextToSpeechResult(source_lang=source_lang, result=request.content)
 
     def _language(self: C, text: str) -> models.LanguageResult[C]:
         translation = self.translate(text=text,

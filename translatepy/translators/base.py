@@ -10,30 +10,60 @@ Implements the Base Translator class
 
 import enum
 import typing
-from multiprocessing.pool import ThreadPool
-
-import bs4
+import functools
 
 from translatepy import models, exceptions
-from translatepy.utils import hasher, lru_cacher, sanitize, request
+from translatepy.utils import hasher, lru, sanitize, request
 from translatepy.language import Language
-from translatepy.models import (DictionaryResult, ExampleResult,
-                                LanguageResult, SpellcheckResult,
-                                TextToSpechResult, TranslationResult,
-                                TransliterationResult)
-from translatepy.utils.annotations import List
-from translatepy.utils.lru_cacher import LRUDictCache
-from translatepy.utils.sanitize import remove_spaces
+
+# Types
+C = typing.TypeVar('C', bound="BaseTranslator")  # The expected result class for `models.Result`
+R = typing.TypeVar('R')  # The expected result class for `LazyIterable`
 
 
-# copied from abc.ABC (Python 3.9.5)
-class ABC(metaclass=ABCMeta):
-    """Helper class that provides a standard way to create an ABC using
-    inheritance.
-
-    Added in the ABC module in Python 3.4
+class LazyIterable(typing.Generic[R]):
     """
-    __slots__ = ()
+    An object which can be iterated through, even multiple times, but lazy loads the results.
+    """
+
+    def __init__(self, func: typing.Callable[[str], R], texts: typing.Optional[typing.Iterable[str]] = None, work_name: str = "") -> None:
+        self.func = func
+        self.texts = texts or []
+        self.results: typing.List[R] = []
+        self.work_name = str(work_name)
+
+    def __iter__(self):
+        current = 0
+        for text in self.texts:
+            try:
+                yield self.results[current]
+            except IndexError:
+                result = self.func(text)
+                self.results.append(result)  # caches the result
+                yield result
+            current += 1
+
+    def __getattr__(self, name: str):
+        """If the developer mistakenly tries to use the iterable directly as an object"""
+        return getattr(self[0], name)
+
+    def __getitem__(self, index: int):
+        current = 0
+        for element in self:
+            if current >= index:
+                return element
+            current += 1
+        raise IndexError("list index out of range")
+
+    def __repr__(self) -> str:
+        return "LazyIterable({}, texts={}, loaded={})".format(self.work_name, self.texts, len(self.results))
+
+
+# Types (2)
+T = typing.TypeVar('T', bound=typing.Callable[..., typing.Union[models.Result,
+                                                                LazyIterable[models.Result],
+                                                                typing.List[models.Result],
+                                                                LazyIterable[typing.List[models.Result]]]])  # The method given to the decorator
 
 
 class BaseTranslateException(exceptions.TranslatepyException):
@@ -65,27 +95,32 @@ class BaseTranslateException(exceptions.TranslatepyException):
         return "{} | {}".format(self.status_code, self.message)
 
 
-# TODO: Feat: support translating > 5000 characters (or just exception raising)
-# TODO: Feat: Some translation services give out a lot of useful information that can come in handy for programmers. I think we need implement separate models class for each Translator service
-# --> If these informations come from already using endpoints like the translation or transliteration endpoint we could make an "extra data" field with those informations
-# --> but if it is completely different endpoints, we could just add them to the Translator class or as an extra function in the classes which the user would be able to use by initiating their own translator.
+# TODO: ADD `HTML` AGAIN
 
-class BaseTranslator(ABC):
+
+class Flag(enum.Enum):
     """
-    Base abstract class for a translate service
+    Defines a set of internal flags the handlers can send to the validator
+    """
+    MULTIPLE_RESULTS = "multi"
+
+
+class BaseTranslator:
+    """
+    The core of translatepy
+
+    This defines a "Translator" instance, which is the gateway between the translator logic and translatepy
     """
 
-    _translations_cache = LRUDictCache()
-    _transliterations_cache = LRUDictCache()
-    _languages_cache = LRUDictCache()
-    _spellchecks_cache = LRUDictCache()
-    _examples_cache = LRUDictCache()
-    _dictionaries_cache = LRUDictCache()
-    _text_to_speeches_cache = LRUDictCache(8)
+    def __init__(self, session: typing.Optional[request.Session] = None):
+        self.session = session or request.Session()
 
-    _supported_languages = {}
+    _caches: typing.Dict[str, lru.LRUDictCache] = {}
+    """Internal variables which holds the different caches"""
+    _supported_languages: typing.Optional[typing.Set[typing.Any]] = None
+    """A set of supported language codes"""
 
-    def translate(self, text: str, destination_language: str, source_language: str = "auto") -> TranslationResult:
+    def _validate_text(self, text: typing.Union[str, typing.Any]) -> typing.Optional[str]:
         """
         Validates the given text, enforcing its type
 
@@ -160,7 +195,7 @@ class BaseTranslator(ABC):
         return language
 
     @staticmethod
-    def _validate_method(method: typing.Optional[T] = None) -> T:
+    def _validate_method(func: T) -> T:
         """
         Internal decorator to automatically validate the different methods
 
@@ -169,98 +204,90 @@ class BaseTranslator(ABC):
         method: Callable, optional
             The method to validate. If omitted, the wrapper will assume that the function was decorated without parameters.
         """
-        def wrap(func: typing.Callable):
-            # print("Registering", func.__name__)
 
-            @typing.overload
-            def validation(self: C, text: str, *args, **kwargs) -> models.Result[C]: ...
+        @typing.overload
+        def validation(self: C, text: str, *args, **kwargs) -> models.Result[C]: ...
 
-            @typing.overload
-            def validation(self: C, text: typing.Iterable[str], *args, **kwargs) -> LazyIterable[models.Result[C]]: ...
+        @typing.overload
+        def validation(self: C, text: typing.Iterable[str], *args, **kwargs) -> LazyIterable[models.Result[C]]: ...
 
-            def validation(self: C,
-                           text: typing.Union[str, typing.Iterable[str]],
-                           *args, **kwargs) -> typing.Union[models.Result[C],
-                                                            LazyIterable[models.Result[C]]]:
-                # print("Calling", func.__name__)
+        @functools.wraps(func)
+        def validation(self: C,
+                       text: typing.Union[str, typing.Iterable[str]],
+                       *args, **kwargs) -> typing.Union[models.Result[C],
+                                                        LazyIterable[models.Result[C]]]:
+            # print("Calling", func.__name__)
 
-                def worker(text: str) -> models.Result[C]:
+            def worker(text: str) -> models.Result[C]:
+                """
+                Inner worker which actually validates everything and calls the handlers.
+                """
+                valid_text = self._validate_text(text)
+
+                hash_source = [hasher.hash_object(valid_text)]
+
+                generator = func(self, valid_text or "", *args, **kwargs)
+
+                result = None
+
+                multiple_results = False
+
+                for element in generator:
+                    if isinstance(element, models.Result) or element is Flag.MULTIPLE_RESULTS:
+                        if element is Flag.MULTIPLE_RESULTS:
+                            result = []
+                            multiple_results = True
+                        else:
+                            result = element
+
+                        if valid_text is None:
+                            return result  # should be the empty result, because `text` is "empty"
+                        break
+                    hash_source.append(hasher.hash_object(element))
+
+                if result is None:
+                    raise ValueError("No result returned by the translator")
+
+                def fill_result(result: models.Result):
                     """
-                    Inner worker which actually validates everything and calls the handlers.
+                    Internal function to fill `result` with missing attributes and type check some of them
                     """
-                    valid_text = self._validate_text(text)
-
-                    hash_source = [hasher.hash_object(valid_text)]
-
-                    generator = func(self, valid_text or "", *args, **kwargs)
-
-                    result = None
-
-                    multiple_results = False
-
-                    for element in generator:
-                        if isinstance(element, models.Result) or element is Flag.MULTIPLE_RESULTS:
-                            if element is Flag.MULTIPLE_RESULTS:
-                                result = []
-                                multiple_results = True
-                            else:
-                                result = element
-
-                            if valid_text is None:
-                                return result  # should be the empty result, because `text` is "empty"
-                            break
-                        hash_source.append(hasher.hash_object(element))
-
-                    if result is None:
-                        raise ValueError("No result returned by the translator")
-
-                    def fill_result(result: models.Result):
-                        """
-                        Internal function to fill `result` with missing attributes and type check some of them
-                        """
-                        if not result.service:
-                            result.service = self
-                        result.source = valid_text
-                        return result
-
-                    cache_key = hasher.hash_object(hash_source)
-                    try:
-                        result = self._caches[func.__name__][cache_key]
-                    except Exception:
-                        try:
-                            result: typing.Union[models.Result, typing.Iterable[models.Result]] = next(generator)
-                            # making sure those are set
-                            if multiple_results:
-                                for element in result:
-                                    fill_result(element)
-                            else:
-                                fill_result(result)
-                        except StopIteration:
-                            return result  # should still be the empty result
-
-                        try:
-                            self._caches[func.__name__][cache_key] = result
-                        except KeyError:
-                            self._caches[func.__name__] = lru_cacher.LRUDictCache(maxsize=1024, **{cache_key: result})
-
+                    if not result.service:
+                        result.service = self
+                    result.source = valid_text
                     return result
 
+                cache_key = hasher.hash_object(hash_source)
                 try:
-                    if isinstance(text, str):
-                        raise ValueError("INFO: NOT BULK")
-                    _ = iter(text)  # should raise `TypeError` if not iterable
-                    return LazyIterable(func=worker, texts=text, work_name=func.__name__)
-                except (ValueError, TypeError):
-                    return worker(text)
+                    result = self._caches[func.__name__][cache_key]
+                except Exception:
+                    try:
+                        result: typing.Union[models.Result, typing.Iterable[models.Result]] = next(generator)
+                        # making sure those are set
+                        if multiple_results:
+                            for element in result:
+                                fill_result(element)
+                        else:
+                            fill_result(result)
+                    except StopIteration:
+                        return result  # should still be the empty result
 
-            validation.__doc__ = func.__doc__
-            validation.__name__ = func.__name__
+                    try:
+                        self._caches[func.__name__][cache_key] = result
+                    except KeyError:
+                        self._caches[func.__name__] = lru.LRUDictCache(maxsize=1024, **{cache_key: result})
 
-            return validation
+                return result
 
-        if method is None:
-            return wrap  # Called with parentheses
-        return wrap(method)  # Called without params
+            try:
+                if isinstance(text, str):
+                    raise ValueError("INFO: NOT BULK")
+                _ = iter(text)  # should raise `TypeError` if not iterable
+                return LazyIterable(func=worker, texts=text, work_name=func.__name__)
+            except (ValueError, TypeError):
+                return worker(text)
+
+        return validation
 
     # `translate`
     # Translates a given text into the desired language, herein `dest_lang`
@@ -315,7 +342,7 @@ class BaseTranslator(ABC):
                   text: typing.Union[str, typing.Iterable[str]],
                   dest_lang: typing.Union[str, Language],
                   source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.Union[models.TranslationResult[C],
-                                                                                     LazyIterable[models.TranslationResult[C]]]:  # type: ignore | the decorator actually returns a `TranslationResult`
+                                                                                                      LazyIterable[models.TranslationResult[C]]]:  # type: ignore | the decorator actually returns a `TranslationResult`
         """
         Translates `text` into the given `dest_lang`
 
@@ -415,7 +442,7 @@ class BaseTranslator(ABC):
 
     @_validate_method
     def alternatives(self: C, translation: models.TranslationResult, *args, **kwargs) -> typing.Union[typing.List[models.TranslationResult[C]],
-                                                                                     LazyIterable[typing.List[models.TranslationResult[C]]]]:  # type: ignore | the decorator actually returns a `list[TranslationResult]`
+                                                                                                      LazyIterable[typing.List[models.TranslationResult[C]]]]:  # type: ignore | the decorator actually returns a `list[TranslationResult]`
         """
         Returns the different alternative translations available for the given `translation`.
 
@@ -443,7 +470,7 @@ class BaseTranslator(ABC):
             yield []
 
     def _alternatives(self: C, translation: models.TranslationResult, *args, **kwargs) -> typing.Union[models.TranslationResult[C],
-                                                                                      typing.List[models.TranslationResult[C]]]:
+                                                                                                       typing.List[models.TranslationResult[C]]]:
         """
         Internal handler for the `alternative` method
 
@@ -516,7 +543,7 @@ class BaseTranslator(ABC):
                       text: typing.Union[str, typing.Iterable[str]],
                       dest_lang: typing.Union[str, Language],
                       source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.Union[models.TransliterationResult[C],
-                                                                                         LazyIterable[models.TransliterationResult[C]]]:  # type: ignore | the decorator actually returns a `TransliterationResult`
+                                                                                                          LazyIterable[models.TransliterationResult[C]]]:  # type: ignore | the decorator actually returns a `TransliterationResult`
         """
         Transliterates the given `text` to the given `dest_lang`
 
@@ -633,7 +660,7 @@ class BaseTranslator(ABC):
     def spellcheck(self: C,
                    text: typing.Union[str, typing.Iterable[str]],
                    source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.Union[typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]],
-                                                                                      LazyIterable[typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]]]:  # type: ignore | the decorator actually returns a `SpellcheckResult`
+                                                                                                       LazyIterable[typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]]]:  # type: ignore | the decorator actually returns a `SpellcheckResult`
         """
         Checks for spelling mistakes in the given `text`
 
@@ -724,7 +751,7 @@ class BaseTranslator(ABC):
     @_validate_method
     def language(self: C,
                  text: typing.Union[str, typing.Iterable[str]], *args, **kwargs) -> typing.Union[models.LanguageResult[C],
-                                                                                LazyIterable[models.LanguageResult[C]]]:  # type: ignore | the decorator actually returns a `LanguageResult`
+                                                                                                 LazyIterable[models.LanguageResult[C]]]:  # type: ignore | the decorator actually returns a `LanguageResult`
         """
         Returns the detected language for the given `text`
 
@@ -808,7 +835,7 @@ class BaseTranslator(ABC):
     def example(self: C,
                 text: typing.Union[str, typing.Iterable[str]],
                 source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.Union[typing.List[models.ExampleResult[C]],
-                                                                                   LazyIterable[typing.List[models.ExampleResult[C]]]]:  # type: ignore | the decorator actually returns a `ExampleResult`
+                                                                                                    LazyIterable[typing.List[models.ExampleResult[C]]]]:  # type: ignore | the decorator actually returns a `ExampleResult`
         """
         Returns use cases for the given `text`
 
@@ -842,7 +869,7 @@ class BaseTranslator(ABC):
             yield []
 
     def _example(self: C, text: str, source_lang: typing.Any, *args, **kwargs) -> typing.Union[models.ExampleResult[C],
-                                                                              typing.List[models.ExampleResult[C]]]:
+                                                                                               typing.List[models.ExampleResult[C]]]:
         """
         The internal handler which contains the translator specific logic to retrieve examples
 
@@ -912,7 +939,7 @@ class BaseTranslator(ABC):
     def dictionary(self: C,
                    text: typing.Union[str, typing.Iterable[str]],
                    source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.Union[typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]],
-                                                                                      LazyIterable[typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]]:  # type: ignore | the decorator actually returns a `DictionaryResult`
+                                                                                                       LazyIterable[typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]]:  # type: ignore | the decorator actually returns a `DictionaryResult`
         """
         Returns the meaning for the given `text`
 
@@ -948,7 +975,7 @@ class BaseTranslator(ABC):
     def _dictionary(self: C,
                     text: str,
                     source_lang: typing.Any, *args, **kwargs) -> typing.Union[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]],
-                                                             typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
+                                                                              typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
         """
         The internal handler which contains the translator specific logic to retrieve dictionary results
 
@@ -969,7 +996,7 @@ class BaseTranslator(ABC):
         raise exceptions.UnsupportedMethod
 
     @typing.overload
-    def text_to_speech(self: C, text: str, speed: typing.Union[int, models.Speed] = 100, gender: models.Gender = models.Gender.OTHER, source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> models.TextToSpechResult[C]:
+    def text_to_speech(self: C, text: str, speed: typing.Union[int, models.Speed] = 100, gender: models.Gender = models.Gender.OTHER, source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> models.TextToSpeechResult[C]:
         """
         Returns the speech version of the given `text`
 
@@ -991,7 +1018,7 @@ class BaseTranslator(ABC):
         """
 
     @typing.overload
-    def text_to_speech(self: C, text: typing.Iterable[str], speed: typing.Union[int, models.Speed] = 100, gender: models.Gender = models.Gender.OTHER, source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> LazyIterable[models.TextToSpechResult[C]]:
+    def text_to_speech(self: C, text: typing.Iterable[str], speed: typing.Union[int, models.Speed] = 100, gender: models.Gender = models.Gender.OTHER, source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> LazyIterable[models.TextToSpeechResult[C]]:
         """
         Returns the speech version for all of the given `text`
 
@@ -1017,8 +1044,8 @@ class BaseTranslator(ABC):
                        text: typing.Union[str, typing.Iterable[str]],
                        speed: typing.Union[int, models.Speed] = 100,
                        gender: models.Gender = models.Gender.OTHER,
-                       source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.Union[models.TextToSpechResult[C],
-                                                                                          LazyIterable[models.TextToSpechResult[C]]]:  # type: ignore | the decorator actually returns a `TextToSpechResult`
+                       source_lang: typing.Union[str, Language] = "auto", *args, **kwargs) -> typing.Union[models.TextToSpeechResult[C],
+                                                                                                           LazyIterable[models.TextToSpeechResult[C]]]:  # type: ignore | the decorator actually returns a `TextToSpeechResult`
         """
         Returns the speech version of the given `text`
 
@@ -1034,7 +1061,7 @@ class BaseTranslator(ABC):
         source_lang_code = self._language_to_code(source_lang)
         yield source_lang_code  # send it to the hash builder
 
-        yield models.TextToSpechResult(
+        yield models.TextToSpeechResult(
             service=self,
             source=text,
             source_lang=source_lang,
@@ -1051,7 +1078,7 @@ class BaseTranslator(ABC):
                 result.source_lang = self._code_to_language(result.source_lang)
         yield result
 
-    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any, *args, **kwargs) -> models.TextToSpechResult[C]:
+    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any, *args, **kwargs) -> models.TextToSpeechResult[C]:
         """
         The internal handler which contains the translator specific logic to retrieve text to speech results
 
@@ -1083,11 +1110,6 @@ class BaseTranslator(ABC):
         """
         for cache in self._caches.values():
             cache.clear()
-
-    def __new__(cls, *args, **kwargs):
-        new_cls = object.__new__(cls)
-        new_cls.__base_init__()
-        return new_cls
 
     def __str__(self) -> str:
         """

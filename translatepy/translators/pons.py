@@ -85,7 +85,7 @@ class PONS(BaseTranslator):
     #     return super()._dictionary(text, source_lang, *args, **kwargs)
 
     # MAYBE ?
-    # def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any, *args, **kwargs) -> models.TextToSpechResult[C]:
+    # def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any, *args, **kwargs) -> models.TextToSpeechResult[C]:
     #     return super()._text_to_speech(text, speed, gender, source_lang)
 
     def _language_to_code(self, language: Language) -> typing.Union[str, typing.Any]:

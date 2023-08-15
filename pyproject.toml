@@ -1,0 +1,79 @@
+[tool.poetry]
+name = "translatepy"
+version = "3.0rc1"
+description = "Translate, transliterate, get the language of texts in no time with the help of multiple APIs!"
+license = "GNU General Public License v3 (GPLv3)"
+authors = ["Animenosekai <animenosekai.mail@gmail.com>"]
+maintainers = ["Animenosekai <animenosekai.mail@gmail.com>"]
+readme = "README.md"
+repository = "https://github.com/Animenosekai/translatepy"
+documentation = "https://github.com/Animenosekai/translatepy/blob/main/README.md"
+keywords = [
+    "animenosekai",
+    "translatepy",
+    "translate",
+    "translation",
+    "google-translate",
+    "yandex-translate",
+    "bing-translate",
+    "reverso",
+    "transliteration",
+    "detect-language",
+    "text-to-speech",
+    "deepl",
+    "language",
+]
+classifiers = [
+    # Status
+    "Development Status :: 5 - Production/Stable",
+
+    # Environment
+    "Environment :: Console",
+
+    # Audience
+    "Intended Audience :: Developers",
+
+    # Licensing
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)", # might update to MIT ?
+
+    # Software Requirements
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+
+    # Topics
+    "Topic :: Software Development :: Localization",
+    "Topic :: Text Processing",
+    "Topic :: Text Processing :: Linguistic",
+
+    # Code quality
+    "Typing :: Typed",
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.31"
+beautifulsoup4 = "^4.12"
+pyuseragents = "^1"
+inquirer = "^3"
+# nasse = "^2.0.1"
+nasse = { path = "/Users/animenosekai/Documents/Coding/Projects/Nasse" }
+# cain = "^1.0.1"
+cain = { path = "/Users/animenosekai/Documents/Coding/Projects/cain" }
+
+[tool.poetry.scripts]
+translatepy = 'translatepy.__main__:entry'
+
+[tool.poetry.urls]
+"Issue Tracker" = "https://github.com/Animenosekai/translatepy/issues"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.4.1"
+autopep8 = "^2.0.2"
+flake8 = { version = "^6.1", python = "^3.8.1" }
+isort = "^5.12"
+pytest = "^7.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

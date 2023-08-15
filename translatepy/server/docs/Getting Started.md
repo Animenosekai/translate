@@ -20,10 +20,10 @@ Globally, JSON responses should be formatted as follows (even when critical erro
 
 | Field        | Description                                      | Nullable         |
 | ------------ | ------------------------------------------------ | ---------------- |
-| `success`    | Whether the request was a success or not          | False            |
-| `message`    | A message describing what happened               | True             |
-| `error`      | The exception name if an error occurred           | True             |
-| `data`       | The extra data, information asked in the request | False            |
+| `success`    | Whether the request was a success or not         | No               |
+| `message`    | A message describing what happened               | Yes              |
+| `error`      | The exception name if an error occurred          | Yes              |
+| `data`       | The extra data, information asked in the request | No               |
 
 ### Errors
 
@@ -38,18 +38,19 @@ Specific errors are documented in each endpoint, but these are the general error
 | `INTERNAL_SERVER_ERROR`     | When a critical error occurs on the system                                                                      | 500   |
 | `METHOD_NOT_ALLOWED`        | When you made a request with the wrong method                                                                   | 405   |
 | `CLIENT_ERROR`              | When something is missing or is wrong with the request                                                          | 400   |
+| `INVALID_TYPE`              | When Nasse couldn't convert the given value to the right type                                                   | 400   |
 | `MISSING_VALUE`             | When a value is missing from the request                                                                        | 400   |
 | `MISSING_PARAM`             | When a parameter is missing from the request                                                                    | 400   |
 | `MISSING_DYNAMIC`           | When a dynamic routing value is missing from the requested URL                                                  | 400   |
 | `MISSING_HEADER`            | When a header is missing from the request                                                                       | 400   |
 | `MISSING_COOKIE`            | When a cookie is missing from the request                                                                       | 400   |
-| `AUTH_ERROR`                | When an error occurred while authenticating the request                                                          | 403   |
+| `AUTH_ERROR`                | When an error occurred while authenticating the request                                                         | 403   |
 
 ### Authenticated Requests
 
 When a user needs to be logged in, the "Authorization" header needs to be set to the login token provided when logging in.
 
-Alternatively, the "translatepy_token" parameter and "__translatepy_token" cookie can be used, but these won't be prioritized.
+Alternatively, the "nasse_token" parameter and "__nasse_token" cookie can be used, but these won't be prioritized.
 
 If the endpoint is flagged for a "verified only" login, the account won't be fetched from any database, but the token will be checked.
 
@@ -79,7 +80,7 @@ The "call_stack" attribute is enabled only when an error occurs or the `call_sta
         },
         "ip": "127.0.0.1",
         "headers": {
-            "Host": "api.translatepy.com",
+            "Host": "api.nasse.com",
             "Connection": "close",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "fr-fr",
@@ -87,7 +88,7 @@ The "call_stack" attribute is enabled only when an error occurs or the `call_sta
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15"
         },
         "values": {},
-        "domain": "api.translatepy.com",
+        "domain": "api.nasse.com",
         "logs": [
             "1636562693.036563｜[INFO] [nasse.receive.Receive.__call__] → Incoming GET request to /account/name from 127.0.0.1",
             "1636562693.070008｜[ERROR] [nasse.exceptions.base.MissingToken.__init__] An authentication token is missing from the request"
@@ -101,15 +102,11 @@ The "call_stack" attribute is enabled only when an error occurs or the `call_sta
 
 ## Index
 
-- [Language](./Sections/Language.md#language)
-  - [Language Details](./Sections/Language.md#language-details)
-  - [Language Search](./Sections/Language.md#language-search)
-  - [Language Details (dynamic)](./Sections/Language.md#language-details-dynamic)
-- [Translation](./Sections/Translation.md#translation)
-  - [Translate](./Sections/Translation.md#translate)
-  - [Translation Stream](./Sections/Translation.md#translation-stream)
-  - [Translate HTML](./Sections/Translation.md#translate-html)
-  - [Transliterate](./Sections/Translation.md#transliterate)
-  - [Spellcheck](./Sections/Translation.md#spellcheck)
-  - [Language](./Sections/Translation.md#language-1)
-  - [Text to Speech](./Sections/Translation.md#text-to-speech)
+- [Work](./Sections/Work.md#work)
+  - [translate](./Sections/Work.md#translate)
+  - [transliterate](./Sections/Work.md#transliterate)
+  - [spellcheck](./Sections/Work.md#spellcheck)
+  - [language](./Sections/Work.md#language)
+  - [example](./Sections/Work.md#example)
+  - [dictionary](./Sections/Work.md#dictionary)
+  - [tts](./Sections/Work.md#tts)

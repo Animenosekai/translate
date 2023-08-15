@@ -13,7 +13,7 @@ from translatepy.exceptions import UnsupportedMethod
 from translatepy.language import Language
 from translatepy.translators.base import BaseTranslateException, BaseTranslator
 from translatepy.utils import request
-from translatepy.utils.annotations import Callable, Dict
+
 
 HOME_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -29,7 +29,7 @@ class BingSessionManager():
     Creates and manages a Bing session
     """
 
-    def __init__(self, session: request.Session, captcha_callback: Callable[[str], str] = None):
+    def __init__(self, session: request.Session, captcha_callback: typing.Callable[[str], str] = None):
         self.session = session
         self._auth_session_file = pathlib.Path(__file__).parent / ".bing.translatepy"
         _auth_session_data = json.loads(self._auth_session_file.read_text())
@@ -77,7 +77,7 @@ class BingSessionManager():
             # Because of this, we have to predict where the real status of the response is.
 
             # We check the current response from the server, whether it is a dictionary. If yes, then we are trying to get the status code from the request itself, if there is no status code in the request body, then we simply take the status code in the response.
-            if isinstance(response, Dict):
+            if isinstance(response, typing.Dict):
                 status_code = response.get("statusCode", request.status_code)
             else:
                 status_code = request.status_code

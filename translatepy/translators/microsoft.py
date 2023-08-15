@@ -141,7 +141,7 @@ class MicrosoftTranslate(BaseTranslator):
             _result.append(_dictionary_result)
         return source_lang, _result
 
-    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpechResult[C]:
+    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpeechResult[C]:
         if source_lang == "auto":
             source_lang = self._language_to_code(self.language(text).language)
 
@@ -182,7 +182,7 @@ class MicrosoftTranslate(BaseTranslator):
         data = "<speak version='1.0' xml:lang='{local}'><voice xml:lang='{local}' xml:gender='{gender}' name='{voice}'><prosody rate='{speed}%'>{text}</prosody></voice></speak>".format(text=text, gender=final_gender, speed=float(speed - 100), local=_source_local, voice=voice)
         spech_result = self.session.post(speech_url, data=data.encode('utf-8'), headers=headers)
 
-        return models.TextToSpechResult(source_lang=source_lang, result=spech_result.content)
+        return models.TextToSpeechResult(source_lang=source_lang, result=spech_result.content)
 
     def _language_to_code(self, language: Language) -> typing.Union[str, typing.Any]:
         if language.id == "zho":

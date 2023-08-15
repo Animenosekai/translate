@@ -133,7 +133,7 @@ class ReversoTranslate(BaseTranslator):
                 _result.append(_dictionary["term"])
             return source_lang, _result
 
-    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpechResult[C]:
+    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpeechResult[C]:
         if source_lang == "auto":
             source_lang = self.language(text).language
         else:
@@ -164,7 +164,7 @@ class ReversoTranslate(BaseTranslator):
         url = "https://voice.reverso.net/RestPronunciation.svc/v1/output=json/GetVoiceStream/voiceName={}?voiceSpeed={}&inputText={}".format(voice, speed, text)
         response = self.session.get(url)
         response.raise_for_status()
-        return models.TextToSpechResult(source_lang=source_lang, result=response.content)
+        return models.TextToSpeechResult(source_lang=source_lang, result=response.content)
 
     def _language_to_code(self, language: Language) -> typing.Union[str, typing.Any]:
         if language.id == "zho":

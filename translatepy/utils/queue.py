@@ -1,19 +1,18 @@
 from queue import Queue as _Queue
 from threading import Thread
-from translatepy.utils.annotations import List
-
+import typing
 
 class Queue(_Queue):
     def __init__(self, maxsize: int = 0) -> None:
         super().__init__(maxsize=maxsize)
 
-    def _threads_are_alive(self, threads: List[Thread]):
+    def _threads_are_alive(self, threads: typing.List[Thread]):
         for thread in threads:
             if thread.is_alive():
                 return True
         return False
 
-    def get(self, threads: List[Thread] = None):
+    def get(self, threads: typing.List[Thread] = None):
         '''
         Remove and return an item from the queue.
 

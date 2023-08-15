@@ -22,7 +22,6 @@ from bs4 import BeautifulSoup
 from translatepy import models, exceptions
 from translatepy.language import Language
 from translatepy.translators.base import BaseTranslateException, BaseTranslator, C
-from translatepy.utils.annotations import List, Tuple
 from translatepy.utils import request
 
 SENTENCES_SPLITTING_REGEX = re.compile('(?<=[.!:?]) +')
@@ -112,17 +111,17 @@ class DeeplTranslate(BaseTranslator):
 
     _supported_languages = {'AUTO', 'BG', 'CS', 'DA', 'DE', 'EL', 'EN', 'ES', 'ET', 'FI', 'FR', 'HU', 'IT', 'JA', 'LT', 'LV', 'NL', 'PL', 'PT', 'RO', 'RU', 'SK', 'SL', 'SV', 'ZH', 'TR', 'ID', 'UK'}
 
-    def __init__(self, session: request.Session = None, preferred_langs: List = ["EN", "RU"]) -> None:
+    def __init__(self, session: request.Session = None, preferred_langs: typing.List = ["EN", "RU"]) -> None:
         super().__init__(session)
         self.jsonrpc = JSONRPCRequest(session)
         self.user_preferred_langs = preferred_langs
 
-    def _split_into_sentences(self, text: str, dest_lang: str, source_lang: str) -> Tuple[List[str], str]:
+    def _split_into_sentences(self, text: str, dest_lang: str, source_lang: str) -> typing.Tuple[typing.List[str], str]:
         """
         Split a string into sentences using the DeepL API.\n
         Fallbacks to a simple Regex splitting if an error occurs or no result is found
 
-        Returned tuple: (Result, Computed Language (None if same as source_lang))
+        Returned typing.Tuple: (Result, Computed Language (None if same as source_lang))
         """
         REGEX_SPLIT = True
 
@@ -133,7 +132,7 @@ class DeeplTranslate(BaseTranslator):
             "texts": [text.strip()],  # What for need strip there?
             "lang": {
                 "lang_user_selected": source_lang,
-                "user_preferred_langs": list(set(self.user_preferred_langs + [dest_lang]))
+                "user_preferred_langs": typing.List(set(self.user_preferred_langs + [dest_lang]))
             }
         }
         resp = self.jsonrpc.send_jsonrpc("LMT_split_into_sentences", params)
