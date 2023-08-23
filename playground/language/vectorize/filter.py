@@ -6,7 +6,7 @@ import typing
 
 import cain
 
-from backup._language_data import CODES, LANGUAGE_DATA
+from playground.backup._language_data import CODES, LANGUAGE_DATA
 from translatepy.language import LANGUAGE_DATA_DIR, Language
 from translatepy.utils.vectorize import string_preprocessing
 
@@ -27,6 +27,8 @@ for val in LANGUAGE_DATA.values():
             parsing_languages.remove(lang)
 
 parsing_languages = {element: string_preprocessing(LANGUAGE_DATA[CODES[element]]["e"]) for element in parsing_languages}
+parsing_languages["eng"] = "English"
+parsing_languages["auto"] = "Automatic"
 
 results = [Language(lang) for lang in parsing_languages]
 with open(LANGUAGE_DATA_DIR / "data.cain", "w+b") as f:

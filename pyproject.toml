@@ -58,6 +58,8 @@ pyuseragents = "^1"
 inquirer = "^3"
 nasse = "^2.0.1"
 cain = "^1.1"
+textual-textarea = "^0.4.2"
+textual = "^0.30"
 
 [tool.poetry.scripts]
 translatepy = 'translatepy.__main__:entry'
@@ -71,6 +73,7 @@ autopep8 = "^2.0.2"
 flake8 = { version = "^6.1", python = "^3.8.1" }
 isort = "^5.12"
 pytest = "^7.4"
+textual-dev = "^1.0"
 
 [build-system]
 requires = ["poetry-core"]

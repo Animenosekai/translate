@@ -294,27 +294,43 @@ class Language(cain.Object):
 
     def __str__(self) -> str:
         return self.id
+    
+    def __eq__(self, obj: typing.Union["Language", str]) -> bool:
+        if isinstance(obj, str):
+            obj = Language(obj)
+        if not isinstance(obj, Language):
+            return False
+        return self.id == obj.id
 
     def get_extra(self, attribute: str) -> typing.Optional[str]:
         """Retrieves the given attribute from `extra` if available"""
+        if not self.extra:
+            return None
         try:
             return self.extra[attribute]
-        except AttributeError:
+        except KeyError:
             return None
 
-    def get_foreign(self, attribute: str) -> typing.Optional[str]:
+    def get_foreign(self, attribute: typing.Union[str, "Language"]) -> typing.Optional[str]:
         """Retrieves the given attribute from `foreign` if available"""
+        if not self.foreign:
+            return None
         if isinstance(attribute, Language):
             attribute = vectorize.string_preprocessing(attribute.name)
         try:
             return self.foreign[attribute]
-        except AttributeError:
+        except KeyError:
             return None
 
     @property
     def similarity(self) -> float:
         """The similarity with the vector while searching the language"""
         return self._similarity
+
+    @property
+    def native(self) -> str:
+        """The native name for the language or its english name"""
+        return self.get_foreign(self) or self.name
 
     @property
     def rich(self) -> bool:
