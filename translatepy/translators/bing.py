@@ -3,25 +3,34 @@ This implementation was made specifically for translatepy from 'Zhymabek Roman',
 """
 
 import json
-import os
-import pathlib
 import re
 import typing
 
+import cain
+import cain.types
+
 from translatepy import models
+from translatepy.__info__ import __translatepy_dir__
 from translatepy.exceptions import UnsupportedMethod
 from translatepy.language import Language
 from translatepy.translators.base import BaseTranslateException, BaseTranslator
 from translatepy.utils import request
 
 
-HOME_DIR = os.path.abspath(os.path.dirname(__file__))
-
-
 class BingTranslateException(BaseTranslateException):
     error_codes = {
         429: "Too many requests"
     }
+
+
+class BingSessionData(cain.types.Object):
+    """Bing session data holder"""
+    ig: str
+    iid: str
+    key: str
+    token: str
+    cookies_keys: typing.List[str]
+    cookies_values: typing.List[str]
 
 
 class BingSessionManager():
@@ -31,24 +40,38 @@ class BingSessionManager():
 
     def __init__(self, session: request.Session, captcha_callback: typing.Callable[[str], str] = None):
         self.session = session
-        self._auth_session_file = pathlib.Path(__file__).parent / ".bing.translatepy"
-        _auth_session_data = json.loads(self._auth_session_file.read_text())
-        self.ig, self.iid, self.key, self.token, self.cookies = _auth_session_data.get("id"), _auth_session_data.get("iid"), _auth_session_data.get("key"), _auth_session_data.get("token"), _auth_session_data.get("cookies")
-        self.captcha_callback = captcha_callback
-        if not _auth_session_data:
+        self._auth_session_file = __translatepy_dir__ / "sessions" / "bing.cain"
+        try:
+            with self._auth_session_file.open("rb") as file:
+                _auth_session_data = cain.load(file, BingSessionData)
+            self.ig = _auth_session_data.ig
+            self.iid = _auth_session_data.iid
+            self.key = _auth_session_data.key
+            self.token = _auth_session_data.token
+            self.cookies = {key: _auth_session_data.cookies_values[index] for index, key in enumerate(_auth_session_data.cookies_keys)}
+            self.captcha_callback = captcha_callback
+        except Exception:
             self._parse_authorization_data()
+            _auth_session_data = BingSessionData({
+                "ig": self.ig,
+                "iid": self.iid,
+                "key": self.key,
+                "token": self.token,
+                "cookies_keys": list(self.cookies.keys()),
+                "cookies_values": list(self.cookies.values())
+            })
+            with self._auth_session_file.open("wb") as file:
+                cain.dump(_auth_session_data, file, BingSessionData)
 
     def _parse_authorization_data(self):
         for _ in range(3):
             _request = self.session.get("https://www.bing.com/translator")
             _page = _request.text
-            _parsed_IG = re.findall('IG:"(.*?)"', _page)
-            _parsed_IID = re.findall('data-iid="(.*?)"', _page)
+            _parsed_ig = re.findall('IG:"(.*?)"', _page)
+            _parsed_iid = re.findall('data-iid="(.*?)"', _page)
             _parsed_helper_info = re.findall("params_AbusePreventionHelper = (.*?);", _page)
-
             if not _parsed_helper_info:
                 continue
-
             break
         else:
             raise BingTranslateException(message="Can't parse the authorization data, try again later or use MicrosoftTranslate")
@@ -56,13 +79,14 @@ class BingSessionManager():
         _normalized_key = json.loads(_parsed_helper_info[0])[0]
         _normalized_token = json.loads(_parsed_helper_info[0])[1]
 
-        self.ig = _parsed_IG[0]
-        self.iid = _parsed_IID[0]
+        self.ig = _parsed_ig[0]
+        self.iid = _parsed_iid[0]
         self.key = _normalized_key
         self.token = _normalized_token
         self.cookies = _request.cookies
 
     def send(self, url, data):
+        """Sends requestts to the API"""
         # Try 2 times to make a request
         for _ in range(2):
             _params = {'IG': self.ig, 'IID': self.iid, "isVertical": 1}

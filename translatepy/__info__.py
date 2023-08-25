@@ -1,4 +1,5 @@
 """Stores information on the current module version"""
+import pathlib
 
 # Authors
 __author__ = 'Anime no Sekai'
@@ -17,3 +18,6 @@ __copyright__ = f'Copyright {__year__}, {__module__}'
 
 # PEP 440 Compilant
 __version__ = "3.0rc1"
+
+# translatepy exclusive
+__translatepy_dir__ = pathlib.Path() / ".translatepy"

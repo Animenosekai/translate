@@ -1,15 +1,15 @@
 """Defines the options view"""
 import dataclasses
 import json
-import pathlib
 import typing
+from translatepy.__info__ import __translatepy_dir__
 
 from textual import events
 from textual.containers import Container, Horizontal
 from textual.screen import ModalScreen
 from textual.widgets import Button
 
-from nasse.tui.components.headers import StickyHeader
+from translatepy.cli.tui.components.headers import StickyHeader
 
 T = typing.TypeVar("T")
 
@@ -101,7 +101,7 @@ class OptionsScreen(ModalScreen[T]):
     @staticmethod
     def loads(key: str, cast: typing.Type[T]) -> T:
         """Loads the configs"""
-        config_path = pathlib.Path() / ".translatepy" / "config" / str(key)
+        config_path = __translatepy_dir__ / "config" / str(key)
         try:
             return cast(**json.loads(config_path.read_text()))
         except Exception:
@@ -110,6 +110,6 @@ class OptionsScreen(ModalScreen[T]):
     @staticmethod
     def dumps(key: str, options: T) -> None:
         """Exports the configs"""
-        config_path = pathlib.Path() / ".translatepy" / "config" / str(key)
+        config_path = __translatepy_dir__ / "config" / str(key)
         config_path.parent.mkdir(parents=True, exist_ok=True)
         config_path.write_text(json.dumps(dataclasses.asdict(options), ensure_ascii=False, separators=(",", ":")))

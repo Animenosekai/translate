@@ -2,27 +2,32 @@
 This implementation was made specifically for translatepy by 'Zhymabek Roman'.
 """
 
-import json
-import os
-import pathlib
 import time
 import typing
 import uuid
 
+import cain
+import cain.types
+
 from translatepy import exceptions, models
+from translatepy.__info__ import __translatepy_dir__
 from translatepy.language import Language
 from translatepy.translators.base import (BaseTranslateException,
                                           BaseTranslator, C)
 from translatepy.translators.bing import BingSessionManager
 from translatepy.utils import request
 
-HOME_DIR = os.path.abspath(os.path.dirname(__file__))
-
 
 class MicrosoftException(BaseTranslateException):
     error_codes = {
         429: "Too many requests"
     }
+
+
+class MicrosoftSessionData(cain.types.Object):
+    region: str
+    token: str
+    token_expiration: int
 
 
 class MicrosoftSessionManager:
@@ -34,14 +39,25 @@ class MicrosoftSessionManager:
         self.session = request
         self.bing_session = BingSessionManager(request)
 
-        self._auth_session_file = pathlib.Path(__file__).parent / ".bing.translatepy"
-        _auth_session_data = json.loads(self._auth_session_file.read_text())
-
-        self._region, self._token, self._token_expiries = _auth_session_data.get("region"), _auth_session_data.get("token"), _auth_session_data.get("token_expiries", 0)
-        self._parse_authorization_data()
+        self._auth_session_file = __translatepy_dir__ / "sessions" / "microsoft.cain"
+        try:
+            with self._auth_session_file.open("rb") as file:
+                _auth_session_data = cain.load(file, MicrosoftSessionData)
+            self._region = _auth_session_data.region
+            self._token = _auth_session_data.token
+            self._token_expiration = _auth_session_data.token_expiration
+        except Exception:
+            self._parse_authorization_data()
+            _auth_session_data = MicrosoftSessionData({
+                "region": self._region,
+                "token": self._token,
+                "token_expiration": self._token_expiration
+            })
+            with self._auth_session_file.open("wb") as file:
+                cain.dump(_auth_session_data, file, MicrosoftSessionData)
 
     def _parse_authorization_data(self, force: bool = False):
-        if not self._token or time.time() > self._token_expiries or force:
+        if not self._token or time.time() > self._token_expiration or force:
             # authentication token is valid for 10 minutes
             token_response = self.bing_session.send("https://www.bing.com/tfetspktok", data={})
             token_status = token_response.get("statusCode", 200)
@@ -50,11 +66,10 @@ class MicrosoftSessionManager:
                 raise MicrosoftException(token_status, "Error during token request from the server")
 
             self._token, self._region = token_response.get("token"), token_response.get("region")
-            self._token_expiries = time.time() + (int(token_response.get("expiryDurationInMS", 600000)) - 1000) / 1000
-
-            self._auth_session_file.write_text(json.dumps({"token": self._token, "region": self._region, "token_expiries": self._token_expiries}, ensure_ascii=False, separators=(",", ":")))
+            self._token_expiration = time.time() + (int(token_response.get("expiryDurationInMS", 600000)) - 1000) / 1000
 
     def send(self, url, data, params: typing.Dict = {}):
+        """Sends a request to the API"""
         # Try 2 times to make a request
         for _ in range(2):
             headers = {
