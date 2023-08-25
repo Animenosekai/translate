@@ -53,6 +53,7 @@ class MicrosoftSessionManager:
                 "token": self._token,
                 "token_expiration": self._token_expiration
             })
+            self._auth_session_file.mkdir(parents=True, exist_ok=True)
             with self._auth_session_file.open("wb") as file:
                 cain.dump(_auth_session_data, file, MicrosoftSessionData)
 
