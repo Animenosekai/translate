@@ -47,6 +47,8 @@ class MicrosoftSessionManager:
             self._token = _auth_session_data.token
             self._token_expiration = _auth_session_data.token_expiration
         except Exception:
+            self._token = ""
+            self._token_expiration = 0
             self._parse_authorization_data()
             _auth_session_data = MicrosoftSessionData({
                 "region": self._region,
@@ -54,8 +56,11 @@ class MicrosoftSessionManager:
                 "token_expiration": self._token_expiration
             })
             self._auth_session_file.parent.mkdir(parents=True, exist_ok=True)
-            with self._auth_session_file.open("wb") as file:
-                cain.dump(_auth_session_data, file, MicrosoftSessionData)
+            try:
+                with self._auth_session_file.open("wb") as file:
+                    cain.dump(_auth_session_data, file, MicrosoftSessionData)
+            except Exception:
+                pass
 
     def _parse_authorization_data(self, force: bool = False):
         if not self._token or time.time() > self._token_expiration or force:

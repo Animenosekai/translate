@@ -27,7 +27,7 @@ class BingSessionData(cain.types.Object):
     """Bing session data holder"""
     ig: str
     iid: str
-    key: str
+    key: int
     token: str
     cookies_keys: typing.List[str]
     cookies_values: typing.List[str]
@@ -61,8 +61,11 @@ class BingSessionManager():
                 "cookies_values": list(self.cookies.values())
             })
             self._auth_session_file.parent.mkdir(parents=True, exist_ok=True)
-            with self._auth_session_file.open("wb") as file:
-                cain.dump(_auth_session_data, file, BingSessionData)
+            try:
+                with self._auth_session_file.open("wb") as file:
+                    cain.dump(_auth_session_data, file, BingSessionData)
+            except Exception:
+                pass
 
     def _parse_authorization_data(self):
         for _ in range(3):
