@@ -9,6 +9,7 @@ import pathlib
 import typing
 import ast
 import inspect
+import bs4
 
 from translatepy.language import Language
 from translatepy.utils.audio import get_type
@@ -174,6 +175,11 @@ class Result(typing.Generic[Translator]):
         ...     print(element)
         """
         yield self
+
+    def __getitem__(self, index: int):
+        if index > 0:
+            raise IndexError(f"The given index `{index}` exceeds the length of this iterable (0)")
+        return self
 
     def __pretty__(self, cli: bool = False) -> str:
         """
@@ -920,3 +926,28 @@ class TextToSpeechResult(Result[Translator]):
             if replace_ext:
                 file = file.with_suffix(".{ext}".format(ext=self.extension))
             file.write_bytes(self.result)
+
+
+@dataclasses.dataclass
+class HTMLTranslationNode(typing.Generic[Translator]):
+    """
+    A translation node, containing the DOM element and its translation result
+    """
+    node: bs4.NavigableString
+    result: typing.Optional[TranslationResult[Translator]]
+
+
+@dataclasses.dataclass(kw_only=True, slots=True, repr=False)
+class HTMLTranslationResult(Result[Translator]):
+    """
+    Holds an HTML translation result
+    """
+    result: str
+    soup: bs4.BeautifulSoup
+    nodes: typing.List[HTMLTranslationNode[Translator]]
+
+    def __pretty__(self, cli: bool = False) -> str:
+        return self.result
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}(result="{self.result}", nodes=<{len(self.nodes)} nodes>, service={self.service})'

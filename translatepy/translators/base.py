@@ -11,6 +11,10 @@ Implements the Base Translator class
 import enum
 import typing
 import functools
+import collections
+import multiprocessing.pool
+
+import bs4
 
 from translatepy import models, exceptions
 from translatepy.utils import hasher, lru, sanitize, request
@@ -19,6 +23,7 @@ from translatepy.language import Language
 # Types
 C = typing.TypeVar('C', bound="BaseTranslator")  # The expected result class for `models.Result`
 R = typing.TypeVar('R')  # The expected result class for `LazyIterable`
+HTMLType = typing.Union[str, bs4.PageElement, bs4.Tag, bs4.BeautifulSoup]
 
 
 class LazyIterable(typing.Generic[R]):
@@ -26,7 +31,11 @@ class LazyIterable(typing.Generic[R]):
     An object which can be iterated through, even multiple times, but lazy loads the results.
     """
 
-    def __init__(self, func: typing.Callable[[str], R], texts: typing.Optional[typing.Iterable[str]] = None, work_name: str = "") -> None:
+    def __init__(self, func: typing.Union[typing.Callable[[str], R],
+                                          typing.Callable[[HTMLType], R]],
+                 texts: typing.Optional[typing.Union[typing.Iterable[str],
+                                                     typing.Iterable[HTMLType]]] = None,
+                 work_name: str = "") -> None:
         self.func = func
         self.texts = texts or []
         self.results: typing.List[R] = []
@@ -53,7 +62,7 @@ class LazyIterable(typing.Generic[R]):
             if current >= index:
                 return element
             current += 1
-        raise IndexError("list index out of range")
+        raise IndexError(f"The given index `{index}` exceeds the length of this iterable ({current})")
 
     def __repr__(self) -> str:
         return "LazyIterable({}, texts={}, loaded={})".format(self.work_name, self.texts, len(self.results))
@@ -93,9 +102,6 @@ class BaseTranslateException(exceptions.TranslatepyException):
         """
         """
         return "{} | {}".format(self.status_code, self.message)
-
-
-# TODO: ADD `HTML` AGAIN
 
 
 class Flag(enum.Enum):
@@ -285,7 +291,7 @@ class BaseTranslator:
                 _ = iter(text)  # should raise `TypeError` if not iterable
                 return LazyIterable(func=worker, texts=text, work_name=func.__name__)
             except (ValueError, TypeError):
-                return worker(text)
+                return worker(str(text))
 
         return validation
 
@@ -401,6 +407,76 @@ class BaseTranslator:
             The result of the translation, this can omit `service` and `source`
         """
         raise exceptions.UnsupportedMethod()
+
+    # `translate_html`
+    # Translates a given HTML string into the desired language, herein `dest_lang`
+    # Type overloads
+
+    # Implementation
+    def translate_html(self: C,
+                       html: typing.Union[HTMLType, typing.Iterable[HTMLType]],
+                       dest_lang: typing.Union[str, Language],
+                       source_lang: typing.Union[str, Language] = "auto",
+                       parser: str = "html.parser",
+                       threads_limit: int = 100,
+                       strict: bool = False, *args, **kwargs) -> typing.Union[models.HTMLTranslationResult[C],
+                                                                              LazyIterable[models.HTMLTranslationResult[C]]]:  # type: ignore | the decorator actually returns a `TranslationResult`
+
+        try:
+            if isinstance(html, HTMLType):
+                raise ValueError("INFO: NOT BULK")
+            _ = iter(html)  # should raise `TypeError` if not iterable
+
+            def partial_translate_html(html: str):
+                """Internal partial implementation of `translate_html`"""
+                return self.translate_html(html,
+                                           dest_lang=dest_lang,
+                                           source_lang=source_lang,
+                                           parser=parser,
+                                           threads_limit=threads_limit,
+                                           strict=strict)[0]
+
+            return LazyIterable(func=partial_translate_html, texts=html, work_name=self.translate_html.__name__)
+        except (ValueError, TypeError):
+            pass
+
+        def translation_internal(node: bs4.NavigableString):
+            """An internal function to translate the given node"""
+            try:
+                result = self.translate(str(node), dest_lang=dest_lang, source_lang=source_lang)
+                node.replace_with(result.translation)
+                return models.HTMLTranslationNode(node=node, result=result)
+            except Exception as exc:
+                if strict:
+                    raise exc
+                # ignore if it couldn't find any result or an error occured
+                return models.HTMLTranslationNode(node=node, result=None)
+
+        # Parsing the page using BeautifulSoup
+        page = bs4.BeautifulSoup(str(html), str(parser))
+
+        # Gathering all interesting nodes
+        nodes = [tag for tag in page.find_all(text=True, recursive=True)
+                 if not isinstance(tag, (bs4.element.PreformattedString)) and sanitize.remove_spaces(tag) != ""]
+
+        # Processing the different nodes
+        with multiprocessing.pool.ThreadPool(int(threads_limit)) as pool:
+            results = pool.map(translation_internal, nodes)
+
+        counter = collections.Counter(node.result.service for node in results if node.result)
+        common = counter.most_common(1)
+        if common:
+            service = common[0][0]
+        else:
+            service = self
+
+        return models.HTMLTranslationResult(
+            service=service,
+            source=str(html),
+            result=str(page),
+            soup=page,
+            nodes=results
+        )
 
     # `alternatives`
     # Returns the different alternative translations available for a given previous translation.
