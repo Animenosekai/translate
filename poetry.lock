@@ -315,13 +315,13 @@ files = [
 
 [[package]]
 name = "cain"
-version = "1.1"
+version = "1.1.1"
 description = "A small yet powerful data format ✨"
 optional = false
-python-versions = ">=3.8,<4.0"
+python-versions = ">=3.9,<4.0"
 files = [
-    {file = "cain-1.1-py3-none-any.whl", hash = "sha256:277b0a0d3747dbed37625e8b0fe1be84607601c3754d87e3b5da8739a2491cd9"},
-    {file = "cain-1.1.tar.gz", hash = "sha256:9b5e01bf9276d866cc5862bd7189b3965fa40753fe7e83b4f3fa73d8ed7105cd"},
+    {file = "cain-1.1.1-py3-none-any.whl", hash = "sha256:67528e6f70ae725befe831824fc35a741c160fe4204afdc764b2dc35348d80d3"},
+    {file = "cain-1.1.1.tar.gz", hash = "sha256:e2faeee41ad97de527e2d3bc459b3153da5d55f4da4a55d10136bdb91c77e9cb"},
 ]
 
 [package.dependencies]
@@ -1282,7 +1282,6 @@ files = [
 [package.dependencies]
 markdown-it-py = ">=2.2.0"
 pygments = ">=2.13.0,<3.0.0"
-typing-extensions = {version = ">=4.0.0,<5.0", markers = "python_version < \"3.9\""}
 
 [package.extras]
 jupyter = ["ipywidgets (>=7.5.1,<9)"]
@@ -1599,5 +1598,5 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.8"
-content-hash = "e2be31ce1abd9ce710f148db8491958b3eef5374b208b42bf29cd9aab9c2793e"
+python-versions = "^3.9"
+content-hash = "d0d3b1719ab125f8d1025a045cad8c9b463ba0fe04fe760e09cc685548c8060b"
