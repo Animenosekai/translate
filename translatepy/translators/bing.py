@@ -60,7 +60,7 @@ class BingSessionManager():
                 "cookies_keys": list(self.cookies.keys()),
                 "cookies_values": list(self.cookies.values())
             })
-            self._auth_session_file.mkdir(parents=True, exist_ok=True)
+            self._auth_session_file.parent.mkdir(parents=True, exist_ok=True)
             with self._auth_session_file.open("wb") as file:
                 cain.dump(_auth_session_data, file, BingSessionData)
 
