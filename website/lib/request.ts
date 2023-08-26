@@ -13,7 +13,7 @@ interface RequestOptions {
     // arrayBuffer?: boolean // only for requestMedia
 }
 
-async function prepare(path: string, options: RequestOptions) {
+export function prepare(path: string, options: RequestOptions) {
     /* Prepares a request */
     // const { token } = useAccounts();
     const headers = (options.headers || {})
@@ -52,7 +52,7 @@ async function prepare(path: string, options: RequestOptions) {
 
 export async function request<Data = any>(path: string, { ...options }: RequestOptions = {}): Promise<Data> {
     /* Make a request to the API server */
-    const { finalPath, headers } = await prepare(path, options)
+    const { finalPath, headers } = prepare(path, options)
     return window.fetch(Configuration.request.host + finalPath, {
         method: options.method || "GET",
         headers: headers,

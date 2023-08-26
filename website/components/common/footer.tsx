@@ -12,7 +12,7 @@ export const Footer = () => {
                 <select value={strings.language} className="appearance-none bg-transparent outline-none pr-6 z-[1] cursor-pointer" name="language" onChange={ev => setLanguage(ev.target.value)}>
                     {
                         Object.keys(localizations).map((lang, key) => {
-                            return <option value={lang} key={key}>{(new localizations[lang]()).name}</option>
+                            return <option value={lang} key={key}>{localizations[lang].name}</option>
                         })
                     }
                 </select>

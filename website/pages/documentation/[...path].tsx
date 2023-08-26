@@ -12,6 +12,7 @@ import classNames from 'classnames'
 import rehypeRaw from 'rehype-raw'
 // import rehypeSanitize from 'rehype-sanitize'
 import remarkGfm from 'remark-gfm'
+import { request } from 'lib/request'
 import { useHeadings } from 'contexts/headings'
 import { useLanguage } from 'contexts/language'
 import { useRouter } from 'next/router'
@@ -70,11 +71,14 @@ const Documentation: NextPage = () => {
         if (!resultPath.endsWith(".md")) {
             resultPath += "/README.md"
         }
-        fetch(`https://cdn.jsdelivr.net/gh/Animenosekai/translate@${encodeURIComponent(Configuration.repo.branch)}/docs/${encodeURIComponent(strings.docsTranslated ? strings.name : "English")}${resultPath}`)
-            .then(response => response.text())
-            .then(text => {
+        request<{ markdown: string }>(`${Configuration.request.host}/docs${resultPath}`, {
+            params: {
+                lang: strings.language
+            }
+        })
+            .then(({ markdown }) => {
                 if (path.join("|") === __path__) {
-                    setContent(text)
+                    setContent(markdown)
                 }
             })
     }, [path, strings])

@@ -66,8 +66,6 @@ export const HamburgerModal = ({ onClose, ...props }) => {
                     showTOC && <TOC onClick={clickHandler} className="ml-6" />
                 }
                 <hr />
-                <HamburgerMenuElement onClick={clickHandler} href="/stats" name={strings.pages.stats} />
-                <hr />
             </div>
             <div></div>
             <span>🧃 Anime no Sekai, 2022</span>

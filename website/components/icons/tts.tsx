@@ -1,5 +1,5 @@
 import { IconVolume } from "@tabler/icons";
 
-export const TTSIcon = (props: any) => (
+export const TextToSpeechIcon = (props: any) => (
     <IconVolume {...props} />
 );

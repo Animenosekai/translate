@@ -5,10 +5,11 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import EnglishLocalization from "../localizations/eng";
 import FrenchLocalization from "localizations/fra";
 import JapaneseLocalization from "localizations/jpn";
+import Localization from "localizations/base";
 import SpanishLocalization from "localizations/spa";
 
 export const LanguageContext = createContext<{
-    strings: EnglishLocalization
+    strings: Localization
     setLanguage: (language: string) => void
 }>(undefined);
 
@@ -22,18 +23,18 @@ export interface LanguageContextProps {
 
 export const LanguageContextProvider = ({ children }: LanguageContextProps) => {
     // HOOKS DEFINITION
-    const [strings, setLanguageData] = useState<EnglishLocalization>(new EnglishLocalization());
+    const [strings, setLanguageData] = useState<Localization>(EnglishLocalization);
 
     const setLanguage = (language: string) => {
         window.localStorage.setItem("ui-language", language);
 
         for (const lang in languages) {
-            const newLang = new languages[lang]()
+            const newLang = languages[lang]
             if (language === newLang.language) {
                 return setLanguageData(newLang);
             }
         }
-        return setLanguageData(new EnglishLocalization());
+        return setLanguageData(EnglishLocalization);
     }
 
     useEffect(() => {

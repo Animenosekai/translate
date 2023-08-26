@@ -5,7 +5,7 @@ The `translatepy` CLI
 """
 import argparse
 import json
-
+import webbrowser
 
 import translatepy
 from translatepy.exceptions import UnknownLanguage
@@ -43,9 +43,17 @@ def entry():
     parser_shell.add_argument('--dest-lang', '-d', action='store', default=None, type=str, help='destination language')
     parser_shell.add_argument('--source-lang', '-s', action='store', default='auto', type=str, help='source language')
 
+    def prepare_server_parser(parser: argparse.ArgumentParser):
+        parser.add_argument('--port', '-p', action='store', default=5005, type=int, help='port to run the server on')
+        parser.add_argument('--host', action='store', default="127.0.0.1", type=str, help='host to run the server on')
+        parser.add_argument('--debug', "-d", action='store_true', help="Runs the server in DEBUG mode")
+
     parser_server = subparser.add_parser("server", help="Starts the translatepy HTTP server")
-    parser_server.add_argument('--port', '-p', action='store', default=5000, type=int, help='port to run the server on')
-    parser_server.add_argument('--host', action='store', default="127.0.0.1", type=str, help='host to run the server on')
+    prepare_server_parser(parser_server)
+
+    parser_website = subparser.add_parser("website", help="Starts the translatepy website server")
+    prepare_server_parser(parser_website)
+    parser_website.add_argument("--headless", action="store_true", help="Avoids opening the website in the default browser")
 
     args = parser.parse_args()
 
@@ -134,10 +142,17 @@ def entry():
             }, indent=4, ensure_ascii=False))
 
     # SERVER
-    if args.action == "server":
-        from translatepy.server.endpoints import _, language
+    if args.action in ("server", "website"):
+        from translatepy.server.endpoints.api import _, language
+        
+        if args.action == "website":
+            from translatepy.server.endpoints.docs import _
+            from translatepy.server.endpoints import _
+            if not args.headless:
+                webbrowser.open(f"http://{args.host}:{args.port}")
+
         from translatepy.server.server import app
-        app.run(host=args.host, port=args.port)
+        app.run(host=args.host, port=args.port, debug=args.debug)
 
     # INTERACTIVE VERSION
     if args.action == 'shell':

@@ -1,11 +1,10 @@
 import { Card } from "@nextui-org/react"
+import { ClientTranslationResult } from "types/translate";
 import ContentLoader from "react-content-loader";
 import { CopyIcon } from "components/icons/copy";
 import { Service } from "lib/services"
 import { ServiceElement } from "components/common/service"
-import { StarIcon } from "components/icons/star";
-import { TTSButton } from "../buttons/tts";
-import { TranslateRequest } from "types/translate"
+import { TextToSpeechButton } from "../buttons/tts";
 import { useLanguage } from "contexts/language";
 import { useState } from "react";
 
@@ -27,32 +26,25 @@ export const SubResultLoader = (props) => {
     </div>
 }
 
-export const SubResult = ({ result, onCopyNotification, starred, onStarChange, ...props }: {
-    result: TranslateRequest,
-    onCopyNotification?: () => any,
-    starred?: boolean,
-    onStarChange?: (translation: TranslateRequest, status: boolean) => any
+export const SubResult = ({ result, onCopyNotification, ...props }: {
+    result?: ClientTranslationResult,
+    onCopyNotification?: () => any
 }) => {
     const { strings } = useLanguage();
     const [expanded, setExpanded] = useState<boolean>(false);
-    const service = new Service(result.data.service)
+    const service = new Service(result.service)
     return <div className="w-1/4 p-1 mx-1 min-w-[300px]">
-        <Card clickable={result.success} shadow={false} className={result.success ? "opacity-100" : "opacity-50"}>
+        <Card clickable={result ? true : false} shadow={false} className={result ? "opacity-100" : "opacity-50"}>
             <span onClick={() => { setExpanded(expanded => !expanded) }} className={expanded ? "h-max" : "max-h-[7.5rem]"}>
-                {result.success ? result.data.result : strings.labels.translationFailure}
+                {result ? result.translation : strings.labels.translationFailure}
             </span>
             <Card.Footer className="flex-start z-[2]">
                 <ServiceElement service={service} />
                 {
-                    result.success
+                    result
                         ? <div className="ml-auto flex flex-row space-x-2">
-                            <TTSButton text={result.data.result} sourceLang={result.data.destinationLanguage} />
-                            <CopyIcon onClick={(ev) => { navigator.clipboard.writeText(result.data.result); onCopyNotification(); ev.stopPropagation(); }} className="opacity-70 hover:opacity-100 transition active:scale-95 cursor-pointer" />
-                            {
-                                (onStarChange)
-                                    ? <StarIcon active={starred} onClick={() => { onStarChange(result, !starred) }} className="opacity-80 hover:opacity-100 transition active:scale-95 cursor-pointer" />
-                                    : ""
-                            }
+                            <TextToSpeechButton text={result.translation} source_lang={result.dest_lang} />
+                            <CopyIcon onClick={(ev) => { navigator.clipboard.writeText(result.translation); onCopyNotification(); ev.stopPropagation(); }} className="opacity-70 hover:opacity-100 transition active:scale-95 cursor-pointer" />
                         </div>
                         : ""
                 }

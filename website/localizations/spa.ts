@@ -1,36 +1,32 @@
 import EnglishLocalization from "./eng";
+import Localization from "./base";
 import { TemplateString } from "utils/string";
 
-class SpanishLocalization extends EnglishLocalization {
-    language: string = "spa";
-    alpha2: string = "es";
-    name: string = "Español";
-    docsTranslated: boolean = true
-    placeholders = {
+export const SpanishLocalization: Localization = {
+    ...EnglishLocalization,
+    language: "spa",
+    foreign: "spanish",
+    name: "Español",
+    placeholders: {
         translationTextArea: 'Introduce el texto a traducir...',
-    }
-    buttons = {
+    },
+    buttons: {
         translate: 'Traducir'
-    }
-    heading = {
-        otherTranslations: "Otras traducciones",
-        timeTakenForTranslation: "Tiempo tomado para traducir",
-        errorsCount: "Número de errores",
-    }
-    labels = {
+    },
+    headings: {
+        otherTranslations: "Otras traducciones"
+    },
+    labels: {
         source: "Fuente",
         transliterationBy: new TemplateString("Transliteración de {service}"),
         spellcheckBy: new TemplateString("Corrección de {service}"),
-        translationFailure: "Error",
-        months: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
-        granularities: ["Hora", "Día", "Mes", "Año"]
-    }
-    pages = {
+        translationFailure: "Error"
+    },
+    pages: {
         translate: "Traducción",
-        documentation: "Documentación",
-        stats: "Estadística"
-    }
-    notifications: { copied: string; } = {
+        documentation: "Documentación"
+    },
+    notifications: {
         copied: "Copiado al portapapeles"
     }
 }

@@ -13,7 +13,7 @@ const Home: NextPage = () => {
     const router = useRouter();
 
     const translate = () => {
-        router.push(`/translate?text=${encodeURIComponent(text)}&dest=${strings.language}`)
+        router.push(`/translate?text=${encodeURIComponent(text)}&dest_lang=${strings.language}`)
     }
 
     return <div className='h-full'>

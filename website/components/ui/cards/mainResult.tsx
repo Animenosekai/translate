@@ -1,20 +1,20 @@
 import { Card, Loading, Tooltip } from "@nextui-org/react";
-import { SpellcheckRequest, SpellcheckResult } from "types/spellcheck";
-import { TransliterateRequest, TransliterateResult } from "types/transliterate";
+import { Language, getLanguageName } from "types/language";
+import { RichSpellcheckResult, SpellcheckResult } from "types/spellcheck";
 import { useEffect, useState } from "react";
 
+import { ClientTranslationResult } from "types/translate";
 import ContentLoader from "react-content-loader";
 import { CopyIcon } from "components/icons/copy";
 // import { CopyNotification } from "../notifications/copy";
 import { EditIcon } from "components/icons/edit";
-import { LanguageDetailsResult } from "types/languageDetails";
 import { LanguagePicker } from "../modals/languagePicker";
+import { Request } from "types/request";
 import { Service } from "lib/services";
 import { ServiceElement } from "components/common/service";
 import { SourceTextArea } from "../textareas/source";
-import { StarIcon } from "components/icons/star";
-import { TTSButton } from "../buttons/tts";
-import { TranslateRequest } from "types/translate";
+import { TextToSpeechButton } from "../buttons/tts";
+import { TransliterationResult } from "types/transliterate";
 import { request } from "lib/request";
 import { useLanguage } from "contexts/language";
 
@@ -37,34 +37,32 @@ export const MainResultLoader = (props) => {
         </Card>
     </div>
 }
-export const MainResultCard = ({ text, language, service, loading, onNewTranslation, onCopyNotification, starred, onStarChange, spellchecked, ...props }: {
+export const MainResultCard = ({ text, language, service, loading, onNewTranslation, onCopyNotification, spellchecked, ...props }: {
     text: string,
-    language: LanguageDetailsResult,
+    language: Language,
     service?: Service,
     loading?: boolean,
-    onNewTranslation?: (text: string, language: LanguageDetailsResult) => any,
+    onNewTranslation?: (text: string, language: Language) => any,
     onCopyNotification?: () => any,
-    spellchecked?: SpellcheckResult,
-    starred?: boolean,
-    onStarChange?: (status: boolean) => any
+    spellchecked?: SpellcheckResult
 }) => {
     const { strings } = useLanguage();
     const [currentText, setCurrentText] = useState<string>(text);
-    const [currentLanguage, setCurrentLanguage] = useState<LanguageDetailsResult>(language);
+    const [currentLanguage, setCurrentLanguage] = useState<Language>(language);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [currentTimeout, setCurrentTimeout] = useState(null);
-    const [transliteration, setTransliteration] = useState<TransliterateResult>(null);
+    const [transliteration, setTransliteration] = useState<TransliterationResult>(null);
 
     useEffect(() => {
-        if (service) { // transliterate
-            request<TransliterateRequest>("/transliterate", {
+        if (service && language) { // transliterate
+            request<Request<TransliterationResult>>("/transliterate", {
                 params: {
                     text: currentText,
-                    dest: language.id
+                    dest_lang: language.id
                 }
             })
                 .then(value => {
-                    if (value.success && value.data.result != currentText) {
+                    if (value.success && value.data.transliteration != currentText) {
                         setTransliteration(value.data);
                     } else {
                         setTransliteration(null);
@@ -78,7 +76,7 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
     }, [currentText])
 
     useEffect(() => {
-        if (currentLanguage.id != language.id) {
+        if (currentLanguage && language && currentLanguage.id != language.id) {
             return onNewTranslation && onNewTranslation(currentText, currentLanguage);
         }
     }, [currentLanguage])
@@ -108,13 +106,13 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
                         automatic={!service}
                         setLanguage={setCurrentLanguage}
                         setShowModal={setShowModal}
-                        text={currentLanguage?.inForeignLanguages[strings.alpha2] ? currentLanguage.inForeignLanguages[strings.alpha2] : currentLanguage.name} />
+                        text={getLanguageName(currentLanguage, strings)} />
                 }
             </div>
             <div className="flex flex-row group w-max cursor-pointer" onClick={el => { setShowModal(true); }}>
                 <span className="font-medium text-sm">
                     {/* {currentLanguage?.inForeignLanguages[currentLanguage.alpha2] ? currentLanguage.inForeignLanguages[currentLanguage.alpha2] : currentLanguage.name} */}
-                    {currentLanguage?.inForeignLanguages[strings.alpha2] ? currentLanguage.inForeignLanguages[strings.alpha2] : currentLanguage.name}
+                    {getLanguageName(currentLanguage, strings)}
                 </span>
                 <EditIcon className="scale-[.7] -mt-[.2rem] transition opacity-50 group-hover:opacity-80" />
             </div>
@@ -144,8 +142,8 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
                                 width: "100%"
                             }} contentColor="primary">
                                 <span onClick={() => {
-                                    setCurrentText(spellchecked.result);
-                                }} className="italic w-full text-black">{spellchecked.result}</span>
+                                    setCurrentText(spellchecked.corrected);
+                                }} className="italic w-full text-black">{spellchecked.corrected}</span>
                             </Tooltip>
                         </div>
                     </div>
@@ -158,22 +156,17 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
                                 color: "white",
                                 width: "100%"
                             }} contentColor="primary">
-                                <span className="italic w-full">{transliteration.result}</span>
+                                <span className="italic w-full">{transliteration.transliteration}</span>
                             </Tooltip>
                         </div>
                     </div>
                 }
             </div>
             <div className="ml-auto flex flex-row space-x-2">
-                <TTSButton text={currentText} sourceLang={language} />
+                <TextToSpeechButton text={currentText} source_lang={language} />
                 {
                     service
                         ? <CopyIcon onClick={() => { navigator.clipboard.writeText(currentText); onCopyNotification() }} className="opacity-70 hover:opacity-100 transition active:scale-95 cursor-pointer" />
-                        : ""
-                }
-                {
-                    (onStarChange)
-                        ? <StarIcon active={starred} onClick={() => { onStarChange(!starred) }} className="opacity-80 hover:opacity-100 transition active:scale-95 cursor-pointer" />
                         : ""
                 }
             </div>
@@ -181,39 +174,34 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
     </Card>
 }
 
-export const MainResult = ({ result, starred, onNewTranslation, onCopyNotification, onStarChange, ...props }: {
-    result: TranslateRequest, onNewTranslation?: (translation: {
+export const MainResult = ({ result, onNewTranslation, onCopyNotification, loading, setLoading, ...props }: {
+    result: ClientTranslationResult,
+    onNewTranslation?: (translation: {
         text: string,
-        dest: string,
-        source: string
+        dest_lang: string,
+        source_lang: string
     }) => any,
-    onCopyNotification?: () => any
-    starred?: boolean,
-    onStarChange?: (translation: TranslateRequest, status: boolean) => any
+    onCopyNotification?: () => any,
+    loading: boolean,
+    setLoading: (boolean) => any
 }) => {
-    const [loading, setLoading] = useState(result.loading);
-    const [spellchecked, setSpellchecked] = useState<SpellcheckResult>(null);
-    useEffect(() => {
-        setLoading(result.loading);
-    }, [result])
-
-
-
-    const service = new Service(result.data.service)
+    const [spellchecked, setSpellchecked] = useState<SpellcheckResult | RichSpellcheckResult>(null);
+    const service = new Service(result.service)
     return <div className="flex lg:flex-row flex-col lg:space-x-10 lg:space-y-0 space-y-5 mb-10">
-        <MainResultCard spellchecked={spellchecked} onCopyNotification={onCopyNotification} text={result.data.source} language={result.data.sourceLanguage} onNewTranslation={(text, lang) => {
+        <MainResultCard spellchecked={spellchecked} onCopyNotification={onCopyNotification} text={result.source} language={result.source_lang} onNewTranslation={(text, lang) => {
             if (!onNewTranslation) {
-                return console.log("source", text, lang)
+                // return console.log("source_lang", text, lang)
+                return
             }
             setLoading(true);
-            request<SpellcheckRequest>("/spellcheck", {
+            request<Request<SpellcheckResult>>("/spellcheck", {
                 params: {
                     text: text,
-                    source: lang.id
+                    source_lang: lang.id
                 }
             })
                 .then(value => {
-                    if (value.success && value.data.result != text) {
+                    if (value.success && value.data.corrected != text) {
                         setSpellchecked(value.data);
                     } else {
                         setSpellchecked(null);
@@ -224,24 +212,21 @@ export const MainResult = ({ result, starred, onNewTranslation, onCopyNotificati
                 })
             return onNewTranslation({
                 text,
-                source: lang.id,
-                dest: result.data.destinationLanguage.id,
+                source_lang: lang.id,
+                dest_lang: result.dest_lang.id,
             })
         }} />
-        <MainResultCard onCopyNotification={onCopyNotification} loading={loading} text={result.data.result} language={result.data.destinationLanguage} service={service} onNewTranslation={(text, lang) => {
+        <MainResultCard onCopyNotification={onCopyNotification} loading={loading} text={result.translation} language={result.dest_lang} service={service} onNewTranslation={(text, lang) => {
             if (!onNewTranslation) {
-                return console.log("dest", text, lang)
+                // return console.log("dest_lang", text, lang)
+                return
             }
             setLoading(true);
             return onNewTranslation({
-                text: result.data.source,
-                source: result.data.sourceLanguage.id,
-                dest: lang.id,
+                text: result.source,
+                source_lang: result.source_lang.id,
+                dest_lang: lang.id,
             })
-        }}
-            starred={starred}
-            onStarChange={(status) => {
-                onStarChange && onStarChange(result, status);
-            }} />
+        }} />
     </div>
 }

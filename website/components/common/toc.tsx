@@ -1,4 +1,4 @@
-import { DocumentationElement } from "localizations/eng";
+import { DocumentationElement } from "localizations/base";
 import Link from "next/link";
 import classNames from "classnames";
 

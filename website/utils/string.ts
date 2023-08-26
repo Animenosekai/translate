@@ -11,3 +11,5 @@ export class TemplateString extends String {
         return str
     }
 }
+
+export default TemplateString

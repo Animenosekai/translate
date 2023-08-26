@@ -1,13 +1,13 @@
+import { ClientTranslationResult } from "./translate";
 import { Result } from "./result";
-import { TranslationResult } from "./translate";
 
-export interface HTMLTranslationResult extends Result {
+export interface HTMLClientTranslationResult extends Result {
     result: string
     nodes: HTMLTranslationNode[]
 }
 
 export interface HTMLTranslationNode {
     node: string
-    result?: TranslationResult
+    result?: ClientTranslationResult
     position: number
 }
