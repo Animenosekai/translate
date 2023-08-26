@@ -71,7 +71,8 @@ const Documentation: NextPage = () => {
         if (!resultPath.endsWith(".md")) {
             resultPath += "/README.md"
         }
-        request<{ markdown: string }>(`${Configuration.request.host}/docs${resultPath}`, {
+        // WARNING: This should be changed if Configuration.request.host is changed
+        request<{ markdown: string }>(`/docs${resultPath}`, {
             params: {
                 lang: strings.language
             }
