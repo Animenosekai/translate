@@ -19,7 +19,7 @@ def entry():
     parser.add_argument('--version', '-v', action='version', version=translatepy.__version__)
     parser.add_argument("--translators", action="store", type=str, help="List of translators to use. Each translator name should be comma-separated.", required=False, default=None)
 
-    subparser = parser.add_subparsers(help='Actions', dest="action", required=True)
+    subparser = parser.add_subparsers(help='Actions', dest="action", required=False)
     parser_tui = subparser.add_parser("tui", help="A nice TUI to use translatepy interactively")
 
     parser_translate = subparser.add_parser('translate', help='Translates the given text to the given language')
@@ -61,6 +61,8 @@ def entry():
         service = translatepy.Translator(args.translators.split(","))
     else:
         service = translatepy.Translator()
+
+    args.action = args.action or "tui"
 
     if args.action == "tui":
         tui.app.TranslatepyTUI().run()
