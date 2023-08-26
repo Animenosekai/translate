@@ -57,7 +57,7 @@ const Translate: NextPage = () => {
                 if (data?.data?.starred) {
                     setStarred(starred => [...starred.filter(val => val !== data.data.translationID), data.data.translationID])
                 }
-                
+
                 setResults(results => {
                     const success = results.filter((val) => val.success)
                     const failed = results.filter((val) => !val.success)
@@ -120,7 +120,7 @@ const Translate: NextPage = () => {
         request<StarRequest>("/stars/" + translation.data.translationID, {
             method: star ? "POST" : "DELETE",
             params: star ? {
-                token:  translation.data.token
+                token: translation.data.token
             } : {}
         })
             .then(response => {

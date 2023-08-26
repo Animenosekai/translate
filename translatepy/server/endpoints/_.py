@@ -1,17 +1,20 @@
 """translatepy's work endpoints"""
 import inspect
 import typing
+from threading import Thread
 
 import miko
-from nasse import Endpoint, Error, Parameter, Return
+from nasse import Endpoint, Error, Parameter, Return, FlaskResponse
+from nasse.utils.json import minified_encoder
 from nasse.utils.boolean import to_bool
 
-from translatepy import AUTOMATIC, Language, Translate, models
+from translatepy import AUTOMATIC, Language, Translate, models, BaseTranslator, exceptions
 from translatepy.server.server import TRANSLATEPY_ENDPOINT, app
 from translatepy.translators import base
-from translatepy.utils import importer
+from translatepy.utils import importer, queue
 
 _DEFAULT_TRANSLATE = Translate()
+
 
 class TranslatorList:
     """A list of translators"""
@@ -26,6 +29,7 @@ class TranslatorList:
         if self.translators:
             return Translate(services_list=self.translators)
         return _DEFAULT_TRANSLATE
+
 
 DEFAULT_TRANSLATORS = TranslatorList()
 
@@ -108,6 +112,59 @@ def translate(text: str, dest_lang: Language,
     """Translates the text in the given language"""
     result = translators.instance.translate(text=text, dest_lang=dest_lang, source_lang=source_lang)
     return result.exported
+
+
+@auto_doc(Translate.translate_html)
+def translate_html(html: str, dest_lang: Language,
+                   source_lang: Language = AUTOMATIC,
+                   parser: str = "html.parser",
+                   threads_limit: int = 100,
+                   strict: to_bool = False, translators: TranslatorList = DEFAULT_TRANSLATORS):
+    """Translates the HTML in the given language"""
+    result = translators.instance.translate_html(html=html, dest_lang=dest_lang, source_lang=source_lang,
+                                                 parser=parser, threads_limit=threads_limit, strict=strict)
+    return result.exported
+
+
+@app.route(endpoint=WORK_ENDPOINT)
+def stream(text: str, dest_lang: Language,
+           source_lang: Language = AUTOMATIC, translators: TranslatorList = DEFAULT_TRANSLATORS):
+    """
+    Streams all translations available using the different translators
+    """
+    instance = translators.instance
+
+    def worker(translator: BaseTranslator, index: int):
+        translator = instance._instantiate_translator(translator, instance.services, index)
+        try:
+            result = translator.translate(text=text, dest_lang=dest_lang, source_lang=source_lang)
+        except Exception:
+            raise exceptions.NoResult("{service} did not return any value".format(service=translator.__repr__()))
+        if not result:
+            pass
+        return result
+
+    def fast_work(q: queue.Queue, translator: BaseTranslator, index: int):
+        try:
+            q.put(worker(translator=translator, index=index))
+        except Exception:
+            pass
+
+    _queue = queue.Queue()
+    threads = []
+    for index, service in enumerate(instance.services):
+        thread = Thread(target=fast_work, args=(_queue, service, index))
+        thread.start()
+        threads.append(thread)
+
+    def results():
+        result: models.TranslationResult = _queue.get(threads=threads)  # wait for a value and return it
+        while result:
+            yield f"data: {minified_encoder.encode(result.exported)}\n\n"
+            result = _queue.get(threads=threads)  # wait for a value and return it
+    return FlaskResponse(results(), mimetype='text/event-stream')
+    # raise exceptions.NoResult("No service has returned a valid result")
+
 
 # @auto_doc(Translate.alternatives)
 # def alternatives(translators: TranslatorList, text: str, dest_lang: Language, source_lang: Language = AUTOMATIC):

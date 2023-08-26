@@ -218,7 +218,11 @@ class TranslatepyTUI(App):
 
     def update_translate_view(self, result: models.TranslationResult):
         """Updates the `translate` method view"""
-        if not self.app.query_one("#tabbed-content", TabbedContent).active == "translate":
+        try:
+            tabbed_content = self.app.query_one("#tabbed-content", TabbedContent)
+        except Exception:
+            return
+        if not tabbed_content.active == "translate":
             return
         input_lang_btn = self.query_one("#translate-input-language", LanguageButton)
         if input_lang_btn.language == AUTOMATIC:
@@ -233,7 +237,11 @@ class TranslatepyTUI(App):
 
     def request_translate(self, *args, **kwargs):
         """Request a work from `translator`"""
-        if not self.app.query_one("#tabbed-content", TabbedContent).active == "translate":
+        try:
+            tabbed_content = self.app.query_one("#tabbed-content", TabbedContent)
+        except Exception:
+            return
+        if not tabbed_content.active == "translate":
             return
         self.translation_worker("translate",
                                 text=self.query_one("#translate-input-text", Input).value,
@@ -253,7 +261,11 @@ class TranslatepyTUI(App):
 
     def update_transliterate_view(self, result: models.TransliterationResult):
         """Updates the `transliterate` method view"""
-        if not self.app.query_one("#tabbed-content", TabbedContent).active == "transliterate":
+        try:
+            tabbed_content = self.app.query_one("#tabbed-content", TabbedContent)
+        except Exception:
+            return
+        if not tabbed_content.active == "transliterate":
             return
         input_lang_btn = self.query_one("#transliterate-input-language", LanguageButton)
         if input_lang_btn.language == AUTOMATIC:
@@ -268,7 +280,11 @@ class TranslatepyTUI(App):
 
     def request_transliterate(self, *args, **kwargs):
         """Request a work from `translator`"""
-        if not self.app.query_one("#tabbed-content", TabbedContent).active == "transliterate":
+        try:
+            tabbed_content = self.app.query_one("#tabbed-content", TabbedContent)
+        except Exception:
+            return
+        if not tabbed_content.active == "transliterate":
             return
         self.translation_worker("transliterate",
                                 text=self.query_one("#transliterate-input-text", Input).value,
@@ -287,7 +303,11 @@ class TranslatepyTUI(App):
 
     def update_spellcheck_view(self, result: typing.Union[models.SpellcheckResult, models.RichSpellcheckResult]):
         """Updates the `spellcheck` method view"""
-        if not self.app.query_one("#tabbed-content", TabbedContent).active == "spellcheck":
+        try:
+            tabbed_content = self.app.query_one("#tabbed-content", TabbedContent)
+        except Exception:
+            return
+        if not tabbed_content.active == "spellcheck":
             return
         input_lang_btn = self.query_one("#spellcheck-input-language", LanguageButton)
         if input_lang_btn.language == AUTOMATIC:
@@ -305,7 +325,11 @@ class TranslatepyTUI(App):
 
     def request_spellcheck(self, *args, **kwargs):
         """Request a work from `translator`"""
-        if not self.app.query_one("#tabbed-content", TabbedContent).active == "spellcheck":
+        try:
+            tabbed_content = self.app.query_one("#tabbed-content", TabbedContent)
+        except Exception:
+            return
+        if not tabbed_content.active == "spellcheck":
             return
         self.translation_worker("spellcheck",
                                 text=self.query_one("#spellcheck-input-text", Input).value,
@@ -322,7 +346,11 @@ class TranslatepyTUI(App):
 
     def update_language_view(self, result: models.LanguageResult):
         """Updates the `language` method view"""
-        if not self.app.query_one("#tabbed-content", TabbedContent).active == "language":
+        try:
+            tabbed_content = self.app.query_one("#tabbed-content", TabbedContent)
+        except Exception:
+            return
+        if not tabbed_content.active == "language":
             return
         native = result.language.native
         if native == result.language.name:
@@ -336,7 +364,11 @@ class TranslatepyTUI(App):
 
     def request_language(self, *args, **kwargs):
         """Request a work from `translator`"""
-        if not self.app.query_one("#tabbed-content", TabbedContent).active == "language":
+        try:
+            tabbed_content = self.app.query_one("#tabbed-content", TabbedContent)
+        except Exception:
+            return
+        if not tabbed_content.active == "language":
             return
         self.translation_worker("language",
                                 text=self.query_one("#language-input-text", Input).value)
@@ -353,7 +385,11 @@ class TranslatepyTUI(App):
 
     def update_example_view(self, results: typing.List[models.ExampleResult]):
         """Updates the `example` method view"""
-        if not self.app.query_one("#tabbed-content", TabbedContent).active == "example":
+        try:
+            tabbed_content = self.app.query_one("#tabbed-content", TabbedContent)
+        except Exception:
+            return
+        if not tabbed_content.active == "example":
             return
         result = results[0] if results else None
         input_lang_btn = self.query_one("#example-input-language", LanguageButton)
@@ -375,7 +411,11 @@ class TranslatepyTUI(App):
 
     def request_example(self, *args, **kwargs):
         """Request a work from `translator`"""
-        if not self.app.query_one("#tabbed-content", TabbedContent).active == "example":
+        try:
+            tabbed_content = self.app.query_one("#tabbed-content", TabbedContent)
+        except Exception:
+            return
+        if not tabbed_content.active == "example":
             return
         self.translation_worker("example",
                                 text=self.query_one("#example-input-text", Input).value,
@@ -393,7 +433,11 @@ class TranslatepyTUI(App):
 
     def update_dictionary_view(self, results: typing.List[typing.Union[models.DictionaryResult, models.RichDictionaryResult]]):
         """Updates the `dictionary` method view"""
-        if not self.app.query_one("#tabbed-content", TabbedContent).active == "dictionary":
+        try:
+            tabbed_content = self.app.query_one("#tabbed-content", TabbedContent)
+        except Exception:
+            return
+        if not tabbed_content.active == "dictionary":
             return
         result = results[0] if results else None
         input_lang_btn = self.query_one("#dictionary-input-language", LanguageButton)
@@ -415,7 +459,11 @@ class TranslatepyTUI(App):
 
     def request_dictionary(self, *args, **kwargs):
         """Request a work from `translator`"""
-        if not self.app.query_one("#tabbed-content", TabbedContent).active == "dictionary":
+        try:
+            tabbed_content = self.app.query_one("#tabbed-content", TabbedContent)
+        except Exception:
+            return
+        if not tabbed_content.active == "dictionary":
             return
         self.translation_worker("dictionary",
                                 text=self.query_one("#dictionary-input-text", Input).value,

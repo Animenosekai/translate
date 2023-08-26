@@ -1,6 +1,6 @@
-export interface Request {
+export interface Request<T = { [key: string]: any }> {
     success: boolean
     message?: string
     error?: string
-    data: { [key: string]: any }
+    data: T
 }

@@ -10,6 +10,8 @@ import typing
 import ast
 import inspect
 import bs4
+import uuid
+import copy
 
 from translatepy.language import Language
 from translatepy.utils.audio import get_type
@@ -109,7 +111,7 @@ class WordClass(enum.Enum):
 
 Translator = typing.TypeVar("Translator", bound="translatepy.base.BaseTranslator")
 
-PRIVATE_ATTRIBUTES = {"raw"}
+PRIVATE_ATTRIBUTES = {"raw", "soup"}
 
 
 def should_be_exported(attr: str):
@@ -936,6 +938,38 @@ class HTMLTranslationNode(typing.Generic[Translator]):
     node: bs4.NavigableString
     result: typing.Optional[TranslationResult[Translator]]
 
+    @property
+    def position(self) -> int:
+        """The position of the node in the HTML"""
+        identifier = f"translatepy-{uuid.uuid4()}"
+        new_node = self.node
+        parent = new_node.parent
+        if not parent:
+            return 0
+        new_node.insert_before(identifier)
+        while parent:
+            temp = parent.parent
+            if not temp:
+                break
+            parent = temp
+
+        result = str(parent).find(identifier)
+
+        identifier_element = parent.find(string=identifier)
+        if identifier_element:
+            identifier_element.extract()
+
+        return result
+
+    @property
+    def exported(self) -> dict:
+        """The exported dictionary"""
+        return {
+            "node": str(self.node),
+            "result": self.result.exported if self.result else None,
+            "position": self.position
+        }
+
 
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
 class HTMLTranslationResult(Result[Translator]):
@@ -951,3 +985,10 @@ class HTMLTranslationResult(Result[Translator]):
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(result="{self.result}", nodes=<{len(self.nodes)} nodes>, service={self.service})'
+
+    @property
+    def exported(self) -> typing.Dict[str, typing.Any]:
+        return {
+            "result": self.result,
+            "nodes": [node.exported for node in self.nodes]
+        }

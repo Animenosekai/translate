@@ -412,6 +412,77 @@ class BaseTranslator:
     # Translates a given HTML string into the desired language, herein `dest_lang`
     # Type overloads
 
+    @typing.overload
+    def translate_html(self: C,
+                       html: HTMLType,
+                       dest_lang: typing.Union[str, Language],
+                       source_lang: typing.Union[str, Language] = "auto",
+                       parser: str = "html.parser",
+                       threads_limit: int = 100,
+                       strict: bool = False, *args, **kwargs) -> models.HTMLTranslationResult[C]:
+        """
+        Translates the given `html` into the given `dest_lang`
+
+        Parameters
+        ---------
+        html: str | BeautifulSoup | Tag | PageElement
+            The HTML you want to translate
+        dest_lang: str | Language
+            The language to translate to
+        source_lang: str | Language, default = "auto"
+            The language `text` is in. If "auto", the translator will try to infer the language from each node in `html`
+        parser: str, default = "html.parser"
+            The BeautifulSoup parser to use to parse the HTML
+        threads_limit: int, default = 100
+            The maximum number of threads to spawn at a time to translate
+        strict: bool, default = False
+            If the function should raise something is one of the nodes couldn't be translated.
+            If `False`, the node will be left as is and the `result` part will be `None`
+            
+
+        Returns
+        -------
+        HTMLTranslationResult
+            Holds the HTML translation result
+        """
+
+
+    @typing.overload
+    def translate_html(self: C,
+                       html: typing.Iterable[HTMLType],
+                       dest_lang: typing.Union[str, Language],
+                       source_lang: typing.Union[str, Language] = "auto",
+                       parser: str = "html.parser",
+                       threads_limit: int = 100,
+                       strict: bool = False, *args, **kwargs) -> LazyIterable[models.HTMLTranslationResult[C]]:
+        """
+        Translates all of the elements in `html` into the given `dest_lang`
+
+        Note: aka "Bulk Translation"
+
+        Parameters
+        ---------
+        html: Iterable[str | BeautifulSoup | Tag | PageElement]
+            A list of HTML you want to translate
+        dest_lang: str | Language
+            The language to translate to
+        source_lang: str | Language, default = "auto"
+            The language `text` is in. If "auto", the translator will try to infer the language from each node in `html`
+        parser: str, default = "html.parser"
+            The BeautifulSoup parser to use to parse the HTML
+        threads_limit: int, default = 100
+            The maximum number of threads to spawn at a time to translate
+        strict: bool, default = False
+            If the function should raise something is one of the nodes couldn't be translated.
+            If `False`, the node will be left as is and the `result` part will be `None`
+
+        Returns
+        -------
+        LazyIterable[HTMLTranslationResult]
+            Holds the HTML translation result
+        """
+
+
     # Implementation
     def translate_html(self: C,
                        html: typing.Union[HTMLType, typing.Iterable[HTMLType]],
@@ -421,7 +492,11 @@ class BaseTranslator:
                        threads_limit: int = 100,
                        strict: bool = False, *args, **kwargs) -> typing.Union[models.HTMLTranslationResult[C],
                                                                               LazyIterable[models.HTMLTranslationResult[C]]]:  # type: ignore | the decorator actually returns a `TranslationResult`
+        """
+        Translates `html` into the given `dest_lang`
 
+        Note: Refer to the overloaded methods docstrings for more information.
+        """              
         try:
             if isinstance(html, HTMLType):
                 raise ValueError("INFO: NOT BULK")

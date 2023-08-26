@@ -1,1 +1,0 @@
-export type Granularity = "hour" | "day" | "month" | "year";
