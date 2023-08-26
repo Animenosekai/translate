@@ -1,13 +1,21 @@
-import { LanguageDetailsResult } from "./languageDetails"
-import { Request } from "./base"
+import { Language } from "./language"
+import { Result } from "./result"
 
-export interface SpellcheckRequest extends Request {
-    data: SpellcheckResult
+export interface SpellcheckResult extends Result {
+    corrected: string
+    rich: boolean
 }
 
-export interface SpellcheckResult {
-    service: string
-    source: string
-    sourceLanguage: LanguageDetailsResult
-    result: string
+export interface SpellcheckMistake {
+    start: number
+    end: number
+    corrected: string
+    message?: string
+    rule?: string
+}
+
+export interface RichSpellcheckResult extends Result {
+    mistakes: SpellcheckMistake[]
+    corrected: string
+    rich: boolean
 }

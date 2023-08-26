@@ -1,14 +1,7 @@
-import { LanguageDetailsResult } from "./languageDetails"
-import { Request } from "./base"
+import { Language } from "./language"
+import { Result } from "./result"
 
-export interface TransliterateRequest extends Request {
-    data: TransliterateResult
-}
-
-export interface TransliterateResult {
-    service: string
-    source: string
-    sourceLanguage: LanguageDetailsResult
-    destinationLanguage: LanguageDetailsResult
-    result: string
+export interface TransliterationResult extends Result {
+    dest_lang: Language
+    transliteration: string
 }

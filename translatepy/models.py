@@ -3,15 +3,16 @@ translatepy/models.py
 
 Describes the different result models returned by the translators
 """
+import ast
 import dataclasses
 import enum
+import inspect
 import pathlib
 import typing
-import ast
-import inspect
-import bs4
 import uuid
-import copy
+
+import bs4
+import miko
 
 from translatepy.language import Language
 from translatepy.utils.audio import get_type
@@ -127,20 +128,25 @@ class ResultAttribute:
     annotation: typing.Optional[str] = None
     description: typing.Optional[str] = None
 
+    # def __eq__(self, obj: object) -> bool:
+    #     return isinstance(obj, ResultAttribute) and obj.name == self.name
+
 
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
 class Result(typing.Generic[Translator]):
     """
     The base result model
     """
+    __extra_attributes__ = tuple()
+
     # these are `None` for now but they will be enforced by `BaseTranslator`
     service: Translator = None
     """The service which returned the result"""
 
     source: str = None
     """The source text"""
-    # source_lang: Language
-    # """The source text's language"""
+    source_lang: Language = None
+    """The source text's language"""
 
     # We can't define `result` here because they vary accross the different models
     # result: typing.Any
@@ -231,16 +237,49 @@ class Result(typing.Generic[Translator]):
                         current_attr.description = str(node.value.value or "")
                         results.append(current_attr)
                         current_attr = None
+
+        for attr in cls.__extra_attributes__:
+            element = getattr(cls, attr)
+            if isinstance(element, property):
+                func = inspect.unwrap(getattr(cls, attr).fget)
+                sign = inspect.signature(func)
+                docs = miko.Docs(func.__doc__, sign)
+                results.append(
+                    ResultAttribute(
+                        name=attr,
+                        annotation=list(docs.returns.elements.values())[0].name if docs.returns.elements else None,
+                        description=docs.description
+                    )
+                )
+            elif isinstance(element, bool):
+                if attr == "rich":
+                    desc = "Whether the given result features the full range of information"
+                else:
+                    desc = "(no description)"
+                results.append(
+                    ResultAttribute(
+                        name=attr,
+                        annotation="bool",
+                        description=desc
+                    )
+                )
+
+        results.sort(key=lambda el: el.name)
         return results
 
     @property
     def exported(self) -> typing.Dict[str, typing.Any]:
         """A dictionary version of the dataclass which can be exposed to the public"""
-        return {
+        results = {
             key: val
             for key, val in dataclasses.asdict(self).items()
             if should_be_exported(key)
         }
+        results.update({
+            attr: getattr(self, attr)
+            for attr in self.__extra_attributes__
+        })
+        return results
 
     def __repr__(self) -> str:
         results = []
@@ -255,9 +294,6 @@ class TranslationResult(Result[Translator]):
     Holds the result of a regular translation
     """
     # these are `None` for now but they will be enforced by `BaseTranslator`
-    source_lang: Language = None
-    """The source text's language"""
-
     dest_lang: Language = None
     """The result's language"""
 
@@ -313,9 +349,6 @@ class TransliterationResult(Result[Translator]):
     transliteration: str
     """The transliteration result"""
 
-    source_lang: Language = None
-    """The source text's language"""
-
     dest_lang: Language = None
     """The result's language"""
 
@@ -353,6 +386,9 @@ class SpellcheckResult(Result[Translator]):
     """
     Holds a spellchecking result
     """
+    __extra_attributes__ = ("rich",)
+    rich = False
+
     source_lang: Language = None
     """The source text's language"""
     corrected: str
@@ -407,13 +443,17 @@ class RichSpellcheckResult(Result[Translator]):
     """
     Holds a rich spellchecking result
     """
+    __extra_attributes__ = ("corrected", "rich")
+
+    rich = True
+
     source_lang: Language = None
     """The source text's language"""
     mistakes: typing.List[SpellcheckMistake] = dataclasses.field(default_factory=list)
     """The different mistakes made"""
 
     @property
-    def corrected(self):
+    def corrected(self) -> str:
         """The corrected text"""
         res = self.source
         initial_len = len(res)
@@ -580,18 +620,16 @@ class LanguageResult(Result[Translator]):
     """
     Holds the language of the given text
     """
-    language: Language
-    """The detected language"""
 
     def __pretty__(self, cli: bool = False) -> str:
         return "The detected language is {colored}{lang}{normal}".format(
-            lang=self.language.name,
+            lang=self.source_lang.name,
             colored="\033[1;96m" if cli else "",
             normal="\033[0m" if cli else ""
         )
 
 
-LANGUAGE_TEST = LanguageResult(service=None, source="Hello world", language=Language("English"))
+LANGUAGE_TEST = LanguageResult(service=None, source="Hello world", source_lang=Language("English"))
 
 
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
@@ -599,8 +637,7 @@ class ExampleResult(Result[Translator]):
     """
     Holds an example sentence where the given word is used.
     """
-    source_lang: Language = None
-    """The source text's language"""
+    __extra_attributes__ = ("positions",)
 
     example: str
     """The example"""
@@ -619,9 +656,14 @@ class ExampleResult(Result[Translator]):
             return None
 
     @property
-    def positions(self) -> typing.List[int]:
+    def positions(self):
         """
         The positions of the word in the example
+
+        Returns
+        -------
+        list[int]
+            A list of positions of the word in the example
         """
         searching = False
         current_letter = 0
@@ -697,8 +739,9 @@ class DictionaryResult(Result[Translator]):
     """
     Holds the meaning of the given text
     """
-    source_lang: Language = None
-    """The source text's language"""
+    __extra_attributes__ = ("rich",)
+
+    rich = False
 
     meaning: str
     """The meaning of the text"""
@@ -754,6 +797,9 @@ class RichDictionaryResult(DictionaryResult[Translator]):
     """
     Holds more (optional) information than the regular `DictionaryResult`
     """
+    __extra_attributes__ = ("rich",)
+
+    rich = True
 
     etymology: typing.List[EtymologicalNode] = dataclasses.field(default_factory=list)
     """
@@ -878,8 +924,7 @@ class TextToSpeechResult(Result[Translator]):
     """
     Holds the text to speech results
     """
-    source_lang: Language = None
-    """The source text's language"""
+    __extra_attributes__ = ("mime_type", "extension")
 
     result: bytes
     """Text to speech result"""
@@ -895,7 +940,14 @@ class TextToSpeechResult(Result[Translator]):
 
     @property
     def mime_type(self):
-        """Returns the MIME type of the audio file"""
+        """
+        Returns the MIME type of the audio file
+
+        Returns
+        -------
+        Optional[str]
+            The MIME type of the audio file
+        """
         try:
             return self.type.MIME
         except Exception:
@@ -903,7 +955,14 @@ class TextToSpeechResult(Result[Translator]):
 
     @property
     def extension(self):
-        """Returns the audio file extension"""
+        """
+        Returns the audio file extension
+
+        Returns
+        -------
+        Optional[str]
+            The MIME type of the audio file
+        """
         try:
             return self.type.EXTENSION
         except Exception:

@@ -1,14 +1,13 @@
-import { LanguageDetailsResult } from "./languageDetails"
-import { Request } from "./base"
+import { Result } from "./result";
+import { TranslationResult } from "./translate";
 
-export interface TranslateRequest extends Request {
-    data: TranslationResult
+export interface HTMLTranslationResult extends Result {
+    result: string
+    nodes: HTMLTranslationNode[]
 }
 
-export interface TranslationResult {
-    services: string[]
-    source: string
-    sourceLanguage: string[]
-    destinationLanguage: LanguageDetailsResult
-    result: string
+export interface HTMLTranslationNode {
+    node: string
+    result?: TranslationResult
+    position: number
 }

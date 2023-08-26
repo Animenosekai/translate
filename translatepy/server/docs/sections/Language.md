@@ -84,8 +84,8 @@ print(r.json()["data"])
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
-| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # search
@@ -198,6 +198,6 @@ print(r.json()["data"])
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
-| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Return to the Index](../Getting%20Started.md#index)

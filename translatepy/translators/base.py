@@ -438,14 +438,13 @@ class BaseTranslator:
         strict: bool, default = False
             If the function should raise something is one of the nodes couldn't be translated.
             If `False`, the node will be left as is and the `result` part will be `None`
-            
+
 
         Returns
         -------
         HTMLTranslationResult
             Holds the HTML translation result
         """
-
 
     @typing.overload
     def translate_html(self: C,
@@ -482,7 +481,6 @@ class BaseTranslator:
             Holds the HTML translation result
         """
 
-
     # Implementation
     def translate_html(self: C,
                        html: typing.Union[HTMLType, typing.Iterable[HTMLType]],
@@ -496,7 +494,7 @@ class BaseTranslator:
         Translates `html` into the given `dest_lang`
 
         Note: Refer to the overloaded methods docstrings for more information.
-        """              
+        """
         try:
             if isinstance(html, HTMLType):
                 raise ValueError("INFO: NOT BULK")
@@ -545,12 +543,21 @@ class BaseTranslator:
         else:
             service = self
 
+        counter = collections.Counter(node.result.source_lang for node in results if node.result)
+        common = counter.most_common(1)
+
+        if common:
+            common_source_lang = common[0][0]
+        else:
+            common_source_lang = Language(source_lang)
+
         return models.HTMLTranslationResult(
             service=service,
             source=str(html),
             result=str(page),
             soup=page,
-            nodes=results
+            nodes=results,
+            source_lang=common_source_lang
         )
 
     # `alternatives`
@@ -913,15 +920,15 @@ class BaseTranslator:
         yield models.LanguageResult(
             service=self,
             source=text,
-            language=Language("auto")
+            source_lang=Language("auto")
         )
 
         result = self._language(text=text, *args, **kwargs)
 
-        if not isinstance(result.language, Language):
-            if result.language is None:
+        if not isinstance(result.source_lang, Language):
+            if result.source_lang is None:
                 raise exceptions.UnsupportedLanguage("{} couldn't return a suitable response".format(self))
-            result.language = self._code_to_language(result.language)
+            result.source_lang = self._code_to_language(result.source_lang)
         yield result
 
     def _language(self: C, text: str, *args, **kwargs) -> models.LanguageResult[C]:
