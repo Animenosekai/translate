@@ -17,7 +17,6 @@ def index():
 @app.route("/<path:path>", category="Website")
 def website(path: str):
     """Serves the website pages and assets"""
-    print(WEBSITE_DIR / path)
     try:
         return send_from_directory(WEBSITE_DIR, path)
     except Exception:

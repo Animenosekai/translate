@@ -60,6 +60,7 @@ nasse = "^2.0.1"
 cain = "^1.1.1"
 textual-textarea = "^0.4.2"
 textual = "^0.30"
+typing-extensions = "^4.7.1"
 
 [tool.poetry.scripts]
 translatepy = 'translatepy.__main__:entry'

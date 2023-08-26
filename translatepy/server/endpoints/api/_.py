@@ -2,6 +2,7 @@
 import inspect
 import queue
 import typing
+import typing_extensions
 from threading import Thread
 
 import miko
@@ -59,7 +60,7 @@ def auto_doc(func: base.T):
         docs = miko.Docs(handler.__doc__ or "", signature)
 
         # Getting the overloads
-        overloads = typing.get_overloads(inspect.unwrap(func))
+        overloads = typing_extensions.get_overloads(inspect.unwrap(func))
 
         # Preparing the data
         data = {
