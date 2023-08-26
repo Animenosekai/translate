@@ -16,7 +16,7 @@ export const getLanguageName = (lang: Language, localization: Localization) => {
     if (!lang) {
         return ""
     }
-    return localization.foreign ? lang.foreign[localization.foreign] : lang.name
+    return (localization.foreign && lang.foreign) ? lang.foreign[localization.foreign] : lang.name
 }
 
 
