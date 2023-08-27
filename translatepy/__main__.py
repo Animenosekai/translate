@@ -145,7 +145,7 @@ def entry():
     elif args.action == 'dictionary':
         return apply("dictionary", text=args.text, source_lang=args.source_lang)
     elif args.action == 'tts':
-        return apply("tts", text=args.text, source_lang=args.source_lang)
+        return apply("text_to_speech", text=args.text, source_lang=args.source_lang)
 
     # SERVER
     if args.action in ("server", "website"):
