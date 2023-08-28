@@ -27,7 +27,7 @@ class MicrosoftException(BaseTranslateException):
 class MicrosoftSessionData(cain.types.Object):
     region: str
     token: str
-    token_expiration: int
+    token_expiration: cain.types.UInt64
 
 
 class MicrosoftSessionManager:

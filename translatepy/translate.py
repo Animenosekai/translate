@@ -10,7 +10,7 @@ from translatepy import exceptions, models
 from translatepy.language import Language
 from translatepy.translators import (PONS, QCRI, BaseTranslator, Bing, DeepL,
                                      Google, Libre, Microsoft, MyMemory,
-                                     Reverso, TranslateCom, Yandex)
+                                     Reverso, TranslateCom, Yandex, Papago)
 from translatepy.translators.base import BaseTranslator, C
 from translatepy.utils import importer, queue, request
 
@@ -36,7 +36,7 @@ class Translate(BaseTranslator):
         """
         super().__init__(session)
         self.services_list = services_list or [Google, Yandex, Microsoft, Reverso, Bing,
-                                               DeepL, Libre, TranslateCom, MyMemory, PONS, QCRI]
+                                               DeepL, Libre, TranslateCom, MyMemory, PONS, QCRI, Papago]
 
         try:
             _ = iter(self.services_list)

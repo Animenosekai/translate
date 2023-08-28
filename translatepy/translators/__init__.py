@@ -13,6 +13,7 @@ from translatepy.translators.microsoft import MicrosoftTranslate
 
 from translatepy.translators.qcri import QCRI
 from translatepy.translators.pons import PONS
+from translatepy.translators.papago import Papago
 
 
 # aliases
@@ -30,3 +31,5 @@ Microsoft = MicrosoftTranslate
 
 QCRITranslate = QCRI
 PONSTranslate = PONS
+PapagoTranslate = Papago
+NaverTranslate = Papago

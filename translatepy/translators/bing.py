@@ -27,7 +27,7 @@ class BingSessionData(cain.types.Object):
     """Bing session data holder"""
     ig: str
     iid: str
-    key: int
+    key: cain.types.UInt64
     token: str
     cookies_keys: typing.List[str]
     cookies_values: typing.List[str]
