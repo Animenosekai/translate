@@ -161,7 +161,7 @@ class BaseTranslator:
         Any
             The language code to be used internally
         """
-        return self._validate_language(language).alpha2
+        return language.alpha2
 
     def _code_to_language(self, code: typing.Union[str, typing.Any]) -> Language:
         """
