@@ -7,16 +7,11 @@ on:
 jobs:
   build-and-push-linux:
     name: LINUX - build and push as artifacts
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.10.8'
 
       - name: CI workflow device configuration
         run: |
