@@ -154,7 +154,7 @@ class Papago(BaseTranslator):
             transliteration=translation.raw["tlit"]["message"]["tlitResult"][0]["token"]
         )
 
-    def _language(self: typing.Self, text: str, *args, **kwargs) -> models.LanguageResult[typing.Self]:
+    def _language(self: C, text: str, *args, **kwargs) -> models.LanguageResult[C]:
         # First we gotta get the device UUID
         request_id = uuid.uuid4()
         req = self.session.post("https://papago.naver.com/apis/langs/dect", headers=self.generate_headers("https://papago.naver.com/apis/langs/dect", request_id), data={

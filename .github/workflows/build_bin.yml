@@ -1,0 +1,54 @@
+name: Build Translatepy
+
+# This workflow runs only manually
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-push-docker:
+    name: Build name: LINUX: Build Translatepy and push as artifacts
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: CI workflow device configuration
+        run: |
+          whoami
+          df -h
+          uname -a
+          lscpu
+          free -h
+
+      - name: Create and activate venv
+        run: |
+          python3 -m venv venv
+          source .venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
+
+      - name: Install requirements
+        run: |
+          pip install -r requirements.txt
+
+      - name: Create Nuitka cache folder
+        run: |
+          mkdir -p /home/runner/work/NUITKA_BUILD_CACHE
+
+      - name: Cache Nuitka build
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/work/NUITKA_BUILD_CACHE
+          key: ${{ runner.os }}-nuitka-cache-${{ hashFiles('**/requirements.txt') }}-${{ github.run_number }}
+          restore-keys: ${{ runner.os }}-nuitka-cache-
+
+      - name: Building
+        run: |
+          NUITKA_CACHE_DIR="/home/runner/work/NUITKA_BUILD_CACHE" ./scripts/build_nuitka_linux.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: translatepy-${{ runner.os }}-${{ github.run_number }}
+          path: |
+            translatepy.bin
