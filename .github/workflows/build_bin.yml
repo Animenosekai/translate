@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-push-docker:
-    name: Build name: LINUX: Build Translatepy and push as artifacts
+  build-and-push-linux:
+    name: LINUX - build and push as artifacts
     runs-on: ubuntu-20.04
 
     steps:
