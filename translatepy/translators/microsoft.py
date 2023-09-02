@@ -2,6 +2,7 @@
 This implementation was made specifically for translatepy by 'Zhymabek Roman'.
 """
 import base64
+import typing
 import json
 import hashlib
 import uuid
@@ -10,12 +11,19 @@ import hmac
 import datetime as dt
 
 from urllib.parse import urlencode, urlparse, urlunparse
-
+from translatepy.utils import request
 from translatepy.language import Language
 from translatepy import models
-from translatepy.translators.base import BaseTranslateException, BaseTranslator
+from translatepy.translators.base import BaseTranslator, C
+from translatepy.translators.base_agregator import BaseTranslatorAggregator
 from translatepy.utils.request import Request
 
+
+class MicrosoftTranslate(BaseTranslatorAggregator):
+    def __init__(self, session: typing.Optional[Request] = None, *args, **kwargs):
+        microsft_services = [MicrosoftTranslateV1, MicrosoftTranslateV2, MicrosoftTranslateV3]
+
+        super().__init__(microsft_services, session, *args, **kwargs)
 
 
 class MicrosoftTranslateV1(BaseTranslator):
@@ -38,7 +46,7 @@ class MicrosoftTranslateV1(BaseTranslator):
         0x47, 0x10, 0x95, 0x91, 0x88, 0x55, 0xd8, 0x17
     ])
 
-    def _translate(self, text, dest_lang, source_lang):
+    def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
         translate_url = f"{self._api_endpoint}/translate"
         translate_params = {"api-version": self._api_version, "to": dest_lang}
 
@@ -58,7 +66,39 @@ class MicrosoftTranslateV1(BaseTranslator):
 
         return models.TranslationResult(dest_lang=dest_lang, source_lang=source_lang, translation=response[0]["translations"][0]["text"], raw=response)
 
-    def _get_signature(self, url: str):
+    def _transliterate(self: C, text: str, source_lang: typing.Any, from_script: typing.Any, to_script: typing.Any) -> models.TransliterationResult[C]:
+        transliterate_url = f"{self._api_endpoint}/transliterate"
+
+        if source_lang == "auto":
+            source_lang = self._language(text)
+
+        transliterate_params = {"api-version": self._api_version, "language": source_lang, "fromScript": from_script, "toScript": to_script}
+
+        encoded_params = urlencode(transliterate_params)
+        parsed_url = urlparse(transliterate_url)
+
+        final_transliterate_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, encoded_params, parsed_url.fragment))
+
+        request = self.session.post(f"https://{final_transliterate_url}", headers={"X-MT-Signature": self._get_signature(final_transliterate_url)}, json=[{"text": text}])
+        response = request.json()
+
+        return models.TransliterationResult(raw=response)
+
+    def _language(self: C, text: str) -> models.LanguageResult[C]:
+        language_detect_url = f"{self._api_endpoint}/detect"
+        language_detect_params = {"api-version": self._api_version}
+
+        encoded_params = urlencode(language_detect_params)
+        parsed_url = urlparse(language_detect_url)
+
+        final_language_detect_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, encoded_params, parsed_url.fragment))
+
+        request = self.session.post(f"https://{final_language_detect_url}", headers={"X-MT-Signature": self._get_signature(final_language_detect_url)}, json=[{"text": text}])
+        response = request.json()
+
+        return models.LanguageResult(language=response[0]["language"], raw=response)
+
+    def _get_signature(self: C, url: str) -> str:
         guid = uuid.uuid4().hex
         escaped_url = urllib.parse.quote_plus(url)
 
@@ -71,7 +111,7 @@ class MicrosoftTranslateV1(BaseTranslator):
         signature = f"MSTranslatorAndroidApp::{base64.b64encode(hash_bytes).decode()}::{date_str}::{guid}"
         return signature
 
-    def _language_to_code(self, code):
+    def _language_to_code(self: C, code: Language) -> typing.Union[str, typing.Any]:
         language = Language(code)
         if language.id == "zho":
             return "zh-Hans"
@@ -79,7 +119,7 @@ class MicrosoftTranslateV1(BaseTranslator):
             return "zh-Hant"
         return language.alpha2
 
-    def _code_to_language(self, code):
+    def _code_to_language(self, code: typing.Union[str, typing.Any]) -> Language:
         language_code = str(code).lower()
         if language_code in {"zh-cn", "zh-hans"}:
             return Language("zho")
@@ -97,11 +137,11 @@ class MicrosoftTranslateV2(BaseTranslator):
 
     _supported_languages = {'auto', 'af', 'sq', 'am', 'ar', 'hy', 'as', 'az', 'bn', 'bs', 'bg', 'my', 'ca', 'ca', 'zh-Hans', 'cs', 'da', 'nl', 'nl', 'en', 'et', 'fj', 'fil', 'fil', 'fi', 'fr', 'fr-ca', 'de', 'ga', 'el', 'gu', 'ht', 'ht', 'he', 'hi', 'hr', 'hu', 'is', 'iu', 'id', 'it', 'ja', 'kn', 'kk', 'km', 'ko', 'ku', 'lo', 'lv', 'lt', 'ml', 'mi', 'mr', 'ms', 'mg', 'mt', 'ne', 'nb', 'nb', 'or', 'pa', 'pa', 'fa', 'pl', 'pt', 'ps', 'ps', 'ro', 'ro', 'ro', 'ru', 'sk', 'sl', 'sm', 'es', 'es', 'sr-Cyrl', 'sw', 'sv', 'ty', 'ta', 'te', 'th', 'ti', 'tlh-Latn', 'tlh-Latn', 'to', 'tr', 'uk', 'ur', 'vi', 'cy', 'zh-Hans', 'zh-Hant', 'yue', 'prs', 'mww', 'tlh-Piqd', 'kmr', 'pt-pt', 'otq', 'sr-Cyrl', 'sr-Latn', 'yua'}
 
-    def __init__(self, session = None, *args, **kwargs):
+    def __init__(self, session: typing.Optional[request.Session] = None, *args, **kwargs):
         super().__init__(session, *args, **kwargs)
         self.session.headers["Authorization"] = "Bearer 16318c3a-5fb1-4091-8f63-65aa993e2f1d"
 
-    def _translate(self, text: str, dest_lang: str, source_lang: str) -> str:
+    def _translate(self, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
         if source_lang == "auto":
             source_lang = self._language(text).source_lang
 
@@ -109,20 +149,19 @@ class MicrosoftTranslateV2(BaseTranslator):
         response = request.json()
         return models.TranslationResult(dest_lang=dest_lang, source_lang=source_lang, translation=response[0]["translations"][0]["text"], raw=response)
 
-    def _language(self, text: str) -> str:
+    def _language(self, text: str) -> models.LanguageResult[C]:
         request = self.session.post("https://translate.api.swiftkey.com/v1/translate", params={'to': "en"}, json=[{"text": text}])
         response = request.json()
         return models.LanguageResult(source_lang=response[0]["detectedLanguage"]["language"], raw=response)
 
-    def _language_to_code(self, code):
-        language = Language(code)
+    def _language_to_code(self, language: Language) -> typing.Union[str, typing.Any]:
         if language.id == "zho":
             return "zh-Hans"
         elif language.id == "och":
             return "zh-Hant"
         return language.alpha2
 
-    def _code_to_language(self, code):
+    def _code_to_language(self, code: typing.Union[str, typing.Any]) -> Language:
         language_code = str(code).lower()
         if language_code in {"zh-cn", "zh-hans"}:
             return Language("zho")
@@ -139,7 +178,7 @@ class MicrosoftTranslateV3(BaseTranslator):
     _supported_languages = {'auto', 'af', 'sq', 'am', 'ar', 'hy', 'as', 'az', 'bn', 'bs', 'bg', 'my', 'ca', 'ca', 'zh-Hans', 'cs', 'da', 'nl', 'nl', 'en', 'et', 'fj', 'fil', 'fil', 'fi', 'fr', 'fr-ca', 'de', 'ga', 'el', 'gu', 'ht', 'ht', 'he', 'hi', 'hr', 'hu', 'is', 'iu', 'id', 'it', 'ja', 'kn', 'kk', 'km', 'ko', 'ku', 'lo', 'lv', 'lt', 'ml', 'mi', 'mr', 'ms', 'mg', 'mt', 'ne', 'nb', 'nb', 'or', 'pa', 'pa', 'fa', 'pl', 'pt', 'ps', 'ps', 'ro', 'ro', 'ro', 'ru', 'sk', 'sl', 'sm', 'es', 'es', 'sr-Cyrl', 'sw', 'sv', 'ty', 'ta', 'te', 'th', 'ti', 'tlh-Latn', 'tlh-Latn', 'to', 'tr', 'uk', 'ur', 'vi', 'cy', 'zh-Hans', 'zh-Hant', 'yue', 'prs', 'mww', 'tlh-Piqd', 'kmr', 'pt-pt', 'otq', 'sr-Cyrl', 'sr-Latn', 'yua'}
     _app_id_list = ["TAgiBjv8rXgUxIhcK7TTXGPrFSsjhAWfqypS5SRKQxl4*", "B97A24C0E08728B33D41E853C50D405E50E46563", "3DAEE5B978BA031557E739EE1E2A68CB1FAD5909"]
 
-    def _translate(self, text, dest_lang, source_lang):
+    def _translate(self, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
       for app_id in self._app_id_list:
         text_array = json.dumps([text])
         url = "https://api.microsofttranslator.com/v2/ajax.svc/TranslateArray"
@@ -155,6 +194,7 @@ class MicrosoftTranslateV3(BaseTranslator):
             # logger.warning(f"Possible not valid app_id: {app_id}")
             continue
 
+        # Some workaround
         requests.encoding = 'utf-8-sig'
 
         try:
@@ -169,7 +209,7 @@ class MicrosoftTranslateV3(BaseTranslator):
       else:
           raise ValueError("No valid app_id")
 
-    def _text_to_speech(self, text, speed, gender, source_lang):
+    def _text_to_speech(self, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpeechResult:
         params = {
             'word': text,
             'lang': source_lang,
@@ -178,8 +218,7 @@ class MicrosoftTranslateV3(BaseTranslator):
         requests = self.session.get('https://www.translatedict.com/speak.php', params=params)
         return models.TextToSpeechResult(result=requests.content)
 
-    def _language_to_code(self, code):
-        language = Language(code)
+    def _language_to_code(self, language: Language) -> typing.Union[str, typing.Any]:
         if language.id == "zho":
             return "zh-Hans"
         elif language.id == "auto":
@@ -188,7 +227,7 @@ class MicrosoftTranslateV3(BaseTranslator):
             return "zh-Hant"
         return language.alpha2
 
-    def _code_to_language(self, code):
+    def _code_to_language(self, code: typing.Union[str, typing.Any]) -> Language:
         language_code = str(code).lower()
         if language_code == "":
             return Language("auto")
@@ -200,6 +239,3 @@ class MicrosoftTranslateV3(BaseTranslator):
 
     def __str__(self) -> str:
         return "Microsoft Translate V3"
-
-# TODO: workaround
-MicrosoftTranslate = MicrosoftTranslateV3

@@ -7,18 +7,19 @@ Implements the Base Translator class
 # This shouldn't be a problem if we are targetting sub-3.6 python versions
 # pylint: disable=consider-using-f-string
 # pylint: disable=line-too-long
+import typing
+
+from translatepy import exceptions, models
+from translatepy.language import Language
 
 import enum
-import typing
 import functools
 import collections
 import multiprocessing.pool
 
 import bs4
 
-from translatepy import models, exceptions
 from translatepy.utils import hasher, lru, sanitize, request
-from translatepy.language import Language
 
 # Types
 C = typing.TypeVar('C', bound="BaseTranslator")  # The expected result class for `models.Result`

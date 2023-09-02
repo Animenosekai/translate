@@ -73,6 +73,5 @@ text_to_speech = t.text_to_speech
 Translator = Translate
 
 # Languages
-
 AUTOMATIC = Language("auto")
 ENGLISH = Language("eng")
