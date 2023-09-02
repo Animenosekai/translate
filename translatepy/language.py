@@ -294,13 +294,16 @@ class Language(cain.Object):
 
     def __str__(self) -> str:
         return self.id
-    
+
     def __eq__(self, obj: typing.Union["Language", str]) -> bool:
         if isinstance(obj, str):
             obj = Language(obj)
         if not isinstance(obj, Language):
             return False
         return self.id == obj.id
+
+    def __hash__(self) -> int:
+        return hash(self.id)
 
     def get_extra(self, attribute: str) -> typing.Optional[str]:
         """Retrieves the given attribute from `extra` if available"""
