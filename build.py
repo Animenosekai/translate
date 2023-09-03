@@ -46,7 +46,7 @@ def entry():
     language_check_parser = language_subparsers.add_parser("check", help="Checks the databases")
     language_remove_parser = language_subparsers.add_parser("remove", help="Removes a language from the database")
 
-    language_add_subparsers = language_add_parser.add_subparsers(description="language_add_subparser", help="To add language data")
+    language_add_subparsers = language_add_parser.add_subparsers(dest="language_add_subparser", help="To add language data")
     langauge_add_code_parser = language_add_subparsers.add_parser("code")
     langauge_add_data_parser = language_add_subparsers.add_parser("data")
     langauge_add_vector_parser = language_add_subparsers.add_parser("vector")
