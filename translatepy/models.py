@@ -1043,7 +1043,7 @@ class HTMLTranslationResult(Result[Translator]):
         return self.result
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}(result="{self.result}", nodes=<{len(self.nodes)} nodes>, service={self.service})'
+        return f'{self.__class__.__name__}(result="{self.result}", nodes=<{len(self.nodes)} nodes>, service={repr(self.service)}, source_lang={repr(self.source_lang)})'
 
     @property
     def exported(self) -> typing.Dict[str, typing.Any]:
