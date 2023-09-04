@@ -4,13 +4,13 @@ MyMemory
 translatepy's implementation of MyMemory
 """
 import typing
+from urllib.parse import urlparse
 
 from translatepy import models
 from translatepy.language import Language
 from translatepy.translators.base import (BaseTranslateException,
                                           BaseTranslator, C)
 from translatepy.utils import request
-from translatepy.utils.request import Request
 
 
 class MyMemoryException(BaseTranslateException):
@@ -45,10 +45,23 @@ class MyMemoryTranslate(BaseTranslator):
         return models.TranslationResult(source_lang=_detected_language, translation=result["translation"], raw=data)
 
     def _language(self: C, text: str) -> models.LanguageResult[C]:
-        request = self.session.get(self.base_url, params={"q": text, "langpair": "autodetect|en"})
-        request.raise_for_status()
-        data = request.json()
-        return models.LanguageResult(language=data["matches"][0]["source"], raw=data)
+        url = "https://mymemory.translated.net/search.php"
+        params = {
+            'q': text,
+            'lang': 'en',
+            'sl': 'Autodetect',
+            'tl': 'en-GB'
+        }
+
+        response = self.session.get(url, params=params, allow_redirects=False)
+        redirected_url = response.headers['Location']
+
+        parsed_url = urlparse(redirected_url)
+        path_parts = parsed_url.path.split('/')
+        language_path = path_parts[2]
+        detected_language = Language(language_path)
+
+        return models.LanguageResult(source_lang=detected_language.alpha2, raw=redirected_url)
 
     def _language_to_code(self, language: Language) -> typing.Union[str, typing.Any]:
         if language.id == "auto":
