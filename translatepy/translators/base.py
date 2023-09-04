@@ -193,6 +193,9 @@ class BaseTranslator:
         str
         """
         language = Language(language, *args, **kwargs)
+        if not language:
+            raise ValueError("The given language is not valid")
+
         language_code = self._language_to_code(language)
 
         if self._supported_languages:  # Check if the attribute is not empty

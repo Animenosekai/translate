@@ -15,6 +15,7 @@ ZhymabekRoman
 import re
 import time
 import uuid
+import enum
 import random
 import secrets
 import typing
@@ -29,6 +30,9 @@ from translatepy.utils import request
 
 SENTENCES_SPLITTING_REGEX = re.compile('(?<=[.!:?]) +')
 
+class DeeplFormality(enum.Enum):
+    formal = "formal"
+    informal = "informal"
 
 class DeeplTranslate(BaseTranslatorAggregator):
     def __init__(self, session: request.Session = None, *args, **kwargs) -> None:
@@ -312,7 +316,7 @@ class DeeplTranslateV2(BaseTranslator):
         self.session.headers["User-Agent"] = self._user_agent
         self.id_number = (random.randint(1000, 9999) * 10000) + 1  # ? I didn't verify the range, but it's better having only DeepL not working than having Translator() crash for only one service
 
-    def _translate(self, text: str, dest_lang: typing.Any, source_lang: typing.Any):
+    def _translate(self, text: str, dest_lang: typing.Any, source_lang: typing.Any, formality: typing.Optional[DeeplFormality] = None) -> models.TranslationResult:
         timestamp = int(time.time() * 10) * 100 + 1000
 
         trace_id = str(uuid.uuid4()).replace("-", "")
@@ -339,7 +343,7 @@ class DeeplTranslateV2(BaseTranslator):
             "params": {
                 "texts": [{"text": text, "requestAlternatives": 3}],
                 "splitting": "newlines",
-                "commonJobParams": {"wasSpoken": False},
+                "commonJobParams": {"wasSpoken": False, "formality": formality},
                 "lang": {"target_lang": dest_lang, "source_lang_user_selected": source_lang},
                 "timestamp": timestamp
             },
