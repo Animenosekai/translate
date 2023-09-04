@@ -10,6 +10,7 @@ import urllib
 import hmac
 import datetime as dt
 
+from warnings import warn
 from urllib.parse import urlencode, urlparse, urlunparse
 from translatepy.utils import request
 from translatepy.language import Language
@@ -26,6 +27,7 @@ class MicrosoftTranslate(BaseTranslatorAggregator):
         super().__init__(microsft_services, session, *args, **kwargs)
 
 
+# TODO: implement text_to_speech, maybe there is other endpoints 
 class MicrosoftTranslateV1(BaseTranslator):
     """
     A Python implementation of Microsoft Translation, reverse engenered from Microsoft Translator Android application.
@@ -66,7 +68,10 @@ class MicrosoftTranslateV1(BaseTranslator):
 
         return models.TranslationResult(dest_lang=dest_lang, source_lang=source_lang, translation=response[0]["translations"][0]["text"], raw=response)
 
-    def _transliterate(self: C, text: str, source_lang: typing.Any, from_script: typing.Any, to_script: typing.Any) -> models.TransliterationResult[C]:
+    # TODO: some problem with to_script and from_script
+    def _transliterate(self: C, text: str, source_lang: typing.Any, dest_lang: typing.Any, from_script: typing.Any, to_script: typing.Any) -> models.TransliterationResult[C]:
+        warn("dest_lang is ignored")
+
         transliterate_url = f"{self._api_endpoint}/transliterate"
 
         if source_lang == "auto":
@@ -81,7 +86,6 @@ class MicrosoftTranslateV1(BaseTranslator):
 
         request = self.session.post(f"https://{final_transliterate_url}", headers={"X-MT-Signature": self._get_signature(final_transliterate_url)}, json=[{"text": text}])
         response = request.json()
-
         return models.TransliterationResult(raw=response)
 
     def _language(self: C, text: str) -> models.LanguageResult[C]:
@@ -96,7 +100,7 @@ class MicrosoftTranslateV1(BaseTranslator):
         request = self.session.post(f"https://{final_language_detect_url}", headers={"X-MT-Signature": self._get_signature(final_language_detect_url)}, json=[{"text": text}])
         response = request.json()
 
-        return models.LanguageResult(language=response[0]["language"], raw=response)
+        return models.LanguageResult(source_lang=response[0]["language"], raw=response, source=text)
 
     def _get_signature(self: C, url: str) -> str:
         guid = uuid.uuid4().hex
@@ -119,7 +123,7 @@ class MicrosoftTranslateV1(BaseTranslator):
             return "zh-Hant"
         return language.alpha2
 
-    def _code_to_language(self, code: typing.Union[str, typing.Any]) -> Language:
+    def _code_to_language(self: C, code: typing.Union[str, typing.Any]) -> Language:
         language_code = str(code).lower()
         if language_code in {"zh-cn", "zh-hans"}:
             return Language("zho")
@@ -136,10 +140,11 @@ class MicrosoftTranslateV2(BaseTranslator):
     """
 
     _supported_languages = {'auto', 'af', 'sq', 'am', 'ar', 'hy', 'as', 'az', 'bn', 'bs', 'bg', 'my', 'ca', 'ca', 'zh-Hans', 'cs', 'da', 'nl', 'nl', 'en', 'et', 'fj', 'fil', 'fil', 'fi', 'fr', 'fr-ca', 'de', 'ga', 'el', 'gu', 'ht', 'ht', 'he', 'hi', 'hr', 'hu', 'is', 'iu', 'id', 'it', 'ja', 'kn', 'kk', 'km', 'ko', 'ku', 'lo', 'lv', 'lt', 'ml', 'mi', 'mr', 'ms', 'mg', 'mt', 'ne', 'nb', 'nb', 'or', 'pa', 'pa', 'fa', 'pl', 'pt', 'ps', 'ps', 'ro', 'ro', 'ro', 'ru', 'sk', 'sl', 'sm', 'es', 'es', 'sr-Cyrl', 'sw', 'sv', 'ty', 'ta', 'te', 'th', 'ti', 'tlh-Latn', 'tlh-Latn', 'to', 'tr', 'uk', 'ur', 'vi', 'cy', 'zh-Hans', 'zh-Hant', 'yue', 'prs', 'mww', 'tlh-Piqd', 'kmr', 'pt-pt', 'otq', 'sr-Cyrl', 'sr-Latn', 'yua'}
+    _auth_code = "Bearer 16318c3a-5fb1-4091-8f63-65aa993e2f1d"
 
-    def __init__(self, session: typing.Optional[request.Session] = None, *args, **kwargs):
+    def __init__(self: C, session: typing.Optional[request.Session] = None, *args, **kwargs):
         super().__init__(session, *args, **kwargs)
-        self.session.headers["Authorization"] = "Bearer 16318c3a-5fb1-4091-8f63-65aa993e2f1d"
+        self.session.headers["Authorization"] = self._auth_code
 
     def _translate(self, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
         if source_lang == "auto":

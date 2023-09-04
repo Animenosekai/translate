@@ -24,9 +24,15 @@ from bs4 import BeautifulSoup
 from translatepy import models, exceptions
 from translatepy.language import Language
 from translatepy.translators.base import BaseTranslateException, BaseTranslator, C
+from translatepy.translators.base_agregator import BaseTranslatorAggregator
 from translatepy.utils import request
 
 SENTENCES_SPLITTING_REGEX = re.compile('(?<=[.!:?]) +')
+
+
+class DeeplTranslate(BaseTranslatorAggregator):
+    def __init__(self, session: request.Session = None, *args, **kwargs) -> None:
+        super().__init__([DeeplTranslateV1, DeeplTranslateV2], session, *args, **kwargs)
 
 
 class DeeplTranslateException(BaseTranslateException):
@@ -84,7 +90,7 @@ class JSONRPCRequest:
         self.session = session
         self.last_access = 0
 
-    def dump(self, method, params):
+    def dump(self, method: str, params: dict):
         self.id_number += 1
         data = {
             "jsonrpc": "2.0",
@@ -94,7 +100,7 @@ class JSONRPCRequest:
         }
         return data
 
-    def send_jsonrpc(self, method, params):
+    def send_jsonrpc(self, method: str, params: dict) -> dict:
         # Take a break 3 sec between requests, so as not to get a block by the IP address
         if time.time() - self.last_access < 3:
             distance = 3 - (time.time() - self.last_access)
@@ -110,8 +116,7 @@ class JSONRPCRequest:
 
 
 class DeeplTranslateV1(BaseTranslator):
-
-    _supported_languages = {'AUTO', 'BG', 'CS', 'DA', 'DE', 'EL', 'EN', 'ES', 'ET', 'FI', 'FR', 'HU', 'IT', 'JA', 'LT', 'LV', 'NL', 'PL', 'PT', 'RO', 'RU', 'SK', 'SL', 'SV', 'ZH', 'TR', 'ID', 'UK'}
+    _supported_languages: dict = {'AUTO', 'BG', 'CS', 'DA', 'DE', 'EL', 'EN', 'ES', 'ET', 'FI', 'FR', 'HU', 'IT', 'JA', 'LT', 'LV', 'NL', 'PL', 'PT', 'RO', 'RU', 'SK', 'SL', 'SV', 'ZH', 'TR', 'ID', 'UK'}
 
     def __init__(self, session: request.Session = None, preferred_langs: typing.List = ["EN", "RU"]) -> None:
         super().__init__(session)
@@ -120,7 +125,7 @@ class DeeplTranslateV1(BaseTranslator):
         self.jsonrpc = JSONRPCRequest(self.session)
         self.user_preferred_langs = preferred_langs
 
-    def _split_into_sentences(self, text: str, dest_lang: str, source_lang: str) -> typing.Tuple[typing.List[str], str]:
+    def _split_into_sentences(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> typing.Tuple[typing.List[str], str]:
         """
         Split a string into sentences using the DeepL API.\n
         Fallbacks to a simple Regex splitting if an error occurs or no result is found
@@ -249,7 +254,7 @@ class DeeplTranslateV1(BaseTranslator):
                         #     results["less_common"].append(element.text.replace("\n", ""))
             return source_lang, _result
 
-    def _build_jobs(self, sentences, quality=""):
+    def _build_jobs(self, sentences: typing.List, quality: typing.Optional[str] = None):
         """
         Builds a job for each sentence for DeepL
         """
@@ -277,7 +282,7 @@ class DeeplTranslateV1(BaseTranslator):
                 "raw_en_context_before": before.copy(),
                 "raw_en_sentence": sentence,
             }
-            if quality != "":
+            if quality is not None:
                 job["quality"] = quality
             jobs.append(job)
 
@@ -297,17 +302,17 @@ class DeeplTranslateV1(BaseTranslator):
         return "DeepL Web"
 
 
-
 class DeeplTranslateV2(BaseTranslator):
-    _client_id = "f02c852d-109d-448c-a9fb-5a805000f8cb"
-    _device_name = secrets.token_hex(16)
+    _client_id: str = "f02c852d-109d-448c-a9fb-5a805000f8cb"
+    _device_name: str = secrets.token_hex(16)
+    _user_agent = f"DeepL/2.4(69) Android 11 ({_device_name};aarch64)"
 
     def __init__(self, session: request.Session = None) -> None:
         super().__init__(session)
-        self.session.headers["User-Agent"] = f"DeepL/2.4(69) Android 11 ({self._device_name};aarch64)"
+        self.session.headers["User-Agent"] = self._user_agent
         self.id_number = (random.randint(1000, 9999) * 10000) + 1  # ? I didn't verify the range, but it's better having only DeepL not working than having Translator() crash for only one service
 
-    def _translate(self, text, dest_lang, source_lang):
+    def _translate(self, text: str, dest_lang: typing.Any, source_lang: typing.Any):
         timestamp = int(time.time() * 10) * 100 + 1000
 
         trace_id = str(uuid.uuid4()).replace("-", "")
@@ -371,4 +376,5 @@ class DeeplTranslateV2(BaseTranslator):
             return Language("auto")
         return Language(code)
 
-DeeplTranslate = DeeplTranslateV1
+    def __str__(self: C) -> str:
+        return "DeepL Android API"
