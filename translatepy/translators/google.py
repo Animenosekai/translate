@@ -8,10 +8,11 @@ The `batchexecute` implementation is heavily inspired by ssut/py-googletrans#255
 import json
 import typing
 
-from translatepy import exceptions, models
-from translatepy.exceptions import ServiceURLError, UnsupportedMethod
+from translatepy import models
+from translatepy.exceptions import ServiceURLError
 from translatepy.language import Language
 from translatepy.translators.base import BaseTranslator, C
+from translatepy.translators.base_aggregator import BaseTranslatorAggregator
 from translatepy.utils import request
 from translatepy.utils.gtoken import TokenAcquirer
 from translatepy.utils.utils import convert_to_float
@@ -62,72 +63,17 @@ SUPPORTED_LANGUAGES = {'af', 'am', 'ar', 'auto', 'az', 'be', 'bg', 'bn', 'bs', '
                        'xh', 'yi', 'yo', 'zh-CN', 'zh-TW', 'zh-cn', 'zu'}
 
 
-# For backward compatibility
-class GoogleTranslate(BaseTranslator):
-
-    _supported_languages = SUPPORTED_LANGUAGES
-
-    def __init__(self, session: typing.Optional[request.Session] = None, service_url: str = "translate.google.com"):
-        super().__init__(session)
+class GoogleTranslate(BaseTranslatorAggregator):
+    def __init__(self, session: typing.Optional[request.Session] = None, service_url: str = "translate.google.com", *args, **kwargs):
         if service_url not in DOMAINS:
             raise ServiceURLError("{url} is not a valid service URL".format(url=str(service_url)))
 
-        google_v1 = GoogleTranslateV1(service_url=service_url, session=self.session)
-        google_v2 = GoogleTranslateV2(service_url=service_url, session=self.session)
+        google_v1 = GoogleTranslateV1(service_url=service_url, session=session)
+        google_v2 = GoogleTranslateV2(service_url=service_url, session=session)
 
-        self.services = [google_v1, google_v2]
+        services_list = [google_v1, google_v2]
 
-    def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
-        for service in self.services:
-            try:
-                return service._translate(text, dest_lang, source_lang)
-            except Exception:
-                continue
-        raise ValueError("No service has returned a valid result")
-
-    def _transliterate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TransliterationResult[C]:
-        for service in self.services:
-            try:
-                return service._transliterate(text, dest_lang, source_lang)
-            except Exception:
-                continue
-        raise ValueError("No service has returned a valid result")
-
-    def _language(self: C, text: str) -> models.LanguageResult[C]:
-        for service in self.services:
-            try:
-                return service._language(text)
-            except Exception:
-                continue
-        raise ValueError("No service has returned a valid result")
-
-    def _language_to_code(self, language: Language) -> typing.Union[str, typing.Any]:
-        if language.id == "zho":
-            return "zh-cn"
-        elif language.id == "och":
-            return "zh-tw"
-        return language.alpha2
-
-    def _code_to_language(self, code: typing.Union[str, typing.Any]) -> Language:
-        language_code = str(code).lower()
-        if language_code == "zh-cn":
-            return Language("zho")
-        elif language_code == "zh-tw":
-            return Language("och")
-        return Language(language_code)
-
-    # TODO: Implement `spellcheck`
-
-    def _text_to_speech(self: C, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpeechResult[C]:
-        for service in self.services:
-            try:
-                return service._text_to_speech(text, speed, gender, source_lang)
-            except Exception:
-                continue
-        raise ValueError("No service has returned a valid result")
-
-    def __str__(self):
-        return "Google"
+        super().__init__(services_list, session, *args, **kwargs)
 
 
 class GoogleTranslateV1(BaseTranslator):

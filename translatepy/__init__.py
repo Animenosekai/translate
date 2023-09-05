@@ -44,6 +44,7 @@ __all__ = [
 ]
 
 # Imports
+from translatepy.utils import importer
 from .__info__ import __author__, __copyright__, __license__, __version__
 from translatepy.language import Language
 from translatepy.translate import Translate
@@ -73,6 +74,5 @@ text_to_speech = t.text_to_speech
 Translator = Translate
 
 # Languages
-
 AUTOMATIC = Language("auto")
 ENGLISH = Language("eng")
