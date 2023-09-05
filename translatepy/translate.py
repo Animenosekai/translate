@@ -9,7 +9,7 @@ from translatepy.translators import (PONS, QCRI, BaseTranslator, Bing, DeepL,
                                      Reverso, TranslateCom, Yandex, Papago)
 import typing
 from translatepy.utils import request
-from translatepy.translators.base_agregator import BaseTranslatorAggregator
+from translatepy.translators.base_aggregator import BaseTranslatorAggregator
 
 
 class Translate(BaseTranslatorAggregator):

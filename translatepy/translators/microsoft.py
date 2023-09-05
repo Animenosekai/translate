@@ -16,7 +16,7 @@ from translatepy.utils import request
 from translatepy.language import Language
 from translatepy import models
 from translatepy.translators.base import BaseTranslator, C
-from translatepy.translators.base_agregator import BaseTranslatorAggregator
+from translatepy.translators.base_aggregator import BaseTranslatorAggregator
 from translatepy.utils.request import Request
 
 
@@ -27,7 +27,7 @@ class MicrosoftTranslate(BaseTranslatorAggregator):
         super().__init__(microsft_services, session, *args, **kwargs)
 
 
-# TODO: implement text_to_speech, maybe there is other endpoints 
+# TODO: implement text_to_speech, maybe there is other endpoints
 class MicrosoftTranslateV1(BaseTranslator):
     """
     A Python implementation of Microsoft Translation, reverse engenered from Microsoft Translator Android application.

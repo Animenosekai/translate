@@ -25,14 +25,16 @@ from bs4 import BeautifulSoup
 from translatepy import models, exceptions
 from translatepy.language import Language
 from translatepy.translators.base import BaseTranslateException, BaseTranslator, C
-from translatepy.translators.base_agregator import BaseTranslatorAggregator
+from translatepy.translators.base_aggregator import BaseTranslatorAggregator
 from translatepy.utils import request
 
 SENTENCES_SPLITTING_REGEX = re.compile('(?<=[.!:?]) +')
 
+
 class DeeplFormality(enum.Enum):
     formal = "formal"
     informal = "informal"
+
 
 class DeeplTranslate(BaseTranslatorAggregator):
     def __init__(self, session: request.Session = None, *args, **kwargs) -> None:

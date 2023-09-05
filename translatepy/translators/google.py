@@ -12,7 +12,7 @@ from translatepy import models
 from translatepy.exceptions import ServiceURLError
 from translatepy.language import Language
 from translatepy.translators.base import BaseTranslator, C
-from translatepy.translators.base_agregator import BaseTranslatorAggregator
+from translatepy.translators.base_aggregator import BaseTranslatorAggregator
 from translatepy.utils import request
 from translatepy.utils.gtoken import TokenAcquirer
 from translatepy.utils.utils import convert_to_float
@@ -68,8 +68,8 @@ class GoogleTranslate(BaseTranslatorAggregator):
         if service_url not in DOMAINS:
             raise ServiceURLError("{url} is not a valid service URL".format(url=str(service_url)))
 
-        google_v1 = GoogleTranslateV1(service_url=service_url, session=self.session)
-        google_v2 = GoogleTranslateV2(service_url=service_url, session=self.session)
+        google_v1 = GoogleTranslateV1(service_url=service_url, session=session)
+        google_v2 = GoogleTranslateV2(service_url=service_url, session=session)
 
         services_list = [google_v1, google_v2]
 
