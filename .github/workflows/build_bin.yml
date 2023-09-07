@@ -30,21 +30,11 @@ jobs:
       - name: Install requirements
         run: |
           pip install -r requirements.txt
-
-      - name: Create Nuitka cache folder
-        run: |
-          mkdir -p /home/runner/work/NUITKA_BUILD_CACHE
-
-      - name: Cache Nuitka build
-        uses: actions/cache@v3
-        with:
-          path: /home/runner/work/NUITKA_BUILD_CACHE
-          key: ${{ runner.os }}-nuitka-cache-${{ hashFiles('**/requirements.txt') }}-${{ github.run_number }}
-          restore-keys: ${{ runner.os }}-nuitka-cache-
+          pip install -r requirements-dex.txt
 
       - name: Building
         run: |
-          NUITKA_CACHE_DIR="/home/runner/work/NUITKA_BUILD_CACHE" ./scripts/build_nuitka_linux.sh
+          python3 build.py binary
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
