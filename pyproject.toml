@@ -68,6 +68,9 @@ translatepy = 'translatepy.__main__:entry'
 [tool.poetry.urls]
 "Issue Tracker" = "https://github.com/Animenosekai/translatepy/issues"
 
+[tool.poetry.group.build.dependencies]
+nuitka = "^1.8"
+
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.4.1"
 autopep8 = "^2.0.2"
