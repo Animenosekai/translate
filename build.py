@@ -3,8 +3,33 @@ build.py
 
 Compiles everything down
 """
+from shutil import which
+from warnings import warn
+import platform
+import subprocess
 import argparse
 import translatepy
+import subprocess
+import sys
+
+
+def subprocess_exec(command: list) -> tuple[str, int]:
+    try:
+        process = subprocess.run(command, stdout=sys.stdout, stderr=sys.stderr)
+        # stdout, stderr = process.communicate()
+        print(f'[{command!r} exited with {process.returncode}]')
+        print(f'[stdout]\n{process.stdout}')
+        print(f'[stderr]\n{process.stderr}')
+        assert process.returncode == 0
+    except (subprocess.CalledProcessError, Exception) as ex:
+        raise ValueError("While executing process, unknown error occurred: {ex}, command: {cmd}".format(cmd=" ".join(command), ex=ex)) from ex
+    else:
+        return process
+
+
+def is_tool_exist(name):
+    """Check whether `name` is on PATH and marked as executable."""
+    return which(name) is not None
 
 
 def test():
@@ -21,6 +46,24 @@ def build_docs():
 
 def build_binary():
     """Builds the binaries for translatepy"""
+    if platform.system() == "Linux":
+        print("Checking for Nuitka")
+        if not is_tool_exist("nuitka3"):
+            raise ValueError("Please install Nuitka to build the binaries")
+            exit(1)
+        print("Building binaries for Linux")
+        linux_binary_build_cmd = [
+            "nuitka3", "--onefile", "--nofollow-import-to=pytest",
+            "--include-data-dir=translatepy/data=translatepy/data",
+            "--include-data-files=translatepy/cli/tui/app.css=translatepy/cli/tui/app.css",
+            "--python-flag=isolated,nosite,-O",
+            "--plugin-enable=anti-bloat,implicit-imports,data-files,pylint-warnings",
+            "--warn-implicit-exceptions", "--warn-unusual-code", "--prefer-source-code",
+            "--static-libpython=yes", "translatepy"
+        ]
+        subprocess_exec(linux_binary_build_cmd)
+    else:
+        warn("We don't support building binaries for Windows/MacOS yet")
 
 
 def build():

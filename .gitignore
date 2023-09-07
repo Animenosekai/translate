@@ -131,3 +131,9 @@ dmypy.json
 
 .vscode/*
 yuno/*
+
+# Nuitka temp files
+*.build
+*.dist
+*.onefile-build
+translatepy.bin
