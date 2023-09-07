@@ -127,8 +127,7 @@ dmypy.json
 .DS_Store
 
 # translatepy translate service session files
-.bing_translatepy
-.microsoft_translatepy
+.translatepy/sessions/*
 
 .vscode/*
 yuno/*

@@ -80,7 +80,7 @@ class Papago(BaseTranslator):
             except Exception:
                 pass
 
-    def generate_headers(self, url: str, request_id: str):
+    def generate_headers(self, url: str, request_id: str) -> dict:
         """Generates the headers for the API"""
         # https://papago.naver.com/main.5fbfac62f1cf0b8694fe.chunk.js#8345:8350
         # var t = Object(E.a)(),
