@@ -5,19 +5,63 @@ The `translatepy` CLI
 """
 import argparse
 import webbrowser
+from argparse import Action
 
 from nasse.exceptions import NasseException
+from nasse.utils.formatter import format as nasse_format
 from nasse.utils.json import encoder, minified_encoder
 
 import translatepy
-from translatepy.cli import shell, tui
+from translatepy.cli import sdk, shell, tui
 from translatepy.exceptions import UnknownLanguage
+
+ACTIONS_DESCRIPTION = nasse_format("""
+  {{tui,translate,translate-html,transliterate,spellcheck,language,example,dictionary,tts,shell,server,website,sdk}}
+
+    ╭─────────────╮
+    │   Actions   │
+    ╰─────────────╯
+
+    User Interface
+    {grey}--------------{normal}
+    {blue}tui{normal}                 A nice TUI to use translatepy interactively
+    {blue}shell{normal}               Opens translatepy's interactive mode
+    {blue}website{normal}             Starts the translatepy website server
+
+    JSON formatted
+    {grey}--------------{normal}
+    {magenta}translate{normal}           Translates the given text to the given language
+    {magenta}translate-html{normal}      Translates the given HTML to the given language
+    {magenta}transliterate{normal}       Transliterates the given text
+    {magenta}spellcheck{normal}          Checks the spelling of the given text
+    {magenta}language{normal}            Checks the language of the given text
+    {magenta}example{normal}             Get an examples for the given text
+    {magenta}dictionary{normal}          Get meanings for the given text
+    {magenta}tts{normal}                 Get text to speech synthesis of the given text
+
+    Developer
+    {grey}---------{normal}
+    {cyan}server{normal}              Starts the translatepy HTTP server 🌐
+    {cyan}sdk{normal}                 Software Development Kit for `translatepy` 🕊️
+""")
+
+
+class TranslatepyHelpFormatter(argparse.HelpFormatter):
+    """Formats the help message for `translatepy`"""
+
+    def _format_action(self, action: Action) -> str:
+        if isinstance(action, argparse._SubParsersAction):
+            return ACTIONS_DESCRIPTION
+        return super()._format_action(action)
 
 
 def entry():
     """the CLI entrypoint"""
     # Create the parser
-    parser = argparse.ArgumentParser(prog='translatepy', description='Translate, transliterate, get the language of texts in no time with the help of numerous APIs!')
+    # parser = argparse.ArgumentParser(prog='translatepy', description='Translate, transliterate, get the language of texts in no time with the help of numerous APIs!')
+    parser = argparse.ArgumentParser(prog='translatepy',
+                                     description='🍡 \033[1mTranslate, transliterate, get the language of texts in no time with the help of numerous APIs!\033[0m',
+                                     formatter_class=TranslatepyHelpFormatter)
 
     parser.add_argument('--version', '-v', action='version', version=translatepy.__version__)
     parser.add_argument("--translators", action="store", type=str, help="List of translators to use. Each translator name should be comma-separated.", required=False, default=None)
@@ -82,7 +126,13 @@ def entry():
     prepare_server_parser(parser_website)
     parser_website.add_argument("--headless", action="store_true", help="Avoids opening the website in the default browser")
 
+    parser_sdk = subparser.add_parser("sdk", help="Software Development Kit for `translatepy` 🕊️")
+    sdk.prepare_argparse(parser_sdk)
+
     args = parser.parse_args()
+
+    if args.action == "sdk":
+        sdk.entry(args=args)
 
     if args.translators:
         service = translatepy.Translator(args.translators.split(","))

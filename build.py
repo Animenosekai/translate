@@ -70,14 +70,11 @@ def build_docs():
     """Builds the documentation"""
     logger.log("Building documentation")
     from nasse import localization as nasse_localization
-    from translatepy.server.server import SERVER_DOCS_PATH
+
     from translatepy.server.endpoints.api import _, language
+    from translatepy.server.server import SERVER_DOCS_PATH
 
     docs_path = pathlib.Path(__file__).parent / "docs"
-
-    logger.debug(f"Copying the main README to {docs_path / translatepy.ENGLISH.id / 'README.md'}")
-    shutil.copyfile(str(pathlib.Path(__file__).parent / "README.md"),
-                    str(docs_path / translatepy.ENGLISH.id / "README.md"))
 
     def remove(directory: pathlib.Path):
         """Removes a file or a directory recursively"""
@@ -92,7 +89,7 @@ def build_docs():
             pass
 
     logger.debug(f"Removing {SERVER_DOCS_PATH}")
-    shutil.rmtree(SERVER_DOCS_PATH)
+    remove(SERVER_DOCS_PATH)
 
     logger.debug(f"Copying {docs_path} to {SERVER_DOCS_PATH}")
     shutil.copytree(str(docs_path), SERVER_DOCS_PATH)
@@ -106,13 +103,16 @@ def build_docs():
         # We can't just copy the result of `./docs` to `SERVER_DOCS_PATH/docs`
         # because `server.make_docs` produces different results following the
         # path given
-        for docs_path in [pathlib.Path(__file__).parent / "docs" / str(language.id),
-                          SERVER_DOCS_PATH / str(language.id)]:
-            remove(docs_path)
-            docs_path.mkdir(parents=True, exist_ok=True)
+        for path in [docs_path / str(language.id), SERVER_DOCS_PATH / str(language.id)]:
+            remove(path)
+            path.mkdir(parents=True, exist_ok=True)
 
-            remove(docs_path / "server")
-            translatepy.server.make_docs(docs_path / "server", localization=localization)
+            remove(path / "server")
+            translatepy.server.make_docs(path / "server", localization=localization)
+
+    logger.debug(f"Copying the main README to {docs_path / translatepy.ENGLISH.id / 'README.md'}")
+    shutil.copyfile(str(pathlib.Path(__file__).parent / "README.md"),
+                    str(docs_path / translatepy.ENGLISH.id / "README.md"))
 
 
 def build_binary():
@@ -170,32 +170,9 @@ def release():
     logger.log("Releasing `translatepy`")
 
 
-def entry(parser: argparse.ArgumentParser, arguments: typing.Optional[typing.List[str]] = None):
-    """The main entrypoint for translatepy's `build` CLI"""
-    subparsers = parser.add_subparsers(dest="action", description="The action to perform", required=True)
-
-    # Language management
-    language_parser = subparsers.add_parser("language", help="Manages languages in translatepy")
-    language_subparsers = language_parser.add_subparsers(dest="language_action", description="the language action to perform")
-
-    language_add_parser = language_subparsers.add_parser("add", help="Adds a language from the database")
-    language_set_parser = language_subparsers.add_parser("set", help="Sets a language data")
-    language_check_parser = language_subparsers.add_parser("check", help="Checks the databases")
-    language_remove_parser = language_subparsers.add_parser("remove", help="Removes a language from the database")
-
-    language_add_subparsers = language_add_parser.add_subparsers(dest="language_add_subparser", help="To add language data")
-    langauge_add_code_parser = language_add_subparsers.add_parser("code")
-    langauge_add_data_parser = language_add_subparsers.add_parser("data")
-    langauge_add_vector_parser = language_add_subparsers.add_parser("vector")
-
-    # Imports management
-    imports_parser = subparsers.add_parser("imports", help="Manages dynamic imports in translatepy")
-    imports_subparsers = imports_parser.add_subparsers(dest="imports_action", description="the dynamic imports database action to perform")
-
-    imports_add_parser = imports_subparsers.add_parser("add", help="Adds a translator to the database")
-    imports_remove_parser = imports_subparsers.add_parser("remove", help="Removes a translator from the database")
-
-    # Library management
+def prepare_argparse(parser: argparse.ArgumentParser):
+    """Prepares the given parser"""
+    subparsers = parser.add_subparsers(dest="dev_action", description="The action to perform", required=True)
 
     def prepare_test_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         """Prepares the test argument parser"""
@@ -249,35 +226,26 @@ def entry(parser: argparse.ArgumentParser, arguments: typing.Optional[typing.Lis
 
     prepare_release_parser(release_parser)
 
-    args = parser.parse_args(arguments)
 
-    # FLOW
-    # Language Management
-    if args.action in ("language",):
-        pass
-
-    # Dynamic Imports Management
-    if args.action in ("imports",):
-        pass
-
+def entry(args: argparse.Namespace):
+    """The main entrypoint for translatepy's `dev` CLI"""
     # Library Management
-
-    if args.action in ("release", "build", "test"):
+    if args.dev_action in ("release", "build", "test"):
         test()
 
-    if args.action in ("release", "build", "website"):
+    if args.dev_action in ("release", "build", "website"):
         build_website()
 
-    if args.action in ("release", "build", "docs"):
+    if args.dev_action in ("release", "build", "docs"):
         build_docs()
 
-    if args.action in ("release", "build", "binary"):
+    if args.dev_action in ("release", "build", "binary"):
         build_binary()
 
-    if args.action in ("release", "build"):
+    if args.dev_action in ("release", "build"):
         build()
 
-    if args.action in ("release",):
+    if args.dev_action in ("release",):
         release()
 
 
@@ -285,6 +253,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser("translatepy build", description="translatepy helper to build the library")
     parser.add_argument("--version", "-v", action="version", version=translatepy.__version__)
     try:
-        entry(parser=parser)
+        prepare_argparse(parser)
+        entry(args=parser.parse_args())
     except Exception:
         logger.print_exception(show_locals=("--debug" in sys.argv or "-d" in sys.argv))
