@@ -11,7 +11,7 @@ This represents a non implemented endpoint
 * /api/language/<string:language>
 ```
 
-> [../../../../translatepy/server/endpoints/api/language.py](../../../../translatepy/server/endpoints/api/language.py#L17)
+> [../../../../endpoints/api/language.py](../../../../endpoints/api/language.py#L17)
 
 ### 認証
 
@@ -96,7 +96,7 @@ This represents a non implemented endpoint
 * /api/language/search
 ```
 
-> [../../../../translatepy/server/endpoints/api/language.py](../../../../translatepy/server/endpoints/api/language.py#L22)
+> [../../../../endpoints/api/language.py](../../../../endpoints/api/language.py#L22)
 
 ### 認証
 
@@ -106,8 +106,8 @@ This represents a non implemented endpoint
 
 | 名前         | 詳細                      | 必要         | タイプ             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `query` | 詳細なし  | はい            | str            |
 | `limit` | 詳細なし  | いいえ            | int            |
+| `query` | 詳細なし  | はい            | str            |
 
 ### 例
 
@@ -121,8 +121,8 @@ This represents a non implemented endpoint
 
 ```bash
 curl -X * \
-    --data-urlencode "query=<>"\
-    --data-urlencode "limit=<>" \
+    --data-urlencode "limit=<>"\
+    --data-urlencode "query=<>" \
     "/api/language/search"
 ```
 

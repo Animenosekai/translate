@@ -73,40 +73,46 @@ def build_docs():
     from translatepy.server.server import SERVER_DOCS_PATH
     from translatepy.server.endpoints.api import _, language
 
-    for language, localization in [(translatepy.ENGLISH, nasse_localization.EnglishLocalization),
-                                   (translatepy.Language("french"), nasse_localization.FrenchLocalization),
-                                   (translatepy.Language("japanese"), nasse_localization.JapaneseLocalization)]:
-
-        logger.debug(f"Building docs for `{language}`")
-
-        docs_path = pathlib.Path(__file__).parent / "docs" / str(language.id)
-        if docs_path.is_file():
-            docs_path.unlink(missing_ok=True)
-        docs_path.mkdir(parents=True, exist_ok=True)
-
-        try:
-            shutil.rmtree(docs_path / "server")
-        except NotADirectoryError:
-            try:
-                (docs_path / "server").unlink(missing_ok=True)
-            except Exception:
-                pass
-        except FileNotFoundError:
-            pass
-
-        translatepy.server.make_docs(docs_path / "server", localization=localization)
-
     docs_path = pathlib.Path(__file__).parent / "docs"
 
     logger.debug(f"Copying the main README to {docs_path / translatepy.ENGLISH.id / 'README.md'}")
     shutil.copyfile(str(pathlib.Path(__file__).parent / "README.md"),
                     str(docs_path / translatepy.ENGLISH.id / "README.md"))
 
+    def remove(directory: pathlib.Path):
+        """Removes a file or a directory recursively"""
+        try:
+            (directory).unlink(missing_ok=True)
+        except (IsADirectoryError, PermissionError):
+            try:
+                shutil.rmtree(directory)
+            except Exception:
+                pass
+        except FileNotFoundError:
+            pass
+
     logger.debug(f"Removing {SERVER_DOCS_PATH}")
     shutil.rmtree(SERVER_DOCS_PATH)
 
     logger.debug(f"Copying {docs_path} to {SERVER_DOCS_PATH}")
     shutil.copytree(str(docs_path), SERVER_DOCS_PATH)
+
+    for language, localization in [(translatepy.ENGLISH, nasse_localization.EnglishLocalization),
+                                   (translatepy.Language("french"), nasse_localization.FrenchLocalization),
+                                   (translatepy.Language("japanese"), nasse_localization.JapaneseLocalization)]:
+
+        logger.debug(f"Building server docs for `{language}`")
+
+        # We can't just copy the result of `./docs` to `SERVER_DOCS_PATH/docs`
+        # because `server.make_docs` produces different results following the
+        # path given
+        for docs_path in [pathlib.Path(__file__).parent / "docs" / str(language.id),
+                          SERVER_DOCS_PATH / str(language.id)]:
+            remove(docs_path)
+            docs_path.mkdir(parents=True, exist_ok=True)
+
+            remove(docs_path / "server")
+            translatepy.server.make_docs(docs_path / "server", localization=localization)
 
 
 def build_binary():
@@ -156,7 +162,7 @@ def build_binary():
 
 def build():
     """Builds translatepy"""
-    logger.info("Built `translatepy`")
+    logger.info("`translatepy` post-build")
 
 
 def release():

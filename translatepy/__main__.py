@@ -53,7 +53,7 @@ def entry():
 
     parser_language = subparser.add_parser('language', help='Checks the language of the given text')
     prepare_json_parser(parser_language)
-    
+
     parser_example = subparser.add_parser('example', help='Get an examples for the given text')
     prepare_json_parser(parser_example)
     parser_example.add_argument('--source-lang', '-s', action='store', default='auto', type=str, help='source language')

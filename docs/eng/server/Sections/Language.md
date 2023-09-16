@@ -106,8 +106,8 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `query` | No description  | Yes            | str            |
 | `limit` | No description  | No            | int            |
+| `query` | No description  | Yes            | str            |
 
 ### Example
 
@@ -121,8 +121,8 @@ Login is **not** required
 
 ```bash
 curl -X * \
-    --data-urlencode "query=<>"\
-    --data-urlencode "limit=<>" \
+    --data-urlencode "limit=<>"\
+    --data-urlencode "query=<>" \
     "/api/language/search"
 ```
 

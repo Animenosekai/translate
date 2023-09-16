@@ -11,7 +11,7 @@ This represents a non implemented endpoint
 * /api/language/<string:language>
 ```
 
-> [../../../../translatepy/server/endpoints/api/language.py](../../../../translatepy/server/endpoints/api/language.py#L17)
+> [../../../../endpoints/api/language.py](../../../../endpoints/api/language.py#L17)
 
 ### Authentication
 
@@ -96,7 +96,7 @@ This represents a non implemented endpoint
 * /api/language/search
 ```
 
-> [../../../../translatepy/server/endpoints/api/language.py](../../../../translatepy/server/endpoints/api/language.py#L22)
+> [../../../../endpoints/api/language.py](../../../../endpoints/api/language.py#L22)
 
 ### Authentication
 
@@ -106,8 +106,8 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `query` | No description  | Yes            | str            |
 | `limit` | No description  | No            | int            |
+| `query` | No description  | Yes            | str            |
 
 ### Example
 
@@ -121,8 +121,8 @@ Login is **not** required
 
 ```bash
 curl -X * \
-    --data-urlencode "query=<>"\
-    --data-urlencode "limit=<>" \
+    --data-urlencode "limit=<>"\
+    --data-urlencode "query=<>" \
     "/api/language/search"
 ```
 

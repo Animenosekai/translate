@@ -106,8 +106,8 @@ Il n'est **pas** nécessaire d'être authentifié
 
 | Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `query` | Il n'y a pas de description  | Oui            | str            |
 | `limit` | Il n'y a pas de description  | Non            | int            |
+| `query` | Il n'y a pas de description  | Oui            | str            |
 
 ### Exemple
 
@@ -121,8 +121,8 @@ Il n'est **pas** nécessaire d'être authentifié
 
 ```bash
 curl -X * \
-    --data-urlencode "query=<>"\
-    --data-urlencode "limit=<>" \
+    --data-urlencode "limit=<>"\
+    --data-urlencode "query=<>" \
     "/api/language/search"
 ```
 

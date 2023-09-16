@@ -106,8 +106,8 @@ This represents a non implemented endpoint
 
 | 名前         | 詳細                      | 必要         | タイプ             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `query` | 詳細なし  | はい            | str            |
 | `limit` | 詳細なし  | いいえ            | int            |
+| `query` | 詳細なし  | はい            | str            |
 
 ### 例
 
@@ -121,8 +121,8 @@ This represents a non implemented endpoint
 
 ```bash
 curl -X * \
-    --data-urlencode "query=<>"\
-    --data-urlencode "limit=<>" \
+    --data-urlencode "limit=<>"\
+    --data-urlencode "query=<>" \
     "/api/language/search"
 ```
 
