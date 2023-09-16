@@ -9,3 +9,6 @@ app = Nasse("translatepy", NasseConfig(sanitize_user_input=False))
 TRANSLATEPY_ENDPOINT = Endpoint(base_dir=pathlib.Path(__file__).parent / "endpoints",
                                 login=Login(skip=True))
 """Base `translatepy` endpoint"""
+
+SERVER_DOCS_PATH = pathlib.Path(__file__).parent / "docs"
+"""The root path for the server offline docs"""

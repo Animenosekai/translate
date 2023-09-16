@@ -3,81 +3,169 @@ build.py
 
 Compiles everything down
 """
-from shutil import which
-from warnings import warn
-import platform
-import subprocess
 import argparse
-import translatepy
+import pathlib
+import shlex
+import shutil
 import subprocess
 import sys
+import typing
+
+import translatepy
+from translatepy import logger
 
 
-def subprocess_exec(command: list) -> tuple[str, int]:
+def subprocess_exec(command: typing.Union[str, typing.Iterable[str]], **kwargs) -> tuple[str, int]:
+    """Executes the given command list"""
+    if isinstance(command, str):
+        commands = shlex.split(command)
+    else:
+        commands = [str(com) for com in command]
     try:
-        process = subprocess.run(command, stdout=sys.stdout, stderr=sys.stderr)
+        logger.log(f"Executing: `{' '.join(commands)}`")
+        process = subprocess.run(commands, stdout=sys.stdout, stderr=sys.stderr, check=True, **kwargs)
         # stdout, stderr = process.communicate()
-        print(f'[{command!r} exited with {process.returncode}]')
-        print(f'[stdout]\n{process.stdout}')
-        print(f'[stderr]\n{process.stderr}')
+        logger.debug(f'[{command!r} exited with {process.returncode}]')
+        logger.debug(f'[stdout]\n{process.stdout}')
+        logger.debug(f'[stderr]\n{process.stderr}')
         assert process.returncode == 0
     except (subprocess.CalledProcessError, Exception) as ex:
-        raise ValueError("While executing process, unknown error occurred: {ex}, command: {cmd}".format(cmd=" ".join(command), ex=ex)) from ex
+        raise ValueError(f"While executing process, unknown error occurred: {ex}, command: {' '.join(command)}") from ex
     else:
         return process
 
 
-def is_tool_exist(name):
-    """Check whether `name` is on PATH and marked as executable."""
-    return which(name) is not None
-
-
 def test():
     """Tests translatepy"""
+    logger.log("Testing `translatepy`")
+    import pytest
+
+    code = pytest.main([
+        "-vvs",
+        "tests/"
+    ])
+    if code != 0:
+        raise ValueError("Tests failed for `translatepy`")
 
 
 def build_website():
     """Builds the website"""
+    logger.log("Building the website for `translatepy`")
+    runtime = shutil.which("bun") or shutil.which("npm") or shutil.which("yarn")
+    if not runtime:
+        logger.error("`bun`, `npm` or `yarn` is a website build dependency and doesn't seem to be installed on your system."
+                     "Please install it before proceeding with the build process.")
+        raise ModuleNotFoundError("Couldn't find `bun`, `npm` or `yarn`")
+
+    website_dir = pathlib.Path(__file__).parent / "website"
+    subprocess_exec([
+        runtime, "install"
+    ], cwd=website_dir)
+    subprocess_exec([
+        runtime, "run", "build"
+    ], cwd=website_dir)
 
 
 def build_docs():
-    """Builds the server documentation"""
+    """Builds the documentation"""
+    logger.log("Building documentation")
+    from nasse import localization as nasse_localization
+    from translatepy.server.server import SERVER_DOCS_PATH
+    from translatepy.server.endpoints.api import _, language
+
+    for language, localization in [(translatepy.ENGLISH, nasse_localization.EnglishLocalization),
+                                   (translatepy.Language("french"), nasse_localization.FrenchLocalization),
+                                   (translatepy.Language("japanese"), nasse_localization.JapaneseLocalization)]:
+
+        logger.debug(f"Building docs for `{language}`")
+
+        docs_path = pathlib.Path(__file__).parent / "docs" / str(language.id)
+        if docs_path.is_file():
+            docs_path.unlink(missing_ok=True)
+        docs_path.mkdir(parents=True, exist_ok=True)
+
+        try:
+            shutil.rmtree(docs_path / "server")
+        except NotADirectoryError:
+            try:
+                (docs_path / "server").unlink(missing_ok=True)
+            except Exception:
+                pass
+        except FileNotFoundError:
+            pass
+
+        translatepy.server.make_docs(docs_path / "server", localization=localization)
+
+    docs_path = pathlib.Path(__file__).parent / "docs"
+
+    logger.debug(f"Copying the main README to {docs_path / translatepy.ENGLISH.id / 'README.md'}")
+    shutil.copyfile(str(pathlib.Path(__file__).parent / "README.md"),
+                    str(docs_path / translatepy.ENGLISH.id / "README.md"))
+
+    logger.debug(f"Removing {SERVER_DOCS_PATH}")
+    shutil.rmtree(SERVER_DOCS_PATH)
+
+    logger.debug(f"Copying {docs_path} to {SERVER_DOCS_PATH}")
+    shutil.copytree(str(docs_path), SERVER_DOCS_PATH)
 
 
 def build_binary():
     """Builds the binaries for translatepy"""
-    if platform.system() == "Linux":
-        print("Checking for Nuitka")
-        if not is_tool_exist("nuitka3"):
-            raise ValueError("Please install Nuitka to build the binaries")
-            exit(1)
-        print("Building binaries for Linux")
-        linux_binary_build_cmd = [
-            "nuitka3", "--onefile", "--nofollow-import-to=pytest",
+    if sys.platform == "linux":
+        logger.log("Building binaries for Linux")
+        nuitka = shutil.which("nuitka3")
+        if not nuitka:
+            logger.error("`nuitka` is a build dependency and doesn't seem to be installed on your system."
+                         "Please install it before proceeding with the build process.")
+            raise ModuleNotFoundError("Couldn't find `nuitka`")
+        logger.debug("Building `translatepy`")
+        subprocess_exec([
+            nuitka, "--onefile", "--nofollow-import-to=pytest",
             "--include-data-dir=translatepy/data=translatepy/data",
             "--include-data-files=translatepy/cli/tui/app.css=translatepy/cli/tui/app.css",
             "--python-flag=isolated,nosite,-O",
             "--plugin-enable=anti-bloat,implicit-imports,data-files,pylint-warnings",
             "--warn-implicit-exceptions", "--warn-unusual-code", "--prefer-source-code",
             "--static-libpython=yes", "translatepy"
-        ]
-        subprocess_exec(linux_binary_build_cmd)
+        ])
+    elif sys.platform == "darwin":
+        logger.log("Building binaries for macOS")
+        nuitka = shutil.which("nuitka3")
+        if not nuitka:
+            logger.error("`nuitka` is a build dependency and doesn't seem to be installed on your system."
+                         "Please install it before proceeding with the build process.")
+            raise ModuleNotFoundError("Couldn't find `nuitka`")
+        logger.debug("Building `translatepy`")
+        subprocess_exec([
+            nuitka, "--onefile", "--nofollow-import-to=pytest",
+            "--include-data-dir=translatepy/data=translatepy/data",
+            "--include-data-files=translatepy/cli/tui/app.css=translatepy/cli/tui/app.css",
+            "--python-flag=isolated,nosite,-O",
+            "--plugin-enable=anti-bloat,implicit-imports,data-files,pylint-warnings",
+            "--warn-implicit-exceptions", "--warn-unusual-code", "--prefer-source-code",
+            "--static-libpython=yes", "translatepy"
+        ])
+    elif sys.platform == "win32":
+        # logger.log("Building binaries for Windows")
+        logger.error(f"We don't support building binaries for Windows yet.")
+        raise ValueError("System not suitable for building binaries")
     else:
-        warn("We don't support building binaries for Windows/MacOS yet")
+        logger.error(f"We don't support building binaries for {sys.platform} yet.")
+        raise ValueError("System not suitable for building binaries")
 
 
 def build():
     """Builds translatepy"""
+    logger.info("Built `translatepy`")
 
 
 def release():
     """Releases translatepy"""
+    logger.log("Releasing `translatepy`")
 
 
-def entry():
+def entry(parser: argparse.ArgumentParser, arguments: typing.Optional[typing.List[str]] = None):
     """The main entrypoint for translatepy's `build` CLI"""
-    parser = argparse.ArgumentParser("translatepy build", description="translatepy helper to build the library")
-    parser.add_argument("--version", "-v", action="version", version=translatepy.__version__)
     subparsers = parser.add_subparsers(dest="action", description="The action to perform", required=True)
 
     # Language management
@@ -155,7 +243,7 @@ def entry():
 
     prepare_release_parser(release_parser)
 
-    args = parser.parse_args()
+    args = parser.parse_args(arguments)
 
     # FLOW
     # Language Management
@@ -188,4 +276,9 @@ def entry():
 
 
 if __name__ == "__main__":
-    entry()
+    parser = argparse.ArgumentParser("translatepy build", description="translatepy helper to build the library")
+    parser.add_argument("--version", "-v", action="version", version=translatepy.__version__)
+    try:
+        entry(parser=parser)
+    except Exception:
+        logger.print_exception(show_locals=("--debug" in sys.argv or "-d" in sys.argv))

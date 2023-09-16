@@ -53,9 +53,9 @@ from translatepy.server.server import app as server
 
 # Logger
 logger = server.logger
-log = server.logger.log
-debug = server.logger.debug
-warn = server.logger.warn
+log = logger.log
+warn = logger.warn
+debug = logger.debug
 
 t = Translate()
 """A shared instance of `translatepy.Translate`"""

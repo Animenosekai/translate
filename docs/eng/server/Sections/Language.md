@@ -8,10 +8,10 @@ This file lists and explains the different endpoints available in the Language s
 This represents a non implemented endpoint
 
 ```http
-* /language/<string:language>
+* /api/language/<string:language>
 ```
 
-> [../../endpoints/language.py](../../endpoints/language.py#L17)
+> [../../../../translatepy/server/endpoints/api/language.py](../../../../translatepy/server/endpoints/api/language.py#L17)
 
 ### Authentication
 
@@ -34,7 +34,7 @@ Login is **not** required
 #### **cURL**
 
 ```bash
-curl -X * "/language/<string:language>"
+curl -X * "/api/language/<string:language>"
 ```
 
 </details>
@@ -46,16 +46,16 @@ curl -X * "/language/<string:language>"
 #### **JavaScript**
 
 ```javascript
-fetch("/language/<string:language>", {
+fetch("/api/language/<string:language>", {
     method: "*"
 })
 .then((response) => {response.json()})
 .then((response) => {
     if (response.success) {
-        console.info("Successfully requested for /language/<string:language>")
+        console.info("Successfully requested for /api/language/<string:language>")
         console.log(response.data)
     } else {
-        console.error("An error occured while requesting for /language/<string:language>, error: " + response.error)
+        console.error("An error occured while requesting for /api/language/<string:language>, error: " + response.error)
     }
 })
 ```
@@ -70,10 +70,10 @@ fetch("/language/<string:language>", {
 
 ```python
 import requests
-r = requests.request("*", "/language/<string:language>")
+r = requests.request("*", "/api/language/<string:language>")
 if r.status_code >= 400 or not r.json()["success"]:
-    raise ValueError("An error occured while requesting for /language/<string:language>, error: " + r.json()["error"])
-print("Successfully requested for /language/<string:language>")
+    raise ValueError("An error occured while requesting for /api/language/<string:language>, error: " + r.json()["error"])
+print("Successfully requested for /api/language/<string:language>")
 print(r.json()["data"])
 ```
 
@@ -84,8 +84,8 @@ print(r.json()["data"])
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # search
@@ -93,10 +93,10 @@ print(r.json()["data"])
 This represents a non implemented endpoint
 
 ```http
-* /language/search
+* /api/language/search
 ```
 
-> [../../endpoints/language.py](../../endpoints/language.py#L22)
+> [../../../../translatepy/server/endpoints/api/language.py](../../../../translatepy/server/endpoints/api/language.py#L22)
 
 ### Authentication
 
@@ -106,8 +106,8 @@ Login is **not** required
 
 | Name         | Description                      | Required         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `limit` | No description  | No            | int            |
 | `query` | No description  | Yes            | str            |
+| `limit` | No description  | No            | int            |
 
 ### Example
 
@@ -121,9 +121,9 @@ Login is **not** required
 
 ```bash
 curl -X * \
-    --data-urlencode "limit=<>"\
-    --data-urlencode "query=<>" \
-    "/language/search"
+    --data-urlencode "query=<>"\
+    --data-urlencode "limit=<>" \
+    "/api/language/search"
 ```
 
 </details>
@@ -135,16 +135,16 @@ curl -X * \
 #### **JavaScript**
 
 ```javascript
-fetch(`/language/search?query=${encodeURIComponent("query")}`, {
+fetch(`/api/language/search?query=${encodeURIComponent("query")}`, {
     method: "*"
 })
 .then((response) => {response.json()})
 .then((response) => {
     if (response.success) {
-        console.info("Successfully requested for /language/search")
+        console.info("Successfully requested for /api/language/search")
         console.log(response.data)
     } else {
-        console.error("An error occured while requesting for /language/search, error: " + response.error)
+        console.error("An error occured while requesting for /api/language/search, error: " + response.error)
     }
 })
 ```
@@ -159,13 +159,13 @@ fetch(`/language/search?query=${encodeURIComponent("query")}`, {
 
 ```python
 import requests
-r = requests.request("*", "/language/search",
+r = requests.request("*", "/api/language/search",
         params = {
             "query": "query"
         })
 if r.status_code >= 400 or not r.json()["success"]:
-    raise ValueError("An error occured while requesting for /language/search, error: " + r.json()["error"])
-print("Successfully requested for /language/search")
+    raise ValueError("An error occured while requesting for /api/language/search, error: " + r.json()["error"])
+print("Successfully requested for /api/language/search")
 print(r.json()["data"])
 ```
 
@@ -198,6 +198,6 @@ print(r.json()["data"])
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [Return to the Index](../Getting%20Started.md#index)
