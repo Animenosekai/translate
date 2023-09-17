@@ -22,7 +22,7 @@ const THROTTLE = 1000;
 
 export const MainResultLoader = (props) => {
     return <div className="w-1/3 mb-2 p-1 mx-1 min-w-[300px]">
-        <Card clickable shadow={false}>
+        <Card isPressable>
             <ContentLoader
                 speed={2}
                 height={70}

@@ -10,7 +10,7 @@ import { useState } from "react";
 
 export const SubResultLoader = (props) => {
     return <div className="w-1/3 mb-2 p-1 mx-1 min-w-[300px]">
-        <Card clickable shadow={false}>
+        <Card isPressable>
             <ContentLoader
                 speed={2}
                 height={70}
@@ -34,7 +34,7 @@ export const SubResult = ({ result, onCopyNotification, ...props }: {
     const [expanded, setExpanded] = useState<boolean>(false);
     const service = new Service(result.service)
     return <div className="w-1/4 p-1 mx-1 min-w-[300px]">
-        <Card clickable={result ? true : false} shadow={false} className={result ? "opacity-100" : "opacity-50"}>
+        <Card isPressable={result ? true : false} className={result ? "opacity-100" : "opacity-50"}>
             <span onClick={() => { setExpanded(expanded => !expanded) }} className={expanded ? "h-max" : "max-h-[7.5rem]"}>
                 {result ? result.translation : strings.labels.translationFailure}
             </span>

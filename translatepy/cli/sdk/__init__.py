@@ -35,6 +35,10 @@ def prepare_argparse(parser: argparse.ArgumentParser):
     imports_add_parser = imports_subparsers.add_parser("add", help="Adds a translator to the database")
     imports_remove_parser = imports_subparsers.add_parser("remove", help="Removes a translator from the database")
 
+    # `translatepy sdk init` creates a plugin directory
+    # `translatepy sdk new` creates a template translator file
+    # `translatepy sdk test` tests the given translator against translatepy's CI tests
+
 
 def entry(args: argparse.Namespace):
     """The main entrypoint for translatepy's `sdk` CLI"""

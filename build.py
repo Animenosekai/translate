@@ -11,6 +11,8 @@ import subprocess
 import sys
 import typing
 
+from rich.prompt import Confirm
+
 import translatepy
 from translatepy import logger
 
@@ -35,23 +37,23 @@ def subprocess_exec(command: typing.Union[str, typing.Iterable[str]], **kwargs) 
         return process
 
 
-def test():
+def test(verbose: bool = True, bypass: bool = False):
     """Tests translatepy"""
     logger.log("Testing `translatepy`")
     import pytest
 
-    code = pytest.main([
-        "-vvs",
-        "tests/"
-    ])
-    if code != 0:
+    args = ["-vvs"] if verbose else []
+    args.append("tests/")
+
+    code = pytest.main(args)
+    if code != 0 and not bypass:
         raise ValueError("Tests failed for `translatepy`")
 
 
-def build_website():
+def build_website(runtime: typing.Optional[str] = None):
     """Builds the website"""
     logger.log("Building the website for `translatepy`")
-    runtime = shutil.which("bun") or shutil.which("npm") or shutil.which("yarn")
+    runtime = runtime or shutil.which("bun") or shutil.which("npm") or shutil.which("yarn")
     if not runtime:
         logger.error("`bun`, `npm` or `yarn` is a website build dependency and doesn't seem to be installed on your system."
                      "Please install it before proceeding with the build process.")
@@ -104,7 +106,6 @@ def build_docs():
         # because `server.make_docs` produces different results following the
         # path given
         for path in [docs_path / str(language.id), SERVER_DOCS_PATH / str(language.id)]:
-            remove(path)
             path.mkdir(parents=True, exist_ok=True)
 
             remove(path / "server")
@@ -115,9 +116,10 @@ def build_docs():
                     str(docs_path / translatepy.ENGLISH.id / "README.md"))
 
 
-def build_binary():
+def build_binary(output: typing.Optional[str] = None, platform: typing.Optional[str] = None):
     """Builds the binaries for translatepy"""
-    if sys.platform == "linux":
+    platform = (platform or sys.platform).lower()
+    if platform == "linux":
         logger.log("Building binaries for Linux")
         nuitka = shutil.which("nuitka3")
         if not nuitka:
@@ -132,9 +134,9 @@ def build_binary():
             "--python-flag=isolated,nosite,-O",
             "--plugin-enable=anti-bloat,implicit-imports,data-files,pylint-warnings",
             "--warn-implicit-exceptions", "--warn-unusual-code", "--prefer-source-code",
-            "--static-libpython=yes", "translatepy"
+            "--static-libpython=yes", output or "translatepy"
         ])
-    elif sys.platform == "darwin":
+    elif platform == "darwin":
         logger.log("Building binaries for macOS")
         nuitka = shutil.which("nuitka3")
         if not nuitka:
@@ -149,37 +151,67 @@ def build_binary():
             "--python-flag=isolated,nosite,-O",
             "--plugin-enable=anti-bloat,implicit-imports,data-files,pylint-warnings",
             "--warn-implicit-exceptions", "--warn-unusual-code", "--prefer-source-code",
-            "--static-libpython=yes", "translatepy"
+            "--static-libpython=yes", output or "translatepy"
         ])
-    elif sys.platform == "win32":
+    elif platform == "win32":
         # logger.log("Building binaries for Windows")
         logger.error(f"We don't support building binaries for Windows yet.")
         raise ValueError("System not suitable for building binaries")
     else:
-        logger.error(f"We don't support building binaries for {sys.platform} yet.")
+        logger.error(f"We don't support building binaries for {platform} yet.")
         raise ValueError("System not suitable for building binaries")
 
 
 def build():
     """Builds translatepy"""
-    logger.info("`translatepy` post-build")
+    logger.info("Building `translatepy`")
+    poetry = shutil.which("poetry")
+    if not poetry:
+        logger.error("`poetry` is a build dependency and doesn't seem to be installed on your system."
+                     "Please install it before proceeding with the build process.")
+        raise ModuleNotFoundError("Couldn't find `poetry`")
+    subprocess_exec([
+        poetry, "export", "-f", "requirements.txt", "--output", "requirements.txt"
+    ])
+    subprocess_exec([
+        poetry, "install"
+    ])
+    subprocess_exec([
+        poetry, "build"
+    ])
 
 
-def release():
+def release(yes: bool = False):
     """Releases translatepy"""
     logger.log("Releasing `translatepy`")
+    poetry = shutil.which("poetry")
+    if not poetry:
+        logger.error("`poetry` is a build dependency and doesn't seem to be installed on your system."
+                     "Please install it before proceeding with the build process.")
+        raise ModuleNotFoundError("Couldn't find `poetry`")
+    if not yes:
+        confirmation = Confirm(f"Do you want to release `translatepy v{translatepy.__version__}` ?")
+        if not confirmation:
+            return
+    subprocess_exec([
+        poetry, "release"
+    ])
 
 
 def prepare_argparse(parser: argparse.ArgumentParser):
     """Prepares the given parser"""
+    parser.add_argument("--debug", "-d", action="store_true")
     subparsers = parser.add_subparsers(dest="dev_action", description="The action to perform", required=True)
 
     def prepare_test_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         """Prepares the test argument parser"""
+        parser.add_argument("--verbose-tests", "--verbose-pytest", "-vvs", action="store_true", help="To enable verbose logging from pytest (also enabled with --debug)")
+        parser.add_argument("--bypass-tests", action="store_true", help="To continue even when the tests fail")
         return parser
 
     def prepare_website_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         """Prepares the website builder argument parser"""
+        parser.add_argument("--website-runtime", action="store", help="The JavaScript runtime to use to build the website (npm, yarn, bun, etc.)", required=False)
         return parser
 
     def prepare_docs_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
@@ -188,14 +220,18 @@ def prepare_argparse(parser: argparse.ArgumentParser):
 
     def prepare_binary_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         """Prepares the binary builder argument parser"""
+        parser.add_argument("--binary-output", action="store", help="The output for the binary build", required=False)
+        parser.add_argument("--binary-platform", action="store", help="To overwrite the platform check when building binaries (linux, darwin, win32, etc.)", required=False)
         return parser
 
     def prepare_build_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         """Prepares the build argument parser"""
+        parser.add_argument("--skip-tests", action="store_true", help="Completely skips tests")
         return parser
 
     def prepare_release_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         """Prepares the release argument parser"""
+        parser.add_argument("--yes", "-y", action="store_true", help="To answer `yes` to the confirmation prompt")
         return parser
 
     test_parser = subparsers.add_parser("test", help=test.__doc__)
@@ -229,24 +265,27 @@ def prepare_argparse(parser: argparse.ArgumentParser):
 
 def entry(args: argparse.Namespace):
     """The main entrypoint for translatepy's `dev` CLI"""
+    logger.config.debug = args.debug
+
     # Library Management
     if args.dev_action in ("release", "build", "test"):
-        test()
+        if not (args.dev_action in ("release", "build") and args.skip_tests):
+            test(verbose=args.verbose_tests or args.debug, bypass=args.bypass_tests)
 
     if args.dev_action in ("release", "build", "website"):
-        build_website()
+        build_website(runtime=args.website_runtime)
 
     if args.dev_action in ("release", "build", "docs"):
         build_docs()
 
     if args.dev_action in ("release", "build", "binary"):
-        build_binary()
+        build_binary(output=args.binary_output, platform=args.binary_platform)
 
     if args.dev_action in ("release", "build"):
         build()
 
     if args.dev_action in ("release",):
-        release()
+        release(yes=args.yes)
 
 
 if __name__ == "__main__":
