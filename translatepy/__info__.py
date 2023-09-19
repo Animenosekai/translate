@@ -6,7 +6,7 @@ __author__ = 'Anime no Sekai'
 __maintainer__ = 'Anime no Sekai'
 __credits__ = ['animenosekai']
 __email__ = 'animenosekai.mail@gmail.com'
-__repository__ = "https://github.com/Animenosekai/translatepy"
+__repository__ = "https://github.com/Animenosekai/translate"
 
 # Module
 __module__ = "translatepy"

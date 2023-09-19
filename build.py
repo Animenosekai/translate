@@ -12,29 +12,49 @@ import sys
 import typing
 
 from rich.prompt import Confirm
+from rich.progress import Progress
 
 import translatepy
 from translatepy import logger
 
 
-def subprocess_exec(command: typing.Union[str, typing.Iterable[str]], **kwargs) -> tuple[str, int]:
+def subprocess_exec(command: typing.Union[str, typing.Iterable[str]],
+                    required: bool = True,
+                    steps: typing.Optional[typing.List[str]] = None, **kwargs) -> subprocess.Popen:
     """Executes the given command list"""
+    steps = steps or []
     if isinstance(command, str):
         commands = shlex.split(command)
     else:
         commands = [str(com) for com in command]
     try:
-        logger.log(f"Executing: `{' '.join(commands)}`")
-        process = subprocess.run(commands, stdout=sys.stdout, stderr=sys.stderr, check=True, **kwargs)
-        # stdout, stderr = process.communicate()
-        logger.debug(f'[{command!r} exited with {process.returncode}]')
-        logger.debug(f'[stdout]\n{process.stdout}')
-        logger.debug(f'[stderr]\n{process.stderr}')
-        assert process.returncode == 0
+        with Progress(console=logger._rich_console, transient=True) as progress:
+            main_task = progress.add_task(f"Executing: `{' '.join(commands)}`", total=len(steps) if steps else None)
+
+            def advances(line: bytes) -> bool:
+                for step in steps.copy():
+                    if step in line:
+                        steps.remove(step)
+                        return True
+                return False
+
+            logger.log(f"Executing: `{' '.join(commands)}`")
+            with subprocess.Popen(commands, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, **kwargs) as proc:
+                for line in proc.stdout:
+                    if isinstance(line, bytes):
+                        line = line.decode()
+                    if advances(line):
+                        progress.advance(main_task)
+                    progress.console.print(line, end="")
+            # process = subprocess.run(commands, stdout=sys.stdout, stderr=sys.stderr, check=True, **kwargs)
+            progress.console.print(f'[{commands!r} exited with {proc.returncode}]')
+            if required and proc.returncode:
+                logger.debug("")
+                raise RuntimeError(f"An error occured while running `{' '.join(command)}`")
     except (subprocess.CalledProcessError, Exception) as ex:
-        raise ValueError(f"While executing process, unknown error occurred: {ex}, command: {' '.join(command)}") from ex
+        raise ValueError(f"While executing a process, an unknown error occurred: {ex}, command: {' '.join(command)}") from ex
     else:
-        return process
+        return proc
 
 
 def test(verbose: bool = True, bypass: bool = False):
@@ -63,9 +83,17 @@ def build_website(runtime: typing.Optional[str] = None):
     subprocess_exec([
         runtime, "install"
     ], cwd=website_dir)
-    subprocess_exec([
-        runtime, "run", "build"
-    ], cwd=website_dir)
+    subprocess_exec(
+        [runtime, "run", "build"],
+        steps=[
+            "Creating an optimized production build",
+            "Compiled successfully",
+            "Collecting page data",
+            "inalizing page optimization",
+            "automatically rendered as static HTML"
+        ],
+        cwd=website_dir
+    )
 
 
 def build_docs():

@@ -4,10 +4,36 @@ SDK
 translatepy's Software Development Kit
 """
 import argparse
+import pathlib
 import sys
+import typing
+import webbrowser
 
 import translatepy
 from translatepy import logger
+from translatepy.cli.sdk import language, imports
+from translatepy.__info__ import __repository__
+
+
+def init(output: typing.Optional[pathlib.Path] = None):
+    """Creates a new plugin directory"""
+
+
+def new(output: typing.Optional[pathlib.Path] = None):
+    """Creates a template translator file"""
+
+
+def test():
+    """Tests the given translator against translatepy's test suite"""
+
+
+def feedback():
+    """Opens the issues tracker page for the `translatepy` repository"""
+    webbrowser.open(f"{__repository__}/issues")
+
+
+def debug():
+    """Displays a bunch of debug information to help diagnose problems"""
 
 
 def prepare_argparse(parser: argparse.ArgumentParser):
@@ -16,28 +42,26 @@ def prepare_argparse(parser: argparse.ArgumentParser):
 
     # Language management
     language_parser = subparsers.add_parser("language", help="Manages languages in translatepy")
-    language_subparsers = language_parser.add_subparsers(dest="language_action", description="the language action to perform", required=True)
-
-    language_add_parser = language_subparsers.add_parser("add", help="Adds a language from the database")
-    language_set_parser = language_subparsers.add_parser("set", help="Sets a language data")
-    language_check_parser = language_subparsers.add_parser("check", help="Checks the databases")
-    language_remove_parser = language_subparsers.add_parser("remove", help="Removes a language from the database")
-
-    language_add_subparsers = language_add_parser.add_subparsers(dest="language_add_subparser", help="To add language data", required=True)
-    langauge_add_code_parser = language_add_subparsers.add_parser("code")
-    langauge_add_data_parser = language_add_subparsers.add_parser("data")
-    langauge_add_vector_parser = language_add_subparsers.add_parser("vector")
+    language.prepare_argparse(language_parser)
 
     # Imports management
     imports_parser = subparsers.add_parser("imports", help="Manages dynamic imports in translatepy")
-    imports_subparsers = imports_parser.add_subparsers(dest="imports_action", description="the dynamic imports database action to perform", required=True)
-
-    imports_add_parser = imports_subparsers.add_parser("add", help="Adds a translator to the database")
-    imports_remove_parser = imports_subparsers.add_parser("remove", help="Removes a translator from the database")
+    imports.prepare_argparse(imports_parser)
 
     # `translatepy sdk init` creates a plugin directory
+    init_parser = subparsers.add_parser("init", help=init.__doc__)
+
     # `translatepy sdk new` creates a template translator file
+    new_parser = subparsers.add_parser("new", help=new.__doc__)
+
     # `translatepy sdk test` tests the given translator against translatepy's CI tests
+    test_parser = subparsers.add_parser("test", help=test.__doc__)
+
+    # `translatepy sdk feedback` opens the issues page for the repository
+    feedback_parser = subparsers.add_parser("feedback", help=feedback.__doc__)
+
+    # `translatepy sdk debug` displays a bunch of debug information to help diagnose problems
+    debug_parser = subparsers.add_parser("debug", help=debug.__doc__)
 
 
 def entry(args: argparse.Namespace):
@@ -45,11 +69,26 @@ def entry(args: argparse.Namespace):
     # FLOW
     # Language Management
     if args.sdk_action in ("language",):
-        pass
+        language.entry(args)
 
     # Dynamic Imports Management
     if args.sdk_action in ("imports",):
-        pass
+        imports.entry(args)
+
+    if args.sdk_action in ("init",):
+        init()
+
+    if args.sdk_action in ("new",):
+        new()
+
+    if args.sdk_action in ("test",):
+        test()
+
+    if args.sdk_action in ("feedback",):
+        feedback()
+
+    if args.sdk_action in ("debug",):
+        debug()
 
 
 if __name__ == "__main__":

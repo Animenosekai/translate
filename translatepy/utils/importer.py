@@ -41,6 +41,18 @@ def translator_from_name(name: str) -> typing.Type[BaseTranslator]:
         raise ValueError(f"Couldn't get the translator {name}") from err
 
 
+def get_translator_from_path(path: str, forceload: bool = False) -> typing.Type[BaseTranslator]:
+    result = pydoc.locate(path, forceload=forceload)
+    try:
+        if not issubclass(result, BaseTranslator):
+            raise ImportError
+    except TypeError:
+        if not isinstance(result, BaseTranslator):
+            raise ImportError
+        result = result.__class__
+    return result
+
+
 def get_translator(query: str,
                    threshold: float = 90,
                    forceload: bool = False) -> typing.Type[BaseTranslator]:
@@ -55,15 +67,7 @@ def get_translator(query: str,
         return cache_result
 
     try:
-        result = pydoc.locate(query, forceload=forceload)
-        try:
-            if not issubclass(result, BaseTranslator):
-                raise ImportError
-        except TypeError:
-            if not isinstance(result, BaseTranslator):
-                raise ImportError
-            result = result.__class__
-        return result
+        get_translator_from_path(query, forceload=forceload)
     except ImportError:  # this also catches ErrorDuringImport
         pass
 
