@@ -3,9 +3,9 @@ Handles the languages management on `translatepy`
 """
 
 import copy
+import os
 import pathlib
 import typing
-import os
 
 import cain
 from nasse.utils.boolean import to_bool
@@ -15,6 +15,7 @@ from translatepy.utils import lru, vectorize
 
 # Type alias
 Number = typing.Union[int, float]
+"""Represents a number"""
 
 
 class LanguageExtra(cain.Object):
@@ -354,15 +355,18 @@ class LanguageData(typing.TypedDict):
     vectors: typing.List[vectorize.Vector]
 
 
-# Loading
+# Load the data in memory
 LANGUAGE_DATA_DIR = pathlib.Path(__file__).parent / "data" / "languages"
+"""The directory where all of the data is stored"""
 
-DATA = LanguageData({})
+DATA = LanguageData({})  # type: ignore (will be filled later)
+"""The languages in-memory data"""
 
 with open(LANGUAGE_DATA_DIR / "codes.cain", "b+r") as f:
     DATA["codes"] = {key: value for key, value in cain.load(f, typing.List[typing.Tuple[str, str]])}
 
-TRANSLATEPY_LANGUAGE_FULL = to_bool(os.environ.get("TRANSLATEPY_LANGUAGE_FULL"))
+TRANSLATEPY_LANGUAGE_FULL = to_bool(os.environ.get("TRANSLATEPY_LANGUAGE_FULL")) and (LANGUAGE_DATA_DIR / "data_full.cain").is_file()
+"""If the full vectors database got loaded at runtime"""
 
 with open(LANGUAGE_DATA_DIR / ("data_full.cain" if TRANSLATEPY_LANGUAGE_FULL
                                else "data.cain"), "b+r") as f:
@@ -370,3 +374,93 @@ with open(LANGUAGE_DATA_DIR / ("data_full.cain" if TRANSLATEPY_LANGUAGE_FULL
 
 with open(LANGUAGE_DATA_DIR / "vectors.cain", "b+r") as f:
     DATA["vectors"] = cain.load(f, typing.List[vectorize.Vector])
+
+# Defining common languages
+COMMON_LANGUAGES = [
+    Language("eng"),
+    Language("sqi"),
+    Language("twi"),
+    Language("ara"),
+    Language("hye"),
+    Language("aze"),
+    Language("eus"),
+    Language("bel"),
+    Language("dzo"),
+    Language("bos"),
+    Language("bul"),
+    Language("mya"),
+    Language("cat"),
+    Language("zho"),
+    Language("hrv"),
+    Language("ces"),
+    Language("dan"),
+    Language("nld"),
+    Language("fao"),
+    Language("fin"),
+    Language("fra"),
+    Language("glg"),
+    Language("kat"),
+    Language("deu"),
+    Language("guj"),
+    Language("slv"),
+    Language("heb"),
+    Language("hin"),
+    Language("hun"),
+    Language("isl"),
+    Language("ind"),
+    Language("gle"),
+    Language("ita"),
+    Language("jpn"),
+    Language("jav"),
+    Language("kan"),
+    Language("kaz"),
+    Language("khm"),
+    Language("kir"),
+    Language("kor"),
+    Language("lao"),
+    Language("lat"),
+    Language("lav"),
+    Language("lit"),
+    Language("ltz"),
+    Language("mkd"),
+    Language("mlg"),
+    Language("msa"),
+    Language("mlt"),
+    Language("mri"),
+    Language("mar"),
+    Language("ell"),
+    Language("mon"),
+    Language("nep"),
+    Language("nor"),
+    Language("pan"),
+    Language("fas"),
+    Language("pol"),
+    Language("por"),
+    Language("ron"),
+    Language("rus"),
+    Language("gla"),
+    Language("srp"),
+    Language("sin"),
+    Language("slk"),
+    Language("slv"),
+    Language("spa"),
+    Language("sun"),
+    Language("swa"),
+    Language("swe"),
+    Language("tgl"),
+    Language("tgk"),
+    Language("tsn"),
+    Language("tel"),
+    Language("tha"),
+    Language("tur"),
+    Language("ukr"),
+    Language("urd"),
+    Language("uzb"),
+    Language("vie"),
+    Language("cym"),
+    Language("xho"),
+    Language("yid"),
+    Language("zul"),
+    Language("epo")
+]
+"""All of the available foreign languages for the `foreign` field on the `Language` class and English"""

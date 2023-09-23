@@ -9,10 +9,12 @@ import sys
 import typing
 
 import cain
+from rich.progress import Progress
 
 import translatepy
 from translatepy import logger
 from translatepy.__info__ import __repository__
+from translatepy.language import COMMON_LANGUAGES
 from translatepy.utils import importer, vectorize
 
 
@@ -25,13 +27,21 @@ def add(name: str, path: str, translate: bool = False, forceload: bool = False):
 
     names = [name]
     if translate:
-        logger.debug(f"Translating `{name}`")
-        for lang in []:
-            try:
-                result = translatepy.translate(name, lang)
-                names.append(result.translation)
-            except Exception:
-                pass
+        logger.info(f"Translating `{name}`")
+        with Progress(console=logger._rich_console, transient=True) as progress:
+            main_task = progress.add_task(f"Translating `{name}`", total=len(COMMON_LANGUAGES))
+            for lang in COMMON_LANGUAGES:
+                progress.update(main_task, description=f"Translating `{name}` to `{lang}`")
+                try:
+                    logger.debug(f"Translating `{name}` in `{lang}`")
+                    result = translatepy.translate(name, lang)
+                    names.append(result.translation)
+                    logger.debug(f"Translation result: {result}")
+                except Exception as err:
+                    logger.warn(f"An error occured while translating `{name}` to `{lang}`")
+                    logger.warn(err)
+
+                progress.advance(main_task)
 
     logger.debug("Vectorizing the new names")
     for name in names:
@@ -39,7 +49,7 @@ def add(name: str, path: str, translate: bool = False, forceload: bool = False):
             vectorize.vectorize(path, name)
         )
 
-    logger.debug("Dumping the vectors to the translators DB")
+    logger.info("Dumping the vectors to the translators DB")
     with (importer.IMPORTER_DATA_FILE).open("wb") as f:
         cain.dump(importer.IMPORTER_VECTORS, f, typing.List[vectorize.Vector])
 
