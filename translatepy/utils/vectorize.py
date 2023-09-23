@@ -33,6 +33,7 @@ class Vector(cain.Object):
         """Returns a set for the vector"""
         return set(self.string)
 
+A = list[Vector]
 
 def vectorize(id: str, string: str):
     """Vectorizes the given string"""

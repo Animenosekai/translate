@@ -18,7 +18,8 @@ from translatepy.utils import lru, vectorize
 IMPORTER_CACHE = lru.LRUDictCache(512)
 
 IMPORTER_DATA_DIR = pathlib.Path(__file__).parent.parent / "data" / "translators"
-with open(IMPORTER_DATA_DIR / "vectors.cain", "b+r") as f:
+IMPORTER_DATA_FILE = IMPORTER_DATA_DIR / "vectors.cain"
+with open(IMPORTER_DATA_FILE, "b+r") as f:
     IMPORTER_VECTORS = cain.load(f, typing.List[vectorize.Vector])
 
 
@@ -41,14 +42,15 @@ def translator_from_name(name: str) -> typing.Type[BaseTranslator]:
         raise ValueError(f"Couldn't get the translator {name}") from err
 
 
-def get_translator_from_path(path: str, forceload: bool = False) -> typing.Type[BaseTranslator]:
+def translator_from_path(path: str, forceload: bool = False) -> typing.Type[BaseTranslator]:
+    """Returns a translator from its dot path"""
     result = pydoc.locate(path, forceload=forceload)
     try:
         if not issubclass(result, BaseTranslator):
-            raise ImportError
+            raise ImportError(f"Couldn't import translator `{path}`")
     except TypeError:
         if not isinstance(result, BaseTranslator):
-            raise ImportError
+            raise ImportError(f"Couldn't import translator `{path}`")
         result = result.__class__
     return result
 
@@ -67,7 +69,7 @@ def get_translator(query: str,
         return cache_result
 
     try:
-        get_translator_from_path(query, forceload=forceload)
+        translator_from_path(query, forceload=forceload)
     except ImportError:  # this also catches ErrorDuringImport
         pass
 

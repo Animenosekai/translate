@@ -179,7 +179,8 @@ def build_binary(output: typing.Optional[str] = None, platform: typing.Optional[
             "--python-flag=isolated,nosite,-O",
             "--plugin-enable=anti-bloat,implicit-imports,data-files,pylint-warnings",
             "--warn-implicit-exceptions", "--warn-unusual-code", "--prefer-source-code",
-            "--static-libpython=yes", output or "translatepy"
+            # "--static-libpython=yes",
+            output or "translatepy"
         ])
     elif platform == "win32":
         # logger.log("Building binaries for Windows")

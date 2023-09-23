@@ -4,46 +4,61 @@ Imports SDK
 translatepy's Imports Software Development Kit
 """
 import argparse
+import json
 import sys
 import typing
-import dataclasses
-import json
 
 import cain
 
 import translatepy
 from translatepy import logger
 from translatepy.__info__ import __repository__
-from translatepy.utils import vectorize, importer
+from translatepy.utils import importer, vectorize
 
 
 def add(name: str, path: str, translate: bool = False, forceload: bool = False):
     """Adds a translator to the database"""
     name = str(name)
 
-    importer.get_translator_from_path(path, forceload=forceload)
+    # Verify that the path exists
+    importer.translator_from_path(path, forceload=forceload)
 
     names = [name]
     if translate:
+        logger.debug(f"Translating `{name}`")
         for lang in []:
             try:
                 result = translatepy.translate(name, lang)
                 names.append(result.translation)
             except Exception:
                 pass
+
+    logger.debug("Vectorizing the new names")
     for name in names:
         importer.IMPORTER_VECTORS.append(
             vectorize.vectorize(path, name)
         )
-    with (importer.IMPORTER_DATA_DIR / "translators").open("wb") as f:
+
+    logger.debug("Dumping the vectors to the translators DB")
+    with (importer.IMPORTER_DATA_FILE).open("wb") as f:
         cain.dump(importer.IMPORTER_VECTORS, f, typing.List[vectorize.Vector])
 
 
-def remove(name: str):
-    """Removes a translator from the database"""
-    vectors = [vector for vector in importer.IMPORTER_VECTORS if vector.string != name]
-    with (importer.IMPORTER_DATA_DIR / "translators").open("wb") as f:
+def remove(name: str, all: bool = False):
+    """Removes a translator name variant from the database"""
+    if all:
+        vectors = [vector for vector in importer.IMPORTER_VECTORS if vector.id != name]
+    else:
+        name = vectorize.string_preprocessing(name)
+        vectors = [vector for vector in importer.IMPORTER_VECTORS if vector.string != name]
+    with (importer.IMPORTER_DATA_FILE).open("wb") as f:
         cain.dump(vectors, f, typing.List[vectorize.Vector])
+
+
+def variants(translator: str):
+    """Returns all of the name variants available in the database for the given translator ID"""
+    vectors = [vector for vector in importer.IMPORTER_VECTORS if vector.id == translator]
+    print(json.dumps([vector.string for vector in vectors], ensure_ascii=False, indent=4))
 
 
 def search(query: str, limit: int = 10):
@@ -71,7 +86,11 @@ def prepare_argparse(parser: argparse.ArgumentParser):
     imports_add_parser.add_argument("--forceload", action="store_true", help="Enables pydoc's `forceload` while searching for the translator")
 
     imports_remove_parser = imports_subparsers.add_parser("remove", help=remove.__doc__)
-    imports_remove_parser.add_argument("name", help="The translator name")
+    imports_remove_parser.add_argument("name", help="The translator name variant or id if `--all` is set")
+    imports_remove_parser.add_argument("--all", action="store_true", help="Treats `name` as the translator ID and removes every variants associated with the translator.")
+
+    imports_remove_parser = imports_subparsers.add_parser("variants", help=variants.__doc__)
+    imports_remove_parser.add_argument("id", help="The translator ID")
 
     imports_search_parser = imports_subparsers.add_parser("search", help=search.__doc__)
     imports_search_parser.add_argument("query", help="The search query")
@@ -88,7 +107,10 @@ def entry(args: argparse.Namespace):
         add(name=args.name, path=args.path, translate=args.translate, forceload=args.forceload)
 
     if args.imports_action in ("remove",):
-        remove(name=args.name)
+        remove(name=args.name, all=args.all)
+
+    if args.imports_action in ("variants",):
+        variants(translator=args.id)
 
     if args.imports_action in ("search",):
         search(query=args.query, limit=args.limit)
