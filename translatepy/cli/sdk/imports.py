@@ -9,7 +9,7 @@ import typing
 
 import cain
 from nasse.exceptions import NasseException
-from nasse.utils.json import NasseJSONEncoder, encoder, minified_encoder
+from nasse.utils.json import encoder, minified_encoder
 from rich.progress import Progress
 
 import translatepy
@@ -39,7 +39,7 @@ def json_encode(args: argparse.Namespace, work: typing.Callable, **kwargs):
             "code": -1
         }
     try:
-        work(json_encoder=json_encoder, **kwargs)
+        print(json_encoder.encode(work(**kwargs)))
         return 0
     except Exception as err:
         error_data = prepare_error(err)
@@ -94,25 +94,23 @@ def remove(name: str, all: bool = False):
         cain.dump(vectors, f, typing.List[vectorize.Vector])
 
 
-def variants(json_encoder: NasseJSONEncoder, translator: str):
+def variants(translator: str):
     """Returns all of the name variants available in the database for the given translator ID"""
     vectors = [vector for vector in importer.IMPORTER_VECTORS if vector.id == translator]
-    print(json_encoder.encode([vector.string for vector in vectors]))
+    return [vector.string for vector in vectors]
 
 
-def search(json_encoder: NasseJSONEncoder, query: str, limit: int = 10):
+def search(query: str, limit: int = 10):
     """Searches for the given `query` in the database"""
     results = sorted(vectorize.search(query, importer.IMPORTER_VECTORS), key=lambda element: element.similarity, reverse=True)
-    print(json_encoder.encode(results[:limit]))
-    # print(json.dumps([{
-    #     "similarity": vector.similarity,
-    #     "vector": vector.vector._cain_value
-    # } for vector in results[:limit]], ensure_ascii=False, indent=4))
+    if limit >= 0:
+        return results[:limit]
+    return results
 
 
-def available(json_encoder: NasseJSONEncoder):
+def available():
     """Displays the available translators"""
-    print(json_encoder.encode(set(vector.id for vector in importer.IMPORTER_VECTORS)))
+    return set(vector.id for vector in importer.IMPORTER_VECTORS)
 
 
 def prepare_argparse(parser: argparse.ArgumentParser):

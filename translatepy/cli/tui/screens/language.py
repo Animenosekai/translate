@@ -78,4 +78,4 @@ class LanguageSelection(ModalScreen):
     def current_language(self) -> Language:
         """The selected language"""
         inp = self.query_one("#language-input", Input).value
-        return Language(inp, threhsold=-1)
+        return Language(inp, threshold=-1)

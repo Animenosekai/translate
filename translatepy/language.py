@@ -209,6 +209,7 @@ class Foreign(cain.Object):
 
 
 LANGUAGE_CACHE = lru.LRUDictCache(512)
+NULLABLE_ATTRIBUTES = ("alpha2", "alpha3b", "alpha3t", "extra", "foreign")
 
 
 class Language(cain.Object):
@@ -231,7 +232,7 @@ class Language(cain.Object):
     foreign: typing.Optional[Foreign]
     """Name in foreign languages, if available"""
 
-    def __init__(self, language: typing.Union[str, "Language", typing.Dict], threhsold: int = 93) -> None:
+    def __init__(self, language: typing.Union[str, "Language", typing.Dict], threshold: int = 93) -> None:
         if isinstance(language, typing.Dict):
             super().__init__(language)
         elif isinstance(language, Language):
@@ -246,7 +247,7 @@ class Language(cain.Object):
                 raise exceptions.UnknownLanguage("N/A", 0,
                                                  "Couldn't find any corresponding language")
             result = results[0]
-            if result.similarity < threhsold:
+            if result.similarity < threshold:
                 raising_message = f"Couldn't recognize the given translator ({language})\nDid you mean: {result.vector.string} (Similarity: {round(result.similarity, 2)}%)?"
                 raise exceptions.UnknownLanguage(result, result.similarity, raising_message)
 
@@ -259,7 +260,7 @@ class Language(cain.Object):
                     "alpha3": result.vector.id,
                     "name": result.vector.string
                 }
-                for attr in ("alpha2", "alpha3b", "alpha3t", "extra", "foreign"):
+                for attr in NULLABLE_ATTRIBUTES:
                     self._cain_value[attr] = None
                 self._rich = False
             self._similarity = result.similarity
@@ -367,11 +368,22 @@ with open(LANGUAGE_DATA_DIR / "codes.cain", "b+r") as f:
 
 TRANSLATEPY_LANGUAGE_FULL = (to_bool(os.environ.get("TRANSLATEPY_LANGUAGE_FULL"))
                              and (LANGUAGE_DATA_DIR / "data_full.cain").is_file())
-"""If the full vectors database got loaded at runtime"""
+"""If the full language data database got loaded at runtime"""
 
 with open(LANGUAGE_DATA_DIR / ("data_full.cain" if TRANSLATEPY_LANGUAGE_FULL
                                else "data.cain"), "b+r") as f:
     DATA["data"] = {value.id: value for value in cain.load(f, typing.List[Language])}
+
+
+def load_full():
+    """Loads the full data languages DB"""
+    global TRANSLATEPY_LANGUAGE_FULL
+    if TRANSLATEPY_LANGUAGE_FULL:
+        return
+    with open(LANGUAGE_DATA_DIR / "data_full.cain", "b+r") as f:
+        DATA["data"] = {value.id: value for value in cain.load(f, typing.List[Language])}
+    TRANSLATEPY_LANGUAGE_FULL = True
+
 
 with open(LANGUAGE_DATA_DIR / "vectors.cain", "b+r") as f:
     DATA["vectors"] = cain.load(f, typing.List[vectorize.Vector])

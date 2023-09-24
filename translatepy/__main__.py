@@ -12,6 +12,8 @@ from nasse.utils.formatter import format as nasse_format
 from nasse.utils.json import encoder, minified_encoder
 
 import translatepy
+from translatepy.utils.importer import get_translator
+from translatepy.language import load_full
 from translatepy.cli import sdk, shell, tui
 from translatepy.exceptions import UnknownLanguage
 
@@ -64,7 +66,8 @@ def entry():
                                      formatter_class=TranslatepyHelpFormatter)
 
     parser.add_argument('--version', '-v', action='version', version=translatepy.__version__)
-    parser.add_argument("--translators", action="store", type=str, help="List of translators to use. Each translator name should be comma-separated.", required=False, default=None)
+    parser.add_argument("--translators", help="List of translators to use", nargs="*")
+    parser.add_argument("--full", action="store_true", help="To load the full language data range. You can also use the `TRANSLATEPY_LANGUAGE_FULL` environment variable.")
 
     subparser = parser.add_subparsers(help='Actions', dest="action", required=False)
     parser_tui = subparser.add_parser("tui", help="A nice TUI to use translatepy interactively")
@@ -131,11 +134,14 @@ def entry():
 
     args = parser.parse_args()
 
+    if args.full:
+        load_full()
+
     if args.action == "sdk":
         sdk.entry(args=args)
 
     if args.translators:
-        service = translatepy.Translator(args.translators.split(","))
+        service = translatepy.Translator([get_translator(translator) for translator in args.translators])
     else:
         service = translatepy.Translator()
 
