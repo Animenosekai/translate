@@ -365,7 +365,8 @@ DATA = LanguageData({})  # type: ignore (will be filled later)
 with open(LANGUAGE_DATA_DIR / "codes.cain", "b+r") as f:
     DATA["codes"] = {key: value for key, value in cain.load(f, typing.List[typing.Tuple[str, str]])}
 
-TRANSLATEPY_LANGUAGE_FULL = to_bool(os.environ.get("TRANSLATEPY_LANGUAGE_FULL")) and (LANGUAGE_DATA_DIR / "data_full.cain").is_file()
+TRANSLATEPY_LANGUAGE_FULL = (to_bool(os.environ.get("TRANSLATEPY_LANGUAGE_FULL"))
+                             and (LANGUAGE_DATA_DIR / "data_full.cain").is_file())
 """If the full vectors database got loaded at runtime"""
 
 with open(LANGUAGE_DATA_DIR / ("data_full.cain" if TRANSLATEPY_LANGUAGE_FULL

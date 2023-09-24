@@ -4,11 +4,12 @@ Imports SDK
 translatepy's Imports Software Development Kit
 """
 import argparse
-import json
 import sys
 import typing
 
 import cain
+from nasse.exceptions import NasseException
+from nasse.utils.json import NasseJSONEncoder, encoder, minified_encoder
 from rich.progress import Progress
 
 import translatepy
@@ -16,6 +17,34 @@ from translatepy import logger
 from translatepy.__info__ import __repository__
 from translatepy.language import COMMON_LANGUAGES
 from translatepy.utils import importer, vectorize
+
+
+def json_encode(args: argparse.Namespace, work: typing.Callable, **kwargs):
+    """Enforces the JSON encoding"""
+    json_encoder = minified_encoder if args.minified else encoder
+
+    def prepare_error(err: Exception) -> dict:
+        """Prepare an error to return to the user"""
+        if isinstance(err, NasseException):
+            return {
+                "success": False,
+                "exception": err.EXCEPTION_NAME,
+                "message": err.MESSAGE,
+                "code": err.STATUS_CODE
+            }
+        return {
+            "success": False,
+            "exception": err.__class__.__name__,
+            "message": str(err),
+            "code": -1
+        }
+    try:
+        work(json_encoder=json_encoder, **kwargs)
+        return 0
+    except Exception as err:
+        error_data = prepare_error(err)
+        print(json_encoder.encode(error_data))
+        return error_data["code"]
 
 
 def add(name: str, path: str, translate: bool = False, forceload: bool = False):
@@ -65,29 +94,33 @@ def remove(name: str, all: bool = False):
         cain.dump(vectors, f, typing.List[vectorize.Vector])
 
 
-def variants(translator: str):
+def variants(json_encoder: NasseJSONEncoder, translator: str):
     """Returns all of the name variants available in the database for the given translator ID"""
     vectors = [vector for vector in importer.IMPORTER_VECTORS if vector.id == translator]
-    print(json.dumps([vector.string for vector in vectors], ensure_ascii=False, indent=4))
+    print(json_encoder.encode([vector.string for vector in vectors]))
 
 
-def search(query: str, limit: int = 10):
+def search(json_encoder: NasseJSONEncoder, query: str, limit: int = 10):
     """Searches for the given `query` in the database"""
     results = sorted(vectorize.search(query, importer.IMPORTER_VECTORS), key=lambda element: element.similarity, reverse=True)
-    print(json.dumps([{
-        "similarity": vector.similarity,
-        "vector": vector.vector._cain_value
-    } for vector in results[:limit]], ensure_ascii=False, indent=4))
+    print(json_encoder.encode(results[:limit]))
+    # print(json.dumps([{
+    #     "similarity": vector.similarity,
+    #     "vector": vector.vector._cain_value
+    # } for vector in results[:limit]], ensure_ascii=False, indent=4))
 
 
-def available():
+def available(json_encoder: NasseJSONEncoder):
     """Displays the available translators"""
-    print(json.dumps(list(set(vector.id for vector in importer.IMPORTER_VECTORS)), ensure_ascii=False, indent=4))
+    print(json_encoder.encode(set(vector.id for vector in importer.IMPORTER_VECTORS)))
 
 
 def prepare_argparse(parser: argparse.ArgumentParser):
     """Prepares the given parser"""
     imports_subparsers = parser.add_subparsers(dest="imports_action", description="the dynamic imports database action to perform", required=True)
+
+    def prepare_json_parser(parser: argparse.ArgumentParser):
+        parser.add_argument("--minified", "--mini", action="store_true", help="To minify the resulting JSON")
 
     imports_add_parser = imports_subparsers.add_parser("add", help=add.__doc__)
     imports_add_parser.add_argument("name", help="The translator name")
@@ -97,16 +130,19 @@ def prepare_argparse(parser: argparse.ArgumentParser):
 
     imports_remove_parser = imports_subparsers.add_parser("remove", help=remove.__doc__)
     imports_remove_parser.add_argument("name", help="The translator name variant or id if `--all` is set")
-    imports_remove_parser.add_argument("--all", action="store_true", help="Treats `name` as the translator ID and removes every variants associated with the translator.")
+    imports_remove_parser.add_argument("--all", action="store_true", help="Treats `name` as the translator ID and removes every variants associated with the translator")
 
-    imports_remove_parser = imports_subparsers.add_parser("variants", help=variants.__doc__)
-    imports_remove_parser.add_argument("id", help="The translator ID")
+    imports_variants_parser = imports_subparsers.add_parser("variants", help=variants.__doc__)
+    prepare_json_parser(imports_variants_parser)
+    imports_variants_parser.add_argument("id", help="The translator ID")
 
     imports_search_parser = imports_subparsers.add_parser("search", help=search.__doc__)
+    prepare_json_parser(imports_search_parser)
     imports_search_parser.add_argument("query", help="The search query")
     imports_search_parser.add_argument("--limit", help="The maximum number of results", type=int, default=10)
 
     imports_available_parser = imports_subparsers.add_parser("available", help=available.__doc__)
+    prepare_json_parser(imports_available_parser)
 
 
 def entry(args: argparse.Namespace):
@@ -120,13 +156,13 @@ def entry(args: argparse.Namespace):
         remove(name=args.name, all=args.all)
 
     if args.imports_action in ("variants",):
-        variants(translator=args.id)
+        json_encode(args, variants, translator=args.id)
 
     if args.imports_action in ("search",):
-        search(query=args.query, limit=args.limit)
+        json_encode(args, search, query=args.query, limit=args.limit)
 
     if args.imports_action in ("available",):
-        available()
+        json_encode(args, available)
 
 
 if __name__ == "__main__":

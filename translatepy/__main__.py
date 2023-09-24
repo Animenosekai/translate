@@ -164,6 +164,7 @@ def entry():
             }
         try:
             result = getattr(service, work)(**kwargs)
+            # might add `success: true`
             print(json_encoder.encode(result.exported))
             return 0
         except UnknownLanguage as err:
