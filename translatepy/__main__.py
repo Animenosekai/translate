@@ -77,7 +77,7 @@ def entry():
 
     def prepare_json_parser(parser: argparse.ArgumentParser):
         parser.add_argument("text", action="store", type=str, help="The text to work with")
-        parser.add_argument("--minified", "--mini", action="store_true", help="To minify the resulting JSON")
+        parser.add_argument("--minified", "--minify", "--mini", action="store_true", help="To minify the resulting JSON")
 
     parser_translate = subparser.add_parser('translate', help='Translates the given text to the given language')
     prepare_json_parser(parser_translate)

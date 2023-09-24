@@ -282,7 +282,7 @@ def prepare_argparse(parser: argparse.ArgumentParser):
     language_subparsers = parser.add_subparsers(dest="language_action", description="the language action to perform", required=True)
 
     def prepare_json_parser(parser: argparse.ArgumentParser):
-        parser.add_argument("--minified", "--mini", action="store_true", help="To minify the resulting JSON")
+        parser.add_argument("--minified", "--minify", "--mini", action="store_true", help="To minify the resulting JSON")
 
     def prepare_set_parser(parser: argparse.ArgumentParser):
         parser.add_argument("--alpha3", help="The ISO 639-3 (Alpha-3) code", required=False, default=None)

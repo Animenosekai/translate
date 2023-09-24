@@ -118,7 +118,7 @@ def prepare_argparse(parser: argparse.ArgumentParser):
     imports_subparsers = parser.add_subparsers(dest="imports_action", description="the dynamic imports database action to perform", required=True)
 
     def prepare_json_parser(parser: argparse.ArgumentParser):
-        parser.add_argument("--minified", "--mini", action="store_true", help="To minify the resulting JSON")
+        parser.add_argument("--minified", "--minify", "--mini", action="store_true", help="To minify the resulting JSON")
 
     imports_add_parser = imports_subparsers.add_parser("add", help=add.__doc__)
     imports_add_parser.add_argument("name", help="The translator name")
