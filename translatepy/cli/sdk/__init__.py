@@ -8,19 +8,62 @@ import pathlib
 import sys
 import typing
 import webbrowser
+import datetime
+
+from rich.prompt import Prompt
 
 import translatepy
 from translatepy import logger
 from translatepy.cli.sdk import language, imports
 from translatepy.__info__ import __repository__
+from translatepy.cli.sdk import template
 
 
-def init(output: typing.Optional[pathlib.Path] = None):
-    """Creates a new plugin directory"""
+def init(output: typing.Optional[pathlib.Path] = None, author: str = "<author>"):
+    """
+    Creates a new plugin directory
+
+    Here is the template base structure
+    {Name}
+      ╰──┬ .gitignore
+         ├ README.md
+         ├ LICENSE
+         ├ pyproject.toml
+         ├ requirements.txt
+         ├ poetry.lock
+         ╰ {Name}
+             ╰──┬ README.md
+                ├ __init__.py
+                ╰ {name}.py
+    """
+    output = output or pathlib.Path()
+    output = pathlib.Path(output).resolve().absolute()
+    output.mkdir(parents=True, exist_ok=True)
+
+    (output / ".gitignore").write_text(template.GITIGNORE_TEMPLATE.format())
+    (output / "README.md").write_text(template.README_TEMPLATE.format(name=output.name, class_name=output.name.title(), author=author, translatepy_repo=__repository__))
+    (output / "LICENSE").write_text(template.LICENSE_TEMPLATE.format(year=datetime.datetime.now().year, author=author))
+    (output / "pyproject.toml").write_text(template.PYPROJECT_TEMPLATE.format(author=author, name=output.name))
+
+    src_dir = output / output.name
+    src_dir.mkdir(parents=True, exist_ok=True)
+    (src_dir / "README.md").write_text(template.SOURCE_README_TEMPLATE.format(name=output.name))
+    (src_dir / "__init__.py").write_text(template.INIT_TEMPLATE.format())
+    new(src_dir / f"{output.name}.py")
 
 
 def new(output: typing.Optional[pathlib.Path] = None):
     """Creates a template translator file"""
+    if not output:
+        counter = 1
+        while (pathlib.Path() / f"translator{counter}.py").exists():
+            counter += 1
+        output = pathlib.Path() / f"translator{counter}.py"
+    output = pathlib.Path(output).resolve().absolute()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(
+        template.TRANSLATOR_TEMPLATE.format(name=output.parent.stem, class_name=output.parent.stem.title())
+    )
 
 
 def test():
@@ -50,9 +93,12 @@ def prepare_argparse(parser: argparse.ArgumentParser):
 
     # `translatepy sdk init` creates a plugin directory
     init_parser = subparsers.add_parser("init", help=init.__doc__)
+    init_parser.add_argument("output", help="The output directory", nargs="?")
+    init_parser.add_argument("--author", help="The author name", required=False, default=None)
 
     # `translatepy sdk new` creates a template translator file
     new_parser = subparsers.add_parser("new", help=new.__doc__)
+    new_parser.add_argument("output", help="The output filepath", nargs="?")
 
     # `translatepy sdk test` tests the given translator against translatepy's CI tests
     test_parser = subparsers.add_parser("test", help=test.__doc__)
@@ -76,10 +122,14 @@ def entry(args: argparse.Namespace):
         imports.entry(args)
 
     if args.sdk_action in ("init",):
-        init()
+        if not args.author:
+            author = Prompt.ask("🧑‍💻 Author name")
+        else:
+            author = args.author
+        init(output=args.output or None, author=author)
 
     if args.sdk_action in ("new",):
-        new()
+        new(output=args.output)
 
     if args.sdk_action in ("test",):
         test()
