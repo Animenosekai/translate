@@ -111,7 +111,7 @@ def add(name: str, code: str, alpha3: typing.Optional[str] = None,
         for lang, result in data.foreign.items():
             if not result:
                 result = kwargs.get("foreign", {}).get(lang, data.name)
-                data.foreign._cain_value[lang] = result  # default to the english name
+                data.foreign[lang] = result  # default to the english name
 
     LANGUAGE_DATA["data"][code] = data
 
@@ -177,7 +177,7 @@ def set(id: str,
         for lang, result in data.foreign.items():
             if not result:
                 result = kwargs.get("foreign", {}).get(lang, data.name)
-                data.foreign._cain_value[lang] = result  # default to the english name
+                data.foreign[lang] = result  # default to the english name
 
     LANGUAGE_DATA["data"][id] = data
 
@@ -345,6 +345,9 @@ def entry(args: argparse.Namespace):
     def check_foreign():
         """Checks for foreign inputs"""
         results = {vectorize.string_preprocessing(lang.name): None for lang in COMMON_LANGUAGES if lang.id != "eng"}
+        if not args.foreign:
+            return results
+
         for element in args.foreign:
             lang, _, result = element.partition(":")
             language = Language(lang)

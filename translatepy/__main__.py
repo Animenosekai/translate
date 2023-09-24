@@ -8,6 +8,7 @@ import webbrowser
 from argparse import Action
 
 from nasse.exceptions import NasseException
+from nasse.logging import LoggingLevel
 from nasse.utils.formatter import format as nasse_format
 from nasse.utils.json import encoder, minified_encoder
 
@@ -68,6 +69,8 @@ def entry():
     parser.add_argument('--version', '-v', action='version', version=translatepy.__version__)
     parser.add_argument("--translators", help="List of translators to use", nargs="*")
     parser.add_argument("--full", action="store_true", help="To load the full language data range. You can also use the `TRANSLATEPY_LANGUAGE_FULL` environment variable.")
+    parser.add_argument("--debug", action="store_true", help="To set the log level to `DEBUG`. Same as `--log=DEBUG`")
+    parser.add_argument("--log", action="store", help="To set the log level", choices=("ERROR", "WARNING", "INFO", "DEBUG", "HIDDEN"))
 
     subparser = parser.add_subparsers(help='Actions', dest="action", required=False)
     parser_tui = subparser.add_parser("tui", help="A nice TUI to use translatepy interactively")
@@ -133,6 +136,23 @@ def entry():
     sdk.prepare_argparse(parser_sdk)
 
     args = parser.parse_args()
+
+    if args.log:
+        if args.debug and args.log != "DEBUG":
+            raise ValueError("Can't set `--debug` and anything other than `--log=DEBUG`")
+        if args.debug or args.log == "DEBUG":
+            level = LoggingLevel.DEBUG
+        elif args.log == "ERROR":
+            level = LoggingLevel.ERROR
+        elif args.log == "WARNING":
+            level = LoggingLevel.WARNING
+        elif args.log == "HIDDEN":
+            level = LoggingLevel.HIDDEN
+        else:
+            level = LoggingLevel.INFO
+        if args.debug:
+            translatepy.logger.config.debug = True
+        translatepy.logger.config.logging_level = level
 
     if args.full:
         load_full()
