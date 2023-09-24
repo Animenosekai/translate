@@ -137,8 +137,8 @@ def entry():
 
     args = parser.parse_args()
 
-    if args.log:
-        if args.debug and args.log != "DEBUG":
+    if args.log or args.debug:
+        if args.debug and (args.log and args.log != "DEBUG"):
             raise ValueError("Can't set `--debug` and anything other than `--log=DEBUG`")
         if args.debug or args.log == "DEBUG":
             level = LoggingLevel.DEBUG

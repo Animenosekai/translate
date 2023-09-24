@@ -145,7 +145,10 @@ def add(name: str, code: str, alpha3: typing.Optional[str] = None,
             logger.warning("The limited range language DB is not affected. Please rerun the same command without `--full`.")
     except Exception as err:
         logger.error("An error occured while writing out the data to the languages DB")
-        logger.error(err)
+        if logger.config.debug:
+            logger.print_exception(show_locals=True)
+        else:
+            logger.error(err)
         logger.warn("Reverting to previous state")
         with (LANGUAGE_DATA_DIR / "codes.cain").open("wb") as f:
             f.write(backup_codes)
