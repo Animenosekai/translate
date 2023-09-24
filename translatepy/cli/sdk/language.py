@@ -274,7 +274,7 @@ def info(language: str):
 
 def available():
     """Displays the available translators"""
-    return set(vector.id for vector in LANGUAGE_DATA["vectors"])
+    return {vector.id for vector in LANGUAGE_DATA["vectors"]}
 
 
 def prepare_argparse(parser: argparse.ArgumentParser):

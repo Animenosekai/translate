@@ -110,7 +110,7 @@ def search(query: str, limit: int = 10):
 
 def available():
     """Displays the available translators"""
-    return set(vector.id for vector in importer.IMPORTER_VECTORS)
+    return {vector.id for vector in importer.IMPORTER_VECTORS}
 
 
 def prepare_argparse(parser: argparse.ArgumentParser):
