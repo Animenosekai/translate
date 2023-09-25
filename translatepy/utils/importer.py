@@ -59,36 +59,36 @@ def get_translator(query: str,
                    threshold: float = 90,
                    forceload: bool = False) -> typing.Type[BaseTranslator]:
     """Searches the given translator"""
-    query = vectorize.string_preprocessing(str(query or ""))
-    if not query:
+    processed_query = vectorize.string_preprocessing(str(query or ""))
+    if not processed_query:
         raise exceptions.UnknownTranslator(BaseTranslator, 0, "Couldn't find a nameless translator")
 
     # Check the incoming language, whether it is in the cache, then return the values from the cache
-    cache_result = IMPORTER_CACHE.get(query)
+    cache_result = IMPORTER_CACHE.get(processed_query)
     if cache_result:
         return cache_result
 
     try:
-        translator_from_path(query, forceload=forceload)
+        return translator_from_path(query, forceload=forceload)
     except ImportError:  # this also catches ErrorDuringImport
         pass
 
     try:
-        return translator_from_name(query)
+        return translator_from_name(processed_query)
     except ValueError:
         pass
 
-    results = sorted(vectorize.search(query, IMPORTER_VECTORS), key=lambda element: element.similarity, reverse=True)
+    results = sorted(vectorize.search(processed_query, IMPORTER_VECTORS), key=lambda element: element.similarity, reverse=True)
 
     if not results:
         raising_message = f"Couldn't recognize the given translator `{query}`"
         raise exceptions.UnknownTranslator(BaseTranslator, 0, raising_message)
 
-    result = translator_from_name(results[0].vector.id)
+    result = translator_from_path(results[0].vector.id)
     similarity = results[0].similarity
-    IMPORTER_CACHE[query] = copy.copy(result)
     if similarity < threshold:
         raising_message = f"Couldn't recognize the given translator ({query})\nDid you mean: {results[0].vector.string} (Similarity: {round(similarity, 2)}%)?"
         raise exceptions.UnknownTranslator(result, similarity, raising_message)
+    IMPORTER_CACHE[processed_query] = copy.copy(result)
 
     return result

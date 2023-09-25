@@ -4,19 +4,19 @@ SDK
 translatepy's Software Development Kit
 """
 import argparse
+import datetime
 import pathlib
 import sys
 import typing
 import webbrowser
-import datetime
 
 from rich.prompt import Prompt
 
 import translatepy
 from translatepy import logger
-from translatepy.cli.sdk import language, imports
 from translatepy.__info__ import __repository__
-from translatepy.cli.sdk import template
+from translatepy.utils.importer import get_translator
+from translatepy.cli.sdk import imports, language, template
 
 
 def init(output: typing.Optional[pathlib.Path] = None, author: str = "<author>"):
@@ -25,31 +25,55 @@ def init(output: typing.Optional[pathlib.Path] = None, author: str = "<author>")
 
     Here is the template base structure
     {Name}
-      ╰──┬ .gitignore
-         ├ README.md
-         ├ LICENSE
-         ├ pyproject.toml
-         ├ requirements.txt
-         ├ poetry.lock
-         ╰ {Name}
-             ╰──┬ README.md
-                ├ __init__.py
-                ╰ {name}.py
+    ╰──┬ .github
+       ├────┬ dependabot.yml
+            ├ workflows
+            ╰────┬ codeql.yml
+                 ├ pylint.yml
+                 ├ test.yml
+                 ╰ vermin.yml
+       ├ .gitignore
+       ├ README.md
+       ├ LICENSE
+       ├ pyproject.toml
+       ├ requirements.txt
+       ├ poetry.lock
+       ├ {Name}
+       ╰──┬ README.md
+          ├ __init__.py
+          ╰ {name}.py
     """
     output = output or pathlib.Path()
     output = pathlib.Path(output).resolve().absolute()
     output.mkdir(parents=True, exist_ok=True)
 
-    (output / ".gitignore").write_text(template.GITIGNORE_TEMPLATE.format())
-    (output / "README.md").write_text(template.README_TEMPLATE.format(name=output.name, class_name=output.name.title(), author=author, translatepy_repo=__repository__))
-    (output / "LICENSE").write_text(template.LICENSE_TEMPLATE.format(year=datetime.datetime.now().year, author=author))
-    (output / "pyproject.toml").write_text(template.PYPROJECT_TEMPLATE.format(author=author, name=output.name))
+    name = output.name
+    class_name = name.title()
+    translator = f"{name}.{class_name}"
+    year = datetime.datetime.now().year
 
-    src_dir = output / output.name
+    github_dir = (output / ".github")
+    github_dir.mkdir(parents=True, exist_ok=True)
+    (github_dir / "dependabot.yml").write_text(template.DEPENDABOT_TEMPLATE)
+
+    workdlows_dir = (github_dir / "workflows")
+    workdlows_dir.mkdir(parents=True, exist_ok=True)
+    (workdlows_dir / "codeql.yml").write_text(template.CODEQL_TEMPLATE)
+    (workdlows_dir / "pylint.yml").write_text(template.PYLINT_TEMPLATE.format(name=name))
+    (workdlows_dir / "test.yml").write_text(template.TEST_TEMPLATE.format(translator=translator))
+    (workdlows_dir / "vermin.yml").write_text(template.VERMIN_TEMPLATE.format(name=name))
+
+    (output / ".gitignore").write_text(template.GITIGNORE_TEMPLATE.format())
+    (output / "README.md").write_text(template.README_TEMPLATE.format(name=name, class_name=class_name, author=author, translatepy_repo=__repository__))
+    (output / "LICENSE").write_text(template.LICENSE_TEMPLATE.format(year=year, author=author))
+    (output / "pyproject.toml").write_text(template.PYPROJECT_TEMPLATE.format(author=author, name=name))
+
+    src_dir = output / name
     src_dir.mkdir(parents=True, exist_ok=True)
-    (src_dir / "README.md").write_text(template.SOURCE_README_TEMPLATE.format(name=output.name))
-    (src_dir / "__init__.py").write_text(template.INIT_TEMPLATE.format())
-    new(src_dir / f"{output.name}.py")
+    (src_dir / "README.md").write_text(template.SOURCE_README_TEMPLATE.format(name=name))
+    (src_dir / "__init__.py").write_text(template.INIT_TEMPLATE.format(name=name, class_name=class_name, year=year, author=author))
+    (src_dir / "__info__.py").write_text(template.INFO_TEMPLATE.format(name=name, year=year, author=author))
+    new(src_dir / f"{name}.py")
 
 
 def new(output: typing.Optional[pathlib.Path] = None):
@@ -66,8 +90,10 @@ def new(output: typing.Optional[pathlib.Path] = None):
     )
 
 
-def test():
+def test(translator: str):
     """Tests the given translator against translatepy's test suite"""
+    service = get_translator(translator)
+    # Run tests on `service`
 
 
 def feedback():
@@ -102,6 +128,7 @@ def prepare_argparse(parser: argparse.ArgumentParser):
 
     # `translatepy sdk test` tests the given translator against translatepy's CI tests
     test_parser = subparsers.add_parser("test", help=test.__doc__)
+    test_parser.add_argument("translator", help="A path to the translator")
 
     # `translatepy sdk feedback` opens the issues page for the repository
     feedback_parser = subparsers.add_parser("feedback", help=feedback.__doc__)
@@ -132,7 +159,7 @@ def entry(args: argparse.Namespace):
         new(output=args.output)
 
     if args.sdk_action in ("test",):
-        test()
+        test(translator=args.translator)
 
     if args.sdk_action in ("feedback",):
         feedback()

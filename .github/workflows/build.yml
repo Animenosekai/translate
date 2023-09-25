@@ -1,4 +1,4 @@
-name: Build Translatepy
+name: Build
 
 # This workflow runs only manually
 on:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-and-push-linux:
-    name: LINUX - build and push as artifacts
+    name: Build (Linux)
     runs-on: ubuntu-22.04
 
     steps:
@@ -33,7 +33,7 @@ jobs:
 
       - name: Building
         run: |
-          python3 build.py binary
+          python3 build.py build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3

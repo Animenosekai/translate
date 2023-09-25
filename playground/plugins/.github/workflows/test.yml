@@ -22,12 +22,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install translatepy[dev]
           python -m pip install .
       - name: Test with pytest
         run: |
-          pytest -vvs tests/
+          translatepy sdk test plugins.Plugins
 
   test-py311:
     needs: test-py310
@@ -44,12 +43,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install translatepy[dev]
           python -m pip install .
       - name: Test with pytest
         run: |
-          pytest -vvs tests/
+          translatepy sdk test plugins.Plugins
 
   test-py312:
     runs-on: ubuntu-latest
@@ -63,9 +61,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install translatepy[dev]
           python -m pip install .
       - name: Test with pytest
         run: |
-          pytest -vvs tests/
+          translatepy sdk test plugins.Plugins

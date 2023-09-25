@@ -65,8 +65,49 @@ class {class_name}(BaseTranslator):
 """A template to create new translators (format: 'name', 'class_name')"""
 
 INIT_TEMPLATE = '''\
+"""
+A translatepy implementation for {name}
+
+© {author}, {year}
+"""
+__all__ = [
+    # Information
+    "__author__",
+    "__copyright__",
+    "__license__",
+    "__version__",
+
+    # Exports
+    "{class_name}"
+]
+
+# Imports
+from .__info__ import __author__, __copyright__, __license__, __version__
+from .{name} import {class_name}
 '''
-"""A template for __init__.py files"""
+"""A template for __init__.py files (format: 'name', 'class_name', 'year', 'author')"""
+
+INFO_TEMPLATE = '''\
+"""Stores information on the current module version"""
+# Authors
+__author__ = '{author}'
+__maintainer__ = '{author}'
+__credits__ = ['{author}']
+# __email__ = ''
+__repository__ = "https://github.com/{author}/{name}"
+
+# Module
+__module__ = "{name}"
+__status__ = 'Beta'
+__year__ = {year}
+__license__ = 'MIT License'
+
+__copyright__ = f'Copyright {{__year__}}, {{__module__}}'
+
+# PEP 440 Compilant
+__version__ = "1.0rc1"
+'''
+"""A template for __info__.py files (format: 'name', 'year', 'author')"""
 
 README_TEMPLATE = '''\
 # {name}
@@ -79,7 +120,7 @@ A translatepy implementation of {name}
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/{name})](https://pypi.org/project/{name}/)
 [![PyPI - Status](https://img.shields.io/pypi/status/{name})](https://pypi.org/project/{name}/)
 [![GitHub - License](https://img.shields.io/github/license/{author}/{name})](https://github.com/{author}/{name}/blob/master/LICENSE)
-[![GitHub top language](https://img.shields.io/github/languages/top/{author}/{name})](https://github.com/{author}/{name})
+[![GitHub Top Language](https://img.shields.io/github/languages/top/{author}/{name})](https://github.com/{author}/{name})
 [![CodeQL Checks Badge](https://github.com/{author}/{name}/workflows/CodeQL%20Python%20Analysis/badge.svg)](https://github.com/{author}/{name}/actions?query=workflow%3ACodeQL)
 [![Pytest](https://github.com/{author}/{name}/actions/workflows/pytest.yml/badge.svg)](https://github.com/{author}/{name}/actions/workflows/pytest.yml)
 ![Code Size](https://img.shields.io/github/languages/code-size/{author}/{name})
@@ -358,3 +399,239 @@ dmypy.json
 *.onefile-build
 '''
 """A template for .gitignore files"""
+
+DEPENDABOT_TEMPLATE = '''\
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  - package-ecosystem: "pip" # See documentation for possible values
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "daily"
+'''
+
+CODEQL_TEMPLATE = '''\
+# For most projects, this workflow file will not need changing; you simply need
+# to commit it to your repository.
+#
+# You may wish to alter this file to override the set of languages analyzed,
+# or to provide custom queries or build logic.
+#
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ "main" ]
+  schedule:
+    - cron: '16 2 * * 3'
+
+jobs:
+  analyze:
+    name: Analyze
+    # Runner size impacts CodeQL analysis time. To learn more, please see:
+    #   - https://gh.io/recommended-hardware-resources-for-running-codeql
+    #   - https://gh.io/supported-runners-and-hardware-resources
+    #   - https://gh.io/using-larger-runners
+    # Consider using larger runners for possible analysis time improvements.
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'python' ]
+        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby', 'swift' ]
+        # Use only 'java' to analyze code written in Java, Kotlin or both
+        # Use only 'javascript' to analyze code written in JavaScript, TypeScript or both
+        # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ${{ matrix.language }}
+        # If you wish to specify custom queries, you can do so here or in a config file.
+        # By default, queries listed here will override any specified in a config file.
+        # Prefix the list here with "+" to use these queries and those in the config file.
+
+        # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
+        # queries: security-extended,security-and-quality
+
+
+    # Autobuild attempts to build any compiled languages (C/C++, C#, Go, Java, or Swift).
+    # If this step fails, then you should remove it and run the build manually (see below)
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v2
+
+    # ℹ️ Command-line programs to run using the OS shell.
+    # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
+
+    #   If the Autobuild fails above, remove it and uncomment the following three lines.
+    #   modify them (or add more) to build your code if your project, please refer to the EXAMPLE below for guidance.
+
+    # - run: |
+    #     echo "Run, Build Application using script"
+    #     ./location_of_script_within_repo/buildscript.sh
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+      with:
+        category: "/language:${{matrix.language}}"
+'''
+
+PYLINT_TEMPLATE = '''\
+# This workflow will install Python dependencies and lint with Python 3.11
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Pylint
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.11]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{{{ matrix.python-version }}}}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{{{ matrix.python-version }}}}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install pylint
+        pip install .
+    - name: Lint with pylint
+      run: pylint -j 0 {name}
+      continue-on-error: true
+'''
+"""A template for the pylint workflow (format: 'name')"""
+
+TEST_TEMPLATE = '''\
+# This workflow will install Python dependencies and run tests with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Pytest
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test-py310:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install translatepy[dev]
+          python -m pip install .
+      - name: Test with pytest
+        run: |
+          translatepy sdk test {translator}
+
+  test-py311:
+    needs: test-py310
+    runs-on: ${{{{ matrix.os }}}}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install translatepy[dev]
+          python -m pip install .
+      - name: Test with pytest
+        run: |
+          translatepy sdk test {translator}
+
+  test-py312:
+    runs-on: ubuntu-latest
+    needs: test-py311
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.12.0-rc.1"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install translatepy[dev]
+          python -m pip install .
+      - name: Test with pytest
+        run: |
+          translatepy sdk test {translator}
+'''
+"""A template for the test workflow (format: 'translator')"""
+
+VERMIN_TEMPLATE = '''\
+# This workflow will install Python dependencies, and check the Python requirement for translatepy using vermin
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Vermin
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.11]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{{{ matrix.python-version }}}}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{{{ matrix.python-version }}}}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install vermin
+        python -m pip install .
+    - name: Python requirement checking
+      run: vermin -vvvv --versions {name}
+'''
+"""A template for the vermin workflow (format: 'name')"""
