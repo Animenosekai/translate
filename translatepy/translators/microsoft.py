@@ -21,13 +21,19 @@ from translatepy.utils.request import Request
 
 
 class MicrosoftTranslate(BaseTranslatorAggregator):
+    """An aggregation of Microsoft Translate translators"""
+
     def __init__(self, session: typing.Optional[Request] = None, *args, **kwargs):
         microsft_services = [MicrosoftTranslateV1, MicrosoftTranslateV2, MicrosoftTranslateV3]
 
         super().__init__(microsft_services, session, *args, **kwargs)
 
+    def __str__(self) -> str:
+        return "Microsoft Translate"
 
 # TODO: implement text_to_speech, maybe there is other endpoints
+
+
 class MicrosoftTranslateV1(BaseTranslator):
     """
     A Python implementation of Microsoft Translation, reverse engenered from Microsoft Translator Android application.
@@ -131,6 +137,9 @@ class MicrosoftTranslateV1(BaseTranslator):
             return Language("och")
         return Language(language_code)
 
+    def __str__(self) -> str:
+        return "Microsoft Translate (API)"
+
 
 class MicrosoftTranslateV2(BaseTranslator):
     """
@@ -175,8 +184,7 @@ class MicrosoftTranslateV2(BaseTranslator):
         return Language(language_code)
 
     def __str__(self) -> str:
-        return "Microsoft Translate V2"
-
+        return "Microsoft Translate (SwiftKey)"
 
 class MicrosoftTranslateV3(BaseTranslator):
     # Other methods: https://learn.microsoft.com/ru-ru/dotnet/api/microsoft.crm.unifiedservicedesk.dynamics.microsofttranslationservice.languageservice?view=dynamics-usd-3#methods
@@ -184,35 +192,35 @@ class MicrosoftTranslateV3(BaseTranslator):
     _app_id_list = ["TAgiBjv8rXgUxIhcK7TTXGPrFSsjhAWfqypS5SRKQxl4*", "B97A24C0E08728B33D41E853C50D405E50E46563", "3DAEE5B978BA031557E739EE1E2A68CB1FAD5909"]
 
     def _translate(self, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
-      for app_id in self._app_id_list:
-        text_array = json.dumps([text])
-        url = "https://api.microsofttranslator.com/v2/ajax.svc/TranslateArray"
-        params = {
-            "appId": app_id,
-            "texts": text_array,
-            "from": source_lang,
-            "to": dest_lang,
-        }
-        requests = self.session.get(url, params=params)
+        for app_id in self._app_id_list:
+            text_array = json.dumps([text])
+            url = "https://api.microsofttranslator.com/v2/ajax.svc/TranslateArray"
+            params = {
+                "appId": app_id,
+                "texts": text_array,
+                "from": source_lang,
+                "to": dest_lang,
+            }
+            requests = self.session.get(url, params=params)
 
-        if requests.status_code != 200:
-            # logger.warning(f"Possible not valid app_id: {app_id}")
-            continue
+            if requests.status_code != 200:
+                # logger.warning(f"Possible not valid app_id: {app_id}")
+                continue
 
-        # Some workaround
-        requests.encoding = 'utf-8-sig'
+            # Some workaround
+            requests.encoding = 'utf-8-sig'
 
-        try:
-            response = requests.json()
-            translation = response[0]["TranslatedText"]
-        except Exception as ex:
-            translation = None
-            # logger.warning(f"Possible not valid app_id: {app_id}. Exception: {ex}")
-            continue
+            try:
+                response = requests.json()
+                translation = response[0]["TranslatedText"]
+            except Exception as ex:
+                translation = None
+                # logger.warning(f"Possible not valid app_id: {app_id}. Exception: {ex}")
+                continue
 
-        return models.TranslationResult(dest_lang=dest_lang, source_lang=source_lang, translation=translation, raw=response)
-      else:
-          raise ValueError("No valid app_id")
+            return models.TranslationResult(dest_lang=dest_lang, source_lang=source_lang, translation=translation, raw=response)
+        else:
+            raise ValueError("No valid app_id")
 
     def _text_to_speech(self, text: str, speed: int, gender: models.Gender, source_lang: typing.Any) -> models.TextToSpeechResult:
         params = {
@@ -243,4 +251,4 @@ class MicrosoftTranslateV3(BaseTranslator):
         return Language(language_code)
 
     def __str__(self) -> str:
-        return "Microsoft Translate V3"
+        return "Microsoft Translate (TranslateArray)"

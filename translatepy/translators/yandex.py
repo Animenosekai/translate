@@ -202,4 +202,4 @@ class YandexTranslate(BaseTranslator):
         return Language(language_code)
 
     def __str__(self) -> str:
-        return "Yandex"
+        return "Yandex Translate"

@@ -82,3 +82,6 @@ class QCRI(BaseTranslator):
 
     def _language_to_code(self, language: Language) -> typing.Union[str, typing.Any]:
         return language.alpha2
+
+    def __str__(self) -> str:
+        return "QCRI"

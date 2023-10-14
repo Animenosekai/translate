@@ -1,15 +1,24 @@
-export const services: {
+export const links: {
     [key: string]: string
 } = {
-    "Google": "https://translate.google.com",
-    "Yandex": "https://translate.yandex.com",
-    "Microsoft Translate": "https://translator.microsoft.com",
-    "Reverso": "https://www.reverso.net/text-translation",
-    "Microsoft Bing": "https://www.bing.com/translator",
-    "Libre": "https://libretranslate.com",
-    "Translate.com": "https://www.translate.com",
-    "MyMemory": "https://mymemory.translated.net",
-    "DeepL": "https://www.deepl.com/translator"
+    "Bing Translate": "",
+    "DeepL Android": "",
+    "DeepL Web": "",
+    "Google Translate": "https://translate.google.com",
+    "Google Translate (batchexecute)": "https://translate.google.com",
+    "Google Translate (API)": "https://translate.google.com",
+    "Libre": "",
+    "MyMemory": "",
+    "Reverso": "",
+    "Translate.com": "",
+    "Yandex Translate": "",
+    "Microsoft Translate": "",
+    "Microsoft Translate (API)": "",
+    "Microsoft Translate (SwiftKey)": "",
+    "Microsoft Translate (TranslateArray)": "",
+    "QCRI": "",
+    "PONS": "",
+    "Papago": ""
 }
 
 /**
@@ -23,7 +32,7 @@ export class Service {
 
     constructor(name) {
         this.name = name
-        const link = services[name]
+        const link = links[name]
         this.link = link ? link : ""
     }
 }

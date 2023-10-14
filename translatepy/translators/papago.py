@@ -257,3 +257,6 @@ class Papago(BaseTranslator):
         if language.id == "och":
             return "zh-TW"
         return language.alpha2
+
+    def __str__(self) -> str:
+        return "Papago"

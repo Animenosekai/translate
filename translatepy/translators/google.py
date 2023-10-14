@@ -64,6 +64,8 @@ SUPPORTED_LANGUAGES = {'af', 'am', 'ar', 'auto', 'az', 'be', 'bg', 'bn', 'bs', '
 
 
 class GoogleTranslate(BaseTranslatorAggregator):
+    """An aggregation of Google Translate translators"""
+
     def __init__(self, session: typing.Optional[request.Session] = None, service_url: str = "translate.google.com", *args, **kwargs):
         if service_url not in DOMAINS:
             raise ServiceURLError("{url} is not a valid service URL".format(url=str(service_url)))
@@ -74,6 +76,9 @@ class GoogleTranslate(BaseTranslatorAggregator):
         services_list = [google_v1, google_v2]
 
         super().__init__(services_list, session, *args, **kwargs)
+
+    def __str__(self) -> str:
+        return "Google Translate"
 
 
 class GoogleTranslateV1(BaseTranslator):
@@ -252,8 +257,8 @@ class GoogleTranslateV1(BaseTranslator):
             return Language("och")
         return Language(language_code)
 
-    def __str__(self):
-        return "Google"
+    def __str__(self) -> str:
+        return "Google Translate (batchexecute)"
 
 
 class GoogleTranslateV2(BaseTranslator):
@@ -415,4 +420,4 @@ class GoogleTranslateV2(BaseTranslator):
         return Language(language_code)
 
     def __str__(self) -> str:
-        return "Google"
+        return "Google Translate (API)"

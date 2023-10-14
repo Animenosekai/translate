@@ -383,4 +383,4 @@ class DeeplTranslateV2(BaseTranslator):
         return Language(code)
 
     def __str__(self: C) -> str:
-        return "DeepL Android API"
+        return "DeepL Android"

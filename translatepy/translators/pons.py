@@ -106,3 +106,6 @@ class PONS(BaseTranslator):
         elif language_code == "zh-tw":
             return Language("och")
         return Language(language_code)
+
+    def __str__(self) -> str:
+        return "PONS"
