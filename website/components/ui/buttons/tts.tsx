@@ -8,7 +8,7 @@ import { request } from "lib/request";
 
 export const TextToSpeechButton = ({ text, source_lang, ...props }: { text: string, source_lang: Language }) => {
     const [tts, setTextToSpeech] = useState(false);
-    const [audio, setAudio] = useState<HTMLAudioElement>(null);
+    const [audio, setAudio] = useState<HTMLAudioElement | undefined>(undefined);
 
     useEffect(() => {
         if (!audio) { return }

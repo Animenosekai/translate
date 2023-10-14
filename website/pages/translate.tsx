@@ -31,11 +31,11 @@ const Translate: NextPage = () => {
         source_lang: string,
         dest_lang: string
     }>({
-        text: URLParams.get("text"),
+        text: URLParams.get("text") ?? "",
         source_lang: URLParams.get("source_lang") || "auto",
         dest_lang: URLParams.get("dest_lang") || "eng"
     })
-    const [streamID, setStreamID] = useState(null);
+    const [streamID, setStreamID] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         const currentID = streamID;
@@ -92,7 +92,7 @@ const Translate: NextPage = () => {
 
 
     const [showCopyNotification, setShowCopyNotification] = useState(false);
-    const [notificationTimeout, setNotificationTimeout] = useState(null);
+    const [notificationTimeout, setNotificationTimeout] = useState<any>(undefined);
 
     const copyNotificationDuration = 3000
 
@@ -125,7 +125,7 @@ const Translate: NextPage = () => {
             }
             <div className="mx-3 mt-16">
                 <h2 className="font-semibold text-xl mb-5">{strings.headings.otherTranslations}</h2>
-                <div className='flex flex-row flex-wrap w-full justify-center md:justify-start'>
+                <div className='flex flex-row flex-wrap w-full justify-start content-around gap-5'>
                     {
                         results.slice(1).map((result, index) => {
                             return <SubResult

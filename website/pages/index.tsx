@@ -1,4 +1,4 @@
-import { Button } from '@nextui-org/react'
+import { Button } from '@nextui-org/button'
 import { LanguageIcon } from 'components/icons/language'
 import type { NextPage } from 'next'
 import { SEO } from 'components/common/seo'
@@ -9,7 +9,7 @@ import { useState } from 'react'
 
 const Home: NextPage = () => {
     const { strings } = useLanguage();
-    const [text, setText] = useState<string>(null);
+    const [text, setText] = useState<string>("");
     const router = useRouter();
 
     const translate = () => {
@@ -29,7 +29,7 @@ const Home: NextPage = () => {
                         return false
                     }
                 }} onChange={el => setText(el.target.value)} />
-                <Button onClick={translate} type="submit" hidden={text ? false : true} disabled={text ? false : true} auto flat>{strings.buttons.translate}</Button>
+                <Button onClick={translate} type="submit" hidden={text ? false : true} disabled={text ? false : true} variant='flat'>{strings.buttons.translate}</Button>
             </div>
         </div>
     </div>

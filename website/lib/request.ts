@@ -24,7 +24,7 @@ export function prepare(path: string, options: RequestOptions) {
     //         // no account
     //     }
     // }
-    const paramsArray = []
+    const paramsArray: string[] = [];
     const params = (options.params || {})
     for (const key in params) {
         paramsArray.push(`${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)

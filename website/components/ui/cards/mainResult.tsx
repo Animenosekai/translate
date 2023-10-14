@@ -1,4 +1,4 @@
-import { Card, Loading, Tooltip } from "@nextui-org/react";
+import { Card, CardBody, CardFooter, CardHeader } from "@nextui-org/card";
 import { Language, getLanguageName } from "types/language";
 import { RichSpellcheckResult, SpellcheckResult } from "types/spellcheck";
 import { useEffect, useState } from "react";
@@ -9,12 +9,17 @@ import { CopyIcon } from "components/icons/copy";
 // import { CopyNotification } from "../notifications/copy";
 import { EditIcon } from "components/icons/edit";
 import { LanguagePicker } from "../modals/languagePicker";
+import { Loading } from "components/common/loading";
 import { Request } from "types/request";
 import { Service } from "lib/services";
 import { ServiceElement } from "components/common/service";
 import { SourceTextArea } from "../textareas/source";
+// import { Spinner } from "@nextui-org/spinner"
 import { TextToSpeechButton } from "../buttons/tts";
+// import {Spinner} from "@nextui-org/l";
+import { Tooltip } from "@nextui-org/tooltip"
 import { TransliterationResult } from "types/transliterate";
+import classNames from "classnames";
 import { request } from "lib/request";
 import { useLanguage } from "contexts/language";
 
@@ -50,8 +55,8 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
     const [currentText, setCurrentText] = useState<string>(text);
     const [currentLanguage, setCurrentLanguage] = useState<Language>(language);
     const [showModal, setShowModal] = useState<boolean>(false);
-    const [currentTimeout, setCurrentTimeout] = useState(null);
-    const [transliteration, setTransliteration] = useState<TransliterationResult>(null);
+    const [currentTimeout, setCurrentTimeout] = useState<any>(undefined);
+    const [transliteration, setTransliteration] = useState<TransliterationResult | undefined>(undefined);
 
     useEffect(() => {
         if (service && language) { // transliterate
@@ -65,11 +70,11 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
                     if (value.success && value.data.transliteration != currentText) {
                         setTransliteration(value.data);
                     } else {
-                        setTransliteration(null);
+                        setTransliteration(undefined);
                     }
                 })
                 .catch(_ => {
-                    setTransliteration(null);
+                    setTransliteration(undefined);
                 })
         }
 
@@ -98,8 +103,11 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
         setCurrentLanguage(language);
     }, [language])
 
-    return <Card color={service ? "primary" : "default"}>
-        <h3>
+    return <Card className={classNames({
+        "bg-primary text-white": service,
+        "bg-white text-black": !service
+    }, "w-auto flex-grow px-2 py-1")}>
+        <CardHeader className="pb-0">
             <div className="text-black">
                 {
                     showModal && <LanguagePicker
@@ -116,31 +124,34 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
                 </span>
                 <EditIcon className="scale-[.7] -mt-[.2rem] transition opacity-50 group-hover:opacity-80" />
             </div>
-        </h3>
-        {
-            service
-                ? <div className="flex flex-row space-x-1">
-                    <p className="mt-3 mb-5">{currentText}</p>
-                    {
-                        loading
-                            ? <Loading type="points-opacity" color={"white"} size="sm" />
-                            // ? <Loading type="points-opacity" color={"white"} size="xs" />
-                            : ""
-                    }
-                </div>
-                : <SourceTextArea value={currentText} onChange={el => setCurrentText(el.target.value)} />
-        }
-        <Card.Footer>
+        </CardHeader>
+        <CardBody className="px-3 py-0">
+            {
+                service
+                    ? <div className="flex flex-row space-x-1">
+                        <p className="mt-3 mb-5">{currentText}</p>
+                        {
+                            loading
+                                ? <Loading />
+                                // ? <Spinner type="points-opacity" color={"white"} size="sm" />
+                                // ? <Spinner type="points-opacity" color={"white"} size="xs" />
+                                : ""
+                        }
+                    </div>
+                    : <SourceTextArea value={currentText} onChange={el => setCurrentText(el.target.value)} />
+            }
+        </CardBody>
+        <CardFooter>
             <div className="w-10/12 flex flex-row">
                 <ServiceElement service={service} />
                 {
                     spellchecked && <div className="opacity-70 flex flex-row">
                         {"・"}
                         <div className="h-5">
-                            <Tooltip content={strings.labels.spellcheckBy.format({ service: spellchecked.service })} rounded hideArrow placement="right" style={{
+                            <Tooltip content={strings.labels.spellcheckBy.format({ service: spellchecked.service })} placement="right" style={{
                                 color: "white",
                                 width: "100%"
-                            }} contentColor="primary">
+                            }} color="primary">
                                 <span onClick={() => {
                                     setCurrentText(spellchecked.corrected);
                                 }} className="italic w-full text-black">{spellchecked.corrected}</span>
@@ -152,10 +163,10 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
                     transliteration && <div className="opacity-70 flex flex-row">
                         {"・"}
                         <div className="h-5">
-                            <Tooltip content={strings.labels.transliterationBy.format({ service: transliteration.service })} rounded hideArrow placement="right" style={{
+                            <Tooltip content={strings.labels.transliterationBy.format({ service: transliteration.service })} placement="right" style={{
                                 color: "white",
                                 width: "100%"
-                            }} contentColor="primary">
+                            }} color="primary">
                                 <span className="italic w-full">{transliteration.transliteration}</span>
                             </Tooltip>
                         </div>
@@ -166,11 +177,16 @@ export const MainResultCard = ({ text, language, service, loading, onNewTranslat
                 <TextToSpeechButton text={currentText} source_lang={language} />
                 {
                     service
-                        ? <CopyIcon onClick={() => { navigator.clipboard.writeText(currentText); onCopyNotification() }} className="opacity-70 hover:opacity-100 transition active:scale-95 cursor-pointer" />
+                        ? <CopyIcon onClick={() => {
+                            navigator.clipboard.writeText(currentText);
+                            if (onCopyNotification) {
+                                onCopyNotification();
+                            }
+                        }} className="opacity-70 hover:opacity-100 transition active:scale-95 cursor-pointer" />
                         : ""
                 }
             </div>
-        </Card.Footer>
+        </CardFooter>
     </Card>
 }
 
@@ -185,48 +201,59 @@ export const MainResult = ({ result, onNewTranslation, onCopyNotification, loadi
     loading: boolean,
     setLoading: (boolean) => any
 }) => {
-    const [spellchecked, setSpellchecked] = useState<SpellcheckResult | RichSpellcheckResult>(null);
+    const [spellchecked, setSpellchecked] = useState<SpellcheckResult | RichSpellcheckResult | undefined>(undefined);
     const service = new Service(result.service)
-    return <div className="flex lg:flex-row flex-col lg:space-x-10 lg:space-y-0 space-y-5 mb-10">
-        <MainResultCard spellchecked={spellchecked} onCopyNotification={onCopyNotification} text={result.source} language={result.source_lang} onNewTranslation={(text, lang) => {
-            if (!onNewTranslation) {
-                // return console.log("source_lang", text, lang)
-                return
-            }
-            setLoading(true);
-            request<Request<SpellcheckResult>>("/spellcheck", {
-                params: {
-                    text: text,
-                    source_lang: lang.id
+    return <div className="flex lg:flex-row flex-col lg:space-x-10 lg:space-y-0 space-y-5 mb-10 justify-evenly content-stretch flex-wrap">
+        <MainResultCard
+            spellchecked={spellchecked}
+            onCopyNotification={onCopyNotification}
+            text={result.source}
+            language={result.source_lang}
+            onNewTranslation={(text, lang) => {
+                if (!onNewTranslation) {
+                    // return console.log("source_lang", text, lang)
+                    return
                 }
-            })
-                .then(value => {
-                    if (value.success && value.data.corrected != text) {
-                        setSpellchecked(value.data);
-                    } else {
-                        setSpellchecked(null);
+                setLoading(true);
+                request<Request<SpellcheckResult>>("/spellcheck", {
+                    params: {
+                        text: text,
+                        source_lang: lang.id
                     }
                 })
-                .catch(_ => {
-                    setSpellchecked(null);
+                    .then(value => {
+                        if (value.success && value.data.corrected != text) {
+                            setSpellchecked(value.data);
+                        } else {
+                            setSpellchecked(undefined);
+                        }
+                    })
+                    .catch(_ => {
+                        setSpellchecked(undefined);
+                    })
+                return onNewTranslation({
+                    text,
+                    source_lang: lang.id,
+                    dest_lang: result.dest_lang.id,
                 })
-            return onNewTranslation({
-                text,
-                source_lang: lang.id,
-                dest_lang: result.dest_lang.id,
-            })
-        }} />
-        <MainResultCard onCopyNotification={onCopyNotification} loading={loading} text={result.translation} language={result.dest_lang} service={service} onNewTranslation={(text, lang) => {
-            if (!onNewTranslation) {
-                // return console.log("dest_lang", text, lang)
-                return
-            }
-            setLoading(true);
-            return onNewTranslation({
-                text: result.source,
-                source_lang: result.source_lang.id,
-                dest_lang: lang.id,
-            })
-        }} />
+            }} />
+        <MainResultCard
+            onCopyNotification={onCopyNotification}
+            loading={loading}
+            text={result.translation}
+            language={result.dest_lang}
+            service={service}
+            onNewTranslation={(text, lang) => {
+                if (!onNewTranslation) {
+                    // return console.log("dest_lang", text, lang)
+                    return
+                }
+                setLoading(true);
+                return onNewTranslation({
+                    text: result.source,
+                    source_lang: result.source_lang.id,
+                    dest_lang: lang.id,
+                })
+            }} />
     </div>
 }

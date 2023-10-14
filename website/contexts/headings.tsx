@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState } from "react";
 export const HeadingsContext = createContext<{
     headings: string[]
     setHeadings: React.Dispatch<React.SetStateAction<string[]>>
-}>(undefined);
+}>({ headings: [], setHeadings: (a) => { } });
 
 export const useHeadings = () => useContext(HeadingsContext);
 

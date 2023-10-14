@@ -11,7 +11,7 @@ import SpanishLocalization from "localizations/spa";
 export const LanguageContext = createContext<{
     strings: Localization
     setLanguage: (language: string) => void
-}>(undefined);
+}>({ strings: EnglishLocalization, setLanguage: (a) => { } });
 
 export const useLanguage = () => useContext(LanguageContext);
 

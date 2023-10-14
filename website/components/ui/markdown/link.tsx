@@ -15,7 +15,8 @@ export const AnchorLink = ({ node, href, title, children, key, ...props }) => {
         }
         result = [basePath, ...result.split("#").slice(1)].join("#")
     } else if (h.startsWith("../")) {
-        const count = h.match(/\.\.\//g).length
+        const match = h.match(/\.\.\//g);
+        const count = match ? match.length : 0;
         const path = currentPath.split("/")
         result = path.slice(0, path.length - count).join("/") + h.split("/").slice(count).join("/")
         let basePath = result.split("#")[0]

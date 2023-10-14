@@ -20,29 +20,26 @@ from translatepy.cli.sdk import imports, language, template
 
 
 def init(output: typing.Optional[pathlib.Path] = None, author: str = "<author>"):
-    """
-    Creates a new plugin directory
-
-    Here is the template base structure
-    {Name}
-    ╰──┬ .github
-       ├────┬ dependabot.yml
-            ├ workflows
-            ╰────┬ codeql.yml
-                 ├ pylint.yml
-                 ├ test.yml
-                 ╰ vermin.yml
-       ├ .gitignore
-       ├ README.md
-       ├ LICENSE
-       ├ pyproject.toml
-       ├ requirements.txt
-       ├ poetry.lock
-       ├ {Name}
-       ╰──┬ README.md
-          ├ __init__.py
-          ╰ {name}.py
-    """
+    """Creates a new plugin directory"""
+    # Here is the template base structure
+    # {Name}
+    # ╰──┬ .github
+    #    ├────┬ dependabot.yml
+    #         ├ workflows
+    #         ╰────┬ codeql.yml
+    #              ├ pylint.yml
+    #              ├ test.yml
+    #              ╰ vermin.yml
+    #    ├ .gitignore
+    #    ├ README.md
+    #    ├ LICENSE
+    #    ├ pyproject.toml
+    #    ├ requirements.txt
+    #    ├ poetry.lock
+    #    ├ {Name}
+    #    ╰──┬ README.md
+    #       ├ __init__.py
+    #       ╰ {name}.py
     output = output or pathlib.Path()
     output = pathlib.Path(output).resolve().absolute()
     output.mkdir(parents=True, exist_ok=True)

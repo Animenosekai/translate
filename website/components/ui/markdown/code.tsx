@@ -14,7 +14,7 @@ export const CodeBlock = ({ node, inline, className, children, ...props }) => {
             <Lowlight
                 className="overflow-x-auto w-[calc(100vw-2rem)] sm:w-[66vw] md:w-[71vw] lg:w-[78vw] xl:w-[80vw] text-[85%] my-4"
                 value={String(children).replace(/\n$/, '')}
-                language={common.includes((match && match[1])) ? match[1] : undefined}
+                language={(match && match[1] && common.includes(match[1])) ? match[1] : ""}
                 inline={inline}
                 {...props}
             />

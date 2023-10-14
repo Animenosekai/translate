@@ -21,7 +21,7 @@ export const TableOfContent = ({ data, level, query, path }: TableOfContentProps
                     "text-blue-500": query && (query[0] === data.name),
                     "font-medium": level === 1,
                     "font-normal": level === 2,
-                    "font-light": level > 2
+                    "font-light": (level ?? 3) > 2
                 })}>{data.name}</span>
             </a>
         </Link>
@@ -33,7 +33,7 @@ export const TableOfContent = ({ data, level, query, path }: TableOfContentProps
                     {
                         data.children.map((value, i) => {
                             return <li key={i}>
-                                {<TableOfContent data={value} level={(level ?? 0) + 1} query={query.slice(1)} path={finalPath} />}
+                                {<TableOfContent data={value} level={(level ?? 0) + 1} query={query ? query.slice(1) : undefined} path={finalPath} />}
                             </li>
                         })
                     }

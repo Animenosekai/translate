@@ -120,8 +120,8 @@ export const AUTOMATIC: Language = {
     alpha3: "auto",
     id: "auto",
     alpha2: "auto",
-    alpha3b: null,
-    alpha3t: null,
+    alpha3b: undefined,
+    alpha3t: undefined,
     extra: {
         scope: "individual",
         type: "living"
