@@ -110,7 +110,7 @@ const Translate: NextPage = () => {
     }
 
     return <div className='h-full'>
-        <SEO title={`translation from ${currentTranslation.source_lang} to ${currentTranslation.dest_lang}`} description='Use multiple services to translate your texts!' />
+        <SEO title={`translation of "${currentTranslation.text}" from ${currentTranslation.source_lang} to ${currentTranslation.dest_lang}`} description='Use multiple services to translate your texts!' />
         {
             showCopyNotification && <CopyNotification duration={copyNotificationDuration} />
         }
