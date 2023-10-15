@@ -29,7 +29,7 @@ const Home: NextPage = () => {
                         return false
                     }
                 }} onChange={el => setText(el.target.value)} />
-                <Button onClick={translate} type="submit" hidden={text ? false : true} disabled={text ? false : true} variant='flat'>{strings.buttons.translate}</Button>
+                <Button onClick={translate} type="submit" color={text ? "primary" : "default"} disabled={text ? false : true} variant='flat'>{strings.buttons.translate}</Button>
             </div>
         </div>
     </div>

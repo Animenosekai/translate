@@ -37,6 +37,7 @@ export interface Localization {
     language: string
     name: string
     foreign?: string // the key in `Language.foreign`
+    welcome: string
     placeholders: LocalizationPlaceholders
     buttons: LocalizationButtons
     headings: LocalizationHeadings

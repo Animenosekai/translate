@@ -25,6 +25,11 @@ export const LanguageContextProvider = ({ children }: LanguageContextProps) => {
     // HOOKS DEFINITION
     const [strings, setLanguageData] = useState<Localization>(EnglishLocalization);
 
+    useEffect(() => {
+        console.log(`Changed language to: ${strings.name}`)
+        console.log(strings.welcome)
+    }, [strings])
+
     const setLanguage = (language: string) => {
         window.localStorage.setItem("ui-language", language);
 
@@ -38,6 +43,7 @@ export const LanguageContextProvider = ({ children }: LanguageContextProps) => {
     }
 
     useEffect(() => {
+        console.log("%cアA", "background: pink; color: white; display: block; font-size: 30px; font-weight: bold; border-radius: 5px; height: 50px; width: 50px;");
         setLanguage(window.localStorage.getItem("ui-language") || "eng");
     }, [])
 

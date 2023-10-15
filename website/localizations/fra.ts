@@ -1,3 +1,4 @@
+import Configuration from "config";
 import EnglishLocalization from "./eng";
 import Localization from "./base";
 import { TemplateString } from "utils/string";
@@ -7,6 +8,11 @@ export const FrenchLocalization: Localization = {
     language: "fra",
     name: "Français",
     foreign: "french",
+    welcome: `Bienvenue sur translatepy ! 🎐
+    Si vous souhaiter savoir comment ce site fonctionne, vous pouvez visiter la page GitHub du projet : https://github.com/Animenosekai/translate
+    Si vous souhaiter comprendre commment les requêtes fonctionnent, vous pouvez les retrouver dans les docs : ${Configuration.origin}/documentation
+
+    ✨ Bonne journée`,
     placeholders: {
         translationTextArea: 'Entrez le texte à traduire...',
     },

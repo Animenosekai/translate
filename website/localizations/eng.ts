@@ -1,9 +1,20 @@
+import Configuration from "config";
 import Localization from "./base";
 import { TemplateString } from "utils/string";
+
+var ori = ""
+if (typeof window !== "undefined") {
+    ori = window.location.origin
+}
 
 export const EnglishLocalization: Localization = {
     language: "eng",
     name: "English",
+    welcome: `Welcome to translatepy! 🎐
+    If you wish to know how this website works, head over to the GitHub repository: https://github.com/Animenosekai/translate
+    If you want to understand how the network requests work, head over to the docs: ${Configuration.origin}/documentation
+
+    ✨ Have a great day`,
     placeholders: {
         translationTextArea: 'Enter your text to translate...',
     },

@@ -1,3 +1,4 @@
+import Configuration from "config";
 import EnglishLocalization from "./eng";
 import Localization from "./base";
 import TemplateString from "utils/string";
@@ -7,6 +8,11 @@ export const JapaneseLocalization: Localization = {
     language: "jpn",
     name: "日本語",
     foreign: "japanese",
+    welcome: `translatepyへようこそ！ 🎐
+    このサイトがどうやって作られたかに興味があったらGitHubページをチェック！　https://github.com/Animenosekai/translate
+    どのネットワークリクエストが使用されているかに興味があったら　${Configuration.origin}/documentation　をチェック
+
+    ✨ 良い一日を`,
     placeholders: {
         translationTextArea: '翻訳する文章を入力してください...',
     },

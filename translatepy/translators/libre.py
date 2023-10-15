@@ -40,4 +40,4 @@ class LibreTranslate(BaseTranslator):
         return Language(code)
 
     def __str__(self) -> str:
-        return "Libre"
+        return "Libre Translate"

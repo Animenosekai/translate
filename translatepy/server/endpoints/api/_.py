@@ -228,4 +228,8 @@ def tts(text: str, source_lang: Language = AUTOMATIC, raw: to_bool = False,
         translators: TranslatorList = DEFAULT_TRANSLATORS):
     """Returns the speech version of the given text"""
     result = translators.instance.text_to_speech(text=text, source_lang=source_lang)
+    if raw:
+        headers = {f"X-translatepy-{attr}": str(value) if not isinstance(value, models.Gender) else value.value
+                   for attr, value in result.exported.items() if attr != "result"}
+        return FlaskResponse(response=result.result, mimetype=result.mime_type, headers=headers)
     return result.exported
