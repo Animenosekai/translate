@@ -1,7 +1,9 @@
+"""Testing the `Language` class"""
 from translatepy import Language
 
 
 def test_language():
+    """Testing the `Language` class"""
     print("[test] --> Testing translatepy.Language")
     assert Language("French").alpha2 == "fr"
     assert Language("Japanese").alpha2 == "ja"

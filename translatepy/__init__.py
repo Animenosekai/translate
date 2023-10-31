@@ -1,30 +1,78 @@
 """
-Python Translate\n
-Translate, transliterate, get the language of texts in no time with the help of multiple APIs!
+translatepy
 
-© Anime no Sekai — 2021
+Translate, transliterate, get the language of texts in no time with the help of numerous APIs!
+
+✨ Anime no Sekai, 2023
 """
+__all__ = [
+    # Information
+    "__author__",
+    "__copyright__",
+    "__license__",
+    "__version__",
 
+    # Exports
+    "Language",
+    "Translate",
+    "BaseTranslator",
+
+    # Server
+    "server",
+
+    # Logger
+    "logger",
+    "log",
+    "debug",
+    "warn",
+
+    # Translate
+    "t",  # shared instance
+    "translate",
+    "alternatives",
+    "transliterate",
+    "spellcheck",
+    "language",
+    "example",
+    "dictionary",
+    "text_to_speech",
+    "Translator",  # alias for `translatepy.Translate`
+
+    # Languages
+    "AUTOMATIC",
+    "ENGLISH"
+]
+
+# Imports
+from translatepy.utils import importer
+from .__info__ import __author__, __copyright__, __license__, __version__
 from translatepy.language import Language
 from translatepy.translate import Translate
+from translatepy.translators.base import BaseTranslator
+from translatepy.server.server import app as server
+
+# Logger
+logger = server.logger
+log = logger.log
+warn = logger.warn
+debug = logger.debug
+
+t = Translate()
+"""A shared instance of `translatepy.Translate`"""
+
+# Functions
+translate = t.translate
+alternatives = t.alternatives
+transliterate = t.transliterate
+spellcheck = t.spellcheck
+language = t.language
+example = t.example
+dictionary = t.dictionary
+text_to_speech = t.text_to_speech
 
 # For backward compatibility
 Translator = Translate
 
-__version_tuple__ = (2, 4, '(alpha)')
-
-
-def __version_string__():
-    if isinstance(__version_tuple__[-1], str):
-        return '.'.join(map(str, __version_tuple__[:-1])) + __version_tuple__[-1]
-    return '.'.join(str(i) for i in __version_tuple__)
-
-
-__author__ = 'Anime no Sekai'
-__copyright__ = 'Copyright 2022, translate'
-__credits__ = ['animenosekai']
-__license__ = 'GNU General Public License v3 (GPLv3)'
-__version__ = 'translatepy v{}'.format(__version_string__())
-__maintainer__ = 'Anime no Sekai'
-__email__ = 'niichannomail@gmail.com'
-__status__ = 'Stable'
+# Languages
+AUTOMATIC = Language("auto")
+ENGLISH = Language("eng")
