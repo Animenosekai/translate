@@ -1,6 +1,6 @@
 # *module* **Reverso**
 
-> [Source: ../../../../../translators/Reverso.py @ line 0](../../../../../translators/Reverso.py#L0)
+> [Source: ../../../../../translators/Reverso.py](../../../../../translators/Reverso.py#L0)
 
 Reverso  
 translatepy's implementation of Reverso
@@ -9,9 +9,7 @@ translatepy's implementation of Reverso
 
 - [../../../../../translators/base.py](../../../../../translators/base.py): As `BaseTranslator`, `C`
 
-## *class* **ReversoTranslate**
-
-> [Source: ../../../../../translators/Reverso.py @ line 16-182](../../../../../translators/Reverso.py#L16-L182)
+## *class* [**ReversoTranslate**](../../../../../translators/Reverso.py#L16-L182)
 
 A Python implementation of Reverso's API
 

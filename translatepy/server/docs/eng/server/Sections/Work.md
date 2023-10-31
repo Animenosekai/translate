@@ -92,11 +92,11 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "source_lang": "no example",
         "service": "no example",
+        "translation": "no example",
         "dest_lang": "no example",
         "source": "no example",
-        "translation": "no example"
+        "source_lang": "no example"
     }
 }
 
@@ -106,20 +106,20 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `source_lang` | The source text's language  | Language      | No      |
 | `service` | The service which returned the result  | Translator      | No      |
+| `translation` | The translation result  | string      | No      |
 | `dest_lang` | The result's language  | Language      | No      |
 | `source` | The source text  | string      | No      |
-| `translation` | The translation result  | string      | No      |
+| `source_lang` | The source text's language  | Language      | No      |
 
 #### Possible Errors
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # translate_html
@@ -211,9 +211,9 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
+        "service": "no example",
         "source_lang": "no example",
-        "source": "no example",
-        "service": "no example"
+        "source": "no example"
     }
 }
 
@@ -223,18 +223,18 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
+| `service` | The service which returned the result  | Translator      | No      |
 | `source_lang` | The source text's language  | Language      | No      |
 | `source` | The source text  | string      | No      |
-| `service` | The service which returned the result  | Translator      | No      |
 
 #### Possible Errors
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # stream
@@ -312,10 +312,10 @@ print(r.json()["data"])
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # transliterate
@@ -407,11 +407,11 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "source_lang": "no example",
+        "service": "no example",
+        "transliteration": "no example",
         "dest_lang": "no example",
         "source": "no example",
-        "service": "no example",
-        "transliteration": "no example"
+        "source_lang": "no example"
     }
 }
 
@@ -421,20 +421,20 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `source_lang` | The source text's language  | Language      | No      |
-| `dest_lang` | The result's language  | Language      | No      |
-| `source` | The source text  | string      | No      |
 | `service` | The service which returned the result  | Translator      | No      |
 | `transliteration` | The transliteration result  | string      | No      |
+| `dest_lang` | The result's language  | Language      | No      |
+| `source` | The source text  | string      | No      |
+| `source_lang` | The source text's language  | Language      | No      |
 
 #### Possible Errors
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # spellcheck
@@ -526,11 +526,11 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "source_lang": "no example",
-        "rich": true,
-        "source": "no example",
         "service": "no example",
-        "corrected": "no example"
+        "source": "no example",
+        "source_lang": "no example",
+        "corrected": "no example",
+        "rich": true
     }
 }
 
@@ -540,20 +540,20 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `source_lang` | The source text's language  | Language      | No      |
-| `rich` | Whether the given result features the full range of information  | bool      | No      |
-| `source` | The source text  | string      | No      |
 | `service` | The service which returned the result  | Translator      | No      |
+| `source` | The source text  | string      | No      |
+| `source_lang` | The source text's language  | Language      | No      |
 | `corrected` | The corrected text  | string      | No      |
+| `rich` | Whether the given result features the full range of information  | bool      | No      |
 
 #### Possible Errors
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # language
@@ -645,9 +645,9 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
+        "service": "no example",
         "source_lang": "no example",
-        "source": "no example",
-        "service": "no example"
+        "source": "no example"
     }
 }
 
@@ -657,18 +657,18 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
+| `service` | The service which returned the result  | Translator      | No      |
 | `source_lang` | The source text's language  | Language      | No      |
 | `source` | The source text  | string      | No      |
-| `service` | The service which returned the result  | Translator      | No      |
 
 #### Possible Errors
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # example
@@ -760,12 +760,12 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
+        "service": "no example",
         "reference": "no example",
-        "example": "no example",
-        "source_lang": "no example",
-        "positions": "no example",
         "source": "no example",
-        "service": "no example"
+        "source_lang": "no example",
+        "example": "no example",
+        "positions": "no example"
     }
 }
 
@@ -775,21 +775,21 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `reference` | Where the example comes from (i.e a book or a the person who said it if it's a quote)  | string      | No      |
-| `example` | The example  | string      | No      |
-| `source_lang` | The source text's language  | Language      | No      |
-| `positions` | The positions of the word in the example  | list[int]      | No      |
-| `source` | The source text  | string      | No      |
 | `service` | The service which returned the result  | Translator      | No      |
+| `reference` | Where the example comes from (i.e a book or a the person who said it if it's a quote)  | string      | No      |
+| `source` | The source text  | string      | No      |
+| `source_lang` | The source text's language  | Language      | No      |
+| `example` | The example  | string      | No      |
+| `positions` | The positions of the word in the example  | list[int]      | No      |
 
 #### Possible Errors
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # dictionary
@@ -881,11 +881,11 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
+        "service": "no example",
         "source_lang": "no example",
-        "meaning": "no example",
-        "rich": true,
         "source": "no example",
-        "service": "no example"
+        "meaning": "no example",
+        "rich": true
     }
 }
 
@@ -895,20 +895,20 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
+| `service` | The service which returned the result  | Translator      | No      |
 | `source_lang` | The source text's language  | Language      | No      |
+| `source` | The source text  | string      | No      |
 | `meaning` | The meaning of the text  | string      | No      |
 | `rich` | Whether the given result features the full range of information  | bool      | No      |
-| `source` | The source text  | string      | No      |
-| `service` | The service which returned the result  | Translator      | No      |
 
 #### Possible Errors
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [Return to the Index](../Getting%20Started.md#index)
 
 # tts
@@ -1000,14 +1000,14 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "source_lang": "no example",
         "extension": "no example",
         "result": "no example",
         "source": "no example",
-        "service": "no example",
+        "speed": 4,
         "gender": "no example",
+        "service": "no example",
         "mime_type": "no example",
-        "speed": 4
+        "source_lang": "no example"
     }
 }
 
@@ -1017,21 +1017,21 @@ print(r.json()["data"])
 
 | Field        | Description                      | Type   | Nullable  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `source_lang` | The source text's language  | Language      | No      |
 | `extension` | Returns the audio file extension  | Optional[str]      | No      |
 | `result` | Text to speech result  | bytes      | No      |
 | `source` | The source text  | string      | No      |
-| `service` | The service which returned the result  | Translator      | No      |
-| `gender` | Gender of the 'person' saying the text  | Gender      | No      |
-| `mime_type` | Returns the MIME type of the audio file  | Optional[str]      | No      |
 | `speed` | Speed of the text to speech result  | int      | No      |
+| `gender` | Gender of the 'person' saying the text  | Gender      | No      |
+| `service` | The service which returned the result  | Translator      | No      |
+| `mime_type` | Returns the MIME type of the audio file  | Optional[str]      | No      |
+| `source_lang` | The source text's language  | Language      | No      |
 
 #### Possible Errors
 
 | Exception         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [Return to the Index](../Getting%20Started.md#index)

@@ -1,6 +1,6 @@
 # *module* **importer**
 
-> [Source: ../../../../translatepy/utils/importer.py @ line 0](../../../../translatepy/utils/importer.py#L0)
+> [Source: ../../../../translatepy/utils/importer.py](../../../../translatepy/utils/importer.py#L0)
 
 importer.py  
 A module to allow for dynamic importing of translators.
@@ -11,25 +11,15 @@ A module to allow for dynamic importing of translators.
 
 - [../../../../translatepy/utils/vectorize.py](../../../../translatepy/utils/vectorize.py): As `vectorize`
 
-## *const* **IMPORTER_CACHE**
+## *const* [**IMPORTER_CACHE**](../../../../translatepy/utils/importer.py#L18)
 
-> [Source: ../../../../translatepy/utils/importer.py @ line 18](../../../../translatepy/utils/importer.py#L18)
+## *const* [**IMPORTER_DATA_DIR**](../../../../translatepy/utils/importer.py#L20)
 
-## *const* **IMPORTER_DATA_DIR**
+## *const* [**IMPORTER_DATA_FILE**](../../../../translatepy/utils/importer.py#L21)
 
-> [Source: ../../../../translatepy/utils/importer.py @ line 20](../../../../translatepy/utils/importer.py#L20)
+## *const* [**NAMED_TRANSLATORS**](../../../../translatepy/utils/importer.py#L27)
 
-## *const* **IMPORTER_DATA_FILE**
-
-> [Source: ../../../../translatepy/utils/importer.py @ line 21](../../../../translatepy/utils/importer.py#L21)
-
-## *const* **NAMED_TRANSLATORS**
-
-> [Source: ../../../../translatepy/utils/importer.py @ line 27](../../../../translatepy/utils/importer.py#L27)
-
-## *func* **translator_from_name**
-
-> [Source: ../../../../translatepy/utils/importer.py @ line 37-42](../../../../translatepy/utils/importer.py#L37-L42)
+## *func* [**translator_from_name**](../../../../translatepy/utils/importer.py#L37-L42)
 
 Retrieves the given translate from its name
 
@@ -46,9 +36,7 @@ Retrieves the given translate from its name
 
 - `ValueError`
 
-## *func* **translator_from_path**
-
-> [Source: ../../../../translatepy/utils/importer.py @ line 45-55](../../../../translatepy/utils/importer.py#L45-L55)
+## *func* [**translator_from_path**](../../../../translatepy/utils/importer.py#L45-L55)
 
 Returns a translator from its dot path
 
@@ -69,9 +57,7 @@ Returns a translator from its dot path
 
 - `ImportError`
 
-## *func* **get_translator**
-
-> [Source: ../../../../translatepy/utils/importer.py @ line 58-94](../../../../translatepy/utils/importer.py#L58-L94)
+## *func* [**get_translator**](../../../../translatepy/utils/importer.py#L58-L94)
 
 Searches the given translator
 

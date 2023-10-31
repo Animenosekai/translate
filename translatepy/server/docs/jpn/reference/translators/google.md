@@ -1,6 +1,6 @@
 # *module* **Google**
 
-> [Source: ../../../../../translators/Google.py @ line 0](../../../../../translators/Google.py#L0)
+> [Source: ../../../../../translators/Google.py](../../../../../translators/Google.py#L0)
 
 Google Translate  
 This both uses the mobile version of Google Translate, extension endpoints and the `batchexecute` (JSONRPC) API  
@@ -12,17 +12,11 @@ The `batchexecute` implementation is heavily inspired by ssut/py-googletrans#255
 
 - [../../../../../translators/base_aggregator.py](../../../../../translators/base_aggregator.py): As `BaseTranslatorAggregator`
 
-## *const* **DOMAINS**
+## *const* [**DOMAINS**](../../../../../translators/Google.py#L21)
 
-> [Source: ../../../../../translators/Google.py @ line 21](../../../../../translators/Google.py#L21)
+## *const* [**SUPPORTED_LANGUAGES**](../../../../../translators/Google.py#L58)
 
-## *const* **SUPPORTED_LANGUAGES**
-
-> [Source: ../../../../../translators/Google.py @ line 58](../../../../../translators/Google.py#L58)
-
-## *class* **GoogleTranslate**
-
-> [Source: ../../../../../translators/Google.py @ line 66-81](../../../../../translators/Google.py#L66-L81)
+## *class* [**GoogleTranslate**](../../../../../translators/Google.py#L66-L81)
 
 An aggregation of Google Translate translators
 
@@ -30,9 +24,7 @@ An aggregation of Google Translate translators
 
 - `ServiceURLError`
 
-## *class* **GoogleTranslateV1**
-
-> [Source: ../../../../../translators/Google.py @ line 84-261](../../../../../translators/Google.py#L84-L261)
+## *class* [**GoogleTranslateV1**](../../../../../translators/Google.py#L84-L261)
 
 A Python implementation of Google Translate's JSONRPC API
 
@@ -40,8 +32,6 @@ A Python implementation of Google Translate's JSONRPC API
 
 - `ValueError`
 
-## *class* **GoogleTranslateV2**
-
-> [Source: ../../../../../translators/Google.py @ line 264-423](../../../../../translators/Google.py#L264-L423)
+## *class* [**GoogleTranslateV2**](../../../../../translators/Google.py#L264-L423)
 
 A Python implementation of Google Translate's APIs

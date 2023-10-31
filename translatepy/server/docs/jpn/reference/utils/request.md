@@ -1,6 +1,6 @@
 # *module* **request**
 
-> [Source: ../../../../../utils/request.py @ line 0](../../../../../utils/request.py#L0)
+> [Source: ../../../../../utils/request.py](../../../../../utils/request.py#L0)
 
 utils/request  
 Extending python requests functionalities with translatepy's own implementation of proxies, caching, exceptions, etc.
@@ -13,29 +13,19 @@ Extending python requests functionalities with translatepy's own implementation 
 
 - **Animenosekai**
 Original author
-## *const* **RequestHash**
+## *const* [**RequestHash**](../../../../../utils/request.py#L24)
 
-> [Source: ../../../../../utils/request.py @ line 24](../../../../../utils/request.py#L24)
+## *const* [**RateLimitLock**](../../../../../utils/request.py#L27)
 
-## *const* **RateLimitLock**
+## *const* [**CacheLock**](../../../../../utils/request.py#L28)
 
-> [Source: ../../../../../utils/request.py @ line 27](../../../../../utils/request.py#L27)
-
-## *const* **CacheLock**
-
-> [Source: ../../../../../utils/request.py @ line 28](../../../../../utils/request.py#L28)
-
-## *class* **Session**
-
-> [Source: ../../../../../utils/request.py @ line 32-225](../../../../../utils/request.py#L32-L225)
+## *class* [**Session**](../../../../../utils/request.py#L32-L225)
 
 ### Raises
 
 - `exceptions.RateLimitPrevention`
 
-### *func* Session.**set_http_proxy**
-
-> [Source: ../../../../../utils/request.py @ line 52-64](../../../../../utils/request.py#L52-L64)
+### *func* [Session.**set_http_proxy**](../../../../../utils/request.py#L52-L64)
 
 Sets the HTTP proxy to use.
 
@@ -45,9 +35,7 @@ Sets the HTTP proxy to use.
   - The HTTP proxy to use.
 
 
-### *func* Session.**add_http_proxy**
-
-> [Source: ../../../../../utils/request.py @ line 66-75](../../../../../utils/request.py#L66-L75)
+### *func* [Session.**add_http_proxy**](../../../../../utils/request.py#L66-L75)
 
 Adds a HTTP proxy to the list of proxies to use.
 
@@ -57,9 +45,7 @@ Adds a HTTP proxy to the list of proxies to use.
   - The HTTP proxy to add.
 
 
-### *func* Session.**request**
-
-> [Source: ../../../../../utils/request.py @ line 77-215](../../../../../utils/request.py#L77-L215)
+### *func* [Session.**request**](../../../../../utils/request.py#L77-L215)
 
 Make an HTTP request with the provided method.
 
@@ -203,9 +189,7 @@ If None, the default_cache_duration attribute will be used.
 <Response [200]>
 ```
 
-### *func* Session.**invalidate**
-
-> [Source: ../../../../../utils/request.py @ line 217-225](../../../../../utils/request.py#L217-L225)
+### *func* [Session.**invalidate**](../../../../../utils/request.py#L217-L225)
 
 Invalidates the given request cache.
 
@@ -214,13 +198,9 @@ Invalidates the given request cache.
 - **hash**: `RequestHash`, `requesthash`
 
 
-## *const* **SharedSession**
+## *const* [**SharedSession**](../../../../../utils/request.py#L228)
 
-> [Source: ../../../../../utils/request.py @ line 228](../../../../../utils/request.py#L228)
-
-## *func* **request**
-
-> [Source: ../../../../../utils/request.py @ line 231-268](../../../../../utils/request.py#L231-L268)
+## *func* [**request**](../../../../../utils/request.py#L231-L268)
 
 Make an HTTP request.
 
@@ -315,9 +295,7 @@ Make an HTTP request.
 > **Note**
 > Look at Session.request for more information.
 
-## *func* **get**
-
-> [Source: ../../../../../utils/request.py @ line 271-300](../../../../../utils/request.py#L271-L300)
+## *func* [**get**](../../../../../utils/request.py#L271-L300)
 
 Make a GET request.
 
@@ -405,9 +383,7 @@ Make a GET request.
 > **Note**
 > Look at Session.request for more information.
 
-## *func* **post**
-
-> [Source: ../../../../../utils/request.py @ line 303-332](../../../../../utils/request.py#L303-L332)
+## *func* [**post**](../../../../../utils/request.py#L303-L332)
 
 Make a POST request.
 
@@ -495,9 +471,7 @@ Make a POST request.
 > **Note**
 > Look at Session.request for more information.
 
-## *func* **put**
-
-> [Source: ../../../../../utils/request.py @ line 335-364](../../../../../utils/request.py#L335-L364)
+## *func* [**put**](../../../../../utils/request.py#L335-L364)
 
 Make a PUT request.
 
@@ -585,9 +559,7 @@ Make a PUT request.
 > **Note**
 > Look at Session.request for more information.
 
-## *func* **patch**
-
-> [Source: ../../../../../utils/request.py @ line 367-396](../../../../../utils/request.py#L367-L396)
+## *func* [**patch**](../../../../../utils/request.py#L367-L396)
 
 Make a PATCH request.
 
@@ -675,9 +647,7 @@ Make a PATCH request.
 > **Note**
 > Look at Session.request for more information.
 
-## *func* **delete**
-
-> [Source: ../../../../../utils/request.py @ line 399-428](../../../../../utils/request.py#L399-L428)
+## *func* [**delete**](../../../../../utils/request.py#L399-L428)
 
 Make a DELETE request.
 
@@ -765,9 +735,7 @@ Make a DELETE request.
 > **Note**
 > Look at Session.request for more information.
 
-## *func* **head**
-
-> [Source: ../../../../../utils/request.py @ line 431-460](../../../../../utils/request.py#L431-L460)
+## *func* [**head**](../../../../../utils/request.py#L431-L460)
 
 Make a HEAD request.
 
@@ -855,9 +823,7 @@ Make a HEAD request.
 > **Note**
 > Look at Session.request for more information.
 
-## *func* **options**
-
-> [Source: ../../../../../utils/request.py @ line 463-492](../../../../../utils/request.py#L463-L492)
+## *func* [**options**](../../../../../utils/request.py#L463-L492)
 
 Make an OPTIONS request.
 

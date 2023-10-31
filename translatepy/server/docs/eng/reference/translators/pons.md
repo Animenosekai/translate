@@ -1,6 +1,6 @@
 # *module* **PONS**
 
-> [Source: ../../../../../translators/PONS.py @ line 0](../../../../../translators/PONS.py#L0)
+> [Source: ../../../../../translators/PONS.py](../../../../../translators/PONS.py#L0)
 
 translatepy's implementation of <PONS>
 
@@ -8,16 +8,10 @@ translatepy's implementation of <PONS>
 
 - [../../../../../translators/base.py](../../../../../translators/base.py): As `BaseTranslateException`, `BaseTranslator`, `C`
 
-## *class* **PONSException**
+## *class* [**PONSException**](../../../../../translators/PONS.py#L15-L18)
 
-> [Source: ../../../../../translators/PONS.py @ line 15-18](../../../../../translators/PONS.py#L15-L18)
+### *attr* [PONSException.**error_codes**](../../../../../translators/PONS.py#L16)
 
-### *attr* PONSException.**error_codes**
-
-> [Source: ../../../../../translators/PONS.py @ line 16](../../../../../translators/PONS.py#L16)
-
-## *class* **PONS**
-
-> [Source: ../../../../../translators/PONS.py @ line 24-111](../../../../../translators/PONS.py#L24-L111)
+## *class* [**PONS**](../../../../../translators/PONS.py#L24-L111)
 
 translatepy's implementation of <PONS>

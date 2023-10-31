@@ -1,6 +1,6 @@
 # *module* **__init__**
 
-> [Source: ../../../../../translators/__init__.py @ line 0](../../../../../translators/__init__.py#L0)
+> [Source: ../../../../../translators/__init__.py](../../../../../translators/__init__.py#L0)
 
 ## Imports
 
@@ -30,58 +30,30 @@
 
 - [../../../../../translators/papago.py](../../../../../translators/papago.py): As `Papago`
 
-## *const* **Reverso**
+## *const* [**Reverso**](../../../../../translators/__init__.py#L21)
 
-> [Source: ../../../../../translators/__init__.py @ line 21](../../../../../translators/__init__.py#L21)
+## *const* [**Bing**](../../../../../translators/__init__.py#L22)
 
-## *const* **Bing**
+## *const* [**DeepL**](../../../../../translators/__init__.py#L23)
 
-> [Source: ../../../../../translators/__init__.py @ line 22](../../../../../translators/__init__.py#L22)
+## *const* [**Deepl**](../../../../../translators/__init__.py#L24)
 
-## *const* **DeepL**
+## *const* [**Google**](../../../../../translators/__init__.py#L25)
 
-> [Source: ../../../../../translators/__init__.py @ line 23](../../../../../translators/__init__.py#L23)
+## *const* [**Libre**](../../../../../translators/__init__.py#L26)
 
-## *const* **Deepl**
+## *const* [**MyMemory**](../../../../../translators/__init__.py#L27)
 
-> [Source: ../../../../../translators/__init__.py @ line 24](../../../../../translators/__init__.py#L24)
+## *const* [**TranslateCom**](../../../../../translators/__init__.py#L28)
 
-## *const* **Google**
+## *const* [**Yandex**](../../../../../translators/__init__.py#L29)
 
-> [Source: ../../../../../translators/__init__.py @ line 25](../../../../../translators/__init__.py#L25)
+## *const* [**Microsoft**](../../../../../translators/__init__.py#L30)
 
-## *const* **Libre**
+## *const* [**QCRITranslate**](../../../../../translators/__init__.py#L32)
 
-> [Source: ../../../../../translators/__init__.py @ line 26](../../../../../translators/__init__.py#L26)
+## *const* [**PONSTranslate**](../../../../../translators/__init__.py#L33)
 
-## *const* **MyMemory**
+## *const* [**PapagoTranslate**](../../../../../translators/__init__.py#L34)
 
-> [Source: ../../../../../translators/__init__.py @ line 27](../../../../../translators/__init__.py#L27)
-
-## *const* **TranslateCom**
-
-> [Source: ../../../../../translators/__init__.py @ line 28](../../../../../translators/__init__.py#L28)
-
-## *const* **Yandex**
-
-> [Source: ../../../../../translators/__init__.py @ line 29](../../../../../translators/__init__.py#L29)
-
-## *const* **Microsoft**
-
-> [Source: ../../../../../translators/__init__.py @ line 30](../../../../../translators/__init__.py#L30)
-
-## *const* **QCRITranslate**
-
-> [Source: ../../../../../translators/__init__.py @ line 32](../../../../../translators/__init__.py#L32)
-
-## *const* **PONSTranslate**
-
-> [Source: ../../../../../translators/__init__.py @ line 33](../../../../../translators/__init__.py#L33)
-
-## *const* **PapagoTranslate**
-
-> [Source: ../../../../../translators/__init__.py @ line 34](../../../../../translators/__init__.py#L34)
-
-## *const* **NaverTranslate**
-
-> [Source: ../../../../../translators/__init__.py @ line 35](../../../../../translators/__init__.py#L35)
+## *const* [**NaverTranslate**](../../../../../translators/__init__.py#L35)

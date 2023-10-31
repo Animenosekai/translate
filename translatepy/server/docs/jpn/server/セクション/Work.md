@@ -92,11 +92,11 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "source_lang": "no example",
         "service": "no example",
+        "translation": "no example",
         "dest_lang": "no example",
         "source": "no example",
-        "translation": "no example"
+        "source_lang": "no example"
     }
 }
 
@@ -106,20 +106,20 @@ print(r.json()["data"])
 
 | フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `source_lang` | The source text's language  | Language      | いいえ      |
 | `service` | The service which returned the result  | Translator      | いいえ      |
+| `translation` | The translation result  | string      | いいえ      |
 | `dest_lang` | The result's language  | Language      | いいえ      |
 | `source` | The source text  | string      | いいえ      |
-| `translation` | The translation result  | string      | いいえ      |
+| `source_lang` | The source text's language  | Language      | いいえ      |
 
 #### 起こりうるエラー
 
 | エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # translate_html
@@ -211,9 +211,9 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
+        "service": "no example",
         "source_lang": "no example",
-        "source": "no example",
-        "service": "no example"
+        "source": "no example"
     }
 }
 
@@ -223,18 +223,18 @@ print(r.json()["data"])
 
 | フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
+| `service` | The service which returned the result  | Translator      | いいえ      |
 | `source_lang` | The source text's language  | Language      | いいえ      |
 | `source` | The source text  | string      | いいえ      |
-| `service` | The service which returned the result  | Translator      | いいえ      |
 
 #### 起こりうるエラー
 
 | エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # stream
@@ -312,10 +312,10 @@ print(r.json()["data"])
 
 | エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # transliterate
@@ -407,11 +407,11 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "source_lang": "no example",
+        "service": "no example",
+        "transliteration": "no example",
         "dest_lang": "no example",
         "source": "no example",
-        "service": "no example",
-        "transliteration": "no example"
+        "source_lang": "no example"
     }
 }
 
@@ -421,20 +421,20 @@ print(r.json()["data"])
 
 | フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `source_lang` | The source text's language  | Language      | いいえ      |
-| `dest_lang` | The result's language  | Language      | いいえ      |
-| `source` | The source text  | string      | いいえ      |
 | `service` | The service which returned the result  | Translator      | いいえ      |
 | `transliteration` | The transliteration result  | string      | いいえ      |
+| `dest_lang` | The result's language  | Language      | いいえ      |
+| `source` | The source text  | string      | いいえ      |
+| `source_lang` | The source text's language  | Language      | いいえ      |
 
 #### 起こりうるエラー
 
 | エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # spellcheck
@@ -526,11 +526,11 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "source_lang": "no example",
-        "rich": true,
-        "source": "no example",
         "service": "no example",
-        "corrected": "no example"
+        "source": "no example",
+        "source_lang": "no example",
+        "corrected": "no example",
+        "rich": true
     }
 }
 
@@ -540,20 +540,20 @@ print(r.json()["data"])
 
 | フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `source_lang` | The source text's language  | Language      | いいえ      |
-| `rich` | Whether the given result features the full range of information  | bool      | いいえ      |
-| `source` | The source text  | string      | いいえ      |
 | `service` | The service which returned the result  | Translator      | いいえ      |
+| `source` | The source text  | string      | いいえ      |
+| `source_lang` | The source text's language  | Language      | いいえ      |
 | `corrected` | The corrected text  | string      | いいえ      |
+| `rich` | Whether the given result features the full range of information  | bool      | いいえ      |
 
 #### 起こりうるエラー
 
 | エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # language
@@ -645,9 +645,9 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
+        "service": "no example",
         "source_lang": "no example",
-        "source": "no example",
-        "service": "no example"
+        "source": "no example"
     }
 }
 
@@ -657,18 +657,18 @@ print(r.json()["data"])
 
 | フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
+| `service` | The service which returned the result  | Translator      | いいえ      |
 | `source_lang` | The source text's language  | Language      | いいえ      |
 | `source` | The source text  | string      | いいえ      |
-| `service` | The service which returned the result  | Translator      | いいえ      |
 
 #### 起こりうるエラー
 
 | エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # example
@@ -760,12 +760,12 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
+        "service": "no example",
         "reference": "no example",
-        "example": "no example",
-        "source_lang": "no example",
-        "positions": "no example",
         "source": "no example",
-        "service": "no example"
+        "source_lang": "no example",
+        "example": "no example",
+        "positions": "no example"
     }
 }
 
@@ -775,21 +775,21 @@ print(r.json()["data"])
 
 | フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `reference` | Where the example comes from (i.e a book or a the person who said it if it's a quote)  | string      | いいえ      |
-| `example` | The example  | string      | いいえ      |
-| `source_lang` | The source text's language  | Language      | いいえ      |
-| `positions` | The positions of the word in the example  | list[int]      | いいえ      |
-| `source` | The source text  | string      | いいえ      |
 | `service` | The service which returned the result  | Translator      | いいえ      |
+| `reference` | Where the example comes from (i.e a book or a the person who said it if it's a quote)  | string      | いいえ      |
+| `source` | The source text  | string      | いいえ      |
+| `source_lang` | The source text's language  | Language      | いいえ      |
+| `example` | The example  | string      | いいえ      |
+| `positions` | The positions of the word in the example  | list[int]      | いいえ      |
 
 #### 起こりうるエラー
 
 | エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # dictionary
@@ -881,11 +881,11 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
+        "service": "no example",
         "source_lang": "no example",
-        "meaning": "no example",
-        "rich": true,
         "source": "no example",
-        "service": "no example"
+        "meaning": "no example",
+        "rich": true
     }
 }
 
@@ -895,20 +895,20 @@ print(r.json()["data"])
 
 | フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
+| `service` | The service which returned the result  | Translator      | いいえ      |
 | `source_lang` | The source text's language  | Language      | いいえ      |
+| `source` | The source text  | string      | いいえ      |
 | `meaning` | The meaning of the text  | string      | いいえ      |
 | `rich` | Whether the given result features the full range of information  | bool      | いいえ      |
-| `source` | The source text  | string      | いいえ      |
-| `service` | The service which returned the result  | Translator      | いいえ      |
 
 #### 起こりうるエラー
 
 | エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # tts
@@ -1000,14 +1000,14 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "source_lang": "no example",
         "extension": "no example",
         "result": "no example",
         "source": "no example",
-        "service": "no example",
+        "speed": 4,
         "gender": "no example",
+        "service": "no example",
         "mime_type": "no example",
-        "speed": 4
+        "source_lang": "no example"
     }
 }
 
@@ -1017,21 +1017,21 @@ print(r.json()["data"])
 
 | フィールド        | 詳細                      | タイプ   | null可能  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `source_lang` | The source text's language  | Language      | いいえ      |
 | `extension` | Returns the audio file extension  | Optional[str]      | いいえ      |
 | `result` | Text to speech result  | bytes      | いいえ      |
 | `source` | The source text  | string      | いいえ      |
-| `service` | The service which returned the result  | Translator      | いいえ      |
-| `gender` | Gender of the 'person' saying the text  | Gender      | いいえ      |
-| `mime_type` | Returns the MIME type of the audio file  | Optional[str]      | いいえ      |
 | `speed` | Speed of the text to speech result  | int      | いいえ      |
+| `gender` | Gender of the 'person' saying the text  | Gender      | いいえ      |
+| `service` | The service which returned the result  | Translator      | いいえ      |
+| `mime_type` | Returns the MIME type of the audio file  | Optional[str]      | いいえ      |
+| `source_lang` | The source text's language  | Language      | いいえ      |
 
 #### 起こりうるエラー
 
 | エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
-| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 [インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)

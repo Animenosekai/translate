@@ -1,31 +1,21 @@
 # *module* **lru**
 
-> [Source: ../../../../translatepy/utils/lru.py @ line 0](../../../../translatepy/utils/lru.py#L0)
+> [Source: ../../../../translatepy/utils/lru.py](../../../../translatepy/utils/lru.py#L0)
 
 lru.py  
 LRU cache implementation for the translatepy project.
 
-## *const* **logger**
+## *const* [**logger**](../../../../translatepy/utils/lru.py#L16)
 
-> [Source: ../../../../translatepy/utils/lru.py @ line 16](../../../../translatepy/utils/lru.py#L16)
+## *class* [**LRUDictCache**](../../../../translatepy/utils/lru.py#L19-L38)
 
-## *class* **LRUDictCache**
+### *func* [LRUDictCache.**clear**](../../../../translatepy/utils/lru.py#L37-L38)
 
-> [Source: ../../../../translatepy/utils/lru.py @ line 19-38](../../../../translatepy/utils/lru.py#L19-L38)
-
-### *func* LRUDictCache.**clear**
-
-> [Source: ../../../../translatepy/utils/lru.py @ line 37-38](../../../../translatepy/utils/lru.py#L37-L38)
-
-## *class* **SizeLimitedLRUCache**
-
-> [Source: ../../../../translatepy/utils/lru.py @ line 41-173](../../../../translatepy/utils/lru.py#L41-L173)
+## *class* [**SizeLimitedLRUCache**](../../../../translatepy/utils/lru.py#L41-L173)
 
 Special implementation of a size limited LRU cache.
 
-### *func* SizeLimitedLRUCache.**get_size**
-
-> [Source: ../../../../translatepy/utils/lru.py @ line 135-170](../../../../translatepy/utils/lru.py#L135-L170)
+### *func* [SizeLimitedLRUCache.**get_size**](../../../../translatepy/utils/lru.py#L135-L170)
 
 Get the size of an object.
 
@@ -50,13 +40,9 @@ This function is faster than the custom implementation but might yield inaccurat
 > The second implementation of this function is based on the following article:
     https://towardsdatascience.com/the-strange-size-of-python-objects-in-memory-ce87bdfbb97f
 
-### *func* SizeLimitedLRUCache.**clear**
+### *func* [SizeLimitedLRUCache.**clear**](../../../../translatepy/utils/lru.py#L172-L173)
 
-> [Source: ../../../../translatepy/utils/lru.py @ line 172-173](../../../../translatepy/utils/lru.py#L172-L173)
-
-## *func* **timed_lru_cache**
-
-> [Source: ../../../../translatepy/utils/lru.py @ line 176-198](../../../../translatepy/utils/lru.py#L176-L198)
+## *func* [**timed_lru_cache**](../../../../translatepy/utils/lru.py#L176-L198)
 
 ### Parameters
 

@@ -1,141 +1,73 @@
 # *module* **exceptions**
 
-> [Source: ../../../../exceptions.py @ line 0](../../../../exceptions.py#L0)
+> [Source: ../../../../exceptions.py](../../../../exceptions.py#L0)
 
 A list of exceptions used throughout translatepy
 
-## *class* **TranslatepyException**
+## *class* [**TranslatepyException**](../../../../exceptions.py#L5-L9)
 
-> [Source: ../../../../exceptions.py @ line 5-9](../../../../exceptions.py#L5-L9)
+### *attr* [TranslatepyException.**LOG**](../../../../exceptions.py#L6)
 
-### *attr* TranslatepyException.**LOG**
+## *class* [**NoResult**](../../../../exceptions.py#L12-L18)
 
-> [Source: ../../../../exceptions.py @ line 6](../../../../exceptions.py#L6)
+### *attr* [NoResult.**STATUS_CODE**](../../../../exceptions.py#L13)
 
-## *class* **NoResult**
+### *attr* [NoResult.**MESSAGE**](../../../../exceptions.py#L14)
 
-> [Source: ../../../../exceptions.py @ line 12-18](../../../../exceptions.py#L12-L18)
+### *attr* [NoResult.**EXCEPTION_NAME**](../../../../exceptions.py#L15)
 
-### *attr* NoResult.**STATUS_CODE**
+## *class* [**ParameterTypeError**](../../../../exceptions.py#L21-L27)
 
-> [Source: ../../../../exceptions.py @ line 13](../../../../exceptions.py#L13)
+### *attr* [ParameterTypeError.**STATUS_CODE**](../../../../exceptions.py#L22)
 
-### *attr* NoResult.**MESSAGE**
+### *attr* [ParameterTypeError.**MESSAGE**](../../../../exceptions.py#L23)
 
-> [Source: ../../../../exceptions.py @ line 14](../../../../exceptions.py#L14)
+### *attr* [ParameterTypeError.**EXCEPTION_NAME**](../../../../exceptions.py#L24)
 
-### *attr* NoResult.**EXCEPTION_NAME**
+## *class* [**UnknownLanguage**](../../../../exceptions.py#L30-L38)
 
-> [Source: ../../../../exceptions.py @ line 15](../../../../exceptions.py#L15)
+### *attr* [UnknownLanguage.**STATUS_CODE**](../../../../exceptions.py#L31)
 
-## *class* **ParameterTypeError**
+### *attr* [UnknownLanguage.**MESSAGE**](../../../../exceptions.py#L32)
 
-> [Source: ../../../../exceptions.py @ line 21-27](../../../../exceptions.py#L21-L27)
+### *attr* [UnknownLanguage.**EXCEPTION_NAME**](../../../../exceptions.py#L33)
 
-### *attr* ParameterTypeError.**STATUS_CODE**
+## *class* [**UnknownTranslator**](../../../../exceptions.py#L41-L49)
 
-> [Source: ../../../../exceptions.py @ line 22](../../../../exceptions.py#L22)
+### *attr* [UnknownTranslator.**STATUS_CODE**](../../../../exceptions.py#L42)
 
-### *attr* ParameterTypeError.**MESSAGE**
+### *attr* [UnknownTranslator.**MESSAGE**](../../../../exceptions.py#L43)
 
-> [Source: ../../../../exceptions.py @ line 23](../../../../exceptions.py#L23)
+### *attr* [UnknownTranslator.**EXCEPTION_NAME**](../../../../exceptions.py#L44)
 
-### *attr* ParameterTypeError.**EXCEPTION_NAME**
+## *class* [**UnsupportedMethod**](../../../../exceptions.py#L52-L58)
 
-> [Source: ../../../../exceptions.py @ line 24](../../../../exceptions.py#L24)
+### *attr* [UnsupportedMethod.**STATUS_CODE**](../../../../exceptions.py#L53)
 
-## *class* **UnknownLanguage**
+### *attr* [UnsupportedMethod.**MESSAGE**](../../../../exceptions.py#L54)
 
-> [Source: ../../../../exceptions.py @ line 30-38](../../../../exceptions.py#L30-L38)
+### *attr* [UnsupportedMethod.**EXCEPTION_NAME**](../../../../exceptions.py#L55)
 
-### *attr* UnknownLanguage.**STATUS_CODE**
+## *class* [**UnsupportedLanguage**](../../../../exceptions.py#L61-L67)
 
-> [Source: ../../../../exceptions.py @ line 31](../../../../exceptions.py#L31)
+### *attr* [UnsupportedLanguage.**STATUS_CODE**](../../../../exceptions.py#L62)
 
-### *attr* UnknownLanguage.**MESSAGE**
+### *attr* [UnsupportedLanguage.**MESSAGE**](../../../../exceptions.py#L63)
 
-> [Source: ../../../../exceptions.py @ line 32](../../../../exceptions.py#L32)
+### *attr* [UnsupportedLanguage.**EXCEPTION_NAME**](../../../../exceptions.py#L64)
 
-### *attr* UnknownLanguage.**EXCEPTION_NAME**
+## *class* [**ServiceURLError**](../../../../exceptions.py#L70-L76)
 
-> [Source: ../../../../exceptions.py @ line 33](../../../../exceptions.py#L33)
+### *attr* [ServiceURLError.**STATUS_CODE**](../../../../exceptions.py#L71)
 
-## *class* **UnknownTranslator**
+### *attr* [ServiceURLError.**MESSAGE**](../../../../exceptions.py#L72)
 
-> [Source: ../../../../exceptions.py @ line 41-49](../../../../exceptions.py#L41-L49)
+### *attr* [ServiceURLError.**EXCEPTION_NAME**](../../../../exceptions.py#L73)
 
-### *attr* UnknownTranslator.**STATUS_CODE**
+## *class* [**RateLimitPrevention**](../../../../exceptions.py#L79-L82)
 
-> [Source: ../../../../exceptions.py @ line 42](../../../../exceptions.py#L42)
+### *attr* [RateLimitPrevention.**STATUS_CODE**](../../../../exceptions.py#L80)
 
-### *attr* UnknownTranslator.**MESSAGE**
+### *attr* [RateLimitPrevention.**MESSAGE**](../../../../exceptions.py#L81)
 
-> [Source: ../../../../exceptions.py @ line 43](../../../../exceptions.py#L43)
-
-### *attr* UnknownTranslator.**EXCEPTION_NAME**
-
-> [Source: ../../../../exceptions.py @ line 44](../../../../exceptions.py#L44)
-
-## *class* **UnsupportedMethod**
-
-> [Source: ../../../../exceptions.py @ line 52-58](../../../../exceptions.py#L52-L58)
-
-### *attr* UnsupportedMethod.**STATUS_CODE**
-
-> [Source: ../../../../exceptions.py @ line 53](../../../../exceptions.py#L53)
-
-### *attr* UnsupportedMethod.**MESSAGE**
-
-> [Source: ../../../../exceptions.py @ line 54](../../../../exceptions.py#L54)
-
-### *attr* UnsupportedMethod.**EXCEPTION_NAME**
-
-> [Source: ../../../../exceptions.py @ line 55](../../../../exceptions.py#L55)
-
-## *class* **UnsupportedLanguage**
-
-> [Source: ../../../../exceptions.py @ line 61-67](../../../../exceptions.py#L61-L67)
-
-### *attr* UnsupportedLanguage.**STATUS_CODE**
-
-> [Source: ../../../../exceptions.py @ line 62](../../../../exceptions.py#L62)
-
-### *attr* UnsupportedLanguage.**MESSAGE**
-
-> [Source: ../../../../exceptions.py @ line 63](../../../../exceptions.py#L63)
-
-### *attr* UnsupportedLanguage.**EXCEPTION_NAME**
-
-> [Source: ../../../../exceptions.py @ line 64](../../../../exceptions.py#L64)
-
-## *class* **ServiceURLError**
-
-> [Source: ../../../../exceptions.py @ line 70-76](../../../../exceptions.py#L70-L76)
-
-### *attr* ServiceURLError.**STATUS_CODE**
-
-> [Source: ../../../../exceptions.py @ line 71](../../../../exceptions.py#L71)
-
-### *attr* ServiceURLError.**MESSAGE**
-
-> [Source: ../../../../exceptions.py @ line 72](../../../../exceptions.py#L72)
-
-### *attr* ServiceURLError.**EXCEPTION_NAME**
-
-> [Source: ../../../../exceptions.py @ line 73](../../../../exceptions.py#L73)
-
-## *class* **RateLimitPrevention**
-
-> [Source: ../../../../exceptions.py @ line 79-82](../../../../exceptions.py#L79-L82)
-
-### *attr* RateLimitPrevention.**STATUS_CODE**
-
-> [Source: ../../../../exceptions.py @ line 80](../../../../exceptions.py#L80)
-
-### *attr* RateLimitPrevention.**MESSAGE**
-
-> [Source: ../../../../exceptions.py @ line 81](../../../../exceptions.py#L81)
-
-### *attr* RateLimitPrevention.**EXCEPTION_NAME**
-
-> [Source: ../../../../exceptions.py @ line 82](../../../../exceptions.py#L82)
+### *attr* [RateLimitPrevention.**EXCEPTION_NAME**](../../../../exceptions.py#L82)

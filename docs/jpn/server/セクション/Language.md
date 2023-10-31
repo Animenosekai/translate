@@ -84,8 +84,8 @@ print(r.json()["data"])
 
 | エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
-| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)
 
 # search
@@ -185,6 +185,6 @@ print(r.json()["data"])
 
 | エラー名         | 詳細                      | コード   |
 | ---------------   | -------------------------------- | ------ |
-| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 | `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
+| `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [インデックスに戻る](../%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB.md#インデックス)

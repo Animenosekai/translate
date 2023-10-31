@@ -1,6 +1,6 @@
 # *module* **gtoken**
 
-> [Source: ../../../../../utils/gtoken.py @ line 0](../../../../../utils/gtoken.py#L0)
+> [Source: ../../../../../utils/gtoken.py](../../../../../utils/gtoken.py#L0)
 
 ORIGINAL FILENAME:  
     gtoken.py  
@@ -33,13 +33,9 @@ LICENSE:
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  
     SOFTWARE.
 
-## *const* **HEADERS**
+## *const* [**HEADERS**](../../../../../utils/gtoken.py#L45)
 
-> [Source: ../../../../../utils/gtoken.py @ line 45](../../../../../utils/gtoken.py#L45)
-
-## *class* **TokenAcquirer**
-
-> [Source: ../../../../../utils/gtoken.py @ line 56-244](../../../../../utils/gtoken.py#L56-L244)
+## *class* [**TokenAcquirer**](../../../../../utils/gtoken.py#L56-L244)
 
 Google Translate API token generator  
 translate.google.com uses a token to authorize the requests. If you are  
@@ -65,26 +61,18 @@ Example usage:
 
 - `Exception`
 
-### *attr* TokenAcquirer.**RE_TKK**
+### *attr* [TokenAcquirer.**RE_TKK**](../../../../../utils/gtoken.py#L82)
 
-> [Source: ../../../../../utils/gtoken.py @ line 82](../../../../../utils/gtoken.py#L82)
+### *attr* [TokenAcquirer.**RE_RAWTKK**](../../../../../utils/gtoken.py#L83)
 
-### *attr* TokenAcquirer.**RE_RAWTKK**
-
-> [Source: ../../../../../utils/gtoken.py @ line 83](../../../../../utils/gtoken.py#L83)
-
-### *func* TokenAcquirer.**acquire**
-
-> [Source: ../../../../../utils/gtoken.py @ line 185-239](../../../../../utils/gtoken.py#L185-L239)
+### *func* [TokenAcquirer.**acquire**](../../../../../utils/gtoken.py#L185-L239)
 
 #### Parameters
 
 - **text**
 
 
-### *func* TokenAcquirer.**do**
-
-> [Source: ../../../../../utils/gtoken.py @ line 241-244](../../../../../utils/gtoken.py#L241-L244)
+### *func* [TokenAcquirer.**do**](../../../../../utils/gtoken.py#L241-L244)
 
 #### Parameters
 

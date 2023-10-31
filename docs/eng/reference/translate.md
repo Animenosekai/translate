@@ -1,6 +1,6 @@
 # *module* **translate**
 
-> [Source: ../../../translatepy/translate.py @ line 0](../../../translatepy/translate.py#L0)
+> [Source: ../../../translatepy/translate.py](../../../translatepy/translate.py#L0)
 
 translatepy v3.0  
 © Anime no Sekai — 2023
@@ -37,14 +37,10 @@ translatepy v3.0
 
 - [../../../translatepy/utils/request.py](../../../translatepy/utils/request.py): As `request`
 
-## *const* **DEFAULT_TRANSLATORS**
-
-> [Source: ../../../translatepy/translate.py @ line 15](../../../translatepy/translate.py#L15)
+## *const* [**DEFAULT_TRANSLATORS**](../../../translatepy/translate.py#L15)
 
 A list of default translators to use with the translators aggregation
 
-## *class* **Translate**
-
-> [Source: ../../../translatepy/translate.py @ line 20-27](../../../translatepy/translate.py#L20-L27)
+## *class* [**Translate**](../../../translatepy/translate.py#L20-L27)
 
 A class which groups all of the translators

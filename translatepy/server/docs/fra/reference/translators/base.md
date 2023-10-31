@@ -1,25 +1,17 @@
 # *module* **base**
 
-> [Source: ../../../../../translators/base.py @ line 0](../../../../../translators/base.py#L0)
+> [Source: ../../../../../translators/base.py](../../../../../translators/base.py#L0)
 
 translators/base.py  
 Implements the Base Translator class
 
-## *const* **C**
+## *const* [**C**](../../../../../translators/base.py#L25)
 
-> [Source: ../../../../../translators/base.py @ line 25](../../../../../translators/base.py#L25)
+## *const* [**R**](../../../../../translators/base.py#L26)
 
-## *const* **R**
+## *const* [**HTMLType**](../../../../../translators/base.py#L27)
 
-> [Source: ../../../../../translators/base.py @ line 26](../../../../../translators/base.py#L26)
-
-## *const* **HTMLType**
-
-> [Source: ../../../../../translators/base.py @ line 27](../../../../../translators/base.py#L27)
-
-## *class* **LazyIterable**
-
-> [Source: ../../../../../translators/base.py @ line 30-69](../../../../../translators/base.py#L30-L69)
+## *class* [**LazyIterable**](../../../../../translators/base.py#L30-L69)
 
 An object which can be iterated through, even multiple times, but lazy loads the results.
 
@@ -27,33 +19,21 @@ An object which can be iterated through, even multiple times, but lazy loads the
 
 - `IndexError`
 
-## *const* **T**
+## *const* [**T**](../../../../../translators/base.py#L73)
 
-> [Source: ../../../../../translators/base.py @ line 73](../../../../../translators/base.py#L73)
-
-## *class* **BaseTranslateException**
-
-> [Source: ../../../../../translators/base.py @ line 79-105](../../../../../translators/base.py#L79-L105)
+## *class* [**BaseTranslateException**](../../../../../translators/base.py#L79-L105)
 
 A translator exception, indicating a problem which occured during translation
 
-### *attr* BaseTranslateException.**error_codes**
+### *attr* [BaseTranslateException.**error_codes**](../../../../../translators/base.py#L83)
 
-> [Source: ../../../../../translators/base.py @ line 83](../../../../../translators/base.py#L83)
-
-## *class* **Flag**
-
-> [Source: ../../../../../translators/base.py @ line 108-112](../../../../../translators/base.py#L108-L112)
+## *class* [**Flag**](../../../../../translators/base.py#L108-L112)
 
 Defines a set of internal flags the handlers can send to the validator
 
-### *attr* Flag.**MULTIPLE_RESULTS**
+### *attr* [Flag.**MULTIPLE_RESULTS**](../../../../../translators/base.py#L112)
 
-> [Source: ../../../../../translators/base.py @ line 112](../../../../../translators/base.py#L112)
-
-## *class* **BaseTranslator**
-
-> [Source: ../../../../../translators/base.py @ line 115-1293](../../../../../translators/base.py#L115-L1293)
+## *class* [**BaseTranslator**](../../../../../translators/base.py#L115-L1293)
 
 The core of translatepy  
 This defines a "Translator" instance, which is the gateway between the translator logic and translatepy
@@ -68,9 +48,7 @@ This defines a "Translator" instance, which is the gateway between the translato
 
 - `exceptions.UnsupportedMethod`
 
-### *func* BaseTranslator.**translate**
-
-> [Source: ../../../../../translators/base.py @ line 307-324](../../../../../translators/base.py#L307-L324)
+### *func* [BaseTranslator.**translate**](../../../../../translators/base.py#L307-L324)
 
 Translates the given `text` into the given `dest_lang`
 
@@ -102,9 +80,7 @@ Translates the given `text` into the given `dest_lang`
 
 - `models.TranslationResult`
 
-### *func* BaseTranslator.**translate**
-
-> [Source: ../../../../../translators/base.py @ line 327-346](../../../../../translators/base.py#L327-L346)
+### *func* [BaseTranslator.**translate**](../../../../../translators/base.py#L327-L346)
 
 Translates all of the elements in `text` into the given `dest_lang`
 
@@ -139,9 +115,7 @@ Translates all of the elements in `text` into the given `dest_lang`
 > **Note**
 > aka "Bulk Translation"
 
-### *func* BaseTranslator.**translate**
-
-> [Source: ../../../../../translators/base.py @ line 351-393](../../../../../translators/base.py#L351-L393)
+### *func* [BaseTranslator.**translate**](../../../../../translators/base.py#L351-L393)
 
 Translates `text` into the given `dest_lang`
 
@@ -172,9 +146,7 @@ Translates `text` into the given `dest_lang`
 > **Note**
 > Refer to the overloaded methods docstrings for more information.
 
-### *func* BaseTranslator.**translate_html**
-
-> [Source: ../../../../../translators/base.py @ line 420-451](../../../../../translators/base.py#L420-L451)
+### *func* [BaseTranslator.**translate_html**](../../../../../translators/base.py#L420-L451)
 
 Translates the given `html` into the given `dest_lang`
 
@@ -222,9 +194,7 @@ If `False`, the node will be left as is and the `result` part will be `None`
 
 - `models.HTMLTranslationResult`
 
-### *func* BaseTranslator.**translate_html**
-
-> [Source: ../../../../../translators/base.py @ line 454-486](../../../../../translators/base.py#L454-L486)
+### *func* [BaseTranslator.**translate_html**](../../../../../translators/base.py#L454-L486)
 
 Translates all of the elements in `html` into the given `dest_lang`
 
@@ -275,9 +245,7 @@ If `False`, the node will be left as is and the `result` part will be `None`
 > **Note**
 > aka "Bulk Translation"
 
-### *func* BaseTranslator.**translate_html**
-
-> [Source: ../../../../../translators/base.py @ line 489-565](../../../../../translators/base.py#L489-L565)
+### *func* [BaseTranslator.**translate_html**](../../../../../translators/base.py#L489-L565)
 
 Translates `html` into the given `dest_lang`
 
@@ -324,9 +292,7 @@ Translates `html` into the given `dest_lang`
 > **Note**
 > Refer to the overloaded methods docstrings for more information.
 
-### *func* BaseTranslator.**alternatives**
-
-> [Source: ../../../../../translators/base.py @ line 573-586](../../../../../translators/base.py#L573-L586)
+### *func* [BaseTranslator.**alternatives**](../../../../../translators/base.py#L573-L586)
 
 Returns the different alternative translations available for a given previous translation.
 
@@ -349,9 +315,7 @@ Returns the different alternative translations available for a given previous tr
 - `list[TranslationResult]`
     - The list of other translations a word might have
 
-### *func* BaseTranslator.**alternatives**
-
-> [Source: ../../../../../translators/base.py @ line 589-602](../../../../../translators/base.py#L589-L602)
+### *func* [BaseTranslator.**alternatives**](../../../../../translators/base.py#L589-L602)
 
 Returns the different alternative translations available for all of the given translations.
 
@@ -374,9 +338,7 @@ Returns the different alternative translations available for all of the given tr
 - `LazyIterable[list[TranslationResult]]`
     - All of the other translations
 
-### *func* BaseTranslator.**alternatives**
-
-> [Source: ../../../../../translators/base.py @ line 606-632](../../../../../translators/base.py#L606-L632)
+### *func* [BaseTranslator.**alternatives**](../../../../../translators/base.py#L606-L632)
 
 Returns the different alternative translations available for the given `translation`.
 
@@ -400,9 +362,7 @@ Returns the different alternative translations available for the given `translat
 > **Note**
 > Refer to the overloaded methods docstrings for more information.
 
-### *func* BaseTranslator.**transliterate**
-
-> [Source: ../../../../../translators/base.py @ line 664-681](../../../../../translators/base.py#L664-L681)
+### *func* [BaseTranslator.**transliterate**](../../../../../translators/base.py#L664-L681)
 
 Transliterates the given `text` into the given `dest_lang`
 
@@ -434,9 +394,7 @@ Transliterates the given `text` into the given `dest_lang`
 
 - `models.TransliterationResult`
 
-### *func* BaseTranslator.**transliterate**
-
-> [Source: ../../../../../translators/base.py @ line 684-701](../../../../../translators/base.py#L684-L701)
+### *func* [BaseTranslator.**transliterate**](../../../../../translators/base.py#L684-L701)
 
 Transliterates all of the given `text` to the given `dest_lang`
 
@@ -468,9 +426,7 @@ Transliterates all of the given `text` to the given `dest_lang`
 - `LazyIterable[TransliterationResult]`
     - An iterable which contains the transliterations
 
-### *func* BaseTranslator.**transliterate**
-
-> [Source: ../../../../../translators/base.py @ line 704-750](../../../../../translators/base.py#L704-L750)
+### *func* [BaseTranslator.**transliterate**](../../../../../translators/base.py#L704-L750)
 
 Transliterates the given `text` to the given `dest_lang`
 
@@ -501,13 +457,9 @@ Transliterates the given `text` to the given `dest_lang`
 > **Note**
 > Refer to the overloaded methods docstrings for more information.
 
-### *attr* BaseTranslator.**transliteration**
+### *attr* [BaseTranslator.**transliteration**](../../../../../translators/base.py#L753)
 
-> [Source: ../../../../../translators/base.py @ line 753](../../../../../translators/base.py#L753)
-
-### *func* BaseTranslator.**spellcheck**
-
-> [Source: ../../../../../translators/base.py @ line 781-798](../../../../../translators/base.py#L781-L798)
+### *func* [BaseTranslator.**spellcheck**](../../../../../translators/base.py#L781-L798)
 
 Checks for spelling mistakes in the given `text`
 
@@ -540,9 +492,7 @@ Checks for spelling mistakes in the given `text`
 - `SpellcheckResult`
     - The result of the spell check
 
-### *func* BaseTranslator.**spellcheck**
-
-> [Source: ../../../../../translators/base.py @ line 801-818](../../../../../translators/base.py#L801-L818)
+### *func* [BaseTranslator.**spellcheck**](../../../../../translators/base.py#L801-L818)
 
 Checks for spelling mistakes in all of the given `text`
 
@@ -573,9 +523,7 @@ Checks for spelling mistakes in all of the given `text`
 - `LazyIterable[SpellcheckResult]`
     - The results of the spell checks
 
-### *func* BaseTranslator.**spellcheck**
-
-> [Source: ../../../../../translators/base.py @ line 822-853](../../../../../translators/base.py#L822-L853)
+### *func* [BaseTranslator.**spellcheck**](../../../../../translators/base.py#L822-L853)
 
 Checks for spelling mistakes in the given `text`
 
@@ -605,9 +553,7 @@ Checks for spelling mistakes in the given `text`
 > **Note**
 > Refer to the other overloaded methods for more information.
 
-### *func* BaseTranslator.**language**
-
-> [Source: ../../../../../translators/base.py @ line 881-894](../../../../../translators/base.py#L881-L894)
+### *func* [BaseTranslator.**language**](../../../../../translators/base.py#L881-L894)
 
 Returns the detected language for the given `text`
 
@@ -630,9 +576,7 @@ Returns the detected language for the given `text`
 
 - `models.LanguageResult`
 
-### *func* BaseTranslator.**language**
-
-> [Source: ../../../../../translators/base.py @ line 897-910](../../../../../translators/base.py#L897-L910)
+### *func* [BaseTranslator.**language**](../../../../../translators/base.py#L897-L910)
 
 Returns the detected language for all of the given `text`
 
@@ -655,9 +599,7 @@ Returns the detected language for all of the given `text`
 - `LazyIterable[LanguageResult]`
     - The results of the language detections
 
-### *func* BaseTranslator.**language**
-
-> [Source: ../../../../../translators/base.py @ line 914-936](../../../../../translators/base.py#L914-L936)
+### *func* [BaseTranslator.**language**](../../../../../translators/base.py#L914-L936)
 
 Returns the detected language for the given `text`
 
@@ -685,9 +627,7 @@ Returns the detected language for the given `text`
 > **Note**
 > Refer to the other overloaded methods for more information.
 
-### *func* BaseTranslator.**example**
-
-> [Source: ../../../../../translators/base.py @ line 960-975](../../../../../translators/base.py#L960-L975)
+### *func* [BaseTranslator.**example**](../../../../../translators/base.py#L960-L975)
 
 Returns use cases for the given `text`
 
@@ -715,9 +655,7 @@ Returns use cases for the given `text`
 - `list[ExampleResult]`
     - The examples
 
-### *func* BaseTranslator.**example**
-
-> [Source: ../../../../../translators/base.py @ line 978-993](../../../../../translators/base.py#L978-L993)
+### *func* [BaseTranslator.**example**](../../../../../translators/base.py#L978-L993)
 
 Returns use cases for all of the given `text`
 
@@ -745,9 +683,7 @@ Returns use cases for all of the given `text`
 - `LazyIterable[list[ExampleResult]]`
     - All of the examples
 
-### *func* BaseTranslator.**example**
-
-> [Source: ../../../../../translators/base.py @ line 997-1031](../../../../../translators/base.py#L997-L1031)
+### *func* [BaseTranslator.**example**](../../../../../translators/base.py#L997-L1031)
 
 Returns use cases for the given `text`
 
@@ -775,9 +711,7 @@ Returns use cases for the given `text`
 > **Note**
 > Refer to the other overloaded methods for more information.
 
-### *func* BaseTranslator.**dictionary**
-
-> [Source: ../../../../../translators/base.py @ line 1060-1077](../../../../../translators/base.py#L1060-L1077)
+### *func* [BaseTranslator.**dictionary**](../../../../../translators/base.py#L1060-L1077)
 
 Returns the meaning for the given `text`
 
@@ -808,9 +742,7 @@ Returns the meaning for the given `text`
 
 - `list`
 
-### *func* BaseTranslator.**dictionary**
-
-> [Source: ../../../../../translators/base.py @ line 1080-1097](../../../../../translators/base.py#L1080-L1097)
+### *func* [BaseTranslator.**dictionary**](../../../../../translators/base.py#L1080-L1097)
 
 Returns the meaning for all of the given `text`
 
@@ -841,9 +773,7 @@ Returns the meaning for all of the given `text`
 - `LazyIterable[RichDictionaryResult]`
     - If supported, a value which contains much more information on all of the `text`
 
-### *func* BaseTranslator.**dictionary**
-
-> [Source: ../../../../../translators/base.py @ line 1101-1135](../../../../../translators/base.py#L1101-L1135)
+### *func* [BaseTranslator.**dictionary**](../../../../../translators/base.py#L1101-L1135)
 
 Returns the meaning for the given `text`
 
@@ -871,9 +801,7 @@ Returns the meaning for the given `text`
 > **Note**
 > Refer to the other overloaded methods for more information.
 
-### *func* BaseTranslator.**text_to_speech**
-
-> [Source: ../../../../../translators/base.py @ line 1161-1180](../../../../../translators/base.py#L1161-L1180)
+### *func* [BaseTranslator.**text_to_speech**](../../../../../translators/base.py#L1161-L1180)
 
 Returns the speech version of the given `text`
 
@@ -900,9 +828,7 @@ Returns the speech version of the given `text`
 - `TextToSpeechResult`
     - The text to speech result
 
-### *func* BaseTranslator.**text_to_speech**
-
-> [Source: ../../../../../translators/base.py @ line 1183-1202](../../../../../translators/base.py#L1183-L1202)
+### *func* [BaseTranslator.**text_to_speech**](../../../../../translators/base.py#L1183-L1202)
 
 Returns the speech version for all of the given `text`
 
@@ -929,18 +855,14 @@ Returns the speech version for all of the given `text`
 - `LazyIterable[TextToSpeechResult]`
     - The text to speech results
 
-### *func* BaseTranslator.**text_to_speech**
-
-> [Source: ../../../../../translators/base.py @ line 1205-1241](../../../../../translators/base.py#L1205-L1241)
+### *func* [BaseTranslator.**text_to_speech**](../../../../../translators/base.py#L1205-L1241)
 
 Returns the speech version of the given `text`
 
 > **Note**
 > Refer to the other overloaded methods for more information.
 
-### *func* BaseTranslator.**clean_cache**
-
-> [Source: ../../../../../translators/base.py @ line 1265-1274](../../../../../translators/base.py#L1265-L1274)
+### *func* [BaseTranslator.**clean_cache**](../../../../../translators/base.py#L1265-L1274)
 
 Cleans caches
 

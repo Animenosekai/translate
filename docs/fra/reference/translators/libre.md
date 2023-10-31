@@ -1,6 +1,6 @@
 # *module* **Libre**
 
-> [Source: ../../../../translatepy/translators/Libre.py @ line 0](../../../../translatepy/translators/Libre.py#L0)
+> [Source: ../../../../translatepy/translators/Libre.py](../../../../translatepy/translators/Libre.py#L0)
 
 LibreTranslate  
 translatepy's implementation of LibreTranslate
@@ -13,8 +13,6 @@ translatepy's implementation of LibreTranslate
 
 - **Animenosekai**
 Original author
-## *class* **LibreTranslate**
-
-> [Source: ../../../../translatepy/translators/Libre.py @ line 19-43](../../../../translatepy/translators/Libre.py#L19-L43)
+## *class* [**LibreTranslate**](../../../../translatepy/translators/Libre.py#L19-L43)
 
 translatepy's implementation of LibreTranslate

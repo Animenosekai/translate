@@ -1,6 +1,6 @@
 # *module* **Bing**
 
-> [Source: ../../../../../translators/Bing.py @ line 0](../../../../../translators/Bing.py#L0)
+> [Source: ../../../../../translators/Bing.py](../../../../../translators/Bing.py#L0)
 
 This implementation was made specifically for translatepy from 'Zhymabek Roman', based on 'Anime no Sekai' version.
 
@@ -8,59 +8,39 @@ This implementation was made specifically for translatepy from 'Zhymabek Roman',
 
 - [../../../../../translators/base.py](../../../../../translators/base.py): As `BaseTranslateException`, `BaseTranslator`
 
-## *class* **BingTranslateException**
+## *class* [**BingTranslateException**](../../../../../translators/Bing.py#L20-L23)
 
-> [Source: ../../../../../translators/Bing.py @ line 20-23](../../../../../translators/Bing.py#L20-L23)
+### *attr* [BingTranslateException.**error_codes**](../../../../../translators/Bing.py#L21)
 
-### *attr* BingTranslateException.**error_codes**
-
-> [Source: ../../../../../translators/Bing.py @ line 21](../../../../../translators/Bing.py#L21)
-
-## *class* **BingSessionData**
-
-> [Source: ../../../../../translators/Bing.py @ line 26-33](../../../../../translators/Bing.py#L26-L33)
+## *class* [**BingSessionData**](../../../../../translators/Bing.py#L26-L33)
 
 Bing session data holder
 
-### *attr* BingSessionData.**ig**
-
-> [Source: ../../../../../translators/Bing.py @ line 28](../../../../../translators/Bing.py#L28)
+### *attr* [BingSessionData.**ig**](../../../../../translators/Bing.py#L28)
 
 > Type: `str`
 
-### *attr* BingSessionData.**iid**
-
-> [Source: ../../../../../translators/Bing.py @ line 29](../../../../../translators/Bing.py#L29)
+### *attr* [BingSessionData.**iid**](../../../../../translators/Bing.py#L29)
 
 > Type: `str`
 
-### *attr* BingSessionData.**key**
-
-> [Source: ../../../../../translators/Bing.py @ line 30](../../../../../translators/Bing.py#L30)
+### *attr* [BingSessionData.**key**](../../../../../translators/Bing.py#L30)
 
 > Type: `cain.types.UInt64`
 
-### *attr* BingSessionData.**token**
-
-> [Source: ../../../../../translators/Bing.py @ line 31](../../../../../translators/Bing.py#L31)
+### *attr* [BingSessionData.**token**](../../../../../translators/Bing.py#L31)
 
 > Type: `str`
 
-### *attr* BingSessionData.**cookies_keys**
-
-> [Source: ../../../../../translators/Bing.py @ line 32](../../../../../translators/Bing.py#L32)
+### *attr* [BingSessionData.**cookies_keys**](../../../../../translators/Bing.py#L32)
 
 > Type: `List`
 
-### *attr* BingSessionData.**cookies_values**
-
-> [Source: ../../../../../translators/Bing.py @ line 33](../../../../../translators/Bing.py#L33)
+### *attr* [BingSessionData.**cookies_values**](../../../../../translators/Bing.py#L33)
 
 > Type: `List`
 
-## *class* **BingSessionManager**
-
-> [Source: ../../../../../translators/Bing.py @ line 36-136](../../../../../translators/Bing.py#L36-L136)
+## *class* [**BingSessionManager**](../../../../../translators/Bing.py#L36-L136)
 
 Creates and manages a Bing session
 
@@ -68,9 +48,7 @@ Creates and manages a Bing session
 
 - `BingTranslateException`
 
-### *func* BingSessionManager.**send**
-
-> [Source: ../../../../../translators/Bing.py @ line 92-136](../../../../../translators/Bing.py#L92-L136)
+### *func* [BingSessionManager.**send**](../../../../../translators/Bing.py#L92-L136)
 
 Sends requestts to the API
 
@@ -86,9 +64,7 @@ Sends requestts to the API
 
 - `BingTranslateException`
 
-## *class* **BingTranslate**
-
-> [Source: ../../../../../translators/Bing.py @ line 145-251](../../../../../translators/Bing.py#L145-L251)
+## *class* [**BingTranslate**](../../../../../translators/Bing.py#L145-L251)
 
 A Python implementation of Microsoft Bing Translation's APIs
 

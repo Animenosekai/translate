@@ -1,6 +1,6 @@
 # *module* **request**
 
-> [Source: ../../../../translatepy/utils/request.py @ line 0](../../../../translatepy/utils/request.py#L0)
+> [Source: ../../../../translatepy/utils/request.py](../../../../translatepy/utils/request.py#L0)
 
 utils/request  
 Extending python requests functionalities with translatepy's own implementation of proxies, caching, exceptions, etc.
@@ -13,29 +13,19 @@ Extending python requests functionalities with translatepy's own implementation 
 
 - **Animenosekai**
 Original author
-## *const* **RequestHash**
+## *const* [**RequestHash**](../../../../translatepy/utils/request.py#L24)
 
-> [Source: ../../../../translatepy/utils/request.py @ line 24](../../../../translatepy/utils/request.py#L24)
+## *const* [**RateLimitLock**](../../../../translatepy/utils/request.py#L27)
 
-## *const* **RateLimitLock**
+## *const* [**CacheLock**](../../../../translatepy/utils/request.py#L28)
 
-> [Source: ../../../../translatepy/utils/request.py @ line 27](../../../../translatepy/utils/request.py#L27)
-
-## *const* **CacheLock**
-
-> [Source: ../../../../translatepy/utils/request.py @ line 28](../../../../translatepy/utils/request.py#L28)
-
-## *class* **Session**
-
-> [Source: ../../../../translatepy/utils/request.py @ line 32-225](../../../../translatepy/utils/request.py#L32-L225)
+## *class* [**Session**](../../../../translatepy/utils/request.py#L32-L225)
 
 ### Raises
 
 - `exceptions.RateLimitPrevention`
 
-### *func* Session.**set_http_proxy**
-
-> [Source: ../../../../translatepy/utils/request.py @ line 52-64](../../../../translatepy/utils/request.py#L52-L64)
+### *func* [Session.**set_http_proxy**](../../../../translatepy/utils/request.py#L52-L64)
 
 Sets the HTTP proxy to use.
 
@@ -45,9 +35,7 @@ Sets the HTTP proxy to use.
   - The HTTP proxy to use.
 
 
-### *func* Session.**add_http_proxy**
-
-> [Source: ../../../../translatepy/utils/request.py @ line 66-75](../../../../translatepy/utils/request.py#L66-L75)
+### *func* [Session.**add_http_proxy**](../../../../translatepy/utils/request.py#L66-L75)
 
 Adds a HTTP proxy to the list of proxies to use.
 
@@ -57,9 +45,7 @@ Adds a HTTP proxy to the list of proxies to use.
   - The HTTP proxy to add.
 
 
-### *func* Session.**request**
-
-> [Source: ../../../../translatepy/utils/request.py @ line 77-215](../../../../translatepy/utils/request.py#L77-L215)
+### *func* [Session.**request**](../../../../translatepy/utils/request.py#L77-L215)
 
 Make an HTTP request with the provided method.
 
@@ -203,9 +189,7 @@ If None, the default_cache_duration attribute will be used.
 <Response [200]>
 ```
 
-### *func* Session.**invalidate**
-
-> [Source: ../../../../translatepy/utils/request.py @ line 217-225](../../../../translatepy/utils/request.py#L217-L225)
+### *func* [Session.**invalidate**](../../../../translatepy/utils/request.py#L217-L225)
 
 Invalidates the given request cache.
 
@@ -214,13 +198,9 @@ Invalidates the given request cache.
 - **hash**: `RequestHash`, `requesthash`
 
 
-## *const* **SharedSession**
+## *const* [**SharedSession**](../../../../translatepy/utils/request.py#L228)
 
-> [Source: ../../../../translatepy/utils/request.py @ line 228](../../../../translatepy/utils/request.py#L228)
-
-## *func* **request**
-
-> [Source: ../../../../translatepy/utils/request.py @ line 231-268](../../../../translatepy/utils/request.py#L231-L268)
+## *func* [**request**](../../../../translatepy/utils/request.py#L231-L268)
 
 Make an HTTP request.
 
@@ -315,9 +295,7 @@ Make an HTTP request.
 > **Note**
 > Look at Session.request for more information.
 
-## *func* **get**
-
-> [Source: ../../../../translatepy/utils/request.py @ line 271-300](../../../../translatepy/utils/request.py#L271-L300)
+## *func* [**get**](../../../../translatepy/utils/request.py#L271-L300)
 
 Make a GET request.
 
@@ -405,9 +383,7 @@ Make a GET request.
 > **Note**
 > Look at Session.request for more information.
 
-## *func* **post**
-
-> [Source: ../../../../translatepy/utils/request.py @ line 303-332](../../../../translatepy/utils/request.py#L303-L332)
+## *func* [**post**](../../../../translatepy/utils/request.py#L303-L332)
 
 Make a POST request.
 
@@ -495,9 +471,7 @@ Make a POST request.
 > **Note**
 > Look at Session.request for more information.
 
-## *func* **put**
-
-> [Source: ../../../../translatepy/utils/request.py @ line 335-364](../../../../translatepy/utils/request.py#L335-L364)
+## *func* [**put**](../../../../translatepy/utils/request.py#L335-L364)
 
 Make a PUT request.
 
@@ -585,9 +559,7 @@ Make a PUT request.
 > **Note**
 > Look at Session.request for more information.
 
-## *func* **patch**
-
-> [Source: ../../../../translatepy/utils/request.py @ line 367-396](../../../../translatepy/utils/request.py#L367-L396)
+## *func* [**patch**](../../../../translatepy/utils/request.py#L367-L396)
 
 Make a PATCH request.
 
@@ -675,9 +647,7 @@ Make a PATCH request.
 > **Note**
 > Look at Session.request for more information.
 
-## *func* **delete**
-
-> [Source: ../../../../translatepy/utils/request.py @ line 399-428](../../../../translatepy/utils/request.py#L399-L428)
+## *func* [**delete**](../../../../translatepy/utils/request.py#L399-L428)
 
 Make a DELETE request.
 
@@ -765,9 +735,7 @@ Make a DELETE request.
 > **Note**
 > Look at Session.request for more information.
 
-## *func* **head**
-
-> [Source: ../../../../translatepy/utils/request.py @ line 431-460](../../../../translatepy/utils/request.py#L431-L460)
+## *func* [**head**](../../../../translatepy/utils/request.py#L431-L460)
 
 Make a HEAD request.
 
@@ -855,9 +823,7 @@ Make a HEAD request.
 > **Note**
 > Look at Session.request for more information.
 
-## *func* **options**
-
-> [Source: ../../../../translatepy/utils/request.py @ line 463-492](../../../../translatepy/utils/request.py#L463-L492)
+## *func* [**options**](../../../../translatepy/utils/request.py#L463-L492)
 
 Make an OPTIONS request.
 

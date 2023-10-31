@@ -1,6 +1,6 @@
 # *module* **importer**
 
-> [Source: ../../../../../utils/importer.py @ line 0](../../../../../utils/importer.py#L0)
+> [Source: ../../../../../utils/importer.py](../../../../../utils/importer.py#L0)
 
 importer.py  
 A module to allow for dynamic importing of translators.
@@ -11,25 +11,15 @@ A module to allow for dynamic importing of translators.
 
 - [../../../../../utils/vectorize.py](../../../../../utils/vectorize.py): As `vectorize`
 
-## *const* **IMPORTER_CACHE**
+## *const* [**IMPORTER_CACHE**](../../../../../utils/importer.py#L18)
 
-> [Source: ../../../../../utils/importer.py @ line 18](../../../../../utils/importer.py#L18)
+## *const* [**IMPORTER_DATA_DIR**](../../../../../utils/importer.py#L20)
 
-## *const* **IMPORTER_DATA_DIR**
+## *const* [**IMPORTER_DATA_FILE**](../../../../../utils/importer.py#L21)
 
-> [Source: ../../../../../utils/importer.py @ line 20](../../../../../utils/importer.py#L20)
+## *const* [**NAMED_TRANSLATORS**](../../../../../utils/importer.py#L27)
 
-## *const* **IMPORTER_DATA_FILE**
-
-> [Source: ../../../../../utils/importer.py @ line 21](../../../../../utils/importer.py#L21)
-
-## *const* **NAMED_TRANSLATORS**
-
-> [Source: ../../../../../utils/importer.py @ line 27](../../../../../utils/importer.py#L27)
-
-## *func* **translator_from_name**
-
-> [Source: ../../../../../utils/importer.py @ line 37-42](../../../../../utils/importer.py#L37-L42)
+## *func* [**translator_from_name**](../../../../../utils/importer.py#L37-L42)
 
 Retrieves the given translate from its name
 
@@ -46,9 +36,7 @@ Retrieves the given translate from its name
 
 - `ValueError`
 
-## *func* **translator_from_path**
-
-> [Source: ../../../../../utils/importer.py @ line 45-55](../../../../../utils/importer.py#L45-L55)
+## *func* [**translator_from_path**](../../../../../utils/importer.py#L45-L55)
 
 Returns a translator from its dot path
 
@@ -69,9 +57,7 @@ Returns a translator from its dot path
 
 - `ImportError`
 
-## *func* **get_translator**
-
-> [Source: ../../../../../utils/importer.py @ line 58-94](../../../../../utils/importer.py#L58-L94)
+## *func* [**get_translator**](../../../../../utils/importer.py#L58-L94)
 
 Searches the given translator
 

@@ -1,6 +1,6 @@
 # *module* **MyMemory**
 
-> [Source: ../../../../translatepy/translators/MyMemory.py @ line 0](../../../../translatepy/translators/MyMemory.py#L0)
+> [Source: ../../../../translatepy/translators/MyMemory.py](../../../../translatepy/translators/MyMemory.py#L0)
 
 MyMemory  
 translatepy's implementation of MyMemory
@@ -9,17 +9,11 @@ translatepy's implementation of MyMemory
 
 - [../../../../translatepy/translators/base.py](../../../../translatepy/translators/base.py): As `BaseTranslateException`, `BaseTranslator`, `C`
 
-## *class* **MyMemoryException**
+## *class* [**MyMemoryException**](../../../../translatepy/translators/MyMemory.py#L16-L19)
 
-> [Source: ../../../../translatepy/translators/MyMemory.py @ line 16-19](../../../../translatepy/translators/MyMemory.py#L16-L19)
+### *attr* [MyMemoryException.**error_codes**](../../../../translatepy/translators/MyMemory.py#L17)
 
-### *attr* MyMemoryException.**error_codes**
-
-> [Source: ../../../../translatepy/translators/MyMemory.py @ line 17](../../../../translatepy/translators/MyMemory.py#L17)
-
-## *class* **MyMemoryTranslate**
-
-> [Source: ../../../../translatepy/translators/MyMemory.py @ line 22-81](../../../../translatepy/translators/MyMemory.py#L22-L81)
+## *class* [**MyMemoryTranslate**](../../../../translatepy/translators/MyMemory.py#L22-L81)
 
 translatepy's implementation of MyMemory
 
@@ -27,6 +21,4 @@ translatepy's implementation of MyMemory
 
 - `MyMemoryException`
 
-### *attr* MyMemoryTranslate.**base_url**
-
-> [Source: ../../../../translatepy/translators/MyMemory.py @ line 26](../../../../translatepy/translators/MyMemory.py#L26)
+### *attr* [MyMemoryTranslate.**base_url**](../../../../translatepy/translators/MyMemory.py#L26)
