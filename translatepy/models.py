@@ -242,12 +242,11 @@ class Result(typing.Generic[Translator]):
             element = getattr(cls, attr)
             if isinstance(element, property):
                 func = inspect.unwrap(getattr(cls, attr).fget)
-                sign = inspect.signature(func)
-                docs = miko.Docs(func.__doc__, sign)
+                docs = miko.Callable(func).docs
                 results.append(
                     ResultAttribute(
                         name=attr,
-                        annotation=list(docs.returns.elements.values())[0].name if docs.returns.elements else None,
+                        annotation=list(docs.returns)[0].name if docs.returns else None,
                         description=docs.description
                     )
                 )

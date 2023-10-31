@@ -50,7 +50,7 @@ Specific errors are documented in each endpoint, but these are the general error
 
 When a user needs to be logged in, the "Authorization" header needs to be set to the login token provided when logging in.
 
-Alternatively, the "nasse_token" parameter and "__nasse_token" cookie can be used, but these won't be prioritized.
+Alternatively, the "translatepy_token" parameter and "__translatepy_token" cookie can be used, but these won't be prioritized.
 
 If the endpoint is flagged for a "verified only" login, the account won't be fetched from any database, but the token will be checked.
 
@@ -80,7 +80,7 @@ The "call_stack" attribute is enabled only when an error occurs or the `call_sta
         },
         "ip": "127.0.0.1",
         "headers": {
-            "Host": "api.nasse.com",
+            "Host": "api.translatepy.com",
             "Connection": "close",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "fr-fr",
@@ -88,7 +88,7 @@ The "call_stack" attribute is enabled only when an error occurs or the `call_sta
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15"
         },
         "values": {},
-        "domain": "api.nasse.com",
+        "domain": "api.translatepy.com",
         "logs": [
             "1636562693.036563｜[INFO] [nasse.receive.Receive.__call__] → Incoming GET request to /account/name from 127.0.0.1",
             "1636562693.070008｜[ERROR] [nasse.exceptions.base.MissingToken.__init__] An authentication token is missing from the request"

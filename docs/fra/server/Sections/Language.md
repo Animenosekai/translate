@@ -21,7 +21,7 @@ Il n'est **pas** nécessaire d'être authentifié
 
 | Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `language` | Il n'y a pas de description  | Oui            | Language            |
+| `language` | Il n'y a pas de description  | Oui            | str            |
 
 ### Exemple
 
@@ -102,13 +102,6 @@ This represents a non implemented endpoint
 
 Il n'est **pas** nécessaire d'être authentifié
 
-### Paramètres
-
-| Nom         | Description                      | Obligatoire         | Type             |
-| ------------ | -------------------------------- | ---------------- | ---------------- |
-| `limit` | Il n'y a pas de description  | Non            | int            |
-| `query` | Il n'y a pas de description  | Oui            | str            |
-
 ### Exemple
 
 <!-- tabs:start -->
@@ -120,10 +113,7 @@ Il n'est **pas** nécessaire d'être authentifié
 #### **cURL**
 
 ```bash
-curl -X * \
-    --data-urlencode "limit=<>"\
-    --data-urlencode "query=<>" \
-    "/api/language/search"
+curl -X * "/api/language/search"
 ```
 
 </details>
@@ -135,7 +125,7 @@ curl -X * \
 #### **JavaScript**
 
 ```javascript
-fetch(`/api/language/search?query=${encodeURIComponent("query")}`, {
+fetch("/api/language/search", {
     method: "*"
 })
 .then((response) => {response.json()})
@@ -159,10 +149,7 @@ fetch(`/api/language/search?query=${encodeURIComponent("query")}`, {
 
 ```python
 import requests
-r = requests.request("*", "/api/language/search",
-        params = {
-            "query": "query"
-        })
+r = requests.request("*", "/api/language/search")
 if r.status_code >= 400 or not r.json()["success"]:
     raise ValueError("An error occured while requesting for /api/language/search, error: " + r.json()["error"])
 print("Successfully requested for /api/language/search")

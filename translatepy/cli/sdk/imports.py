@@ -20,7 +20,20 @@ from translatepy.utils import importer, vectorize
 
 
 def json_encode(args: argparse.Namespace, work: typing.Callable, **kwargs):
-    """Enforces the JSON encoding"""
+    """
+    Calls `work` using the given arguments and JSON encodes the result.
+
+    This also handles error cases.
+
+    Parameters
+    ----------
+    args: argparse.Namespace
+        Arguments passed when calling the program
+    work: Callable
+        The work to do
+    **kwargs
+        The arguments to pass to `work`
+    """
     json_encoder = minified_encoder if args.minified else encoder
 
     def prepare_error(err: Exception) -> dict:
@@ -38,6 +51,7 @@ def json_encode(args: argparse.Namespace, work: typing.Callable, **kwargs):
             "message": str(err),
             "code": -1
         }
+
     try:
         print(json_encoder.encode(work(**kwargs)))
         return 0
@@ -48,7 +62,14 @@ def json_encode(args: argparse.Namespace, work: typing.Callable, **kwargs):
 
 
 def add(name: str, path: str, translate: bool = False, forceload: bool = False):
-    """Adds a translator to the database"""
+    """
+    Adds a translator to the database
+    
+    Parameters
+    ----------
+    name: str
+        The name of h
+    """
     name = str(name)
 
     # Verify that the path exists
@@ -74,6 +95,7 @@ def add(name: str, path: str, translate: bool = False, forceload: bool = False):
 
     logger.debug("Vectorizing the new names")
     for name in names:
+        # Adding vectors
         importer.IMPORTER_VECTORS.append(
             vectorize.vectorize(path, name)
         )

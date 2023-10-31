@@ -4,6 +4,7 @@ SDK
 translatepy's Software Development Kit
 """
 import argparse
+import dataclasses
 import datetime
 import pathlib
 import sys
@@ -15,12 +16,25 @@ from rich.prompt import Prompt
 import translatepy
 from translatepy import logger
 from translatepy.__info__ import __repository__
-from translatepy.utils.importer import get_translator
 from translatepy.cli.sdk import imports, language, template
+from translatepy.utils.importer import get_translator
 
 
 def init(output: typing.Optional[pathlib.Path] = None, author: str = "<author>"):
-    """Creates a new plugin directory"""
+    """
+    Creates a new plugin directory
+
+    This command will create a whole project folder, including repository management files,
+    python project files, a license and much more.
+
+    Parameters
+    ----------
+    output: pathlib.Path, default = None
+        The path where the directory should be created.
+        If None, it will populate the current directory.
+    author: str, default = "<author>"
+        The author name to use
+    """
     # Here is the template base structure
     # {Name}
     # ╰──┬ .github
@@ -40,19 +54,27 @@ def init(output: typing.Optional[pathlib.Path] = None, author: str = "<author>")
     #    ╰──┬ README.md
     #       ├ __init__.py
     #       ╰ {name}.py
+
     output = output or pathlib.Path()
     output = pathlib.Path(output).resolve().absolute()
+    logger.debug(f"Creating the output directory (path: {output})")
     output.mkdir(parents=True, exist_ok=True)
 
+    # Defining the different constants
     name = output.name
     class_name = name.title()
     translator = f"{name}.{class_name}"
     year = datetime.datetime.now().year
 
+    # Creating the `.github` directory
+    logger.debug("Creating the `.github` directory")
     github_dir = (output / ".github")
     github_dir.mkdir(parents=True, exist_ok=True)
+    logger.debug("Adding dependabot (ref: https://docs.github.com/en/code-security/dependabot)")
     (github_dir / "dependabot.yml").write_text(template.DEPENDABOT_TEMPLATE)
 
+    # Populating the `.github` directory with serveral workflows
+    logger.debug("Adding GitHub Actions workflows (ref: https://github.com/features/actions)")
     workdlows_dir = (github_dir / "workflows")
     workdlows_dir.mkdir(parents=True, exist_ok=True)
     (workdlows_dir / "codeql.yml").write_text(template.CODEQL_TEMPLATE)
@@ -60,11 +82,16 @@ def init(output: typing.Optional[pathlib.Path] = None, author: str = "<author>")
     (workdlows_dir / "test.yml").write_text(template.TEST_TEMPLATE.format(translator=translator))
     (workdlows_dir / "vermin.yml").write_text(template.VERMIN_TEMPLATE.format(name=name))
 
+    # Creating repository management files
+    logger.debug("Adding repository management files")
     (output / ".gitignore").write_text(template.GITIGNORE_TEMPLATE.format())
-    (output / "README.md").write_text(template.README_TEMPLATE.format(name=name, class_name=class_name, author=author, translatepy_repo=__repository__))
+    (output / "README.md").write_text(template.README_TEMPLATE.format(name=name, class_name=class_name,
+                                                                      author=author, translatepy_repo=__repository__))
     (output / "LICENSE").write_text(template.LICENSE_TEMPLATE.format(year=year, author=author))
     (output / "pyproject.toml").write_text(template.PYPROJECT_TEMPLATE.format(author=author, name=name))
 
+    # Creating the project source directory
+    logger.debug("Creating the source directory")
     src_dir = output / name
     src_dir.mkdir(parents=True, exist_ok=True)
     (src_dir / "README.md").write_text(template.SOURCE_README_TEMPLATE.format(name=name))
@@ -74,32 +101,77 @@ def init(output: typing.Optional[pathlib.Path] = None, author: str = "<author>")
 
 
 def new(output: typing.Optional[pathlib.Path] = None):
-    """Creates a template translator file"""
+    """
+    Creates a template translator file
+
+    Parameters
+    ----------
+    output: pathlib.Path, default = None
+        The path for the new translator source file
+    """
+    # If the output is not specified,
+    # generate a source file name from the directory name
     if not output:
+        # A source file with the same name might already exist
+        # If the user didn't supply the output name, we can't
+        # overwrite the file without its permission
         counter = 1
         while (pathlib.Path() / f"translator{counter}.py").exists():
             counter += 1
         output = pathlib.Path() / f"translator{counter}.py"
+
     output = pathlib.Path(output).resolve().absolute()
     output.parent.mkdir(parents=True, exist_ok=True)
+    logger.debug(f"Creating the main source file (path: {output})")
     output.write_text(
-        template.TRANSLATOR_TEMPLATE.format(name=output.parent.stem, class_name=output.parent.stem.title())
+        template.TRANSLATOR_TEMPLATE.format(name=output.parent.stem, class_name=output.parent.stem.title()),
+        encoding="utf-8"
     )
 
 
-def test(translator: str):
-    """Tests the given translator against translatepy's test suite"""
-    service = get_translator(translator)
-    # Run tests on `service`
+def test(translator: typing.Union[str, typing.Type[translatepy.BaseTranslator]]):
+    """
+    Tests the given translator against translatepy's test suite
+
+    Parameters
+    ----------
+    translator: str | translatepy.BaseTranslator
+        The translator to test.
+        If a string is given, the Translator class will be fetched using `translatepy.utils.importer.get_translator`.
+    """
+    service = translator if isinstance(translator, type) else get_translator(str(translator))
+
+    # TODO: Add tests
 
 
-def feedback():
-    """Opens the issues tracker page for the `translatepy` repository"""
-    webbrowser.open(f"{__repository__}/issues")
+def feedback(open: bool = False) -> str:
+    """
+    Opens the issues tracker page for the `translatepy` repository
+
+    Parameters
+    ----------
+    open: bool, default = True
+        If a new web browser page should be opened with the issue tracker
+
+    Returns
+    -------
+    str
+        The issue tracker page URL
+    """
+    page = f"{__repository__}/issues"
+    if open:
+        webbrowser.open(page)
+    return page
 
 
-def debug():
+@dataclasses.dataclass
+class DebugInformation:
+    """Holds a bunch of debug information"""
+
+
+def debug() -> DebugInformation:
     """Displays a bunch of debug information to help diagnose problems"""
+    return DebugInformation()
 
 
 def prepare_argparse(parser: argparse.ArgumentParser):
@@ -159,7 +231,7 @@ def entry(args: argparse.Namespace):
         test(translator=args.translator)
 
     if args.sdk_action in ("feedback",):
-        feedback()
+        feedback(open=True)
 
     if args.sdk_action in ("debug",):
         debug()

@@ -50,7 +50,7 @@ Les erreurs spécifiques sont documentés dans chaque *Endpoint* mais celles-ci 
 
 Quand un utilisateur doit être connecter, l'en-tête "Authorization" doit être définie avec le token de connexion communiqué lorsqu'il s'est connecté.
 
-Vous pouvez aussi utiliser le paramètre "nasse_token" ou le cookie "__nasse_token" mais ceux-ci ne vont pas être priorisé.
+Vous pouvez aussi utiliser le paramètre "translatepy_token" ou le cookie "__translatepy_token" mais ceux-ci ne vont pas être priorisé.
 
 Si la règle d'authentification de l'*endpoint* est défini comme "seulement vérifié", le compte ne doit pas être cherché dans la base de donnée mais la forme du token ou des informations comprises à l'intérieur peuvent être vérifiées.
 
@@ -80,7 +80,7 @@ Le champ "call_stack" est activé seulement quand il y a le paramètre `call_sta
         },
         "ip": "127.0.0.1",
         "headers": {
-            "Host": "api.nasse.com",
+            "Host": "api.translatepy.com",
             "Connection": "close",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "fr-fr",
@@ -88,7 +88,7 @@ Le champ "call_stack" est activé seulement quand il y a le paramètre `call_sta
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15"
         },
         "values": {},
-        "domain": "api.nasse.com",
+        "domain": "api.translatepy.com",
         "logs": [
             "1636562693.036563｜[INFO] [nasse.receive.Receive.__call__] → Incoming GET request to /account/name from 127.0.0.1",
             "1636562693.070008｜[ERROR] [nasse.exceptions.base.MissingToken.__init__] An authentication token is missing from the request"

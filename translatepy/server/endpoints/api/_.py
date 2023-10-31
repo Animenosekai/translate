@@ -79,7 +79,7 @@ def auto_doc(func: base.T):
             overload_docs = miko.Docs(overload.__doc__ or "")
             iterable = False
 
-            for element in overload_docs.returns.elements.values():
+            for element in overload_docs.returns:
                 element_name = str(element.name)
                 if element_name.startswith("LazyIterable"):
                     # We are inside the iterable version of the function
@@ -96,8 +96,8 @@ def auto_doc(func: base.T):
             if iterable:
                 continue
 
-            for element in docs.parameters.elements.values():
-                if element.name in overload_docs.parameters.elements:
+            for element in docs.parameters:
+                if element.name in overload_docs.parameters:
                     overload_element = overload_docs.parameters[element.name]
                     data["parameters"].append(Parameter(name=element.name,
                                                         description=overload_element.body,

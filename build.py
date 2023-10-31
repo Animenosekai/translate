@@ -11,6 +11,7 @@ import subprocess
 import sys
 import typing
 
+import miko
 from rich.prompt import Confirm
 from rich.progress import Progress
 
@@ -138,6 +139,7 @@ def build_docs():
 
             remove(path / "server")
             translatepy.server.make_docs(path / "server", localization=localization)
+            miko.markdown.make_docs(pathlib.Path(translatepy.__file__), path / "reference")
 
     logger.debug(f"Copying the main README to {docs_path / translatepy.ENGLISH.id / 'README.md'}")
     shutil.copyfile(str(pathlib.Path(__file__).parent / "README.md"),

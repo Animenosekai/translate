@@ -7,6 +7,8 @@
 
 ***Translate, transliterate, get the language of texts in no time with the help of numerous APIs!***
 
+![Social Banner](assets/Social%20Banner/Social%20Banner%20—%20Translation%20Input.png)
+
 [![PyPI version](https://badge.fury.io/py/translatepy.svg)](https://pypi.org/project/translatepy/)
 [![Downloads](https://static.pepy.tech/personalized-badge/translatepy?period=total&units=international_system&left_color=grey&right_color=blue&left_text=Total%20Downloads)](https://pepy.tech/project/translatepy)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/translatepy)](https://pypistats.org/packages/translatepy)

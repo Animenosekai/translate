@@ -21,7 +21,7 @@ This represents a non implemented endpoint
 
 | 名前         | 詳細                      | 必要         | タイプ             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `language` | 詳細なし  | はい            | Language            |
+| `language` | 詳細なし  | はい            | str            |
 
 ### 例
 
@@ -102,13 +102,6 @@ This represents a non implemented endpoint
 
 ログインは**不要**です
 
-### パラメーター
-
-| 名前         | 詳細                      | 必要         | タイプ             |
-| ------------ | -------------------------------- | ---------------- | ---------------- |
-| `limit` | 詳細なし  | いいえ            | int            |
-| `query` | 詳細なし  | はい            | str            |
-
 ### 例
 
 <!-- tabs:start -->
@@ -120,10 +113,7 @@ This represents a non implemented endpoint
 #### **cURL**
 
 ```bash
-curl -X * \
-    --data-urlencode "limit=<>"\
-    --data-urlencode "query=<>" \
-    "/api/language/search"
+curl -X * "/api/language/search"
 ```
 
 </details>
@@ -135,7 +125,7 @@ curl -X * \
 #### **JavaScript**
 
 ```javascript
-fetch(`/api/language/search?query=${encodeURIComponent("query")}`, {
+fetch("/api/language/search", {
     method: "*"
 })
 .then((response) => {response.json()})
@@ -159,10 +149,7 @@ fetch(`/api/language/search?query=${encodeURIComponent("query")}`, {
 
 ```python
 import requests
-r = requests.request("*", "/api/language/search",
-        params = {
-            "query": "query"
-        })
+r = requests.request("*", "/api/language/search")
 if r.status_code >= 400 or not r.json()["success"]:
     raise ValueError("An error occured while requesting for /api/language/search, error: " + r.json()["error"])
 print("Successfully requested for /api/language/search")

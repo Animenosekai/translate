@@ -21,10 +21,7 @@ Il n'est **pas** nécessaire d'être authentifié
 
 | Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `source_lang` | The language `text` is in. If "auto", the translator will try to infer the language from `text`  | Non            | Language            |
-| `text` | The text to translate  | Oui            | str            |
 | `translators` | A comma-separated list of translators to use  | Non            | TranslatorList            |
-| `dest_lang` | The language to translate to  | Oui            | Language            |
 
 ### Exemple
 
@@ -38,10 +35,7 @@ Il n'est **pas** nécessaire d'être authentifié
 
 ```bash
 curl -X GET \
-    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>"\
-    --data-urlencode "text=<The text to translate>"\
-    --data-urlencode "translators=<A comma-separated list of translators to use>"\
-    --data-urlencode "dest_lang=<The language to translate to>" \
+    --data-urlencode "translators=<A comma-separated list of translators to use>" \
     "/api/translate"
 ```
 
@@ -54,7 +48,7 @@ curl -X GET \
 #### **JavaScript**
 
 ```javascript
-fetch(`/api/translate?text=${encodeURIComponent("text")}&dest_lang=${encodeURIComponent("dest_lang")}`, {
+fetch("/api/translate", {
     method: "GET"
 })
 .then((response) => {response.json()})
@@ -78,11 +72,7 @@ fetch(`/api/translate?text=${encodeURIComponent("text")}&dest_lang=${encodeURICo
 
 ```python
 import requests
-r = requests.request("GET", "/api/translate",
-        params = {
-            "text": "The text to translate",
-            "dest_lang": "The language to translate to"
-        })
+r = requests.request("GET", "/api/translate")
 if r.status_code >= 400 or not r.json()["success"]:
     raise ValueError("An error occured while requesting for /api/translate, error: " + r.json()["error"])
 print("Successfully requested for /api/translate")
@@ -102,11 +92,11 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "service": "no example",
-        "source": "no example",
         "source_lang": "no example",
-        "translation": "no example",
-        "dest_lang": "no example"
+        "service": "no example",
+        "dest_lang": "no example",
+        "source": "no example",
+        "translation": "no example"
     }
 }
 
@@ -116,19 +106,19 @@ print(r.json()["data"])
 
 | Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The service which returned the result  | Translator      | Non      |
-| `source` | The source text  | string      | Non      |
 | `source_lang` | The source text's language  | Language      | Non      |
-| `translation` | The translation result  | string      | Non      |
+| `service` | The service which returned the result  | Translator      | Non      |
 | `dest_lang` | The result's language  | Language      | Non      |
+| `source` | The source text  | string      | Non      |
+| `translation` | The translation result  | string      | Non      |
 
 #### Erreurs possibles
 
 | Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Retourner à l'Index](../Pour%20commencer.md#index)
 
@@ -150,14 +140,7 @@ Il n'est **pas** nécessaire d'être authentifié
 
 | Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `html` | The HTML you want to translate  | Oui            | str            |
-| `threads_limit` | The maximum number of threads to spawn at a time to translate  | Non            | int            |
-| `parser` | The BeautifulSoup parser to use to parse the HTML  | Non            | str            |
-| `source_lang` | The language `text` is in. If "auto", the translator will try to infer the language from each node in `html`  | Non            | Language            |
 | `translators` | A comma-separated list of translators to use  | Non            | TranslatorList            |
-| `strict` | If the function should raise something is one of the nodes couldn't be translated.
-If `False`, the node will be left as is and the `result` part will be `None`  | Non            | to_bool            |
-| `dest_lang` | The language to translate to  | Oui            | Language            |
 
 ### Exemple
 
@@ -171,14 +154,7 @@ If `False`, the node will be left as is and the `result` part will be `None`  | 
 
 ```bash
 curl -X GET \
-    --data-urlencode "html=<The HTML you want to translate>"\
-    --data-urlencode "threads_limit=<The maximum number of threads to spawn at a time to translate>"\
-    --data-urlencode "parser=<The BeautifulSoup parser to use to parse the HTML>"\
-    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from each node in `html`>"\
-    --data-urlencode "translators=<A comma-separated list of translators to use>"\
-    --data-urlencode "strict=<If the function should raise something is one of the nodes couldn't be translated.
-If `False`, the node will be left as is and the `result` part will be `None`>"\
-    --data-urlencode "dest_lang=<The language to translate to>" \
+    --data-urlencode "translators=<A comma-separated list of translators to use>" \
     "/api/translate/html"
 ```
 
@@ -191,7 +167,7 @@ If `False`, the node will be left as is and the `result` part will be `None`>"\
 #### **JavaScript**
 
 ```javascript
-fetch(`/api/translate/html?html=${encodeURIComponent("html")}&dest_lang=${encodeURIComponent("dest_lang")}`, {
+fetch("/api/translate/html", {
     method: "GET"
 })
 .then((response) => {response.json()})
@@ -215,11 +191,7 @@ fetch(`/api/translate/html?html=${encodeURIComponent("html")}&dest_lang=${encode
 
 ```python
 import requests
-r = requests.request("GET", "/api/translate/html",
-        params = {
-            "html": "The HTML you want to translate",
-            "dest_lang": "The language to translate to"
-        })
+r = requests.request("GET", "/api/translate/html")
 if r.status_code >= 400 or not r.json()["success"]:
     raise ValueError("An error occured while requesting for /api/translate/html, error: " + r.json()["error"])
 print("Successfully requested for /api/translate/html")
@@ -239,9 +211,9 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "service": "no example",
+        "source_lang": "no example",
         "source": "no example",
-        "source_lang": "no example"
+        "service": "no example"
     }
 }
 
@@ -251,17 +223,17 @@ print(r.json()["data"])
 
 | Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The service which returned the result  | Translator      | Non      |
-| `source` | The source text  | string      | Non      |
 | `source_lang` | The source text's language  | Language      | Non      |
+| `source` | The source text  | string      | Non      |
+| `service` | The service which returned the result  | Translator      | Non      |
 
 #### Erreurs possibles
 
 | Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Retourner à l'Index](../Pour%20commencer.md#index)
 
@@ -279,16 +251,6 @@ Streams all translations available using the different translators
 
 Il n'est **pas** nécessaire d'être authentifié
 
-### Paramètres
-
-| Nom         | Description                      | Obligatoire         | Type             |
-| ------------ | -------------------------------- | ---------------- | ---------------- |
-| `translators` | Il n'y a pas de description  | Non            | TranslatorList            |
-| `timeout` | Il n'y a pas de description  | Non            | int            |
-| `text` | Il n'y a pas de description  | Oui            | str            |
-| `source_lang` | Il n'y a pas de description  | Non            | Language            |
-| `dest_lang` | Il n'y a pas de description  | Oui            | Language            |
-
 ### Exemple
 
 <!-- tabs:start -->
@@ -300,13 +262,7 @@ Il n'est **pas** nécessaire d'être authentifié
 #### **cURL**
 
 ```bash
-curl -X * \
-    --data-urlencode "translators=<>"\
-    --data-urlencode "timeout=<>"\
-    --data-urlencode "text=<>"\
-    --data-urlencode "source_lang=<>"\
-    --data-urlencode "dest_lang=<>" \
-    "/api/stream"
+curl -X * "/api/stream"
 ```
 
 </details>
@@ -318,7 +274,7 @@ curl -X * \
 #### **JavaScript**
 
 ```javascript
-fetch(`/api/stream?text=${encodeURIComponent("text")}&dest_lang=${encodeURIComponent("dest_lang")}`, {
+fetch("/api/stream", {
     method: "*"
 })
 .then((response) => {response.json()})
@@ -342,11 +298,7 @@ fetch(`/api/stream?text=${encodeURIComponent("text")}&dest_lang=${encodeURICompo
 
 ```python
 import requests
-r = requests.request("*", "/api/stream",
-        params = {
-            "text": "text",
-            "dest_lang": "dest_lang"
-        })
+r = requests.request("*", "/api/stream")
 if r.status_code >= 400 or not r.json()["success"]:
     raise ValueError("An error occured while requesting for /api/stream, error: " + r.json()["error"])
 print("Successfully requested for /api/stream")
@@ -361,8 +313,8 @@ print(r.json()["data"])
 | Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Retourner à l'Index](../Pour%20commencer.md#index)
 
@@ -384,10 +336,7 @@ Il n'est **pas** nécessaire d'être authentifié
 
 | Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `source_lang` | The language `text` is in. If "auto", the translator will try to infer the language from `text`  | Non            | Language            |
 | `translators` | A comma-separated list of translators to use  | Non            | TranslatorList            |
-| `text` | The text to transliterate  | Oui            | str            |
-| `dest_lang` | The language to translate to  | Oui            | Language            |
 
 ### Exemple
 
@@ -401,10 +350,7 @@ Il n'est **pas** nécessaire d'être authentifié
 
 ```bash
 curl -X GET \
-    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>"\
-    --data-urlencode "translators=<A comma-separated list of translators to use>"\
-    --data-urlencode "text=<The text to transliterate>"\
-    --data-urlencode "dest_lang=<The language to translate to>" \
+    --data-urlencode "translators=<A comma-separated list of translators to use>" \
     "/api/transliterate"
 ```
 
@@ -417,7 +363,7 @@ curl -X GET \
 #### **JavaScript**
 
 ```javascript
-fetch(`/api/transliterate?text=${encodeURIComponent("text")}&dest_lang=${encodeURIComponent("dest_lang")}`, {
+fetch("/api/transliterate", {
     method: "GET"
 })
 .then((response) => {response.json()})
@@ -441,11 +387,7 @@ fetch(`/api/transliterate?text=${encodeURIComponent("text")}&dest_lang=${encodeU
 
 ```python
 import requests
-r = requests.request("GET", "/api/transliterate",
-        params = {
-            "text": "The text to transliterate",
-            "dest_lang": "The language to translate to"
-        })
+r = requests.request("GET", "/api/transliterate")
 if r.status_code >= 400 or not r.json()["success"]:
     raise ValueError("An error occured while requesting for /api/transliterate, error: " + r.json()["error"])
 print("Successfully requested for /api/transliterate")
@@ -465,11 +407,11 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "transliteration": "no example",
-        "service": "no example",
-        "source": "no example",
         "source_lang": "no example",
-        "dest_lang": "no example"
+        "dest_lang": "no example",
+        "source": "no example",
+        "service": "no example",
+        "transliteration": "no example"
     }
 }
 
@@ -479,19 +421,19 @@ print(r.json()["data"])
 
 | Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `transliteration` | The transliteration result  | string      | Non      |
-| `service` | The service which returned the result  | Translator      | Non      |
-| `source` | The source text  | string      | Non      |
 | `source_lang` | The source text's language  | Language      | Non      |
 | `dest_lang` | The result's language  | Language      | Non      |
+| `source` | The source text  | string      | Non      |
+| `service` | The service which returned the result  | Translator      | Non      |
+| `transliteration` | The transliteration result  | string      | Non      |
 
 #### Erreurs possibles
 
 | Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Retourner à l'Index](../Pour%20commencer.md#index)
 
@@ -513,8 +455,6 @@ Il n'est **pas** nécessaire d'être authentifié
 
 | Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `source_lang` | The language `text` is in. If "auto", the translator will try to infer the language from `text`  | Non            | Language            |
-| `text` | The text to check for spelling mistakes  | Oui            | str            |
 | `translators` | A comma-separated list of translators to use  | Non            | TranslatorList            |
 
 ### Exemple
@@ -529,8 +469,6 @@ Il n'est **pas** nécessaire d'être authentifié
 
 ```bash
 curl -X GET \
-    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>"\
-    --data-urlencode "text=<The text to check for spelling mistakes>"\
     --data-urlencode "translators=<A comma-separated list of translators to use>" \
     "/api/spellcheck"
 ```
@@ -544,7 +482,7 @@ curl -X GET \
 #### **JavaScript**
 
 ```javascript
-fetch(`/api/spellcheck?text=${encodeURIComponent("text")}`, {
+fetch("/api/spellcheck", {
     method: "GET"
 })
 .then((response) => {response.json()})
@@ -568,10 +506,7 @@ fetch(`/api/spellcheck?text=${encodeURIComponent("text")}`, {
 
 ```python
 import requests
-r = requests.request("GET", "/api/spellcheck",
-        params = {
-            "text": "The text to check for spelling mistakes"
-        })
+r = requests.request("GET", "/api/spellcheck")
 if r.status_code >= 400 or not r.json()["success"]:
     raise ValueError("An error occured while requesting for /api/spellcheck, error: " + r.json()["error"])
 print("Successfully requested for /api/spellcheck")
@@ -591,11 +526,11 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "corrected": "no example",
+        "source_lang": "no example",
         "rich": true,
-        "service": "no example",
         "source": "no example",
-        "source_lang": "no example"
+        "service": "no example",
+        "corrected": "no example"
     }
 }
 
@@ -605,19 +540,19 @@ print(r.json()["data"])
 
 | Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `corrected` | The corrected text  | string      | Non      |
-| `rich` | Whether the given result features the full range of information  | bool      | Non      |
-| `service` | The service which returned the result  | Translator      | Non      |
-| `source` | The source text  | string      | Non      |
 | `source_lang` | The source text's language  | Language      | Non      |
+| `rich` | Whether the given result features the full range of information  | bool      | Non      |
+| `source` | The source text  | string      | Non      |
+| `service` | The service which returned the result  | Translator      | Non      |
+| `corrected` | The corrected text  | string      | Non      |
 
 #### Erreurs possibles
 
 | Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Retourner à l'Index](../Pour%20commencer.md#index)
 
@@ -639,8 +574,6 @@ Il n'est **pas** nécessaire d'être authentifié
 
 | Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `source_lang` | Il n'y a pas de description  | Non            | Language            |
-| `text` | The text to get the language for  | Oui            | str            |
 | `translators` | A comma-separated list of translators to use  | Non            | TranslatorList            |
 
 ### Exemple
@@ -655,8 +588,6 @@ Il n'est **pas** nécessaire d'être authentifié
 
 ```bash
 curl -X GET \
-    --data-urlencode "source_lang=<>"\
-    --data-urlencode "text=<The text to get the language for>"\
     --data-urlencode "translators=<A comma-separated list of translators to use>" \
     "/api/language"
 ```
@@ -670,7 +601,7 @@ curl -X GET \
 #### **JavaScript**
 
 ```javascript
-fetch(`/api/language?text=${encodeURIComponent("text")}`, {
+fetch("/api/language", {
     method: "GET"
 })
 .then((response) => {response.json()})
@@ -694,10 +625,7 @@ fetch(`/api/language?text=${encodeURIComponent("text")}`, {
 
 ```python
 import requests
-r = requests.request("GET", "/api/language",
-        params = {
-            "text": "The text to get the language for"
-        })
+r = requests.request("GET", "/api/language")
 if r.status_code >= 400 or not r.json()["success"]:
     raise ValueError("An error occured while requesting for /api/language, error: " + r.json()["error"])
 print("Successfully requested for /api/language")
@@ -717,9 +645,9 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "service": "no example",
+        "source_lang": "no example",
         "source": "no example",
-        "source_lang": "no example"
+        "service": "no example"
     }
 }
 
@@ -729,17 +657,17 @@ print(r.json()["data"])
 
 | Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `service` | The service which returned the result  | Translator      | Non      |
-| `source` | The source text  | string      | Non      |
 | `source_lang` | The source text's language  | Language      | Non      |
+| `source` | The source text  | string      | Non      |
+| `service` | The service which returned the result  | Translator      | Non      |
 
 #### Erreurs possibles
 
 | Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Retourner à l'Index](../Pour%20commencer.md#index)
 
@@ -761,8 +689,6 @@ Il n'est **pas** nécessaire d'être authentifié
 
 | Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `source_lang` | The language `text` is in. If "auto", the translator will try to infer the language from `text`  | Non            | Language            |
-| `text` | The text to get the example for  | Oui            | str            |
 | `translators` | A comma-separated list of translators to use  | Non            | TranslatorList            |
 
 ### Exemple
@@ -777,8 +703,6 @@ Il n'est **pas** nécessaire d'être authentifié
 
 ```bash
 curl -X GET \
-    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>"\
-    --data-urlencode "text=<The text to get the example for>"\
     --data-urlencode "translators=<A comma-separated list of translators to use>" \
     "/api/example"
 ```
@@ -792,7 +716,7 @@ curl -X GET \
 #### **JavaScript**
 
 ```javascript
-fetch(`/api/example?text=${encodeURIComponent("text")}`, {
+fetch("/api/example", {
     method: "GET"
 })
 .then((response) => {response.json()})
@@ -816,10 +740,7 @@ fetch(`/api/example?text=${encodeURIComponent("text")}`, {
 
 ```python
 import requests
-r = requests.request("GET", "/api/example",
-        params = {
-            "text": "The text to get the example for"
-        })
+r = requests.request("GET", "/api/example")
 if r.status_code >= 400 or not r.json()["success"]:
     raise ValueError("An error occured while requesting for /api/example, error: " + r.json()["error"])
 print("Successfully requested for /api/example")
@@ -839,12 +760,12 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "positions": "no example",
-        "service": "no example",
-        "source": "no example",
-        "example": "no example",
         "reference": "no example",
-        "source_lang": "no example"
+        "example": "no example",
+        "source_lang": "no example",
+        "positions": "no example",
+        "source": "no example",
+        "service": "no example"
     }
 }
 
@@ -854,20 +775,20 @@ print(r.json()["data"])
 
 | Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `positions` | The positions of the word in the example  | list[int]      | Non      |
-| `service` | The service which returned the result  | Translator      | Non      |
-| `source` | The source text  | string      | Non      |
-| `example` | The example  | string      | Non      |
 | `reference` | Where the example comes from (i.e a book or a the person who said it if it's a quote)  | string      | Non      |
+| `example` | The example  | string      | Non      |
 | `source_lang` | The source text's language  | Language      | Non      |
+| `positions` | The positions of the word in the example  | list[int]      | Non      |
+| `source` | The source text  | string      | Non      |
+| `service` | The service which returned the result  | Translator      | Non      |
 
 #### Erreurs possibles
 
 | Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Retourner à l'Index](../Pour%20commencer.md#index)
 
@@ -889,9 +810,7 @@ Il n'est **pas** nécessaire d'être authentifié
 
 | Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `text` | The text to get the meaning for  | Oui            | str            |
 | `translators` | A comma-separated list of translators to use  | Non            | TranslatorList            |
-| `source_lang` | The language `text` is in. If "auto", the translator will try to infer the language from `text`  | Non            | Language            |
 
 ### Exemple
 
@@ -905,9 +824,7 @@ Il n'est **pas** nécessaire d'être authentifié
 
 ```bash
 curl -X GET \
-    --data-urlencode "text=<The text to get the meaning for>"\
-    --data-urlencode "translators=<A comma-separated list of translators to use>"\
-    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>" \
+    --data-urlencode "translators=<A comma-separated list of translators to use>" \
     "/api/dictionary"
 ```
 
@@ -920,7 +837,7 @@ curl -X GET \
 #### **JavaScript**
 
 ```javascript
-fetch(`/api/dictionary?text=${encodeURIComponent("text")}`, {
+fetch("/api/dictionary", {
     method: "GET"
 })
 .then((response) => {response.json()})
@@ -944,10 +861,7 @@ fetch(`/api/dictionary?text=${encodeURIComponent("text")}`, {
 
 ```python
 import requests
-r = requests.request("GET", "/api/dictionary",
-        params = {
-            "text": "The text to get the meaning for"
-        })
+r = requests.request("GET", "/api/dictionary")
 if r.status_code >= 400 or not r.json()["success"]:
     raise ValueError("An error occured while requesting for /api/dictionary, error: " + r.json()["error"])
 print("Successfully requested for /api/dictionary")
@@ -967,11 +881,11 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
+        "source_lang": "no example",
         "meaning": "no example",
         "rich": true,
-        "service": "no example",
         "source": "no example",
-        "source_lang": "no example"
+        "service": "no example"
     }
 }
 
@@ -981,19 +895,19 @@ print(r.json()["data"])
 
 | Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
+| `source_lang` | The source text's language  | Language      | Non      |
 | `meaning` | The meaning of the text  | string      | Non      |
 | `rich` | Whether the given result features the full range of information  | bool      | Non      |
-| `service` | The service which returned the result  | Translator      | Non      |
 | `source` | The source text  | string      | Non      |
-| `source_lang` | The source text's language  | Language      | Non      |
+| `service` | The service which returned the result  | Translator      | Non      |
 
 #### Erreurs possibles
 
 | Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Retourner à l'Index](../Pour%20commencer.md#index)
 
@@ -1015,10 +929,7 @@ Il n'est **pas** nécessaire d'être authentifié
 
 | Nom         | Description                      | Obligatoire         | Type             |
 | ------------ | -------------------------------- | ---------------- | ---------------- |
-| `source_lang` | The language `text` is in. If "auto", the translator will try to infer the language from `text`  | Non            | Language            |
 | `translators` | A comma-separated list of translators to use  | Non            | TranslatorList            |
-| `text` | The text to get the speech for  | Oui            | str            |
-| `raw` | Il n'y a pas de description  | Non            | to_bool            |
 
 ### Exemple
 
@@ -1032,10 +943,7 @@ Il n'est **pas** nécessaire d'être authentifié
 
 ```bash
 curl -X GET \
-    --data-urlencode "source_lang=<The language `text` is in. If \"auto\", the translator will try to infer the language from `text`>"\
-    --data-urlencode "translators=<A comma-separated list of translators to use>"\
-    --data-urlencode "text=<The text to get the speech for>"\
-    --data-urlencode "raw=<>" \
+    --data-urlencode "translators=<A comma-separated list of translators to use>" \
     "/api/tts"
 ```
 
@@ -1048,7 +956,7 @@ curl -X GET \
 #### **JavaScript**
 
 ```javascript
-fetch(`/api/tts?text=${encodeURIComponent("text")}`, {
+fetch("/api/tts", {
     method: "GET"
 })
 .then((response) => {response.json()})
@@ -1072,10 +980,7 @@ fetch(`/api/tts?text=${encodeURIComponent("text")}`, {
 
 ```python
 import requests
-r = requests.request("GET", "/api/tts",
-        params = {
-            "text": "The text to get the speech for"
-        })
+r = requests.request("GET", "/api/tts")
 if r.status_code >= 400 or not r.json()["success"]:
     raise ValueError("An error occured while requesting for /api/tts, error: " + r.json()["error"])
 print("Successfully requested for /api/tts")
@@ -1095,14 +1000,14 @@ print(r.json()["data"])
     "message": "Successfully processed your request",
     "error": null,
     "data": {
-        "result": "no example",
-        "mime_type": "no example",
-        "source": "no example",
         "source_lang": "no example",
-        "speed": 4,
-        "service": "no example",
         "extension": "no example",
-        "gender": "no example"
+        "result": "no example",
+        "source": "no example",
+        "service": "no example",
+        "gender": "no example",
+        "mime_type": "no example",
+        "speed": 4
     }
 }
 
@@ -1112,21 +1017,21 @@ print(r.json()["data"])
 
 | Champ        | Description                      | Type   | Peut être `null`  |
 | ----------   | -------------------------------- | ------ | --------- |
-| `result` | Text to speech result  | bytes      | Non      |
-| `mime_type` | Returns the MIME type of the audio file  | Optional[str]      | Non      |
-| `source` | The source text  | string      | Non      |
 | `source_lang` | The source text's language  | Language      | Non      |
-| `speed` | Speed of the text to speech result  | int      | Non      |
-| `service` | The service which returned the result  | Translator      | Non      |
 | `extension` | Returns the audio file extension  | Optional[str]      | Non      |
+| `result` | Text to speech result  | bytes      | Non      |
+| `source` | The source text  | string      | Non      |
+| `service` | The service which returned the result  | Translator      | Non      |
 | `gender` | Gender of the 'person' saying the text  | Gender      | Non      |
+| `mime_type` | Returns the MIME type of the audio file  | Optional[str]      | Non      |
+| `speed` | Speed of the text to speech result  | int      | Non      |
 
 #### Erreurs possibles
 
 | Erreur         | Description                      | Code   |
 | ---------------   | -------------------------------- | ------ |
 | `NO_RESULT` | When no result is returned from the translator(s)  | 500  |
-| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_TRANSLATOR` | When one of the provided translator/service could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
+| `TRANSLATEPY_EXCEPTION` | Generic exception raised when an error occured on translatepy  | 500  |
 | `UNKNOWN_LANGUAGE` | When one of the provided language could not be understood by translatepy. Extra information like the string similarity and the most similar string are provided in `data`.  | 400  |
 [Retourner à l'Index](../Pour%20commencer.md#index)
