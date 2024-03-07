@@ -7,6 +7,7 @@ import re
 import uuid
 import hashlib
 import xml.etree.ElementTree as ET
+from warnings import warn
 
 from translatepy.language import Language
 from translatepy.translators.base import BaseTranslateException, BaseTranslator
@@ -113,7 +114,6 @@ class PromtHelper:
     Urdu = Slid(1071, "ur", "ur", "ur_PK")
     Welsh = Slid(1072, "cy", "cy", "cy_CY")
 
-
     def _get_supported_languages(self):
         _languages_list = {Slid._index_rfc[rfc].rfc_prefix for rfc in Slid._index_rfc}
         _languages_list.add("auto")
@@ -132,12 +132,12 @@ class PromtHelper:
                 destination_language_code = match.group(3) if match.group(3) else match.group(4)
             else:
                 raise ValueError(f"Invalid language pair: {language_pair}")
-    
+
         source_language = Slid.from_prefix(source_language_code).rfc_prefix
         destination_language = Slid.from_prefix(destination_language_code).rfc_prefix
-        
+
         return source_language, destination_language
-    
+
 
 class PromtTranslate(BaseTranslator):
     """
@@ -159,8 +159,6 @@ class PromtTranslate(BaseTranslator):
         if not self._language_pair:
             self._generate_lang_pair()
 
-        print(self._supported_languages)
-
     def _initialize(self) -> str:
         headers = {
                 'Host': 'www.translate.ru',
@@ -177,6 +175,8 @@ class PromtTranslate(BaseTranslator):
     def _set_req_id(self, content: str) -> str:
         root = ET.fromstring(content)
         req_id_element = root.find('.//reqId')
+        if not req_id_element.text:
+            return
         self.session_req_id = req_id_element.text
         return req_id_element.text
 
@@ -212,7 +212,7 @@ class PromtTranslate(BaseTranslator):
     def _translate(self, text: str, destination_language: str, source_language: str) -> str:
         if source_language == "auto":
             source_language = "a"
-            
+
             destination_language = Slid.from_rfc_prefix(destination_language).prefix
             language_pair = f"{source_language}{destination_language}"
         else:
@@ -229,6 +229,7 @@ class PromtTranslate(BaseTranslator):
                 'SOAPAction': '"http://tempuri.org/Translate"',
         }}
 
+        # TODO: refactor
         text = text.replace("&", "&amp;")
         text = text.replace("<", "&lt;")
         text = text.replace(">", "&gt;")
@@ -238,18 +239,25 @@ class PromtTranslate(BaseTranslator):
         payload = f"<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\t<soap:Body><Translate xmlns=\"http://tempuri.org/\">\t<dirCode>{language_pair}</dirCode>\t<tmplCode>General</tmplCode>\t<sText>{text}</sText>\t<format>word</format><paramsXML>&lt;params&gt;&lt;param&gt;&lt;id&gt;1&lt;/id&gt;&lt;name&gt;Roaming&lt;/name&gt;&lt;value&gt;off&lt;/value&gt;&lt;/param&gt;&lt;param&gt;&lt;id&gt;2&lt;/id&gt;&lt;name&gt;MinimizeTrafficInRoaming&lt;/name&gt;&lt;value&gt;off&lt;/value&gt;&lt;/param&gt;&lt;param&gt;&lt;id&gt;3&lt;/id&gt;&lt;name&gt;TextSource&lt;/name&gt;&lt;value&gt;TEXT&lt;/value&gt;&lt;/param&gt;&lt;/params&gt;</paramsXML>\t<lang>en</lang></Translate>\t</soap:Body></soap:Envelope>"
         request = self.session.post(self._soap_endpoint_url, headers=headers, data=payload)
         self._set_req_id(request.content)
-        print(request.text)
 
-        root = ET.fromstring(request.text)
-        c = root.find('.//strResult').text
-        cdata = ET.fromstring(c)
-        translation = cdata.findall(".//translation")[0].find("result").text
+        try:
+            root = ET.fromstring(request.text)
+            c = root.find('.//strResult').text
 
-        translation = translation.replace("&amp;", "&")
-        translation = translation.replace("&lt;", "<")
-        translation = translation.replace("&gt;", ">")
-        translation = translation.replace("&quot;", "\"")
-        translation = translation.replace("&#39;", "'")
+            try:
+                cdata = ET.fromstring(c)
+                translation = cdata.findall(".//translation")[0].find("result").text
+            except Exception as ex:
+                translation = c
+
+            translation = translation.replace("&amp;", "&")
+            translation = translation.replace("&lt;", "<")
+            translation = translation.replace("&gt;", ">")
+            translation = translation.replace("&quot;", "\"")
+            translation = translation.replace("&#39;", "'")
+        except Exception as ex:
+            warn(f"Can't parse result. Exception: {ex}. Response: {request.text}. Try to set source language manually instead of automatic")
+            translation = None
 
         if source_language == "a":
             source_language = "auto"
