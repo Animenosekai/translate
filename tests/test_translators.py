@@ -1,13 +1,17 @@
+"""Tests each translator. TODO"""
 from translatepy.exceptions import UnsupportedMethod
 from translatepy.translators.base import BaseTranslator
-from translatepy.translators.bing import (BingTranslate, BingTranslateException)
-from translatepy.translators.deepl import (DeeplTranslate, DeeplTranslateException)
+from translatepy.translators.bing import BingTranslate, BingTranslateException
+from translatepy.translators.deepl import (DeeplTranslate,
+                                           DeeplTranslateException)
 from translatepy.translators.google import GoogleTranslateV1, GoogleTranslateV2
-from translatepy.translators.mymemory import (MyMemoryTranslate, MyMemoryException)
+from translatepy.translators.microsoft import MicrosoftTranslate
+from translatepy.translators.mymemory import (MyMemoryException,
+                                              MyMemoryTranslate)
 from translatepy.translators.reverso import ReversoTranslate
 from translatepy.translators.translatecom import TranslateComTranslate
-from translatepy.translators.yandex import (YandexTranslate, YandexTranslateException)
-from translatepy.translators.microsoft import MicrosoftTranslate
+from translatepy.translators.yandex import (YandexTranslate,
+                                            YandexTranslateException)
 
 IGNORED_EXCEPTIONS = (UnsupportedMethod, DeeplTranslateException, BingTranslateException, MyMemoryException, YandexTranslateException)  # DeepL's and Bing's rate limit is way too sensitive
 
@@ -136,3 +140,7 @@ class TestAllTranslators:
                 except IGNORED_EXCEPTIONS as ex:
                     self.report_exception("translate_html", service, ex)
                     continue
+
+    def test_service_cache_clean(self):
+        for service in self.services_list:
+            service.clean_cache()

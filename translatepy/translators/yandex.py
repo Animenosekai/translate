@@ -5,11 +5,12 @@ This implementation was made specifically for translatepy from 'Zhymabek Roman',
 """
 
 import uuid
-
-from translatepy.exceptions import UnsupportedMethod
+import typing
+from translatepy import models, exceptions
 from translatepy.language import Language
-from translatepy.translators.base import BaseTranslateException, BaseTranslator
-from translatepy.utils.request import Request
+from translatepy.translators.base import (BaseTranslateException,
+                                          BaseTranslator, C)
+from translatepy.utils import request
 
 
 class YandexTranslateException(BaseTranslateException):
@@ -36,11 +37,16 @@ class YandexTranslate(BaseTranslator):
     """
 
     _api_url = "http://translate.yandex.net/api/v1/tr.json/{endpoint}"
-    _supported_languages = {'auto', 'af', 'sq', 'am', 'ar', 'hy', 'az', 'ba', 'eu', 'be', 'bn', 'bs', 'bg', 'my', 'ca', 'ca', 'ceb', 'zh', 'cv', 'cs', 'da', 'nl', 'nl', 'en', 'eo', 'et', 'fi', 'fr', 'ka', 'de', 'gd', 'gd', 'ga', 'gl', 'el', 'gu', 'ht', 'ht', 'he', 'hi', 'hr', 'hu', 'is', 'id', 'it', 'jv', 'ja', 'kn', 'kk', 'km', 'ky', 'ky', 'ko', 'lo', 'la', 'lv', 'lt', 'lb', 'lb', 'mk', 'ml', 'mi', 'mr', 'ms', 'mg', 'mt', 'mn', 'mrj', 'mhr', 'ne', 'no', 'pa', 'pa', 'pap', 'fa', 'pl', 'pt', 'ro', 'ro', 'ro', 'ru', 'sah', 'si', 'si', 'sk', 'sl', 'es', 'es', 'sr', 'sjn', 'su', 'sw', 'sv', 'ta', 'tt', 'te', 'tg', 'tl', 'th', 'tr', 'udm', 'uk', 'ur', 'uz', 'vi', 'cy', 'xh', 'yi', 'zu', 'kazlat', 'uzbcyr', 'emj'}
+    _supported_languages = {'af', 'am', 'ar', 'auto', 'az', 'ba', 'be', 'bg', 'bn', 'bs', 'ca', 'ceb', 'cs', 'cv', 'cy', 'da',
+                            'de', 'el', 'emj', 'en', 'eo', 'es', 'et', 'eu', 'fa', 'fi', 'fr', 'ga', 'gd', 'gl', 'gu', 'he', 'hi',
+                            'hr', 'ht', 'hu', 'hy', 'id', 'is', 'it', 'ja', 'jv', 'ka', 'kazlat', 'kk', 'km', 'kn', 'ko', 'ky',
+                            'la', 'lb', 'lo', 'lt', 'lv', 'mg', 'mhr', 'mi', 'mk', 'ml', 'mn', 'mr', 'mrj', 'ms', 'mt', 'my', 'ne',
+                            'nl', 'no', 'pa', 'pap', 'pl', 'pt', 'ro', 'ru', 'sah', 'si', 'sjn', 'sk', 'sl', 'sq', 'sr', 'su', 'sv',
+                            'sw', 'ta', 'te', 'tg', 'th', 'tl', 'tr', 'tt', 'udm', 'uk', 'ur', 'uz', 'uzbcyr', 'vi', 'xh', 'yi', 'zh', 'zu'}
 
-    def __init__(self, request: Request = Request()):
-        self.session = request
-        self.session.header = {"User-Agent": "ru.yandex.translate/22.11.8.22364114 (samsung SM-A505GM; Android 12)"}  # TODO: generate random telephone model
+    def __init__(self, session: typing.Optional[request.Session] = None):
+        super().__init__(session)
+        self.session.headers["User-Agent"] = "ru.yandex.translate/22.11.8.22364114 (samsung SM-A505GM; Android 12)"  # TODO: generate random telephone model
 
         uuid_v4 = str(uuid.uuid4())
         self.session_ucid = uuid_v4.replace("-", "")
@@ -50,10 +56,10 @@ class YandexTranslate(BaseTranslator):
         """
         Generates UUID (UCID / (U)SID) for Yandex Translate API requests
 
-        Args:
-
-        Returns:
-            str --> Yandex UUID value
+        Returns
+        -------
+        str
+            Yandex UUID value
         """
 
         if session_state:
@@ -63,13 +69,13 @@ class YandexTranslate(BaseTranslator):
 
         return self.session_ucid
 
-    def _translate(self, text: str, destination_language: str, source_language: str) -> str:
-        if source_language == "auto":
-            source_language = self._language(text)
+    def _translate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TranslationResult[C]:
+        if source_lang == "auto":
+            source_lang = self._language_to_code(self.language(text).language)
 
         url = self._api_url.format(endpoint="translate")
         params = {"sid": self._ucid(session_state=True), "srv": "android", "format": "text"}
-        data = {"text": text, "lang": source_language + "-" + destination_language}
+        data = {"text": text, "lang": source_lang + "-" + dest_lang}
         request = self.session.post(url, params=params, data=data)
         response = request.json()
 
@@ -77,46 +83,48 @@ class YandexTranslate(BaseTranslator):
             raise YandexTranslateException(response["code"])
 
         try:
-            _detected_language = str(data["lang"]).split("-")[0]
+            _detected_language = str(response["lang"]).split("-")[0]
         except Exception:
-            _detected_language = source_language
+            _detected_language = source_lang
 
-        return _detected_language, response["text"][0]
+        return models.TranslationResult(source_lang=_detected_language, translation=response["text"][0], raw=response)
 
-    def _transliterate(self, text: str, destination_language: str, source_language: str) -> str:
-        if source_language == "auto":
-            source_language = self._language(text)
+    def _transliterate(self: C, text: str, dest_lang: typing.Any, source_lang: typing.Any) -> models.TransliterationResult[C]:
+        if source_lang == "auto":
+            source_lang = self._language_to_code(self.language(text).language)
 
         url = "https://translate.yandex.net/translit/translit"
-        data = {'text': text, 'lang': source_language + "-" + destination_language}
+        data = {'text': text, 'lang': source_lang + "-" + dest_lang}
         request = self.session.post(url, data=data)
 
         if request.status_code != 200:
             raise YandexTranslateException(request.status_code)
 
-        return source_language, request.text[1:-1]
+        # `raw` is not really needed is it ?
+        return models.TransliterationResult(source_lang=source_lang, transliteration=request.text[1:-1])
 
-    def _spellcheck(self, text: str, source_language: str) -> str:
-        if source_language == "auto":
-            source_language = self._language(text)
+    def _spellcheck(self: C, text: str, source_lang: typing.Any) -> typing.Union[models.SpellcheckResult[C], models.RichSpellcheckResult[C]]:
+        if source_lang == "auto":
+            source_lang = self._language_to_code(self.language(text).language)
 
         url = "https://speller.yandex.net/services/spellservice.json/checkText"
         params = {"sid": self._ucid(), "srv": "android"}
-        data = {"text": text, "lang": source_language, "options": 8 + 4}
+        data = {"text": text, "lang": source_lang, "options": 8 + 4}
         request = self.session.post(url, params=params, data=data)
-        response = request.json()
 
         if request.status_code != 200:
             raise YandexTranslateException(request.status_code)
+        response = request.json()
 
         for correction in response:
             if correction["s"]:
+                # TODO: I don't remember the exact response, but I feel like this might be suitable for `RichSpellcheckResult`
                 word = correction['word']
                 suggestion = correction['s'][0]
                 text = text.replace(word, suggestion)
-            return source_language, text
+        return models.SpellcheckResult(source_lang=source_lang, corrected=text)
 
-    def _language(self, text: str):
+    def _language(self: C, text: str) -> models.LanguageResult[C]:
         url = self._api_url.format(endpoint="detect")
         params = {"sid": self._ucid(), "srv": "android"}
         data = {'text': text, 'hint': "en"}
@@ -126,14 +134,16 @@ class YandexTranslate(BaseTranslator):
         if request.status_code != 200 and response["code"] != 200:
             raise YandexTranslateException(response["code"])
 
-        return response["lang"]
+        return models.LanguageResult(language=response["lang"])
 
-    def _example(self, text: str, destination_language: str, source_language: str):
-        if source_language == "auto":
-            source_language = self._language(text)
+    def _example(self: C, text: str, source_lang: typing.Any) -> typing.Union[models.ExampleResult[C], typing.List[models.ExampleResult[C]]]:
+        if source_lang == "auto":
+            source_lang = self._language_to_code(self.language(text).language)
+
+        dest_lang = source_lang  # ?
 
         url = "https://dictionary.yandex.net/dicservice.json/queryCorpus"
-        params = {"sid": self._ucid(), "srv": "android", "src": text, "ui": "en", "lang": source_language + "-" + destination_language, "flags": 7}
+        params = {"sid": self._ucid(), "srv": "android", "src": text, "ui": "en", "lang": source_lang + "-" + dest_lang, "flags": 7}
         request = self.session.get(url, params=params)
 
         if request.status_code != 200:
@@ -141,49 +151,55 @@ class YandexTranslate(BaseTranslator):
 
         response = request.json()
 
-        _result = []
+        results = []
 
         for examples_group in response["result"]:
-            for sentense in examples_group["examples"]:
-                _sentense_result = sentense["dst"]
-                _sentense_result = _sentense_result.replace("<", "").replace(">", "")
-                _result.append(_sentense_result)
+            for sentence in examples_group["examples"]:
+                _sentence_result = sentence["dst"]
+                _sentence_result = _sentence_result.replace("<", "").replace(">", "")
+                results.append(_sentence_result)
 
-        return source_language, _result
+        return [models.ExampleResult(source_lang=source_lang, example=sentence) for sentence in results]
 
-    def _dictionary(self, text: str, destination_language: str, source_language: str):
-        if source_language == "auto":
-            source_language = self._language(text)
+    def _dictionary(self: C, text: str, source_lang: typing.Any) -> typing.Union[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]], typing.List[typing.Union[models.DictionaryResult[C], models.RichDictionaryResult[C]]]]:
+        # TODO: Need to reimplement
+        raise exceptions.UnsupportedMethod("Need to reimplement")
+
+        if source_lang == "auto":
+            source_lang = self._language_to_code(self.language(text).language)
+
+        dest_lang = source_lang  # ?
 
         url = "https://dictionary.yandex.net/dicservice.json/lookupMultiple"
-        params = {"sid": self._ucid(), "srv": "android", "text": text, "ui": "en", "dict": source_language + "-" + destination_language, "flags": 7, "dict_type": "regular"}
+        params = {"sid": self._ucid(), "srv": "android", "text": text, "ui": "en", "dict": source_lang + "-" + dest_lang, "flags": 7, "dict_type": "regular"}
         request = self.session.get(url, params=params)
 
         if request.status_code != 200:
             raise YandexTranslateException(request.status_code)
         response = request.json()
 
-        _result = []
+        results = []
 
-        for word in response["{}-{}".format(source_language, destination_language)]["regular"]:
+        for word in response["{}-{}".format(source_lang, dest_lang)]["regular"]:
             _word_result = word["tr"][0]["text"]
-            _result.append(_word_result)
+            results.append(_word_result)
 
-        return source_language, _result
+        return source_lang, results
 
-    def _language_normalize(self, language):
+    def _language_to_code(self, language: Language) -> typing.Union[str, typing.Any]:
         if language.id == "zho":
             return "zh"
         elif language.id == "srd":
             return "sjn"
         return language.alpha2
 
-    def _language_denormalize(self, language_code):
-        if str(language_code).lower() in {"zh", "zh-cn"}:
+    def _code_to_language(self, code: typing.Union[str, typing.Any]) -> Language:
+        language_code = str(code).lower()
+        if language_code in {"zh", "zh-cn"}:
             return Language("zho")
-        elif str(language_code).lower() == "sjn":
+        elif language_code == "sjn":
             return Language("srd")
         return Language(language_code)
 
     def __str__(self) -> str:
-        return "Yandex"
+        return "Yandex Translate"

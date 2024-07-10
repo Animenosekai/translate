@@ -5,18 +5,16 @@ Evaluating strings similarity
 from collections import Counter
 from math import sqrt
 from operator import itemgetter
+import typing
 
-from translatepy.utils.annotations import List, Tuple
-
-
-class StringVector():
+class StringVector:
     def __init__(self, string: str, data: dict = None) -> None:
         self.string = str(string)
         if data is not None:
             self.set = data["s"]
             self.length = data["l"]
             self.counter = data["c"]
-            #self.counter = Counter(self.string)
+            # self.counter = Counter(self.string)
         else:
             self.counter = Counter(self.string)
             self.set = set(self.counter)
@@ -26,7 +24,7 @@ class StringVector():
         return "Vector: " + self.string
 
 
-def fuzzy_search(search_source: List, query: str) -> Tuple[str, float]:
+def fuzzy_search(search_source: typing.List, query: str) -> typing.Tuple[str, float]:
     """
     Finds the most similar string
     """

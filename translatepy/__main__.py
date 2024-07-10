@@ -1,291 +1,246 @@
-import argparse
-from json import dumps
-from traceback import print_exc
+"""
+__main__.py
 
-import inquirer
+The `translatepy` CLI
+"""
+import argparse
+import webbrowser
+from argparse import Action
+
+from nasse.exceptions import NasseException
+from nasse.logging import LoggingLevel
+from nasse.utils.formatter import format as nasse_format
+from nasse.utils.json import encoder, minified_encoder
 
 import translatepy
-from translatepy.exceptions import UnknownLanguage, VersionNotSupported
+from translatepy.utils.importer import get_translator
+from translatepy.language import load_full
+from translatepy.cli import sdk, shell, tui
+from translatepy.exceptions import UnknownLanguage
 
-INPUT_PREFIX = "(\033[90mtranslatepy ~ \033[0m{action}) > "
+ACTIONS_DESCRIPTION = nasse_format("""
+  {{tui,translate,translate-html,transliterate,spellcheck,language,example,dictionary,tts,shell,server,website,sdk}}
 
-NO_ACTION = """\
-usage: translatepy [-h] [--version] {translate,transliterate,spellcheck,language,shell,server} ...
-translatepy: error: the following arguments are required: action"""
+    ╭─────────────╮
+    │   Actions   │
+    ╰─────────────╯
 
-actions = [
-    inquirer.List(
-        name='action',
-        message="What do you want to do?",
-        choices=['Translate', 'Transliterate', 'Spellcheck', 'Language', 'Example', 'Quit'],
-        carousel=True
-    )
-]
+    User Interface
+    {grey}--------------{normal}
+    {blue}tui{normal}                 A nice TUI to use translatepy interactively
+    {blue}shell{normal}               Opens translatepy's interactive mode
+    {blue}website{normal}             Starts the translatepy website server
+
+    JSON formatted
+    {grey}--------------{normal}
+    {magenta}translate{normal}           Translates the given text to the given language
+    {magenta}translate-html{normal}      Translates the given HTML to the given language
+    {magenta}transliterate{normal}       Transliterates the given text
+    {magenta}spellcheck{normal}          Checks the spelling of the given text
+    {magenta}language{normal}            Checks the language of the given text
+    {magenta}example{normal}             Get an examples for the given text
+    {magenta}dictionary{normal}          Get meanings for the given text
+    {magenta}tts{normal}                 Get text to speech synthesis of the given text
+
+    Developer
+    {grey}---------{normal}
+    {cyan}server{normal}              Starts the translatepy HTTP server 🌐
+    {cyan}sdk{normal}                 Software Development Kit for `translatepy` 🕊️
+""")
 
 
-def main():
+class TranslatepyHelpFormatter(argparse.HelpFormatter):
+    """Formats the help message for `translatepy`"""
+
+    def _format_action(self, action: Action) -> str:
+        if isinstance(action, argparse._SubParsersAction):
+            return ACTIONS_DESCRIPTION
+        return super()._format_action(action)
+
+
+def entry():
+    """the CLI entrypoint"""
     # Create the parser
-    parser = argparse.ArgumentParser(prog='translatepy', description='Translate, transliterate, get the language of texts in no time with the help of multiple APIs!')
+    # parser = argparse.ArgumentParser(prog='translatepy', description='Translate, transliterate, get the language of texts in no time with the help of numerous APIs!')
+    parser = argparse.ArgumentParser(prog='translatepy',
+                                     description='🍡 \033[1mTranslate, transliterate, get the language of texts in no time with the help of numerous APIs!\033[0m',
+                                     formatter_class=TranslatepyHelpFormatter)
 
     parser.add_argument('--version', '-v', action='version', version=translatepy.__version__)
-    parser.add_argument("--translators", action="store", type=str, help="List of translators to use. Each translator name should be comma-separated.", required=False, default=None)
+    parser.add_argument("--translators", help="List of translators to use", nargs="*")
+    parser.add_argument("--full", action="store_true", help="To load the full language data range. You can also use the `TRANSLATEPY_LANGUAGE_FULL` environment variable.")
+    parser.add_argument("--debug", action="store_true", help="To set the log level to `DEBUG`. Same as `--log=DEBUG`")
+    parser.add_argument("--log", action="store", help="To set the log level", choices=("ERROR", "WARNING", "INFO", "DEBUG", "HIDDEN"))
 
-    # subparser = parser.add_subparsers(help='Actions', dest="action", required=True)
-    subparser = parser.add_subparsers(help='Actions', dest="action")
+    subparser = parser.add_subparsers(help='Actions', dest="action", required=False)
+    parser_tui = subparser.add_parser("tui", help="A nice TUI to use translatepy interactively")
+
+    def prepare_json_parser(parser: argparse.ArgumentParser):
+        parser.add_argument("text", action="store", type=str, help="The text to work with")
+        parser.add_argument("--minified", "--minify", "--mini", action="store_true", help="To minify the resulting JSON")
 
     parser_translate = subparser.add_parser('translate', help='Translates the given text to the given language')
-    parser_translate.add_argument('--text', '-t', action='store', type=str, required=True, help='text to translate')
+    prepare_json_parser(parser_translate)
     parser_translate.add_argument('--dest-lang', '-d', action='store', type=str, required=True, help='destination language')
     parser_translate.add_argument('--source-lang', '-s', action='store', default='auto', type=str, help='source language')
 
+    parser_translate_html = subparser.add_parser('translate-html', help='Translates the given HTML to the given language')
+    prepare_json_parser(parser_translate_html)
+    parser_translate_html.add_argument('--dest-lang', '-d', action='store', type=str, required=True, help='destination language')
+    parser_translate_html.add_argument('--source-lang', '-s', action='store', default='auto', type=str, help='source language')
+    parser_translate_html.add_argument('--parser', action='store', default='html.parser', type=str, help='the HTML parser to use')
+    parser_translate_html.add_argument('--threads-limit', action='store', default=100, type=int, help='the maximum number of threads to spawn to translate the HTML nodes')
+    parser_translate_html.add_argument('--strict', action='store_true', help="if it should error out if any of the nodes couldn't be translated")
+
     parser_transliterate = subparser.add_parser('transliterate', help='Transliterates the given text')
-    parser_transliterate.add_argument('--text', '-t', action='store', type=str, required=True, help='text to transliterate')
+    prepare_json_parser(parser_transliterate)
     parser_transliterate.add_argument('--dest-lang', '-d', action='store', type=str, default="en", help='destination language')
     parser_transliterate.add_argument('--source-lang', '-s', action='store', default='auto', type=str, help='source language')
 
     parser_spellcheck = subparser.add_parser('spellcheck', help='Checks the spelling of the given text')
-    parser_spellcheck.add_argument('--text', '-t', action='store', type=str, required=True, help='text to spellcheck')
+    prepare_json_parser(parser_spellcheck)
     parser_spellcheck.add_argument('--source-lang', '-s', action='store', default='auto', type=str, help='source language')
 
     parser_language = subparser.add_parser('language', help='Checks the language of the given text')
-    parser_language.add_argument('--text', '-t', action='store', type=str, required=True, help='text to check the language')
+    prepare_json_parser(parser_language)
+
+    parser_example = subparser.add_parser('example', help='Get an examples for the given text')
+    prepare_json_parser(parser_example)
+    parser_example.add_argument('--source-lang', '-s', action='store', default='auto', type=str, help='source language')
+
+    parser_dictionary = subparser.add_parser('dictionary', help='Get meanings for the given text')
+    prepare_json_parser(parser_dictionary)
+    parser_dictionary.add_argument('--source-lang', '-s', action='store', default='auto', type=str, help='source language')
+
+    parser_tts = subparser.add_parser('tts', help='Get text to speech synthesis of the given text')
+    prepare_json_parser(parser_tts)
+    parser_tts.add_argument('--source-lang', '-s', action='store', default='auto', type=str, help='source language')
 
     parser_shell = subparser.add_parser('shell', help="Opens translatepy's interactive mode")
     parser_shell.add_argument('--dest-lang', '-d', action='store', default=None, type=str, help='destination language')
     parser_shell.add_argument('--source-lang', '-s', action='store', default='auto', type=str, help='source language')
 
+    def prepare_server_parser(parser: argparse.ArgumentParser):
+        parser.add_argument('--port', '-p', action='store', default=5005, type=int, help='port to run the server on')
+        parser.add_argument('--host', action='store', default="127.0.0.1", type=str, help='host to run the server on')
+        parser.add_argument('--debug', "-d", action='store_true', help="Runs the server in DEBUG mode")
+
     parser_server = subparser.add_parser("server", help="Starts the translatepy HTTP server")
-    parser_server.add_argument('--port', '-p', action='store', default=5000, type=int, help='port to run the server on')
-    parser_server.add_argument('--host', action='store', default="127.0.0.1", type=str, help='host to run the server on')
+    prepare_server_parser(parser_server)
+
+    parser_website = subparser.add_parser("website", help="Starts the translatepy website server")
+    prepare_server_parser(parser_website)
+    parser_website.add_argument("--headless", action="store_true", help="Avoids opening the website in the default browser")
+
+    parser_sdk = subparser.add_parser("sdk", help="Software Development Kit for `translatepy` 🕊️")
+    sdk.prepare_argparse(parser_sdk)
 
     args = parser.parse_args()
 
-    if not args.action:
-        # required subparser had been added in Python 3.7
-        print(NO_ACTION)
-        return
+    if args.log or args.debug:
+        if args.debug and (args.log and args.log != "DEBUG"):
+            raise ValueError("Can't set `--debug` and anything other than `--log=DEBUG`")
+        if args.debug or args.log == "DEBUG":
+            level = LoggingLevel.DEBUG
+        elif args.log == "ERROR":
+            level = LoggingLevel.ERROR
+        elif args.log == "WARNING":
+            level = LoggingLevel.WARNING
+        elif args.log == "HIDDEN":
+            level = LoggingLevel.HIDDEN
+        else:
+            level = LoggingLevel.INFO
+        if args.debug:
+            translatepy.logger.config.debug = True
+        translatepy.logger.config.logging_level = level
 
-    if args.translators is not None:
-        dl = translatepy.Translator(args.translators.split(","))
+    if args.full:
+        load_full()
+
+    if args.action == "sdk":
+        sdk.entry(args=args)
+
+    if args.translators:
+        service = translatepy.Translator([get_translator(translator) for translator in args.translators])
     else:
-        dl = translatepy.Translator()
+        service = translatepy.Translator()
+
+    args.action = args.action or "tui"
+
+    if args.action == "tui":
+        tui.app.TranslatepyTUI().run()
+
+    def apply(work: str, **kwargs):
+        json_encoder = minified_encoder if args.minified else encoder
+
+        def prepare_error(err: Exception) -> dict:
+            """Prepare an error to return to the user"""
+            if isinstance(err, NasseException):
+                return {
+                    "success": False,
+                    "exception": err.EXCEPTION_NAME,
+                    "message": err.MESSAGE,
+                    "code": err.STATUS_CODE
+                }
+            return {
+                "success": False,
+                "exception": err.__class__.__name__,
+                "message": str(err),
+                "code": -1
+            }
+        try:
+            result = getattr(service, work)(**kwargs)
+            # might add `success: true`
+            print(json_encoder.encode(result.exported))
+            return 0
+        except UnknownLanguage as err:
+            error_data = {
+                **prepare_error(err),
+                "guessed_language": err.guessed_language,
+                "similarity": err.similarity,
+            }
+            print(json_encoder.encode(error_data))
+            return error_data["code"]
+        except Exception as err:
+            error_data = prepare_error(err)
+            print(json_encoder.encode(error_data))
+            return error_data["code"]
 
     if args.action == 'translate':
-        try:
-            result = dl.translate(text=args.text, destination_language=args.dest_lang, source_language=args.source_lang)
-            print(result.as_json(indent=4, ensure_ascii=False))
-        except UnknownLanguage as err:
-            print(dumps({
-                "success": False,
-                "guessedLanguage": err.guessed_language,
-                "similarity": err.similarity,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
-        except Exception as err:
-            print(dumps({
-                "success": False,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
-
+        return apply("translate", text=args.text, dest_lang=args.dest_lang, source_lang=args.source_lang)
+    if args.action == 'translate-html':
+        return apply("translate-html", text=args.text, dest_lang=args.dest_lang, source_lang=args.source_lang,
+                     parser=args.parser, threads_limit=args.threads_limit, strict=args.strict)
     elif args.action == 'transliterate':
-        try:
-            result = dl.transliterate(args.text, args.dest_lang, args.source_lang)
-            print(result.as_json(indent=4, ensure_ascii=False))
-        except UnknownLanguage as err:
-            print(dumps({
-                "success": False,
-                "guessedLanguage": err.guessed_language,
-                "similarity": err.similarity,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
-        except Exception as err:
-            print(dumps({
-                "success": False,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
-
+        return apply("transliterate", text=args.text, dest_lang=args.dest_lang, source_lang=args.source_lang)
     elif args.action == 'spellcheck':
-        try:
-            result = dl.spellcheck(args.text, args.source_lang)
-            print(result.as_json(indent=4, ensure_ascii=False))
-        except UnknownLanguage as err:
-            print(dumps({
-                "success": False,
-                "guessedLanguage": err.guessed_language,
-                "similarity": err.similarity,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
-        except Exception as err:
-            print(dumps({
-                "success": False,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
-
+        return apply("spellcheck", text=args.text, source_lang=args.source_lang)
     elif args.action == 'language':
-        try:
-            result = dl.language(args.text)
-            print(result.as_json(indent=4, ensure_ascii=False))
-        except UnknownLanguage as err:
-            print(dumps({
-                "success": False,
-                "guessedLanguage": err.guessed_language,
-                "similarity": err.similarity,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
-        except Exception as err:
-            print(dumps({
-                "success": False,
-                "exception": err.__class__.__name__,
-                "error": str(err)
-            }, indent=4, ensure_ascii=False))
+        return apply("language", text=args.text)
+    elif args.action == 'example':
+        return apply("example", text=args.text, source_lang=args.source_lang)
+    elif args.action == 'dictionary':
+        return apply("dictionary", text=args.text, source_lang=args.source_lang)
+    elif args.action == 'tts':
+        return apply("text_to_speech", text=args.text, source_lang=args.source_lang)
 
     # SERVER
-    if args.action == "server":
-        try:
-            from translatepy.server import translation
-            from translatepy.server import language
-            from translatepy.server.server import app
-            from nasse.logging import log, LogLevels
-            log("🍡 Press Ctrl+C to quit", LogLevels.INFO)
-            app.run(host=args.host, port=args.port)
-        except Exception as err:
-            from sys import version_info
-            if version_info < (3, 4):
-                raise VersionNotSupported("Python 3.4 or higher is required to run the server with Nasse") from err
-            from os import name
-            if name == "nt":
-                raise VersionNotSupported("The server can only be ran on Unix-like systems") from err
-            raise err
+    if args.action in ("server", "website"):
+        from translatepy.server.endpoints.api import _, language
+
+        if args.action == "website":
+            from translatepy.server.endpoints import _
+            from translatepy.server.endpoints.docs import _
+            if not args.headless:
+                webbrowser.open(f"http://{args.host}:{args.port}")
+
+        from translatepy.server.server import app
+        app.run(host=args.host, port=args.port, debug=args.debug)
 
     # INTERACTIVE VERSION
     if args.action == 'shell':
-        destination_language = args.dest_lang
-        # source_language = args.source_lang
-        try:
-            destination_language = translatepy.Language(destination_language)
-        except Exception:
-            destination_language = None
-        while True:
-            answers = inquirer.prompt(actions)
-            action = answers["action"]
-            if action == "Quit":
-                break
-            if action in ['Translate', 'Example', 'Dictionary']:
-                def _prompt_for_destination_language():
-                    answers = inquirer.prompt([
-                        inquirer.Text(
-                            name='destination_language',
-                            message=INPUT_PREFIX.format(action="Select Lang.")
-                        )
-                    ])
-                    try:
-                        destination_language = translatepy.Language(answers["destination_language"])
-                        print("The selected language is " + destination_language.name)
-                        return destination_language
-                    except Exception:
-                        print("\033[93mThe given input doesn't seem to be a valid language\033[0m")
-                        return _prompt_for_destination_language()
-
-                if destination_language is None:
-                    if action == "Translate":
-                        print("In what language do you want to translate in?")
-                    elif action == "Example":
-                        print("What language do you want to use for the example checking?")
-                    else:
-                        print("What language do you want to use for the dictionary checking?")
-                    destination_language = _prompt_for_destination_language()
-
-            print("")
-            if action == "Translate":
-                print("\033[96mEnter '.quit' to stop translating\033[0m")
-                while True:
-                    input_text = input(INPUT_PREFIX.format(action="Translate"))
-                    if input_text == ".quit":
-                        break
-                    try:
-                        result = dl.translate(input_text, destination_language, args.source_lang)
-                        print("Result \033[90m({source} → {dest})\033[0m: {result}".format(source=result.source_language, dest=result.destination_language, result=result.result))
-                    except Exception:
-                        print_exc()
-                        print("We are sorry but an error occured or no result got returned...")
-
-            elif action == "Transliterate":
-                print("\033[96mEnter '.quit' to stop transliterating\033[0m")
-                while True:
-                    input_text = input(INPUT_PREFIX.format(action="Transliterate"))
-                    if input_text == ".quit":
-                        break
-                    try:
-                        result = dl.transliterate(text=input_text, destination_language=destination_language, source_language=args.source_lang)
-                        print("Result ({lang}): {result}".format(lang=result.source_language, result=result.result))
-                    except Exception:
-                        print_exc()
-                        print("We are sorry but an error occured or no result got returned...")
-
-            elif action == "Spellcheck":
-                print("\033[96mEnter '.quit' to stop spellchecking\033[0m")
-                while True:
-                    input_text = input(INPUT_PREFIX.format(action="Spellcheck"))
-                    if input_text == ".quit":
-                        break
-                    try:
-                        result = dl.spellcheck(input_text, args.source_lang)
-                        print("Result ({lang}): {result}".format(lang=result.source_language, result=result.result))
-                    except Exception:
-                        print_exc()
-                        print("We are sorry but an error occured or no result got returned...")
-
-            elif action == "Language":
-                print("\033[96mEnter '.quit' to stop checking for the language\033[0m")
-                while True:
-                    input_text = input(INPUT_PREFIX.format(action="Language"))
-                    if input_text == ".quit":
-                        break
-                    try:
-                        result = dl.language(input_text)
-                        try:
-                            result = translatepy.Language(result.result).name
-                        except Exception:
-                            result = result.result
-                        print("The given text is in {lang}".format(lang=result))
-                    except Exception:
-                        print_exc()
-                        print("We are sorry but an error occured or no result got returned...")
-
-            elif action == "Example":
-                print("\033[96mEnter '.quit' to stop checking for examples\033[0m")
-                while True:
-                    input_text = input(INPUT_PREFIX.format(action="Example"))
-                    if input_text == ".quit":
-                        break
-                    try:
-                        result = dl.example(input_text, destination_language, args.source_lang)
-                        results = []
-                        if isinstance(result.result, list):
-                            try:
-                                results = results[:3]
-                            except Exception:
-                                results = results
-                        else:
-                            results = [str(result.result)]
-                        if len(results) > 0:
-                            print("Here is a list of examples:")
-                            for example in results:
-                                print("    - " + str(example))
-                        else:
-                            print("No example found for {input_text}".format(input_text=input_text))
-                    except Exception:
-                        print("We are sorry but an error occured or no result got returned...")
-
-        print("Thank you for using \033[96mtranslatepy\033[0m!")
+        shell.run(args, service)
 
 
 if __name__ == "__main__":
-    main()
+    entry()

@@ -1,0 +1,43 @@
+name: Build
+
+# This workflow runs only manually
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-push-linux:
+    name: Build (Linux)
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: CI workflow device configuration
+        run: |
+          whoami
+          df -h
+          uname -a
+          lscpu
+          free -h
+
+      - name: Create and activate venv
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
+
+      - name: Install requirements
+        run: |
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Building
+        run: |
+          python3 build.py build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: translatepy-${{ runner.os }}-${{ github.run_number }}
+          path: |
+            translatepy.bin

@@ -1,3 +1,4 @@
+"""Tests the dynamic importer"""
 import pytest
 
 from translatepy.exceptions import UnknownTranslator
@@ -6,6 +7,7 @@ from translatepy.utils.importer import get_translator
 
 
 def test_importer():
+    """Tests the dynamic importer"""
     print("[test] --> Testing translatepy.utils.importer")
     assert get_translator("GoogleTranslate") == GoogleTranslate
     assert get_translator("グーグル") == GoogleTranslate
